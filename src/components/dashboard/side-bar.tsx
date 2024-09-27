@@ -1,0 +1,169 @@
+"use client";
+import { Button } from "@components/ui/button";
+import { cn } from "@lib/utils";
+import { motion } from "framer-motion";
+import {
+  ArrowLeftToLine,
+  ArrowRightToLine,
+  FolderKanban,
+  House,
+  LockKeyhole,
+  LockKeyholeOpen,
+  LogOut,
+  PersonStanding,
+  SlidersVertical,
+} from "lucide-react";
+import Link from "next/link";
+import React, { useState } from "react";
+
+<ArrowLeftToLine />;
+<ArrowRightToLine />;
+const ICON_SIZE = 22;
+
+const SUB_LINKS = [
+  {
+    icon: <House size={ICON_SIZE} />,
+    title: "Home",
+    herf: "/dashboard",
+  },
+
+  {
+    icon: <FolderKanban size={ICON_SIZE} />,
+    title: "Product management",
+    herf: "/dashboard/product-management",
+  },
+  {
+    icon: <SlidersVertical size={ICON_SIZE} />,
+    title: "Settings",
+    herf: "/dashboard/settings",
+  },
+
+  {
+    icon: <PersonStanding size={ICON_SIZE} />,
+    title: "Customers",
+    herf: "/dashboard/customers",
+  },
+];
+
+const SideBar = () => {
+  const [collapse, setCollapse] = useState(true);
+  const [lock, setLock] = useState(false);
+  return (
+    <motion.aside
+      onMouseOver={() => {
+        if (collapse && !lock) setCollapse(false);
+      }}
+      onMouseLeave={() => {
+        if (!collapse && !lock) setCollapse(true);
+      }}
+      animate={{
+        width: !collapse ? 200 : 63,
+      }}
+      transition={{ duration: 0.5, type: "spring" }}
+      className={cn(
+        "w-[200px] px-1 h-full relative hidden sm:flex flex-col justify-between pb-2  border-r ",
+        { "w-fit": collapse }
+      )}
+    >
+      <div className="absolute -right-[14px] top-1/2 -translate-y-1/2 flex flex-col gap-2">
+        <Button
+          onClick={() => setCollapse((is) => !is)}
+          variant="outline"
+          size="icon"
+          className="  w-7 h-7"
+        >
+          <span
+            className={cn(" transition-transform ", {
+              "  rotate-180": collapse,
+            })}
+          >
+            <ArrowLeftToLine size={14} />
+          </span>
+        </Button>
+
+        <Button
+          onClick={() => setLock((is) => !is)}
+          variant="outline"
+          size="icon"
+          className="  w-7 h-7"
+        >
+          <span>
+            {!lock ? <LockKeyholeOpen size={14} /> : <LockKeyhole size={14} />}
+          </span>
+        </Button>
+      </div>
+      <div className=" flex flex-col space-y-2 mt-7">
+        {SUB_LINKS.map((link, i) => (
+          <Button
+            key={i}
+            variant="ghost"
+            className={cn(" w-full justify-start gap-3", {
+              "w-fit": collapse,
+            })}
+            asChild
+          >
+            <Link href={link.herf}>
+              <span>{link.icon}</span>{" "}
+              {!collapse && (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="  text-muted-foreground"
+                >
+                  {link.title}
+                </motion.span>
+              )}
+            </Link>
+          </Button>
+        ))}
+      </div>
+      <Button
+        variant="ghost"
+        className={cn(" w-full justify-start gap-3", {
+          "w-fit": collapse,
+        })}
+      >
+        <span>
+          <LogOut size={ICON_SIZE} />
+        </span>{" "}
+        {!collapse && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="  text-muted-foreground"
+          >
+            Logout
+          </motion.span>
+        )}
+      </Button>
+    </motion.aside>
+  );
+};
+
+export default SideBar;
+
+export const SideBarMobile = () => {
+  return (
+    <div className=" absolute left-0 bottom-0 w-full flex gap-x-2  justify-center pb-3 px-2 sm:hidden">
+      {SUB_LINKS.map((link, i) => (
+        <Button
+          key={i}
+          variant="ghost"
+          asChild
+          style={{ width: `calc(90% / ${SUB_LINKS.length})` }}
+        >
+          <Link href={link.herf}>
+            <span>{link.icon}</span>{" "}
+            {/* <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="  text-muted-foreground"
+            >
+              {link.title}
+            </motion.span> */}
+          </Link>
+        </Button>
+      ))}
+    </div>
+  );
+};
