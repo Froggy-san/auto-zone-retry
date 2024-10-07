@@ -14,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { LoaderCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import PasswordShowHide from "@/components/password-show-hide";
 import Link from "next/link";
@@ -98,7 +99,13 @@ const Page = () => {
           />
 
           <div className=" flex flex-col  pt-10   gap-2  ">
-            <Button type="submit">{!isLoading ? "Login" : <Spinner />}</Button>
+            <Button type="submit">
+              {!isLoading ? (
+                "Login"
+              ) : (
+                <LoaderCircle size={20} className="  animate-spin" />
+              )}
+            </Button>
             <Button variant="secondary" asChild>
               <Link href="/signup">Don&apos;t have and account? Login</Link>
             </Button>

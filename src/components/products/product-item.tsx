@@ -1,34 +1,51 @@
+import { getProductsImageAction } from "@lib/actions/productsActions";
 import { Product } from "@lib/types";
 import { cn } from "@lib/utils";
-import { ImageOff } from "lucide-react";
-import Link from "next/link";
 import React from "react";
+import ProductImages from "./product-images";
+import { formatCurrency } from "@lib/helper";
+import { ProdcutAction } from "./product-actions";
+import Link from "next/link";
 
-const ProductItem = ({ product }: { product: Product }) => {
+const ProductItem = async ({ product }: { product: Product }) => {
+  const { data, error } = await getProductsImageAction(product.id);
+
   return (
-    <li
-      className={cn("", {
-        " opacity-65": !product.stock || !product.isAvailable,
-      })}
-    >
-      <Link href="/" className=" space-y-4">
-        <div className=" flex items-center justify-center  h-60">
-          <ImageOff size={30} />
-        </div>
+    <li className={`${!product.isAvailable && "opacity-50 "}`}>
+      <Link
+        href={`/products/${product.id}`}
+        className="space-y-1 flex flex-col"
+      >
+        {error ? (
+          <h2>{error}</h2>
+        ) : (
+          <ProductImages images={data} productId={product.id} />
+        )}
 
-        <h1 className=" line-clamp-2 font-semibold">{product.name}</h1>
-        <h2 className=" line-clamp-3 text-sm">{product.description}</h2>
-        <div className=" flex justify-end gap-2 text-xs">
-          <div>
-            {" "}
-            <span className=" font-semibold">Stock:</span>{" "}
-            <span className=" text-red-600">{product.stock}</span>
-          </div>
-
-          <div>
-            {" "}
-            <span className=" font-semibold">Price:</span>{" "}
-            <span className=" text-green-600">{product.salePrice}</span>
+        <div className="    flex-1  space-y-1  flex flex-col ">
+          <h1 className=" line-clamp-1 text-xl font-semibold">
+            {product.name}
+          </h1>
+          <h2 className=" text-sm text-muted-foreground break-words line-clamp-2">
+            {product.description}
+          </h2>
+          <div className=" flex justify-between  items-center text-xs">
+            <span className=" text-green-500 dark:text-green-600">
+              {formatCurrency(product.salePrice)}
+            </span>
+            <div className=" flex gap-3 items-center">
+              <span
+                className={cn("text-muted-foreground", {
+                  "text-green-500 dark:text-green-600":
+                    product.stock && product.isAvailable,
+                })}
+              >
+                {product.stock && product.isAvailable
+                  ? "In stock"
+                  : "Out of stock"}
+              </span>
+              <ProdcutAction productId={product.id} />
+            </div>
           </div>
         </div>
       </Link>

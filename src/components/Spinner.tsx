@@ -1,12 +1,22 @@
+import { cn } from "@lib/utils";
 import { LoaderCircle } from "lucide-react";
 import React from "react";
 
-const Spinner = ({ className }: { className?: string }) => {
+const Spinner = ({
+  className,
+  size = 20,
+}: {
+  className?: string;
+  size?: number;
+}) => {
   return (
     <div
-      className={` animate-spin          flex items-center justify-center  ${className}`}
+      className={cn(
+        "h-screen flex items-center justify-center w-full",
+        className
+      )}
     >
-      <LoaderCircle size={20} />
+      <LoaderCircle size={size} className=" animate-spin" />
     </div>
   );
 };
