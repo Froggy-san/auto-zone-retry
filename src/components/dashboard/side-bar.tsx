@@ -6,6 +6,7 @@ import {
   ArrowLeftToLine,
   ArrowRightToLine,
   FolderKanban,
+  Grid2x2Plus,
   House,
   LockKeyhole,
   LockKeyholeOpen,
@@ -43,6 +44,11 @@ const SUB_LINKS = [
     title: "Customers",
     herf: "/dashboard/customers",
   },
+  {
+    icon: <Grid2x2Plus size={ICON_SIZE} />,
+    title: "Insert data",
+    herf: "/dashboard/insert-data",
+  },
 ];
 
 const SideBar = () => {
@@ -61,7 +67,7 @@ const SideBar = () => {
       }}
       transition={{ duration: 0.5, type: "spring" }}
       className={cn(
-        "w-[200px] px-1 h-full relative hidden sm:flex flex-col justify-between pb-2  border-r ",
+        "w-[200px] px-1  relative hidden sm:flex flex-col justify-between pb-2  border-r ",
         { "w-fit": collapse }
       )}
     >
@@ -144,7 +150,7 @@ export default SideBar;
 
 export const SideBarMobile = () => {
   return (
-    <div className=" absolute left-0 bottom-0 w-full flex gap-x-2  justify-center pb-3 px-2 sm:hidden">
+    <div className=" w-full flex gap-x-2  justify-center pb-2 px-2 sm:hidden border-t pt-1">
       {SUB_LINKS.map((link, i) => (
         <Button
           key={i}

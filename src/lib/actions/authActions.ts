@@ -1,10 +1,17 @@
 "use server";
 
 import { z } from "zod";
-import { LoginFormSchema, SignUpFormSchema, signUpProps, User } from "../types";
+import {
+  LoginFormSchema,
+  SignUpFormSchema,
+  signUpProps,
+  TokenData,
+  User,
+} from "../types";
 import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { checkTokenExpiration } from "@lib/helper";
 
 export async function loginUser(loginData: z.infer<typeof LoginFormSchema>) {
   const response = await fetch(`${process.env.API_URL}/api/Account/login`, {
@@ -47,9 +54,13 @@ export async function getCurrentUser(): Promise<User | null> {
   const getCookies = cookies();
   const token = getCookies.get("auto-zone-token")?.value || "";
 
-  if (token === "") return null;
+  if (!token) return null;
 
-  const user = jwtDecode(token);
+  const user = jwtDecode(token) as TokenData;
+
+  const hasExpired = checkTokenExpiration(user);
+
+  if (hasExpired) return null;
 
   return user;
 }

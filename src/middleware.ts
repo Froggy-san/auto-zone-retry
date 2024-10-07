@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { jwtDecode } from "jwt-decode";
+import { checkTokenExpiration } from "@lib/helper";
+import { TokenData } from "@lib/types";
+
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const checkPublickRoutesPath = path === "/signup" || path === "/login";
   const getCookies = cookies();
   const token = getCookies.get("auto-zone-token")?.value || "";
 
-  if (checkPublickRoutesPath && token !== "") {
+  const decoded = !token ? null : (jwtDecode(token) as TokenData);
+
+  const hasExpired = decoded ? checkTokenExpiration(decoded) : true;
+
+  if (checkPublickRoutesPath && !hasExpired) {
     return NextResponse.redirect(new URL("/", request.nextUrl));
   }
 
-  if (path === "/dashboard" && token === "") {
+  if (path.startsWith("/dashboard") && hasExpired) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
   // console.log(token);

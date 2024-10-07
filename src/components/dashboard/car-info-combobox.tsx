@@ -1,0 +1,134 @@
+"use client";
+
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CarInfoProps, Category } from "@lib/types";
+import { DEFAULT_CAR_LOGO } from "@lib/constants";
+
+// const frameworks = [
+//   {
+//     value: "next.js",
+//     label: "Next.js",
+//   },
+//   {
+//     value: "sveltekit",
+//     label: "SvelteKit",
+//   },
+//   {
+//     value: "nuxt.js",
+//     label: "Nuxt.js",
+//   },
+//   {
+//     value: "remix",
+//     label: "Remix",
+//   },
+//   {
+//     value: "astro",
+//     label: "Astro",
+//   },
+// ];
+
+interface ComboBoxProps {
+  setValue: React.Dispatch<React.SetStateAction<number>>;
+  value: number;
+  options: CarInfoProps[];
+  disabled?: boolean;
+}
+
+export const CarInfoComboBox: React.FC<ComboBoxProps> = ({
+  setValue,
+  value,
+  options,
+  disabled,
+}) => {
+  const [open, setOpen] = React.useState(false);
+  // const [value, setValue] = React.useState(0);
+  const selected = options.find((option) => option.id === value);
+  // console.log(options, "OP");
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          disabled={disabled}
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className=" w-full justify-between   h-fit "
+        >
+          {selected ? (
+            <>
+              <p className=" text-wrap ">
+                Make: {selected.carMaker.name} / Model: {selected.carModel.name}{" "}
+                / Gen: {selected.carGeneration.name}{" "}
+              </p>
+              <img
+                src={selected.carMaker.logo || DEFAULT_CAR_LOGO}
+                alt="Car logo"
+                className="  object-cover   max-w-[100%]   h-9 w-9  ml-[5px]  rounded-sm "
+              />
+            </>
+          ) : (
+            "Select option..."
+          )}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="  w-[300px] sm:w-[400px]   p-0">
+        <Command>
+          <CommandInput placeholder="Search option..." />
+          <CommandList>
+            <CommandEmpty>No option found.</CommandEmpty>
+            <CommandGroup>
+              {options?.map((option) => (
+                <CommandItem
+                  key={option.id}
+                  value={
+                    option.carMaker.name +
+                    option.carModel.name +
+                    option.carGeneration.name +
+                    String(option.id)
+                  } // to avoid selecting two or more items that has the same name proprty.
+                  onSelect={(currentValue) => {
+                    // console.log(currentValue, "CCCC");
+                    setValue(option.id === value ? 0 : option.id);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === option.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  Make: {option.carMaker.name} / Model: {option.carModel.name} /
+                  Gen: {option.carGeneration.name}{" "}
+                  <img
+                    src={option.carMaker.logo || DEFAULT_CAR_LOGO}
+                    alt="Car logo"
+                    className="  object-cover  flex-1  max-w-9  max-h-9 ml-auto  rounded-sm "
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
