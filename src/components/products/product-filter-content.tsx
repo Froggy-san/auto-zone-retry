@@ -126,7 +126,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
                 Apply some filters to make the searching process easier.
               </DrawerDescription>
             </DrawerHeader>
-            <section className=" space-y-5   p-4">
+            <section className=" space-y-5  max-h-[50dvh] overflow-y-auto  p-4">
               <ProdcutFilterInput name={name || ""} />
               <div className=" flex  flex-col xs:flex-row items-center gap-3">
                 <div className=" space-y-3 w-full">
