@@ -32,19 +32,21 @@ import {
 } from "@/components/ui/dialog";
 import { FileUploader } from "./file-uploader";
 import { createCarMakerAction } from "@lib/actions/carMakerActions";
+import useObjectCompare from "@hooks/use-compare-objs";
 
 const CarkMakerForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const defaultValues = {
+    name: "",
+    notes: "",
+    logo: [],
+  };
   const form = useForm<z.infer<typeof CreateCarMakerScehma>>({
     resolver: zodResolver(CreateCarMakerScehma),
-    defaultValues: {
-      name: "testing product form",
-      notes: "NOTE BOTE",
-      logo: [],
-    },
+    defaultValues,
   });
-
+  const isEqual = useObjectCompare(form.getValues(), defaultValues);
   function handleClose() {
     form.reset();
     setIsOpen(false);
@@ -58,6 +60,7 @@ const CarkMakerForm = () => {
     logo,
   }: z.infer<typeof CreateCarMakerScehma>) {
     try {
+      if (isEqual) throw new Error("You haven't changed anything.");
       const formData = new FormData();
       formData.append("name", name);
       formData.append("notes", notes);
@@ -84,13 +87,10 @@ const CarkMakerForm = () => {
         Create car maker
       </Button>
 
-      <DialogContent className=" max-h-[600px] overflow-y-auto max-w-[1000px] sm:p-14">
+      <DialogContent className=" max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogHeader>
-          <DialogTitle>Are you absolutely sure?</DialogTitle>
-          <DialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </DialogDescription>
+          <DialogTitle>Car makers</DialogTitle>
+          <DialogDescription>Create a new car maker.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
@@ -102,7 +102,7 @@ const CarkMakerForm = () => {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="name" {...field} />
+                    <Input disabled={isLoading} placeholder="name" {...field} />
                   </FormControl>
                   <FormDescription>
                     Enter the name of the product.
@@ -120,7 +120,11 @@ const CarkMakerForm = () => {
                 <FormItem>
                   <FormLabel>Notes</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Additional notes..." {...field} />
+                    <Textarea
+                      disabled={isLoading}
+                      placeholder="Additional notes..."
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     Enter any additional notes regarding the car maker.
@@ -146,17 +150,24 @@ const CarkMakerForm = () => {
               )}
             />
 
-            <div className=" flex items-center justify-end  gap-3">
+            <div className=" flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
               <Button
                 onClick={handleClose}
+                disabled={isLoading}
                 type="reset"
                 variant="secondary"
                 size="sm"
+                className=" w-full sm:w-[unset]"
               >
                 Cancel
               </Button>
-              <Button type="submit" size="sm">
-                {isLoading ? <Spinner /> : "Create"}
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isLoading || isEqual}
+                className=" w-full sm:w-[unset]"
+              >
+                {isLoading ? <Spinner className=" h-full" /> : "Create"}
               </Button>
             </div>
           </form>

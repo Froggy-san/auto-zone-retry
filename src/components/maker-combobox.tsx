@@ -19,7 +19,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CarMaker } from "@lib/types";
-import Image from "next/image";
 
 interface CarModelComboBoxProps {
   setValue: (carMaker: number) => void;
@@ -48,10 +47,10 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
         >
           {selectedItem ? (
             <>
-              maker: {selectedItem.name}
+              Maker: {selectedItem.name}
               <span className=" ml-auto">
                 {selectedItem.logo ? (
-                  <Image
+                  <img
                     src={selectedItem.logo}
                     alt="logo"
                     className=" w-6 h-6 rounded-md"
@@ -94,7 +93,7 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
                   <span>Maker: {option.name}</span>{" "}
                   <span className=" ml-auto">
                     {option.logo ? (
-                      <Image
+                      <img
                         src={option.logo}
                         alt="logo"
                         className=" w-6 h-6 rounded-md"

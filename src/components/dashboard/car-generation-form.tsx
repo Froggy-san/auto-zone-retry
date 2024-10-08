@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,24 +35,33 @@ import {
 
 import { createCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { ModelCombobox } from "@components/model-combobox";
+import useObjectCompare from "@hooks/use-compare-objs";
 
 const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
-  console.log(carModels, "CAR makrs");
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
+
+  const defaultValues = {
+    name: "",
+    notes: "",
+    carModelId: 0,
+  };
   const form = useForm<z.infer<typeof CarGenerationsSchema>>({
     resolver: zodResolver(CarGenerationsSchema),
-    defaultValues: {
-      name: "testing product form",
-      notes: "NOTE BOTE",
-      carModelId: 1,
-    },
+    defaultValues,
   });
 
+  const isEqual = useObjectCompare(form.getValues(), defaultValues);
   const isLoading = form.formState.isSubmitting;
-
+  const handleClose = useCallback(() => {
+    setOpen(false);
+    form.reset();
+  }, [open]);
   async function onSubmit(carGeneration: z.infer<typeof CarGenerationsSchema>) {
-    await createCarGenerationAction(carGeneration);
     try {
+      if (isEqual) throw new Error("You haven't changed anything.");
+      await createCarGenerationAction(carGeneration);
+      form.reset();
       toast({
         title: "Success!.",
         description: (
@@ -69,20 +78,19 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
     }
   }
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm" className=" w-full">
-          Create car generation
-        </Button>
-      </DialogTrigger>
-      <DialogContent className=" max-h-[600px] overflow-y-auto max-w-[1000px] sm:p-14">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <Button onClick={() => setOpen(true)} size="sm" className=" w-full">
+        Create car generation
+      </Button>
+
+      <DialogContent className=" max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogHeader>
-          <DialogTitle>Models</DialogTitle>
-          <DialogDescription>Create car models.</DialogDescription>
+          <DialogTitle>Car generations</DialogTitle>
+          <DialogDescription>Create a new car generation.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
-            <div className=" flex items-center gap-3">
+            <div className=" flex flex-col xs:flex-row items-center gap-3">
               <FormField
                 disabled={isLoading}
                 control={form.control}
@@ -141,19 +149,24 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
               )}
             />
 
-            <div className=" flex items-center justify-end  gap-3">
+            <div className=" flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
               <Button
-                onClick={() => {
-                  form.reset();
-                }}
+                onClick={handleClose}
+                disabled={isLoading}
                 type="reset"
                 variant="secondary"
                 size="sm"
+                className=" w-full sm:w-[unset]"
               >
                 Cancel
               </Button>
-              <Button type="submit" size="sm">
-                {isLoading ? <Spinner /> : "Create"}
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isLoading || isEqual}
+                className=" w-full sm:w-[unset]"
+              >
+                {isLoading ? <Spinner className=" h-full" /> : "Create"}
               </Button>
             </div>
           </form>

@@ -1,6 +1,5 @@
 import { cn } from "@lib/utils";
 import { ImageUp } from "lucide-react";
-import Image from "next/image";
 import React, { useCallback, useState } from "react";
 import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 
@@ -39,7 +38,7 @@ export function FileUploader({ fieldChange, mediaUrl }: FileUploaderProps) {
             " opacity-55": isDragActive,
           })}
         >
-          <Image
+          <img
             src={viewedImage}
             alt="Selected image"
             className=" object-cover  max-h-[500px] rounded-lg"

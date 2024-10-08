@@ -73,7 +73,7 @@ export const CarInfoComboBox: React.FC<ComboBoxProps> = ({
         >
           {selected ? (
             <>
-              <p className=" text-wrap ">
+              <p className=" text-wrap  text-left ">
                 Make: {selected.carMaker.name} / Model: {selected.carModel.name}{" "}
                 / Gen: {selected.carGeneration.name}{" "}
               </p>
