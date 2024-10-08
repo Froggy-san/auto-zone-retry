@@ -1,7 +1,7 @@
 "use server";
 
 import { getToken } from "@lib/helper";
-import { CarInfo, CarModel, CreateCarModel } from "@lib/types";
+import { CarModel, CreateCarModel } from "@lib/types";
 
 export async function getAllCarModelsAction() {
   const token = getToken();

@@ -75,5 +75,5 @@ const HideShowPassword: React.FC<HideShowPasswordProps> = forwardRef(
     );
   }
 );
-
+HideShowPassword.displayName = "HideShowPassword";
 export default HideShowPassword;

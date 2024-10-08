@@ -1,12 +1,7 @@
 import { Product } from "@lib/types";
 import React from "react";
 import ProductItem from "./product-item";
-import {
-  getProductsAction,
-  getProductsCountAction,
-} from "@lib/actions/productsActions";
-import ProductPagenation from "./product-pagenation";
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
+import { getProductsAction } from "@lib/actions/productsActions";
 
 interface ProductsListProps {
   pageNumber: string;

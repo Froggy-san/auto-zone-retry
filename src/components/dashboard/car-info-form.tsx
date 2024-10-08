@@ -13,19 +13,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+
 import {
   CarModelProps,
-  CarGeneration,
-  CarGenerationsSchema,
   CarMaker,
   CarGenerationProps,
   CarInfoSchema,
 } from "@lib/types";
-import { Textarea } from "@components/ui/textarea";
 
 import Spinner from "@components/Spinner";
-import { createProductAction } from "@lib/actions/productsActions";
+
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
@@ -40,12 +37,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { createCarMakerAction } from "@lib/actions/carMakerActions";
-
-import { createCarModelAction } from "@lib/actions/carModelsActions";
-
-import { createCarGenerationAction } from "@lib/actions/carGenerationsActions";
-import { CarModelComboBox } from "./car-model-combobox";
 import { MakerCombobox } from "@components/maker-combobox";
 import { ModelCombobox } from "@components/model-combobox";
 import { GenerationComboBox } from "@components/generation-combobox";
@@ -73,7 +64,6 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
   });
 
   const isLoading = form.formState.isSubmitting;
-  const disableSubmit = form.getValues();
 
   async function onSubmit(carInfo: z.infer<typeof CarInfoSchema>) {
     await createCarInfoAction(carInfo);

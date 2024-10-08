@@ -21,7 +21,7 @@ import Link from "next/link";
 
 import Image from "next/image";
 import Logo from "../../../../public/autozone-logo.svg";
-import Spinner from "@/components/Spinner";
+
 import { loginUser } from "@/lib/actions/authActions";
 import { useToast } from "@/hooks/use-toast";
 import SuccessToastDescription, {
@@ -53,7 +53,7 @@ const Page = () => {
           <SuccessToastDescription message="Glad to see you again." />
         ),
       });
-    } catch (error: any) {
+    } catch (error :any) {
       console.log(error.message, "ERROR");
       toast({
         variant: "destructive",

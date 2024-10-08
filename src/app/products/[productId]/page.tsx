@@ -2,10 +2,7 @@ import ProductManagement from "@components/dashboard/products-management";
 import ProdcutViewDetials from "@components/products/product-view-detials";
 import ProductViewImages from "@components/products/product-view-images";
 import { Button } from "@components/ui/button";
-import {
-  getProductByIdAction,
-  getProductsImageAction,
-} from "@lib/actions/productsActions";
+import { getProductByIdAction } from "@lib/actions/productsActions";
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import Link from "next/link";
 import React from "react";
@@ -24,12 +21,14 @@ const ProductView = async ({ params }: { params: Params }) => {
 
   // console.log(product.data, productImages.data, "PPPPPPPPPPPPP");
 
+  if (error)
+    return <p>Something went wrong while searching for the product&rsquo;</p>;
+
   if (!productData)
     return (
       <p>
         {" "}
-        Something went wrong, please refresh the page or login into your
-        account.{" "}
+        Couldn&apos;t find that products&rsquo;{" "}
         <Button asChild>
           <Link href="/login">Login</Link>
         </Button>

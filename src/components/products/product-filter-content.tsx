@@ -1,6 +1,6 @@
 "use client";
 import { ComboBox } from "@components/combo-box";
-import { Input } from "@components/ui/input";
+
 import { Category, ProductBrand, ProductType } from "@lib/types";
 import { Filter } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -35,7 +35,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   productBrands,
   categoryId,
   name,
-  isAvailable,
+  // isAvailable,
   productTypeId,
   productBrandId,
 }) => {

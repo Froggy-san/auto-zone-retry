@@ -19,7 +19,7 @@ const imageUrl = [
 
 const ProductViewImages = ({
   images,
-  productId,
+
   className,
 }: {
   productId: number;
@@ -45,12 +45,14 @@ const ProductViewImages = ({
   }, []);
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
-    if (viewBar) {
+    if (isTouching) {
       timer = setInterval(() => {
         setViewedImage((curr) => (curr + 1) % imageUrls.length);
       }, 1000);
     } else {
-      timer && clearInterval(timer);
+      if (timer) {
+        clearInterval(timer);
+      }
     }
     return () => clearInterval(timer);
   }, [isTouching, imageUrls.length]);

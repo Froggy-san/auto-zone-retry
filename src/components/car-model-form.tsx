@@ -18,7 +18,7 @@ import { CarMaker, CreateCarModelSchema } from "@lib/types";
 import { Textarea } from "@components/ui/textarea";
 
 import Spinner from "@components/Spinner";
-import { createProductAction } from "@lib/actions/productsActions";
+
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
@@ -32,9 +32,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { FileUploader } from "./file-uploader";
-import { createCarMakerAction } from "@lib/actions/carMakerActions";
-import { CarModelComboBox } from "./dashboard/car-model-combobox";
+
 import { createCarModelAction } from "@lib/actions/carModelsActions";
 import { MakerCombobox } from "./maker-combobox";
 
@@ -50,7 +48,6 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
   });
 
   const isLoading = form.formState.isSubmitting;
-  const disableSubmit = form.getValues();
 
   async function onSubmit(carModel: z.infer<typeof CreateCarModelSchema>) {
     try {

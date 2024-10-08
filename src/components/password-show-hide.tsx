@@ -1,5 +1,5 @@
 "use client";
-import React, { Dispatch, SetStateAction, useCallback, useState } from "react";
+import React, { SetStateAction, useCallback, useState } from "react";
 import { Control, FieldValues, Path } from "react-hook-form";
 import {
   FormField,
@@ -37,13 +37,16 @@ const PasswordShowHide = <TFieldValues extends FieldValues>({
 }) => {
   const [isShowPass, setIsShowPass] = useState(false);
 
-  const handleHideAndShow = useCallback(function () {
-    if (onChange) {
-      onChange((is) => !is);
-    } else {
-      setIsShowPass((is) => !is);
-    }
-  }, []);
+  const handleHideAndShow = useCallback(
+    function () {
+      if (onChange) {
+        onChange((is) => !is);
+      } else {
+        setIsShowPass((is) => !is);
+      }
+    },
+    [onChange]
+  );
 
   return (
     <>

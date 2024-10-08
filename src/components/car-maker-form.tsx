@@ -14,18 +14,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  CarInfoProps,
-  Category,
-  CreateCarMakerScehma,
-  ProductBrand,
-  ProductsSchema,
-  ProductType,
-} from "@lib/types";
+import { CreateCarMakerScehma } from "@lib/types";
 import { Textarea } from "@components/ui/textarea";
 
 import Spinner from "@components/Spinner";
-import { createProductAction } from "@lib/actions/productsActions";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
@@ -37,11 +29,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { FileUploader } from "./file-uploader";
 import { createCarMakerAction } from "@lib/actions/carMakerActions";
-import { getToken } from "@lib/helper";
 
 const CarkMakerForm = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +51,6 @@ const CarkMakerForm = () => {
   }
 
   const isLoading = form.formState.isSubmitting;
-  const disableSubmit = form.getValues();
 
   async function onSubmit({
     name,

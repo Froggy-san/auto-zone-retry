@@ -5,7 +5,6 @@ import ProductsList from "@components/products/products-list";
 import Spinner from "@components/Spinner";
 import ProductPagenation from "@components/products/product-pagenation";
 import ProductsFilterBar from "@components/products/products-filter-bar";
-import { debounce } from "lodash";
 
 // Define the type for searchParam
 interface SearchParams {

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Key, LogOut, Settings2, User } from "lucide-react";
 import Link from "next/link";
-import { getCurrentUser, logoutUser } from "@/lib/actions/authActions";
+import { logoutUser } from "@/lib/actions/authActions";
 import { User as UserType } from "@/lib/types";
 
 const UserHeaderBtn = ({ user }: { user: UserType | null }) => {

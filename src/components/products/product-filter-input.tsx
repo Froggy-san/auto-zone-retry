@@ -1,10 +1,9 @@
 import { Input } from "@components/ui/input";
 import { debounce } from "lodash";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 
 const ProductFilterInput = ({ name }: { name: string }) => {
-  console.log(name, "SSS");
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();

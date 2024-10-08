@@ -3,13 +3,12 @@ import { getAllCarsInfoAction } from "@lib/actions/carInfoActions";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
 import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
-import { Product, ProductById, ProductImage } from "@lib/types";
+import { ProductById, ProductImage } from "@lib/types";
 import { cn } from "@lib/utils";
 import React from "react";
 
 const ProductManagement = async ({
   productToEdit,
-  productToEditImages,
   useParams = false,
   className,
 }: {
