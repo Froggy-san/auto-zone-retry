@@ -18,13 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  CarGenerationProps,
-  CarMaker,
-  CarModel,
-  CarModelProps,
-  Category,
-} from "@lib/types";
+import { CarGenerationProps } from "@lib/types";
 
 // const frameworks = [
 //   {
@@ -95,7 +89,7 @@ export const GenerationComboBox: React.FC<CarModelComboBoxProps> = ({
                 <CommandItem
                   key={option.id}
                   value={option.name + String(option.id)} // to avoid selecting two or more items that has the same name proprty.
-                  onSelect={(currentValue) => {
+                  onSelect={() => {
                     // console.log(currentValue, "CCCC");
                     setValue(option.id === value ? 0 : option.id);
                     setOpen(false);

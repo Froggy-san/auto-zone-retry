@@ -1,9 +1,7 @@
 import React from "react";
 import CarGenerationForm from "./car-generation-form";
 import { getAllCarModelsAction } from "@lib/actions/carModelsActions";
-import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
-import { getAllCarGenerationsAction } from "@lib/actions/carGenerationsActions";
-import CarInfoForm from "./car-info-form";
+
 
 const CarGenerationManagement = async () => {
   const { data, error } = await getAllCarModelsAction();

@@ -1,8 +1,6 @@
 "use client";
 import { PAGE_SIZE } from "@lib/constants";
 import * as React from "react";
-import Pagination from "@mui/material/Pagination";
-import Stack from "@mui/material/Stack";
 import usePagination from "@mui/material/usePagination/usePagination";
 import { Button } from "@components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -88,7 +86,8 @@ const ProductPagenation: React.FC<ProductsListProps> = ({
   return (
     <nav className=" w-full my-4">
       <ul className="  flex gap-3  w-full justify-center">
-        {items.map(({ page, type, selected, disabled, ...item }, index) => {
+        {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+        {items.map(({ page, type, disabled, ...item }, index) => {
           let children = null;
 
           if (type === "start-ellipsis" || type === "end-ellipsis") {

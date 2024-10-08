@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CarMaker } from "@lib/types";
+import Image from "next/image";
 
 interface CarModelComboBoxProps {
   setValue: (carMaker: number) => void;
@@ -50,7 +51,7 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
               maker: {selectedItem.name}
               <span className=" ml-auto">
                 {selectedItem.logo ? (
-                  <img
+                  <Image
                     src={selectedItem.logo}
                     alt="logo"
                     className=" w-6 h-6 rounded-md"
@@ -78,7 +79,7 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
                   value={
                     option.name + option.carModels.name + String(option.id)
                   } // to avoid selecting two or more items that has the same name proprty.
-                  onSelect={(currentValue) => {
+                  onSelect={() => {
                     // console.log(currentValue, "CCCC");
                     setValue(option.id === value ? 0 : option.id);
                     setOpen(false);
@@ -93,7 +94,7 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
                   <span>Maker: {option.name}</span>{" "}
                   <span className=" ml-auto">
                     {option.logo ? (
-                      <img
+                      <Image
                         src={option.logo}
                         alt="logo"
                         className=" w-6 h-6 rounded-md"

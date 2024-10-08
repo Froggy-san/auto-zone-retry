@@ -19,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CarMaker } from "@lib/types";
+import Image from "next/image";
 
 interface CarModelComboBoxProps {
   setValue: React.Dispatch<React.SetStateAction<number>>;
@@ -33,7 +34,7 @@ export const CarModelComboBox: React.FC<CarModelComboBoxProps> = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   // const [value, setValue] = React.useState(0);
-  console.log(value);
+
   const selectedItem = options.find((option) => option.id === value);
   // console.log(options, "OP");
   return (
@@ -49,7 +50,7 @@ export const CarModelComboBox: React.FC<CarModelComboBoxProps> = ({
             <>
               maker: {selectedItem.name}
               {selectedItem.logo ? (
-                <img
+                <Image
                   src={selectedItem.logo}
                   alt="logo"
                   className=" w-6 h-6 rounded-md ml-auto"
@@ -74,7 +75,7 @@ export const CarModelComboBox: React.FC<CarModelComboBoxProps> = ({
                 <CommandItem
                   key={option.id}
                   value={option.name + String(option.id)} // to avoid selecting two or more items that has the same name proprty.
-                  onSelect={(currentValue) => {
+                  onSelect={() => {
                     // console.log(currentValue, "CCCC");
                     setValue(option.id === value ? 0 : option.id);
                     setOpen(false);
@@ -88,7 +89,7 @@ export const CarModelComboBox: React.FC<CarModelComboBoxProps> = ({
                   />
                   <span>Maker: {option.name}</span>{" "}
                   {option.logo ? (
-                    <img
+                    <Image
                       src={option.logo}
                       alt="logo"
                       className=" w-6 h-6 rounded-md ml-auto"

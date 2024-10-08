@@ -16,7 +16,8 @@ const CarInfoManagement = async () => {
   const { data: carModelsData, error: carModelsError } = carModels;
   const { data: carMakersData, error: carMakersError } = carMakers;
 
-  //   if (error) return <p>{error}</p>;
+  if (carModelsError || carMakersError || carGenerationsError)
+    return <p>{carMakersError || carModelsError || carGenerationsError}</p>;
 
   return (
     <div className="flex  flex-col  gap-y-2 xs:flex-row xs:items-center justify-between rounded-lg border p-3 shadow-sm gap-x-7">

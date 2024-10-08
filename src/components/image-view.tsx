@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect } from "react";
 import { ClickAwayListener } from "@mui/base";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -52,7 +52,7 @@ const ImageView = ({
         resetBodyStyle(); // Reset styles on unmount or image change
       };
     }
-  }, [image]);
+  }, [image, handleClose]);
 
   return (
     <>

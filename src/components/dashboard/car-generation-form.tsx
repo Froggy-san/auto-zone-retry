@@ -14,11 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CarModelProps, CarGeneration, CarGenerationsSchema } from "@lib/types";
+import { CarModelProps, CarGenerationsSchema } from "@lib/types";
 import { Textarea } from "@components/ui/textarea";
 
 import Spinner from "@components/Spinner";
-import { createProductAction } from "@lib/actions/productsActions";
+
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
@@ -32,10 +32,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-import { createCarMakerAction } from "@lib/actions/carMakerActions";
-
-import { createCarModelAction } from "@lib/actions/carModelsActions";
 
 import { createCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { ModelCombobox } from "@components/model-combobox";
@@ -53,7 +49,6 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
   });
 
   const isLoading = form.formState.isSubmitting;
-  const disableSubmit = form.getValues();
 
   async function onSubmit(carGeneration: z.infer<typeof CarGenerationsSchema>) {
     await createCarGenerationAction(carGeneration);

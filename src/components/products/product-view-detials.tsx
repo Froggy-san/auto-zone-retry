@@ -1,5 +1,5 @@
 import { formatCurrency } from "@lib/helper";
-import { Product, ProductById } from "@lib/types";
+import { ProductById } from "@lib/types";
 import React from "react";
 
 const ProdcutViewDetials = ({ product }: { product: ProductById }) => {

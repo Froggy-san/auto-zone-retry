@@ -1,4 +1,4 @@
-import { number, z } from "zod";
+import { z } from "zod";
 export interface FilesWithPreview extends File {
   preview: string;
 }

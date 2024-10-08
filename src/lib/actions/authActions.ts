@@ -1,13 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import {
-  LoginFormSchema,
-  SignUpFormSchema,
-  signUpProps,
-  TokenData,
-  User,
-} from "../types";
+import { LoginFormSchema, signUpProps, TokenData, User } from "../types";
 import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -32,7 +26,7 @@ export async function loginUser(loginData: z.infer<typeof LoginFormSchema>) {
   const getCookies = cookies();
   getCookies.set("auto-zone-token", token.token);
 
-  const decoded = jwtDecode(token.token);
+  // const decoded = jwtDecode(token.token);
   // console.log(token.token, "TOKEN");
 
   redirect("/");
@@ -85,7 +79,7 @@ export async function signUp({
 
   if (!res.ok) throw new Error(`Something went wrong with the signup process.`);
 
-  const data = await res.json();
+  // const data = await res.json();
   redirect("/login");
 }
 

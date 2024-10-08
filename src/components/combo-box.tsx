@@ -18,7 +18,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Category } from "@lib/types";
 
 // const frameworks = [
 //   {
@@ -89,10 +88,12 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                 <CommandItem
                   key={option.id}
                   value={option.name + String(option.id)} // to avoid selecting two or more items that has the same name proprty.
-                  onSelect={(currentValue) => {
+                  onSelect={() => {
                     // console.log(currentValue, "CCCC");
                     setValue?.(option.id === value ? 0 : option.id);
-                    paramName && setParam?.(option.id, paramName, value);
+                    if (paramName) {
+                      setParam?.(option.id, paramName, value);
+                    }
                     setOpen(false);
                   }}
                 >

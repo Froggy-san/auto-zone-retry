@@ -17,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import {
   CarInfoProps,
   Category,
-  Product,
   ProductBrand,
   ProductById,
   ProductImage,
@@ -29,8 +28,6 @@ import { Switch } from "@components/ui/switch";
 import Spinner from "@components/Spinner";
 import {
   createProductAction,
-  createProductImageAction,
-  deleteProductsImageAction,
   editProductAction,
 } from "@lib/actions/productsActions";
 import { useToast } from "@hooks/use-toast";
@@ -44,7 +41,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { ComboBox } from "@components/combo-box";
@@ -114,7 +110,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         )
       : [];
     return mediaArr;
-  }, [deletedMedia]);
+  }, [deletedMedia , productToEdit]);
 
   const pro = {
     name: productToEdit?.name,
@@ -170,7 +166,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     salePrice,
     stock,
     isAvailable,
-    isMain,
+    // isMain,
     images,
   }: z.infer<typeof ProductsSchema>) {
     try {

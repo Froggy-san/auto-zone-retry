@@ -1,5 +1,6 @@
 import { cn } from "@lib/utils";
 import { ImageUp } from "lucide-react";
+import Image from "next/image";
 import React, { useCallback, useState } from "react";
 import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 
@@ -10,12 +11,13 @@ interface FileUploaderProps {
 
 export function FileUploader({ fieldChange, mediaUrl }: FileUploaderProps) {
   const [viewedImage, setViewedImage] = useState("");
-
+  console.log(mediaUrl);
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {
       const imageBlob = URL.createObjectURL(acceptedFiles[0]);
       setViewedImage(imageBlob);
       fieldChange(acceptedFiles);
+      console.log(rejectedFiles);
       // Do something with the files
     },
     []
@@ -37,7 +39,7 @@ export function FileUploader({ fieldChange, mediaUrl }: FileUploaderProps) {
             " opacity-55": isDragActive,
           })}
         >
-          <img
+          <Image
             src={viewedImage}
             alt="Selected image"
             className=" object-cover  max-h-[500px] rounded-lg"
@@ -54,7 +56,8 @@ export function FileUploader({ fieldChange, mediaUrl }: FileUploaderProps) {
           ) : (
             <div className=" flex items-center justify-center gap-3 flex-col">
               <ImageUp size={40} />
-              Drag 'n' drop some files here, or click to select files{" "}
+              Drag &apos;n&apos; drop some files here`&#39; or click to select
+              files{" "}
             </div>
           )}
         </div>

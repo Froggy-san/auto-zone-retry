@@ -2,7 +2,8 @@ import { Button } from "@components/ui/button";
 import { FilesWithPreview, ProductImage } from "@lib/types";
 import { cn } from "@lib/utils";
 import { ImageUp, X } from "lucide-react";
-import React, { SetStateAction, useCallback, useEffect, useState } from "react";
+
+import React, { SetStateAction, useCallback, useEffect } from "react";
 import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 
 interface MultiFileUploaderProps {
@@ -26,8 +27,9 @@ export function MultiFileUploader({
       );
 
       fieldChange([...selectedFiles, ...addedImages]);
+      console.log(rejectedFiles);
     },
-    [fieldChange]
+    [fieldChange, selectedFiles]
   );
 
   // Handle deletion of selected images
@@ -116,7 +118,8 @@ export function MultiFileUploader({
           ) : (
             <div className="flex items-center justify-center gap-3 flex-col">
               <ImageUp size={40} />
-              Drag 'n' drop some files here, or click to select files
+              Drag &apos;n&apos; drop some files herersquo; or click to select
+              files
             </div>
           )}
         </div>

@@ -1,5 +1,4 @@
 import { getToken } from "./helper";
-import { CreateCarMaker } from "./types";
 
 export async function getAllCategories() {
   // await new Promise((res) => setTimeout(res, 9000));

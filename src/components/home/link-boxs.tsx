@@ -1,12 +1,6 @@
-import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader } from "@components/ui/card";
 import { cn } from "@lib/utils";
-import {
-  ArrowUpRight,
-  LayoutDashboard,
-  PackageSearch,
-  UserRoundCog,
-} from "lucide-react";
+import { LayoutDashboard, PackageSearch, UserRoundCog } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -51,6 +45,7 @@ const LinkBoxs = () => {
     <div className="  flex-1 hidden lg:block  space-y-10 mt-24">
       {LINKS.map((link, i) => (
         <Card
+        key={i}
           className={cn(
             "min-w-fit w-[250px] bg-foreground/20 backdrop-blur-md border-slate-100/20  ml-auto",
             {
