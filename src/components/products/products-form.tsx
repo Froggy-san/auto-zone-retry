@@ -110,7 +110,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         )
       : [];
     return mediaArr;
-  }, [deletedMedia , productToEdit]);
+  }, [deletedMedia, productToEdit]);
 
   const pro = {
     name: productToEdit?.name,
@@ -238,7 +238,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         {productToEdit ? " Edit" : "Create"} a porduct
       </Button>
 
-      <DialogContent className=" max-h-[600px] overflow-y-auto max-w-[1000px] sm:p-14">
+      <DialogContent className=" max-h-[77vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogHeader>
           <DialogTitle>Product form</DialogTitle>
           <DialogDescription>Create or edit products.</DialogDescription>
@@ -541,17 +541,23 @@ const ProductForm: React.FC<ProductFormProps> = ({
               </>
             ) : null}
 
-            <div className=" flex items-center justify-end  gap-3">
+            <div className=" flex  flex-col-reverse sm:flex-row items-center justify-end  gap-3">
               <Button
                 onClick={handleClose}
                 type="reset"
                 variant="secondary"
                 size="sm"
                 disabled={isLoading}
+                className=" w-full sm:w-[unset]"
               >
                 Cancel
               </Button>
-              <Button type="submit" size="sm" disabled={isLoading || disabled}>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isLoading || disabled}
+                className=" w-full sm:w-[unset]"
+              >
                 {isLoading ? (
                   <Spinner className=" h-full" />
                 ) : productToEdit ? (

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,22 +35,33 @@ import {
 
 import { createCarModelAction } from "@lib/actions/carModelsActions";
 import { MakerCombobox } from "./maker-combobox";
+import useObjectCompare from "@hooks/use-compare-objs";
 
 const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
+
+  const defaultValues = {
+    name: "",
+    notes: "",
+    carMakerId: 0,
+  };
+
   const form = useForm<z.infer<typeof CreateCarModelSchema>>({
     resolver: zodResolver(CreateCarModelSchema),
-    defaultValues: {
-      name: "testing product form",
-      notes: "NOTE BOTE",
-      carMakerId: 1,
-    },
+    defaultValues,
   });
 
+  const isEqual = useObjectCompare(form.getValues(), defaultValues);
   const isLoading = form.formState.isSubmitting;
+  const handleClose = useCallback(() => {
+    setOpen(false);
+    form.reset();
+  }, [open]);
 
   async function onSubmit(carModel: z.infer<typeof CreateCarModelSchema>) {
     try {
+      if (isEqual) throw new Error("You haven't changed anything.");
       await createCarModelAction(carModel);
 
       toast({
@@ -69,20 +80,19 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
     }
   }
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm" className=" w-full">
-          Create car model
-        </Button>
-      </DialogTrigger>
-      <DialogContent className=" max-h-[600px] overflow-y-auto max-w-[1000px] sm:p-14">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <Button size="sm" className=" w-full" onClick={() => setOpen(true)}>
+        Create car model
+      </Button>
+
+      <DialogContent className=" max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogHeader>
           <DialogTitle>Models</DialogTitle>
           <DialogDescription>Create car models.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
-            <div className=" flex items-center gap-3">
+            <div className=" flex flex-col xs:flex-row items-center gap-3">
               <FormField
                 disabled={isLoading}
                 control={form.control}
@@ -139,19 +149,24 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
               )}
             />
 
-            <div className=" flex items-center justify-end  gap-3">
+            <div className=" flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
               <Button
-                onClick={() => {
-                  form.reset();
-                }}
+                onClick={handleClose}
+                disabled={isLoading}
                 type="reset"
                 variant="secondary"
                 size="sm"
+                className=" w-full sm:w-[unset]"
               >
                 Cancel
               </Button>
-              <Button type="submit" size="sm">
-                {isLoading ? <Spinner /> : "Create"}
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isLoading || isEqual}
+                className=" w-full sm:w-[unset]"
+              >
+                {isLoading ? <Spinner className=" h-full" /> : "Create"}
               </Button>
             </div>
           </form>

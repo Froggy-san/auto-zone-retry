@@ -52,19 +52,22 @@ export function MultiFileUploader({
     <div
       {...getRootProps({
         className:
-          "flex justify-center items-center min-h-[140px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer",
+          "flex justify-center items-center    min-h-[140px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer",
       })}
     >
       <input {...getInputProps()} />
 
       {selectedFiles.length || mediaUrl?.length ? (
         <ul
-          className={cn("flex flex-wrap gap-5", {
-            "opacity-55": isDragActive,
-          })}
+          className={cn(
+            "flex flex-col sm:flex-row   sm:flex-wrap  max-h-[500px] w-full  overflow-y-auto  px-4 sm:px-0   gap-5",
+            {
+              "opacity-55": isDragActive,
+            }
+          )}
         >
           {mediaUrl?.map((media, i) => (
-            <li key={i} className="relative">
+            <li key={i} className="relative flex justify-center items-center">
               <Button
                 type="button"
                 onClick={(e) => {
@@ -82,7 +85,7 @@ export function MultiFileUploader({
               <img
                 src={media.imageUrl}
                 alt="Image selected"
-                className="max-h-[120px]"
+                className=" max-h-[250px] sm:max-h-[120px]"
               />
             </li>
           ))}

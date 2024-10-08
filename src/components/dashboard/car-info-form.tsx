@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -41,6 +41,7 @@ import { MakerCombobox } from "@components/maker-combobox";
 import { ModelCombobox } from "@components/model-combobox";
 import { GenerationComboBox } from "@components/generation-combobox";
 import { createCarInfoAction } from "@lib/actions/carInfoActions";
+import useObjectCompare from "@hooks/use-compare-objs";
 
 interface CarInfoFormProps {
   carModels: CarModelProps[];
@@ -53,21 +54,33 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
   carMakers,
   carGenerations,
 }) => {
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
+
+  const defaultValues = {
+    carMakerId: 0,
+    carGenerationId: 0,
+    carModelId: 0,
+  };
+
   const form = useForm<z.infer<typeof CarInfoSchema>>({
     resolver: zodResolver(CarInfoSchema),
-    defaultValues: {
-      carMakerId: 1,
-      carGenerationId: 1,
-      carModelId: 1,
-    },
+    defaultValues,
   });
+
+  const isEqual = useObjectCompare(form.getValues(), defaultValues);
+  const handleClose = useCallback(() => {
+    setOpen(false);
+    form.reset();
+  }, [open]);
 
   const isLoading = form.formState.isSubmitting;
 
   async function onSubmit(carInfo: z.infer<typeof CarInfoSchema>) {
-    await createCarInfoAction(carInfo);
     try {
+      if (isEqual) throw new Error("You haven't changed anything.");
+      await createCarInfoAction(carInfo);
+      form.reset();
       toast({
         title: "Success!.",
         description: (
@@ -84,20 +97,19 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
     }
   }
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button size="sm" className=" w-full">
-          New car information
-        </Button>
-      </DialogTrigger>
-      <DialogContent className=" max-h-[600px] overflow-y-auto max-w-[1000px] sm:p-14">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <Button onClick={() => setOpen(true)} size="sm" className=" w-full">
+        New car information
+      </Button>
+
+      <DialogContent className=" max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogHeader>
-          <DialogTitle>Models</DialogTitle>
-          <DialogDescription>Create car models.</DialogDescription>
+          <DialogTitle>Car information</DialogTitle>
+          <DialogDescription>Create a new car information.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
-            <div className=" flex items-center gap-3">
+            <div className=" flex flex-col sm:flex-row   items-center gap-3">
               <FormField
                 disabled={isLoading}
                 control={form.control}
@@ -113,7 +125,7 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
                       />
                     </FormControl>
                     <FormDescription>
-                      Enter the name of the product.
+                      Enter the name of the car maker.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -162,19 +174,24 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
               )}
             />
 
-            <div className=" flex items-center justify-end  gap-3">
+            <div className=" flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
               <Button
-                onClick={() => {
-                  form.reset();
-                }}
+                onClick={handleClose}
+                disabled={isLoading}
                 type="reset"
                 variant="secondary"
                 size="sm"
+                className=" w-full sm:w-[unset]"
               >
                 Cancel
               </Button>
-              <Button type="submit" size="sm">
-                {isLoading ? <Spinner /> : "Create"}
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isLoading || isEqual}
+                className=" w-full sm:w-[unset]"
+              >
+                {isLoading ? <Spinner className=" h-full" /> : "Create"}
               </Button>
             </div>
           </form>

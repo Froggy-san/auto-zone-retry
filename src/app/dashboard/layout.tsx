@@ -8,7 +8,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <main
       data-vaul-drawer-wrapper
-      className=" min-h-screen max-h-screen flex flex-col  relative"
+      className=" min-h-[100dvh] max-h-[100dvh] flex flex-col  relative"
     >
       <div className=" border-b flex justify-between items-center  py-1   pr-2 ">
         <div className=" flex items-center  gap-2">

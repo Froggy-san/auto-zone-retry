@@ -66,13 +66,13 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
           variant="outline"
           role="CarModelComboBox"
           aria-expanded={open}
-          className=" w-full justify-between"
+          className=" w-full justify-between  h-fit"
         >
           {selectedItem ? (
-            <>
+            <p className=" text-wrap text-left">
               Model name: {selectedItem.name} Car maker:{" "}
               {selectedItem.carMaker ? selectedItem.carMaker : "None"}{" "}
-            </>
+            </p>
           ) : (
             "Select option..."
           )}
