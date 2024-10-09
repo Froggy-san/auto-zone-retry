@@ -6,7 +6,8 @@ import { TokenData } from "@lib/types";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const checkPublickRoutesPath = path === "/signup" || path === "/login";
+  //path === "/signup" ||
+  const checkPublickRoutesPath = path === "/login";
   const getCookies = cookies();
   const token = getCookies.get("auto-zone-token")?.value || "";
 
