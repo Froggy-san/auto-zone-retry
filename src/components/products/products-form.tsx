@@ -297,7 +297,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       <Input
                         disabled={isLoading}
                         type="number"
-                        min={1}
+                        min={0}
                         placeholder="Listing price"
                         value={field.value}
                         onChange={(e) => field.onChange(Number(e.target.value))}
@@ -321,6 +321,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     <FormControl>
                       <Input
                         type="number"
+                        min={0}
                         disabled={isLoading}
                         placeholder="Sale price."
                         value={field.value}
@@ -347,6 +348,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     <FormControl>
                       <Input
                         type="number"
+                        min={0}
                         disabled={isLoading}
                         placeholder="Stock available"
                         value={field.value}
@@ -393,7 +395,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 name="carinfoId"
                 render={({ field }) => (
                   <FormItem className=" w-full">
-                    <FormLabel>Car info id</FormLabel>
+                    <FormLabel>Car info</FormLabel>
                     <FormControl>
                       {/* <Input
                         type="number"
@@ -422,7 +424,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 name="categoryId"
                 render={({ field }) => (
                   <FormItem className=" w-full ">
-                    <FormLabel>category id</FormLabel>
+                    <FormLabel>category</FormLabel>
                     <FormControl className=" ">
                       <ComboBox
                         disabled={isLoading}
@@ -447,7 +449,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 name="productBrandId"
                 render={({ field }) => (
                   <FormItem className=" w-full">
-                    <FormLabel>Product brand id</FormLabel>
+                    <FormLabel>Product brand</FormLabel>
                     <FormControl>
                       <ComboBox
                         disabled={isLoading}
@@ -470,7 +472,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 name="productTypeId"
                 render={({ field }) => (
                   <FormItem className=" w-full">
-                    <FormLabel>Product type id</FormLabel>
+                    <FormLabel>Product type</FormLabel>
                     <FormControl>
                       <ComboBox
                         disabled={isLoading}
