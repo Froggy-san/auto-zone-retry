@@ -5,11 +5,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
 const imageUrl = [
-  "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.004766655055370661-Art.gif",
-  "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.026917421952560083-Screenshot%20(14).png",
   "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.1257265497553366-448814389_122157382592181555_8517678768345414919_n.jpg",
-  "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.15152181072210014-F-Qss2PX0AAT_lB.png",
-  "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.20759706664879407-18ee0d711fc1b266e65f6a389966d65c.gif",
   "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.22337137047383426-449942924_783476877236875_3282549891675463112_n.jpg",
   "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.34432551927525545-449186742_989589682574123_5705111175156521882_n.jpg",
   "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.365694995834676-450801928_122185965308031351_3973663162623189835_n.jpg",
@@ -72,7 +68,7 @@ const ProductImages = ({
     >
       <div
         className={cn(
-          "h-[250px]  relative rounded-lg overflow-hidden",
+          "h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden",
           className
         )}
       >
