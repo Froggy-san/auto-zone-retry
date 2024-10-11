@@ -35,14 +35,6 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
 import { ComboBox } from "@components/combo-box";
 import { CarInfoComboBox } from "@components/dashboard/car-info-combobox";
 import { MultiFileUploader } from "./multi-file-uploader";
