@@ -27,7 +27,7 @@ const CarInfoManagement = async () => {
           Create a new car information.
         </p>
       </div>
-      <div className=" flex items-center  gap-3">
+      <div className="  sm:pr-2">
         <CarInfoForm
           carGenerations={carGenerationsData}
           carMakers={carMakersData}

@@ -19,6 +19,8 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@mui/material";
+
+import Dialog from "@components/dialog-component";
 interface ProdcutFilterContentProps {
   categories: Category[];
   productTypes: ProductType[];
@@ -57,6 +59,10 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
 
   return (
     <>
+      <Dialog>
+        <Dialog.Trigger>Open</Dialog.Trigger>
+        <Dialog.Content className=" max-h-[50vh] overflow-y-auto"></Dialog.Content>
+      </Dialog>
       {isBigScreen && (
         <section className=" space-y-5  sticky top-[50px]  sm:block ">
           <h1 className=" font-semibold text-2xl flex items-center ">

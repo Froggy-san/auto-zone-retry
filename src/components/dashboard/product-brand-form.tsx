@@ -46,7 +46,7 @@ const ProductBrandForm = () => {
           </label>
           <p className=" text-muted-foreground text-sm">Add product brand.</p>
         </div>
-        <div className=" flex items-center gap-3">
+        <div className=" flex items-center gap-3 sm:pr-2">
           <Input
             type="text"
             placeholder="Product brand..."
