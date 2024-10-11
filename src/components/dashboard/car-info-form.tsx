@@ -42,6 +42,7 @@ import { ModelCombobox } from "@components/model-combobox";
 import { GenerationComboBox } from "@components/generation-combobox";
 import { createCarInfoAction } from "@lib/actions/carInfoActions";
 import useObjectCompare from "@hooks/use-compare-objs";
+import DialogComponent from "@components/dialog-component";
 
 interface CarInfoFormProps {
   carModels: CarModelProps[];
@@ -97,16 +98,18 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
     }
   }
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <DialogComponent open={open} onOpenChange={handleClose}>
       <Button onClick={() => setOpen(true)} size="sm" className=" w-full">
         New car information
       </Button>
 
-      <DialogContent className=" max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
-        <DialogHeader>
-          <DialogTitle>Car information</DialogTitle>
-          <DialogDescription>Create a new car information.</DialogDescription>
-        </DialogHeader>
+      <DialogComponent.Content className=" max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
+        <DialogComponent.Header>
+          <DialogComponent.Title>Car information</DialogComponent.Title>
+          <DialogComponent.Description>
+            Create a new car information.
+          </DialogComponent.Description>
+        </DialogComponent.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
             <div className=" flex flex-col sm:flex-row   items-center gap-3">
@@ -174,7 +177,7 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
               )}
             />
 
-            <div className=" flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
+            <DialogComponent.Footer>
               <Button
                 onClick={handleClose}
                 disabled={isLoading}
@@ -193,11 +196,11 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
               >
                 {isLoading ? <Spinner className=" h-full" /> : "Create"}
               </Button>
-            </div>
+            </DialogComponent.Footer>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </DialogComponent.Content>
+    </DialogComponent>
   );
 };
 

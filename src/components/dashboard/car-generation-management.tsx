@@ -2,7 +2,6 @@ import React from "react";
 import CarGenerationForm from "./car-generation-form";
 import { getAllCarModelsAction } from "@lib/actions/carModelsActions";
 
-
 const CarGenerationManagement = async () => {
   const { data, error } = await getAllCarModelsAction();
   //   const [carGenerations, carModels, carMakers] = await Promise.all([
@@ -25,7 +24,7 @@ const CarGenerationManagement = async () => {
           Create a new car generation.
         </p>
       </div>
-      <div className=" flex items-center  gap-3">
+      <div className=" sm:pr-2">
         <CarGenerationForm carModels={data} />
         {/* <CarInfoForm
           carGenerations={carGenerationsData}

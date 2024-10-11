@@ -36,6 +36,7 @@ import {
 import { createCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { ModelCombobox } from "@components/model-combobox";
 import useObjectCompare from "@hooks/use-compare-objs";
+import DialogComponent from "@components/dialog-component";
 
 const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
   const [open, setOpen] = useState(false);
@@ -78,16 +79,18 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
     }
   }
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <DialogComponent open={open} onOpenChange={handleClose}>
       <Button onClick={() => setOpen(true)} size="sm" className=" w-full">
         Create car generation
       </Button>
 
-      <DialogContent className=" max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
-        <DialogHeader>
-          <DialogTitle>Car generations</DialogTitle>
-          <DialogDescription>Create a new car generation.</DialogDescription>
-        </DialogHeader>
+      <DialogComponent.Content className=" max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
+        <DialogComponent.Header>
+          <DialogComponent.Title>Car generations</DialogComponent.Title>
+          <DialogComponent.Description>
+            Create a new car generation.
+          </DialogComponent.Description>
+        </DialogComponent.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
             <div className=" flex flex-col xs:flex-row items-center gap-3">
@@ -149,7 +152,7 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
               )}
             />
 
-            <div className=" flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
+            <DialogComponent.Footer>
               <Button
                 onClick={handleClose}
                 disabled={isLoading}
@@ -168,11 +171,11 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
               >
                 {isLoading ? <Spinner className=" h-full" /> : "Create"}
               </Button>
-            </div>
+            </DialogComponent.Footer>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </DialogComponent.Content>
+    </DialogComponent>
   );
 };
 

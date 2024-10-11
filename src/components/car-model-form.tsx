@@ -36,6 +36,7 @@ import {
 import { createCarModelAction } from "@lib/actions/carModelsActions";
 import { MakerCombobox } from "./maker-combobox";
 import useObjectCompare from "@hooks/use-compare-objs";
+import DialogComponent from "./dialog-component";
 
 const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
   const [open, setOpen] = useState(false);
@@ -80,16 +81,18 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
     }
   }
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <DialogComponent open={open} onOpenChange={handleClose}>
       <Button size="sm" className=" w-full" onClick={() => setOpen(true)}>
         Create car model
       </Button>
 
-      <DialogContent className=" max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
-        <DialogHeader>
-          <DialogTitle>Models</DialogTitle>
-          <DialogDescription>Create car models.</DialogDescription>
-        </DialogHeader>
+      <DialogComponent.Content className=" max-h-[76vh] overflow-y-auto max-w-[1000px] border-none sm:p-14">
+        <DialogComponent.Header>
+          <DialogComponent.Title>Models</DialogComponent.Title>
+          <DialogComponent.Description>
+            Create car models.
+          </DialogComponent.Description>
+        </DialogComponent.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
             <div className=" flex flex-col xs:flex-row items-center gap-3">
@@ -149,7 +152,7 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
               )}
             />
 
-            <div className=" flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
+            <DialogComponent.Footer>
               <Button
                 onClick={handleClose}
                 disabled={isLoading}
@@ -168,11 +171,11 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
               >
                 {isLoading ? <Spinner className=" h-full" /> : "Create"}
               </Button>
-            </div>
+            </DialogComponent.Footer>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </DialogComponent.Content>
+    </DialogComponent>
   );
 };
 

@@ -48,6 +48,7 @@ import { CarInfoComboBox } from "@components/dashboard/car-info-combobox";
 import { MultiFileUploader } from "./multi-file-uploader";
 import useObjectCompare from "@hooks/use-compare-objs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import DialogComponent from "@components/dialog-component";
 
 interface ProductFormProps {
   categories: Category[];
@@ -233,16 +234,18 @@ const ProductForm: React.FC<ProductFormProps> = ({
     }
   }
   return (
-    <Dialog open={isEditing} onOpenChange={handleClose}>
+    <DialogComponent open={isEditing} onOpenChange={handleClose}>
       <Button onClick={() => handleOpen("open")} size="sm" className=" w-full">
         {productToEdit ? " Edit" : "Create"} a porduct
       </Button>
 
-      <DialogContent className=" max-h-[77vh] overflow-y-auto max-w-[1000px] sm:p-14">
-        <DialogHeader>
-          <DialogTitle>Product form</DialogTitle>
-          <DialogDescription>Create or edit products.</DialogDescription>
-        </DialogHeader>
+      <DialogComponent.Content className=" max-h-[77vh] overflow-y-auto max-w-[1000px] sm:p-14">
+        <DialogComponent.Header>
+          <DialogComponent.Title>Product form</DialogComponent.Title>
+          <DialogComponent.Description>
+            Create or edit products.
+          </DialogComponent.Description>
+        </DialogComponent.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
             <FormField
@@ -543,7 +546,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               </>
             ) : null}
 
-            <div className=" flex  flex-col-reverse sm:flex-row items-center justify-end  gap-3">
+            <DialogComponent.Footer>
               <Button
                 onClick={handleClose}
                 type="reset"
@@ -568,11 +571,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   "Create"
                 )}
               </Button>
-            </div>
+            </DialogComponent.Footer>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </DialogComponent.Content>
+    </DialogComponent>
   );
 };
 

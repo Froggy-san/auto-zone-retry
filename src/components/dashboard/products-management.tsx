@@ -48,7 +48,7 @@ const ProductManagement = async ({
           {productToEdit ? "Edit product." : "Add product."}
         </p>
       </div>
-      <div className=" flex items-center  gap-3">
+      <div className=" sm:pr-2">
         <ProductForm
           useParams={useParams}
           productToEdit={productToEdit}

@@ -8,7 +8,7 @@ const CarMakerManagement = async () => {
         <label className=" font-semibold">Car makers</label>
         <p className=" text-muted-foreground text-sm">Add car makers.</p>
       </div>
-      <div className=" flex items-center  gap-3">
+      <div className=" sm:pr-2">
         <CarkMakerForm />
       </div>
     </div>
