@@ -88,6 +88,8 @@ const DialogTrigger = React.forwardRef<
   );
 });
 
+DialogTrigger.displayName = "DialogTrigger";
+
 const DialogClose = React.forwardRef<
   React.ElementRef<"button">,
   React.ComponentPropsWithoutRef<"button">
@@ -107,6 +109,7 @@ const DialogClose = React.forwardRef<
   );
 });
 
+DialogClose.displayName = "DialogClose";
 const DialogHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
   ...props
@@ -127,6 +130,7 @@ interface DialogContentProps {
   className?: string;
 }
 
+DialogHeader.displayName = "DialogHeader";
 const DialogOverlay = React.forwardRef<HTMLDivElement, DialogOverlayProps>(
   ({ className, ...props }, ref) => {
     const { open, handleOpen } = useContext(DialogContext);
@@ -153,7 +157,7 @@ const DialogOverlay = React.forwardRef<HTMLDivElement, DialogOverlayProps>(
     );
   }
 );
-
+DialogOverlay.displayName = "DialogOverlay";
 const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
   ({ children, className }, externalRef) => {
     const { open } = useContext(DialogContext);
@@ -218,7 +222,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
     );
   }
 );
-
+DialogContent.displayName = "DialogContent";
 const DialogTitle = React.forwardRef<
   React.ElementRef<"h1">,
   React.ComponentPropsWithoutRef<"h1">
@@ -234,7 +238,7 @@ const DialogTitle = React.forwardRef<
     />
   );
 });
-
+DialogTitle.displayName = "DialogTitle";
 const DialogDescription = React.forwardRef<
   React.ElementRef<"h2">,
   React.ComponentPropsWithoutRef<"h2">
@@ -247,6 +251,7 @@ const DialogDescription = React.forwardRef<
     />
   );
 });
+DialogDescription.displayName = "DialogDescription";
 
 const DialogFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   className,
@@ -260,7 +265,7 @@ const DialogFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
     {...props}
   />
 );
-
+DialogFooter.displayName = "DialogFooter";
 // Attach subcomponents to the main DialogComponent
 
 DialogComponent.Trigger = DialogTrigger;
