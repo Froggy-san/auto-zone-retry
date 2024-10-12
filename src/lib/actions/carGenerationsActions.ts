@@ -3,12 +3,16 @@
 import { getToken } from "@lib/helper";
 import { CarGeneration } from "@lib/types";
 
-export async function getAllCarGenerationsAction() {
+export async function getAllCarGenerationsAction(page?: number) {
   const token = getToken();
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
-  const response = await fetch(`${process.env.API_URL}/api/cargenerations`, {
+
+  let query = `${process.env.API_URL}/api/CarGenerations`;
+  if (page) query = query + `?PageNumber=${page}&PageSize=${10}`;
+
+  const response = await fetch(query, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -25,8 +29,16 @@ export async function getAllCarGenerationsAction() {
     };
   }
 
-  const data = await response.json();
-  return { data, error: "" };
+  const carGenerationsData = await response.json();
+
+  let countData;
+
+  if (page) {
+    const count = await getCarGenerationCountAction();
+    countData = count.data;
+  }
+
+  return { data: { carGenerationsData, count: countData }, error: "" };
 }
 
 export async function createCarGenerationAction(generations: CarGeneration) {
@@ -53,8 +65,8 @@ export async function editCarGenerationAction({
   generation,
   id,
 }: {
-  generation: CarGeneration;
-  id: string;
+  generation: { name: string; notes: string };
+  id: number;
 }) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
@@ -74,17 +86,17 @@ export async function editCarGenerationAction({
     throw new Error("Something went wrong!");
   }
 
-  const data = await response.json();
-  return data;
+  // const data = await response.json();
+  // return data;
 }
 
-export async function deleteCarGenerationAction(id: string) {
+export async function deleteCarGenerationAction(id: number) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
   const response = await fetch(
-    `${process.env.API_URL}/api/cargenerations/${id}`,
+    `${process.env.API_URL}/api/CarGenerations/${id}`,
     {
-      method: "PUT",
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-type": "application/json",
@@ -96,8 +108,8 @@ export async function deleteCarGenerationAction(id: string) {
     throw new Error("Something went wrong!");
   }
 
-  const data = await response.json();
-  return data;
+  // const data = await response.json();
+  // return data;
 }
 
 export async function getCarGenerationCountAction() {

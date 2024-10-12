@@ -134,6 +134,14 @@ export const CreateProdcutImageSchema = z.object({
   isMain: z.boolean().default(false),
 });
 
+export const EditNameAndNote = z.object({
+  name: z
+    .string()
+    .min(3, { message: "Too short" })
+    .max(100, { message: "Too long" }),
+  notes: z.string(),
+});
+
 export interface signUpProps {
   username: string;
   email: string;
