@@ -6,6 +6,7 @@ import GenerationItem from "./generation-item";
 import { CarGenerationProps } from "@lib/types";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
+import Spinner from "@components/Spinner";
 
 const CarGenerationList = () => {
   const [page, setPage] = useState(1);
@@ -19,9 +20,10 @@ const CarGenerationList = () => {
     if (carGenerationData.length === 1) {
       setPage((page) => page - 1);
     }
-  }, [carGenerationData.length]);
-  console.log(carGenerationData, "CAR GENERATION DATA");
-  if (isLoading) return <p>Loading...</p>;
+  }, [carGenerationData.length, setPage]);
+
+  if (error) return <p>{String(error)}</p>;
+  if (isLoading) return <Spinner className=" h-[300px]" size={25} />;
 
   if (!carGenerationData.length) return null;
 
@@ -54,12 +56,12 @@ const CarGenerationList = () => {
         </Button>
         <Button
           onClick={() => {
-            if (page === pageCount) return;
+            if (isLoading || page === pageCount) return;
             setPage((page) => page + 1);
           }}
           variant="secondary"
           size="icon"
-          disabled={page === pageCount}
+          disabled={isLoading || page === pageCount}
         >
           <MoveRight size={12} />
         </Button>
