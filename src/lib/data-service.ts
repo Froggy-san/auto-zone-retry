@@ -1,3 +1,4 @@
+import { getAllCarGenerationsAction } from "./actions/carGenerationsActions";
 import { getToken } from "./helper";
 
 export async function getAllCategories() {
@@ -133,3 +134,10 @@ export async function createCarMakerAction(formData: FormData) {
   const data = await response.json();
   return data;
 }
+
+// export async function getCarGenerations(page: number) {
+//   const { data, error } = await getAllCarGenerationsAction({ page });
+//   if (error) throw new Error(error);
+
+//   return data;
+// }

@@ -37,11 +37,12 @@ import { createCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { ModelCombobox } from "@components/model-combobox";
 import useObjectCompare from "@hooks/use-compare-objs";
 import DialogComponent from "@components/dialog-component";
+import { useQueryClient } from "@tanstack/react-query";
 
 const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
-
+  const queryClient = useQueryClient();
   const defaultValues = {
     name: "",
     notes: "",
@@ -62,6 +63,9 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
       await createCarGenerationAction(carGeneration);
+      handleClose();
+      queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
+
       form.reset();
       toast({
         title: "Success!.",

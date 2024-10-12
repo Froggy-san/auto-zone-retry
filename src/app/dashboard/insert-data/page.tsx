@@ -1,3 +1,4 @@
+import CarGenerationList from "@components/dashboard/car-generation-list";
 import CarGenerationManagement from "@components/dashboard/car-generation-management";
 import CarInfoManagement from "@components/dashboard/car-info-management";
 import CarMakerManagement from "@components/dashboard/car-makers-managment";
@@ -27,9 +28,11 @@ const Page = () => {
           <ProductManagement />
         </div>
         <Link href="/products">Products</Link>
-        <Suspense fallback={<Spinner size={30} className=" mt-10" />}>
+        {/* <Suspense fallback={<Spinner size={30} className=" mt-10" />}>
           <CategoryList />
-        </Suspense>
+        </Suspense> */}
+
+        <CarGenerationList />
       </section>
     </main>
   );

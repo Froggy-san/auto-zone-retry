@@ -1,6 +1,6 @@
-import { cookies } from "next/headers";
 import { AUTH_TOEKN_NAME } from "./constants";
 import { TokenData } from "./types";
+import { cookies } from "next/headers";
 
 export function getToken() {
   const cookie = cookies();
