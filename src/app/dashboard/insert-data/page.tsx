@@ -4,13 +4,10 @@ import CarInfoManagement from "@components/dashboard/car-info-management";
 import CarMakerManagement from "@components/dashboard/car-makers-managment";
 import CarModelManagement from "@components/dashboard/car-model-management";
 import CategroyForm from "@components/dashboard/category-from";
-import CategoryList from "@components/dashboard/cetgory-list";
 import ProductBrandForm from "@components/dashboard/product-brand-form";
 import ProductTypeForm from "@components/dashboard/product-type-form";
 import ProductManagement from "@components/dashboard/products-management";
-import Spinner from "@components/Spinner";
 import Link from "next/link";
-import React, { Suspense } from "react";
 
 const Page = () => {
   return (

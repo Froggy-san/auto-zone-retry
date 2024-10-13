@@ -6,9 +6,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Button, ButtonProps } from "./ui/button";
-import { createPortal } from "react-dom";
+import { motion } from "framer-motion";
+
 import { cn } from "@lib/utils";
 import * as Portal from "@radix-ui/react-portal";
 import { Cross2Icon } from "@radix-ui/react-icons";
@@ -47,6 +46,10 @@ function DialogComponent({
         body.style.overflow = "visible";
       }
     }
+
+    return () => {
+      if (body) body.style.overflow = "visible";
+    };
   }, [isDialogOpen]);
 
   const handleOpenChange = () => {

@@ -87,7 +87,7 @@ const CarkMakerForm = () => {
         Create car maker
       </Button>
 
-      <DialogContent className=" max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
+      <DialogContent className=" max-h-[65vh]  sm:max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogHeader>
           <DialogTitle>Car makers</DialogTitle>
           <DialogDescription>Create a new car maker.</DialogDescription>

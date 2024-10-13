@@ -88,7 +88,7 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
         Create car generation
       </Button>
 
-      <DialogComponent.Content className=" max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
+      <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogComponent.Header>
           <DialogComponent.Title>Car generations</DialogComponent.Title>
           <DialogComponent.Description>

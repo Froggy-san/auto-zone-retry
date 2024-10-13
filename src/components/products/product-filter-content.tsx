@@ -19,6 +19,8 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@mui/material";
+import { useIntersectionProvidor } from "./intersection-providor";
+import { cn } from "@lib/utils";
 
 interface ProdcutFilterContentProps {
   categories: Category[];
@@ -40,8 +42,10 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   productTypeId,
   productBrandId,
 }) => {
+  const { inView } = useIntersectionProvidor();
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const pathname = usePathname();
   const isBigScreen = useMediaQuery("(min-width:640px)");
   function handleChange(number: number, name: string, initalValue: number) {
@@ -54,6 +58,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
       params.set(`${name}`, String(number));
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     }
+    window.scrollTo(0, 0);
   }
 
   return (
@@ -109,7 +114,9 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
         <Drawer shouldScaleBackground>
           <DrawerTrigger asChild>
             <Button
-              className=" fixed right-4 bottom-5 z-50  "
+              className={cn("fixed right-4 bottom-5 z-50 ", {
+                "opacity-0 invisible": inView,
+              })}
               size="icon"
               variant="outline"
             >

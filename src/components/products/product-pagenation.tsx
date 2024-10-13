@@ -10,6 +10,7 @@ import { getProductsCountAction } from "@lib/actions/productsActions";
 import { useToast } from "@hooks/use-toast";
 import { ErorrToastDescription } from "@components/toast-items";
 import Spinner from "@components/Spinner";
+import { useIntersectionProvidor } from "./intersection-providor";
 
 interface ProductsListProps {
   name?: string;
@@ -25,6 +26,8 @@ const ProductPagenation: React.FC<ProductsListProps> = ({
   productBrandId,
   isAvailable,
 }) => {
+  const { ref } = useIntersectionProvidor();
+
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -84,7 +87,7 @@ const ProductPagenation: React.FC<ProductsListProps> = ({
   if (error) return <p>{error}</p>;
   if (!count) return null;
   return (
-    <nav className=" w-full my-4">
+    <nav ref={ref} className=" w-full my-4">
       <ul className="  flex gap-3  w-full justify-center">
         {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
         {items.map(({ page, type, disabled, ...item }, index) => {
