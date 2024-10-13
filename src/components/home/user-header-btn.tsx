@@ -14,7 +14,6 @@ import { logoutUser } from "@/lib/actions/authActions";
 import { User as UserType } from "@/lib/types";
 
 const UserHeaderBtn = ({ user }: { user: UserType | null }) => {
-  console.log(user);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

@@ -11,22 +11,23 @@ export default function useCarGenerations(page: number) {
     isLoading,
     error,
   } = useQuery({
-    queryFn: () => getAllCarGenerationsAction(page),
+    queryFn: async () => await getAllCarGenerationsAction(page),
     queryKey: ["carGenerations", page],
+    enabled: !!page,
   });
 
-  const pageCount = data?.count ? Math.ceil(Number(data.count) / 10) : 1;
+  const pageCount = data?.count ? Math.ceil(Number(data.count) / 10) : 0;
 
   if (page < pageCount) {
     queryClient.prefetchQuery({
-      queryFn: () => getAllCarGenerationsAction(page + 1),
+      queryFn: async () => await getAllCarGenerationsAction(page + 1),
       queryKey: ["carGenerations", page + 1],
     });
   }
 
   if (page > 1) {
     queryClient.prefetchQuery({
-      queryFn: () => getAllCarGenerationsAction(page - 1),
+      queryFn: async () => await getAllCarGenerationsAction(page - 1),
       queryKey: ["carGenerations", page - 1],
     });
   }
