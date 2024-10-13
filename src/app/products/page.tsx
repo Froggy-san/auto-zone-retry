@@ -32,6 +32,9 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   //   return <div>Error loading data</div>;
   // }
 
+  const key =
+    pageNumber + categoryId + productTypeId + productBrandId + isAvailable;
+
   return (
     <main
       data-vaul-drawer-wrapper
@@ -47,7 +50,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
           isAvailable={isAvailable}
         />
         <section className=" flex-1 ">
-          <Suspense fallback={<Spinner />} key={pageNumber}>
+          <Suspense fallback={<Spinner />} key={key}>
             <ProductsList
               name={name}
               pageNumber={pageNumber}

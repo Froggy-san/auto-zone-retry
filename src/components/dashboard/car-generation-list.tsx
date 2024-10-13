@@ -25,7 +25,8 @@ const CarGenerationList = () => {
   if (error) return <p>{String(error)}</p>;
   if (isLoading) return <Spinner className=" h-[300px]" size={25} />;
 
-  if (!carGenerationData.length) return null;
+  if (!carGenerationData.length)
+    return <p>No car generation data has been posted yet!</p>;
 
   return (
     <div className="mt-10 ">
@@ -45,18 +46,19 @@ const CarGenerationList = () => {
       <div className=" flex  my-4 justify-end gap-3">
         <Button
           onClick={() => {
-            if (page === 1) return;
+            if (isLoading || page === 1) return;
             setPage((page) => page - 1);
           }}
           size="icon"
           variant="secondary"
-          disabled={page === 1}
+          disabled={isLoading || page === 1}
         >
           <MoveLeft size={12} />
         </Button>
         <Button
           onClick={() => {
             if (isLoading || page === pageCount) return;
+
             setPage((page) => page + 1);
           }}
           variant="secondary"
