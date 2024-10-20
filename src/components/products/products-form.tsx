@@ -191,7 +191,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
         handleClose();
       } else {
-        let imagesToUpload = images.length
+        const imagesToUpload = images.length
           ? images.map((image) => {
               const formData = new FormData();
               formData.append("image", image);
