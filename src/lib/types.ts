@@ -1,4 +1,18 @@
 import { z } from "zod";
+
+export function validateEgyptianPhoneNumber(phoneNumber: string) {
+  "use client";
+  // define the regex
+  const regex = /^01[0125][0-9]{8}$/;
+  // test the string against the regex
+  if (regex.test(phoneNumber)) {
+    // return true if it matches
+    return true;
+  } else {
+    // return false if it doesn't
+    return false;
+  }
+}
 export interface FilesWithPreview extends File {
   preview: string;
 }
@@ -142,6 +156,25 @@ export const EditNameAndNote = z.object({
   notes: z.string(),
 });
 
+const phone = z.object({
+  number: z
+    .string()
+    .min(11, { message: "This phone number is too short" })
+    .max(11, { message: "This phone number is too long." })
+    .refine((phone) => validateEgyptianPhoneNumber(phone), {
+      message: "This phone number is not valid",
+    }),
+});
+
+export const CreateClientSchema = z.object({
+  name: z
+    .string()
+    .min(4, { message: "Put a valid name" })
+    .max(100, { message: "The name is too long" }),
+  email: z.string().describe("Email"),
+  phones: phone.array(),
+});
+
 export interface signUpProps {
   username: string;
   email: string;
@@ -247,6 +280,7 @@ export interface CreateProductProps {
   salePrice: number;
   stock: number;
   isAvailable: boolean;
+  images: FormData[];
 }
 
 export interface Product {
@@ -304,3 +338,4 @@ export type Car = z.infer<typeof CarSchema>;
 export type CreateCarMaker = z.infer<typeof CreateCarMakerScehma>;
 export type CreateCarModel = z.infer<typeof CreateCarModelSchema>;
 export type CreateCarInfoSchema = z.infer<typeof CreateCarInfoSchema>;
+export type CreateClient = z.infer<typeof CreateClientSchema>;

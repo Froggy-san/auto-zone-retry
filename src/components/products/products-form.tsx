@@ -119,7 +119,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
     images: [],
     isMain: false,
   };
-  console.log(productToEdit, "PRODDD");
 
   const defaultValues = {
     name: pro.name || "NAMEEEEEE",
@@ -192,6 +191,26 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
         handleClose();
       } else {
+        let imagesToUpload = images.length
+          ? images.map((image) => {
+              const formData = new FormData();
+              formData.append("image", image);
+              // formData.append("productId", String(prodcutId));
+              formData.append("isMain", "false");
+              return formData;
+            })
+          : [];
+        // if (images.length) {
+        //   const imagesToUpload = images.map((image) => {
+        //     const formData = new FormData();
+        //     formData.append("image", image);
+        //     // formData.append("productId", String(prodcutId));
+        //     formData.append("isMain", "false");
+        //     return formData;
+        //   });
+
+        // }
+
         await createProductAction({
           name,
           categoryId,
@@ -203,7 +222,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
           salePrice,
           stock,
           isAvailable,
+          images: imagesToUpload,
         });
+
+        handleClose();
       }
 
       toast({
@@ -484,59 +506,56 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 )}
               />
             </div>
-            {productToEdit ? (
-              <>
-                <FormField
-                  disabled={isLoading}
-                  control={form.control}
-                  name="images"
-                  render={({ field }) => (
-                    <FormItem className=" w-full">
-                      <FormLabel>Product images</FormLabel>
-                      <FormControl>
-                        <MultiFileUploader
-                          handleDeleteMedia={handleDeleteMedia}
-                          selectedFiles={field.value}
-                          fieldChange={field.onChange}
-                          mediaUrl={mediaUrls}
-                        />
-                      </FormControl>
-                      <FormDescription className=" flex justify-between">
-                        <span> Add images related to the product.</span>{" "}
-                        <span className=" text-xs">
-                          Images: {field.value.length + mediaUrls?.length}
-                        </span>
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
-                <FormField
-                  disabled={isLoading}
-                  control={form.control}
-                  name="isMain"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row h-fit  items-center justify-between rounded-lg border p-3 shadow-sm w-full">
-                      <div className="space-y-0.5 ">
-                        <FormLabel>Main image?</FormLabel>
-                        <FormDescription>
-                          Set the image as the main image.
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          disabled
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          aria-readonly
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </>
-            ) : null}
+            <FormField
+              disabled={isLoading}
+              control={form.control}
+              name="images"
+              render={({ field }) => (
+                <FormItem className=" w-full">
+                  <FormLabel>Product images</FormLabel>
+                  <FormControl>
+                    <MultiFileUploader
+                      handleDeleteMedia={handleDeleteMedia}
+                      selectedFiles={field.value}
+                      fieldChange={field.onChange}
+                      mediaUrl={mediaUrls}
+                    />
+                  </FormControl>
+                  <FormDescription className=" flex justify-between">
+                    <span> Add images related to the product.</span>{" "}
+                    <span className=" text-xs">
+                      Images: {field.value.length + mediaUrls?.length}
+                    </span>
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              disabled={isLoading}
+              control={form.control}
+              name="isMain"
+              render={({ field }) => (
+                <FormItem className="flex flex-row h-fit  items-center justify-between rounded-lg border p-3 shadow-sm w-full">
+                  <div className="space-y-0.5 ">
+                    <FormLabel>Main image?</FormLabel>
+                    <FormDescription>
+                      Set the image as the main image.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      disabled
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      aria-readonly
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <DialogComponent.Footer>
               <Button

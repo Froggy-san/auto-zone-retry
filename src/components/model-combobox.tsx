@@ -56,7 +56,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   // const [value, setValue] = React.useState(0);
-  console.log(value);
+
   const selectedItem = options.find((option) => option.id === value);
   // console.log(options, "OP");
   return (
