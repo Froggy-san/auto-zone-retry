@@ -25,11 +25,11 @@ export default function useCarGenerations(page: number) {
     });
   }
 
-  if (page > 1) {
-    queryClient.prefetchQuery({
-      queryFn: async () => await getAllCarGenerationsAction(page - 1),
-      queryKey: ["carGenerations", page - 1],
-    });
-  }
+  // if (page > 1) {
+  //   queryClient.prefetchQuery({
+  //     queryFn: async () => await getAllCarGenerationsAction(page - 1),
+  //     queryKey: ["carGenerations", page - 1],
+  //   });
+  // }
   return { data, pageCount, isLoading, error };
 }

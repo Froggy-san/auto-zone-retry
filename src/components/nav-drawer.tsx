@@ -3,7 +3,10 @@ import React, { useState } from "react";
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
@@ -19,10 +22,10 @@ const NavDrawer = () => {
         </Button>
       </DrawerTrigger>
       <DrawerContent className=" h-full  w-[250px] sm:w-[350px]">
-        {/* <DrawerHeader>
+        <DrawerHeader className=" hidden">
           <DrawerTitle>Are you absolutely sure?</DrawerTitle>
           <DrawerDescription>This action cannot be undone.</DrawerDescription>
-        </DrawerHeader> */}
+        </DrawerHeader>
         <div className=" p-4 flex flex-col gap-3 justify-start">
           <Button
             asChild
