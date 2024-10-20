@@ -10,10 +10,10 @@ import { redirect } from "next/navigation";
 interface GetPhoneNumbersActionProps {
   number?: string;
   clientId?: number;
-  pageNumber: string;
+  pageNumber?: string;
 }
 
-export async function getProductsAction({
+export async function getPhonesAction({
   pageNumber,
   clientId,
   number,
@@ -25,8 +25,10 @@ export async function getProductsAction({
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
 
-  let query = `${process.env.API_URL}/api/Clients?PageNumber=${pageNumber}&PageSize=${PAGE_SIZE}`;
+  let query = `${process.env.API_URL}/api/Phones?`;
 
+  if (pageNumber)
+    query = query + `PageNumber=${pageNumber}&PageSize=${PAGE_SIZE}`;
   if (number) query = query + `&Number=${number}`;
   if (clientId) query = query + `&CategoryId=${clientId}`;
 

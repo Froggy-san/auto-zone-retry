@@ -156,15 +156,40 @@ export const EditNameAndNote = z.object({
   notes: z.string(),
 });
 
-const phone = z.object({
-  number: z
-    .string()
-    .min(11, { message: "This phone number is too short" })
-    .max(11, { message: "This phone number is too long." })
-    .refine((phone) => validateEgyptianPhoneNumber(phone), {
-      message: "This phone number is not valid",
-    }),
-});
+// const phone = z.object({
+//   id: z.number().nullable(),
+//   number: z
+//     .string()
+//     .min(11, { message: "This phone number is too short" })
+//     .max(11, { message: "This phone number is too long." })
+//     .refine((phone) => validateEgyptianPhoneNumber(phone), {
+//       message: "This phone number is not valid",
+//     }),
+//   clientId: z.number().nullable(),
+// });
+
+const phone = z
+  .object({
+    id: z.number().nullable(),
+    number: z
+      .string()
+      .min(11, { message: "This phone number is too short" })
+      .max(11, { message: "This phone number is too long." })
+      .refine((phone) => validateEgyptianPhoneNumber(phone), {
+        message: "This phone number is not valid",
+      }),
+    clientId: z.number().nullable(),
+  })
+  .partial({ id: true, clientId: true })
+  .refine(
+    (data) =>
+      (data.id === null && data.clientId === null) ||
+      (data.id !== null && data.clientId !== null),
+    {
+      message:
+        "id and clientId must either both be included or both be omitted",
+    }
+  );
 
 export const CreateClientSchema = z.object({
   name: z
@@ -328,6 +353,22 @@ export interface EditProduct {
   salePrice: number;
   stock: number;
   isAvailable: boolean;
+}
+
+export interface Client {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface PhoneNumber {
+  id: number;
+  number: string;
+  clientId: number;
+}
+
+export interface ClientWithPhoneNumbers extends Client {
+  phoneNumbers: PhoneNumber[];
 }
 
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;

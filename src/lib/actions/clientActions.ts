@@ -3,15 +3,22 @@
 import { AUTH_TOEKN_NAME, PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
 import {
+  Client,
+  ClientWithPhoneNumbers,
   CreateClient,
   CreateProductProps,
   EditProduct,
+  PhoneNumber,
   ProductImage,
 } from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createPhoneNumAction } from "./phoneActions";
+import {
+  createPhoneNumAction,
+  getPhonesAction,
+  getPhonesCountAction,
+} from "./phoneActions";
 
 interface GetClientsActionProps {
   name?: string;
@@ -32,6 +39,8 @@ export async function getClientsAction({
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
+
+  const { data: phoneNumbers, error } = await getPhonesAction({});
 
   let query = `${process.env.API_URL}/api/Clients?PageNumber=${pageNumber}&PageSize=${PAGE_SIZE}`;
 
@@ -70,9 +79,21 @@ export async function getClientsAction({
     };
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as Client[];
 
-  return { data, error: "" };
+  // console.log(phoneNumbers, "PHONE NUMBERS");
+  let ClientsData: ClientWithPhoneNumbers[] = [];
+
+  if (data.length && phoneNumbers.length) {
+    ClientsData = data.map((clientData) => {
+      const phoneNumbersData = phoneNumbers.filter(
+        (phone: PhoneNumber) => phone.clientId === clientData.id
+      );
+      return { ...clientData, phoneNumbers: phoneNumbersData };
+    });
+  }
+
+  return { data: ClientsData, error: "" };
 }
 
 export async function getClienttByIdAction(id: number) {
@@ -135,56 +156,30 @@ export async function createClientAction({
   revalidateTag("clients");
 }
 
-export async function editProductAction({
-  productToEdit,
-  imagesToUpload,
-  imagesToDelete,
-  isEqual,
+export async function editClientAction({
+  clientToEdit,
 }: {
-  productToEdit: EditProduct;
-  imagesToUpload: FormData[];
-  imagesToDelete: ProductImage[];
-  isEqual: boolean;
+  clientToEdit: Client;
 }) {
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
-
+  const { id, name, email } = clientToEdit;
   if (!token) return redirect("/login");
 
-  if (!isEqual) {
-    const response = await fetch(
-      `${process.env.API_URL}/api/Product/${productToEdit.id}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(productToEdit),
-      }
-    );
+  const response = await fetch(`${process.env.API_URL}/api/Clients/${id}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name, email }),
+  });
 
-    console.log(response);
-    if (!response.ok) throw new Error("Had truble creating a product.");
-  }
+  console.log(response);
+  if (!response.ok) throw new Error("Had truble creating a product.");
 
-  if (imagesToUpload.length) {
-    const upload = imagesToUpload.map((image) =>
-      createProductImageAction(image)
-    );
-    await Promise.all(upload);
-  }
-
-  if (imagesToDelete.length) {
-    const deleteImages = imagesToDelete.map((deletedImage) =>
-      deleteProductsImageAction(deletedImage.id)
-    );
-
-    await Promise.all(deleteImages);
-  }
-
-  revalidatePath(`/products/${productToEdit.id}`);
-  revalidateTag("products");
+  // revalidatePath(`/products/${productToEdit.id}`);
+  revalidateTag("clients");
 
   // const data = await response.json();
   // return data;
