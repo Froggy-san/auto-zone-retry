@@ -1,4 +1,4 @@
-import React, { SetStateAction } from "react";
+import React, { SetStateAction, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,6 +27,13 @@ const DeleteProductDialog = ({
   setOpen: React.Dispatch<SetStateAction<boolean>>;
 }) => {
   const { toast } = useToast();
+
+  useEffect(() => {
+    return () => {
+      const body = document.querySelector("body");
+      if (body) body.style.pointerEvents = "auto";
+    };
+  }, [open]);
 
   async function handleDelete() {
     try {

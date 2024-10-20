@@ -29,10 +29,10 @@ const CarGenerationList = () => {
   }, [carGenerationData.length, setPage]);
 
   if (error) return <p>{String(error)}</p>;
-  if (isLoading) return <Spinner className=" h-[300px]" size={25} />;
+  // if (isLoading) return <Spinner className=" h-[300px]" size={25} />;
 
-  if (!carGenerationData.length)
-    return <p>No car generation data has been posted yet!</p>;
+  // if (!carGenerationData.length)
+  //   return <p>No car generation data has been posted yet!</p>;
 
   return (
     <Accordion type="single" collapsible className=" my-10 ">
@@ -44,15 +44,21 @@ const CarGenerationList = () => {
           </h3>
         </AccordionTrigger>
         <AccordionContent>
-          <ul className=" flex flex-wrap gap-2 p-4 max-h-[45vh] overflow-y-auto  ">
-            {carGenerationData.map((item) => (
-              <GenerationItem
-                key={item.id}
-                handleResetPage={handleResetPage}
-                item={item}
-              />
-            ))}
-          </ul>
+          {isLoading ? (
+            <Spinner className=" h-[300px]" size={25} />
+          ) : !carGenerationData.length ? (
+            <p>No car generation data has been posted yet!</p>
+          ) : (
+            <ul className=" flex flex-wrap gap-2 p-4 max-h-[45vh] overflow-y-auto  ">
+              {carGenerationData.map((item) => (
+                <GenerationItem
+                  key={item.id}
+                  handleResetPage={handleResetPage}
+                  item={item}
+                />
+              ))}
+            </ul>
+          )}
 
           <div className=" flex  my-4 justify-end gap-3">
             <Button

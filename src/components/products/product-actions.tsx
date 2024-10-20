@@ -56,10 +56,10 @@ export function ProdcutAction({ productId }: { productId: number }) {
               className=" text-red-700 hover:!text-red-700"
               onClick={() => {
                 setOpen(true);
-                const body = document.querySelector("body");
-                if (body) {
-                  body.style.pointerEvents = "auto";
-                }
+                // const body = document.querySelector("body");
+                // if (body) {
+                //   body.style.pointerEvents = "auto";
+                // }
               }}
             >
               Delete

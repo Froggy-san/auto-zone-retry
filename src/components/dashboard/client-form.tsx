@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,7 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CreateClient, CreateClientSchema } from "@lib/types";
+import {
+  ClientWithPhoneNumbers,
+  CreateClient,
+  CreateClientSchema,
+} from "@lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 
 import Spinner from "@components/Spinner";
@@ -33,15 +37,50 @@ import {
 
 import useObjectCompare from "@hooks/use-compare-objs";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { createClientAction } from "@lib/actions/clientActions";
+import {
+  createClientAction,
+  editClientAction,
+} from "@lib/actions/clientActions";
+import { RotateCcw } from "lucide-react";
 
-const ClientForm = () => {
+const ClientForm = ({
+  open,
+  client,
+  handleClose: handleCloseExternal,
+}: {
+  open?: boolean;
+  handleClose?: () => void;
+  client?: ClientWithPhoneNumbers;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const isItOpen = open !== undefined ? open : isOpen;
+  const [deletedPhones, setDeletedPhones] = useState<number[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const body = document.querySelector("body");
+    if (body) {
+      body.style.pointerEvents = "auto";
+    }
+    return () => {
+      if (body) body.style.pointerEvents = "auto";
+    };
+  }, [isItOpen]);
+
+  const clientsPhone = client
+    ? client.phoneNumbers.map((phone) => {
+        return {
+          id: phone.id,
+          number: phone.number,
+          clientId: phone.clientId,
+        };
+      })
+    : [];
   const defaultValues = {
-    name: "",
-    email: "",
-    phones: [],
+    name: client?.name || "",
+    email: client?.email || "",
+    phones: clientsPhone,
   };
   const form = useForm<z.infer<typeof CreateClientSchema>>({
     resolver: zodResolver(CreateClientSchema),
@@ -56,6 +95,7 @@ const ClientForm = () => {
 
   function handleClose() {
     form.reset();
+    handleCloseExternal?.();
     setIsOpen(false);
   }
 
@@ -63,7 +103,14 @@ const ClientForm = () => {
 
   async function onSubmit({ name, email, phones }: CreateClient) {
     try {
-      await createClientAction({ name, email, phones });
+      if (client) {
+        console.log(phones, "PHONES");
+        // await editClientAction({
+        //   clientToEdit: { name, email, id: client.id },
+        // });
+      } else {
+        await createClientAction({ name, email, phones });
+      }
       toast({
         title: "New client.",
         description: (
@@ -81,10 +128,12 @@ const ClientForm = () => {
     }
   }
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <Button onClick={() => setIsOpen(true)} size="sm" className=" w-full">
-        Create client
-      </Button>
+    <Dialog open={isItOpen} onOpenChange={handleClose}>
+      {open === undefined && (
+        <Button onClick={() => setIsOpen(true)} size="sm" className=" w-full">
+          Create client
+        </Button>
+      )}
 
       <DialogContent className=" max-h-[65vh]  sm:max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogHeader>
@@ -204,7 +253,15 @@ const ClientForm = () => {
                 </motion.div>
               ))}
             </div>
-            <div className=" flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
+            <div className=" relative flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
+              <Button
+                onClick={() => form.reset()}
+                type="button"
+                className=" p-0 h-6 w-6  absolute left-5 bottom-0"
+                variant="outline"
+              >
+                <RotateCcw className=" w-4 h-4" />
+              </Button>
               <Button
                 onClick={handleClose}
                 disabled={isLoading}
