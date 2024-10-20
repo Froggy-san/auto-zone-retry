@@ -16,7 +16,6 @@ export async function getAllCarGenerationsAction(page?: number) {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
-      "Cache-Control": "no-store", // Avoid caching
     },
   });
 
