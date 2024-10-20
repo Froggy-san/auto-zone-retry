@@ -108,7 +108,7 @@ const ClientForm = () => {
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>Enter client's name.</FormDescription>
+                    <FormDescription>Enter client&apos;s name.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -129,7 +129,9 @@ const ClientForm = () => {
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>Enter client's email.</FormDescription>
+                    <FormDescription>
+                      Enter client&apos;s email.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -185,7 +187,7 @@ const ClientForm = () => {
                           />
                         </FormControl>
                         <FormDescription>
-                          Enter client's phone number.
+                          Enter client&apos;s phone number.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
