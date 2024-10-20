@@ -2,28 +2,30 @@
 
 import { AUTH_TOEKN_NAME, PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
-import { CreateProductProps, EditProduct, ProductImage } from "@lib/types";
+import {
+  CreateClient,
+  CreateProductProps,
+  EditProduct,
+  ProductImage,
+} from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { createPhoneNumAction } from "./phoneActions";
 
-interface GetProdcutsActionProps {
+interface GetClientsActionProps {
   name?: string;
-  categoryId?: string;
-  productTypeId?: string;
-  productBrandId?: string;
-  isAvailable?: string;
+  email?: string;
+  phone?: string;
   pageNumber: string;
 }
 
-export async function getProductsAction({
+export async function getClientsAction({
   pageNumber,
   name,
-  categoryId,
-  productTypeId,
-  productBrandId,
-  isAvailable,
-}: GetProdcutsActionProps) {
+  email,
+  phone,
+}: GetClientsActionProps) {
   //Product?PageNumber=1&PageSize=10
   // /api/Product?Name=test&CategoryId=1&ProductTypeId=1&ProductBrandId=1&IsAvailable=true&PageNumber=1&PageSize=10
   const token = getToken();
@@ -31,17 +33,13 @@ export async function getProductsAction({
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
 
-  let query = `${process.env.API_URL}/api/Product?PageNumber=${pageNumber}&PageSize=${PAGE_SIZE}`;
+  let query = `${process.env.API_URL}/api/Clients?PageNumber=${pageNumber}&PageSize=${PAGE_SIZE}`;
 
   if (name) query = query + `&Name=${name}`;
 
-  if (categoryId) query = query + `&CategoryId=${categoryId}`;
+  if (email) query = query + `&Email=${email}`;
 
-  if (productTypeId) query = query + `&ProductTypeId=${productTypeId}`;
-
-  if (productBrandId) query = query + `&ProductBrandId=${productBrandId}`;
-
-  if (isAvailable) query = query + `&IsAvailable=${isAvailable}`;
+  if (phone) query = query + `&Phone=${phone}`;
 
   const response = await fetch(query, {
     method: "GET",
@@ -52,7 +50,7 @@ export async function getProductsAction({
     next: {
       // revalidate: 3600,
       tags: [
-        "products",
+        "clients",
         // `${pageNumber}`,
         // `${name}`,
         // `${categoryId}`,
@@ -77,13 +75,13 @@ export async function getProductsAction({
   return { data, error: "" };
 }
 
-export async function getProductByIdAction(id: number) {
+export async function getClienttByIdAction(id: number) {
   const token = getToken();
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
 
-  const response = await fetch(`${process.env.API_URL}/api/Product/${id}`, {
+  const response = await fetch(`${process.env.API_URL}/api/Clients/${id}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -104,57 +102,37 @@ export async function getProductByIdAction(id: number) {
   return { data, error: "" };
 }
 
-export async function createProductAction({
+export async function createClientAction({
   name,
-  categoryId,
-  productTypeId,
-  productBrandId,
-  description,
-  listPrice,
-  carinfoId,
-  salePrice,
-  stock,
-  isAvailable,
-  images,
-}: CreateProductProps) {
+  email,
+  phones,
+}: CreateClient) {
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
   if (!token) return redirect("/login");
 
-  const response = await fetch(`${process.env.API_URL}/api/Product`, {
+  const response = await fetch(`${process.env.API_URL}/api/Clients`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      name,
-      categoryId,
-      productTypeId,
-      productBrandId,
-      description,
-      listPrice,
-      carinfoId,
-      salePrice,
-      stock,
-      isAvailable,
-    }),
+    body: JSON.stringify({ name, email }),
   });
 
   console.log(response);
   if (!response.ok) throw new Error("Had truble creating a product.");
 
-  const { prodcutId } = await response.json();
+  const { clientId } = await response.json();
 
-  if (images.length) {
-    const upload = images.map((image) => {
-      image.append("productId", String(prodcutId));
-      return createProductImageAction(image);
-    });
+  if (phones.length) {
+    const upload = phones.map((phone) =>
+      createPhoneNumAction({ number: phone.number, clientId })
+    );
     await Promise.all(upload);
   }
-  revalidateTag("products");
+  revalidateTag("clients");
 }
 
 export async function editProductAction({

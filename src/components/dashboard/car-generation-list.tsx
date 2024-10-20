@@ -7,6 +7,12 @@ import { CarGenerationProps } from "@lib/types";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
 import Spinner from "@components/Spinner";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const CarGenerationList = () => {
   const [page, setPage] = useState(1);
@@ -29,46 +35,93 @@ const CarGenerationList = () => {
     return <p>No car generation data has been posted yet!</p>;
 
   return (
-    <div className="mt-10 ">
-      <h3 className=" tracking-wider font-semibold text-2xl">
-        CAR GENERATIONS
-      </h3>
-      <ul className=" flex flex-wrap gap-2 p-4 max-h-[45vh] overflow-y-auto  ">
-        {carGenerationData.map((item) => (
-          <GenerationItem
-            key={item.id}
-            handleResetPage={handleResetPage}
-            item={item}
-          />
-        ))}
-      </ul>
+    <Accordion type="single" collapsible className=" my-10 ">
+      <AccordionItem value="item-1" className=" border-none">
+        <AccordionTrigger>
+          {" "}
+          <h3 className=" tracking-wider font-semibold text-2xl">
+            CAR GENERATIONS
+          </h3>
+        </AccordionTrigger>
+        <AccordionContent>
+          <ul className=" flex flex-wrap gap-2 p-4 max-h-[45vh] overflow-y-auto  ">
+            {carGenerationData.map((item) => (
+              <GenerationItem
+                key={item.id}
+                handleResetPage={handleResetPage}
+                item={item}
+              />
+            ))}
+          </ul>
 
-      <div className=" flex  my-4 justify-end gap-3">
-        <Button
-          onClick={() => {
-            if (isLoading || page === 1) return;
-            setPage((page) => page - 1);
-          }}
-          size="icon"
-          variant="secondary"
-          disabled={isLoading || page === 1}
-        >
-          <MoveLeft size={12} />
-        </Button>
-        <Button
-          onClick={() => {
-            if (isLoading || page === pageCount) return;
+          <div className=" flex  my-4 justify-end gap-3">
+            <Button
+              onClick={() => {
+                if (isLoading || page === 1) return;
+                setPage((page) => page - 1);
+              }}
+              size="icon"
+              variant="secondary"
+              disabled={isLoading || page === 1}
+            >
+              <MoveLeft size={12} />
+            </Button>
+            <Button
+              onClick={() => {
+                if (isLoading || page === pageCount) return;
 
-            setPage((page) => page + 1);
-          }}
-          variant="secondary"
-          size="icon"
-          disabled={isLoading || page === pageCount}
-        >
-          <MoveRight size={12} />
-        </Button>
-      </div>
-    </div>
+                setPage((page) => page + 1);
+              }}
+              variant="secondary"
+              size="icon"
+              disabled={isLoading || page === pageCount}
+            >
+              <MoveRight size={12} />
+            </Button>
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+    // <div className="mt-10 ">
+    //   <h3 className=" tracking-wider font-semibold text-2xl">
+    //     CAR GENERATIONS
+    //   </h3>
+    //   <ul className=" flex flex-wrap gap-2 p-4 max-h-[45vh] overflow-y-auto  ">
+    //     {carGenerationData.map((item) => (
+    //       <GenerationItem
+    //         key={item.id}
+    //         handleResetPage={handleResetPage}
+    //         item={item}
+    //       />
+    //     ))}
+    //   </ul>
+
+    //   <div className=" flex  my-4 justify-end gap-3">
+    //     <Button
+    //       onClick={() => {
+    //         if (isLoading || page === 1) return;
+    //         setPage((page) => page - 1);
+    //       }}
+    //       size="icon"
+    //       variant="secondary"
+    //       disabled={isLoading || page === 1}
+    //     >
+    //       <MoveLeft size={12} />
+    //     </Button>
+    //     <Button
+    //       onClick={() => {
+    //         if (isLoading || page === pageCount) return;
+
+    //         setPage((page) => page + 1);
+    //       }}
+    //       variant="secondary"
+    //       size="icon"
+    //       disabled={isLoading || page === pageCount}
+    //     >
+    //       <MoveRight size={12} />
+    //     </Button>
+    //   </div>
+    // </div>
   );
 };
 
