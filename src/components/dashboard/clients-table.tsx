@@ -222,7 +222,7 @@ function DeleteClientDialog({
   client,
 }: {
   open: boolean;
-  isDeleting: Boolean;
+  isDeleting: boolean;
   setIsDeleting: React.Dispatch<SetStateAction<boolean>>;
   handleClose: () => void;
   client: ClientWithPhoneNumbers;
