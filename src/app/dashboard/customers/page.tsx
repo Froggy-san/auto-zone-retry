@@ -13,8 +13,8 @@ interface SearchParams {
   productBrandId?: string;
   isAvailable?: string;
 }
-const Page = ({ searchParam }: { searchParam: SearchParams }) => {
-  const pageNumber = searchParam?.page ?? "1";
+const Page = ({ searchParams }: { searchParams: SearchParams }) => {
+  const pageNumber = searchParams?.page ?? "1";
   return (
     <main>
       <h2 className="  font-semibold text-4xl">MANAGE CLIENTS.</h2>
