@@ -10,6 +10,7 @@ interface MultiFileUploaderProps {
   fieldChange: React.Dispatch<SetStateAction<File[]>>;
   selectedFiles: FilesWithPreview[];
   mediaUrl?: ProductImage[];
+  disabled?: boolean;
   handleDeleteMedia: (image: ProductImage) => void;
 }
 
@@ -17,6 +18,7 @@ export function MultiFileUploader({
   selectedFiles,
   fieldChange,
   handleDeleteMedia,
+  disabled,
   mediaUrl,
 }: MultiFileUploaderProps) {
   // Handle file drop
@@ -69,6 +71,7 @@ export function MultiFileUploader({
           {mediaUrl?.map((media, i) => (
             <li key={i} className="relative flex justify-center items-center">
               <Button
+                disabled={disabled}
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -93,6 +96,7 @@ export function MultiFileUploader({
           {selectedFiles.map((file, i) => (
             <li key={i} className="relative">
               <Button
+                disabled={disabled}
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -121,8 +125,15 @@ export function MultiFileUploader({
           ) : (
             <div className="flex items-center justify-center gap-3 flex-col">
               <ImageUp size={40} />
-              Drag &apos;n&apos; drop some files herersquo; or click to select
-              files
+              <p className=" hidden sm:block">
+                {" "}
+                Drag &apos;n&apos; drop some files here, or click to select
+                files
+              </p>
+              <p className="  sm:hidden">
+                {" "}
+                touch to upload files here, or click to select files
+              </p>
             </div>
           )}
         </div>

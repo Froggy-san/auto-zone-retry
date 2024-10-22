@@ -18,6 +18,7 @@ import {
   ClientWithPhoneNumbers,
   CreateClient,
   CreateClientSchema,
+  PhoneNumber,
 } from "@lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -53,20 +54,11 @@ const ClientForm = ({
   client?: ClientWithPhoneNumbers;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  const isItOpen = open !== undefined ? open : isOpen;
-  const [deletedPhones, setDeletedPhones] = useState<number[]>([]);
+  const [deletedPhones, setDeletedPhones] = useState<PhoneNumber[]>([]);
   const { toast } = useToast();
+  const isItOpen = open !== undefined ? open : isOpen;
 
-  useEffect(() => {
-    const body = document.querySelector("body");
-    if (body) {
-      body.style.pointerEvents = "auto";
-    }
-    return () => {
-      if (body) body.style.pointerEvents = "auto";
-    };
-  }, [isItOpen]);
+  console.log(deletedPhones, "DELETED PHONES");
 
   const clientsPhone = client
     ? client.phoneNumbers.map((phone) => {
@@ -77,6 +69,8 @@ const ClientForm = ({
         };
       })
     : [];
+
+  console.log(clientsPhone, "Clients phone");
   const defaultValues = {
     name: client?.name || "",
     email: client?.email || "",
@@ -86,6 +80,9 @@ const ClientForm = ({
     resolver: zodResolver(CreateClientSchema),
     defaultValues,
   });
+
+  const phonesNumbers = form.getValues("phones");
+
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
 
   const { fields, append, remove } = useFieldArray({
@@ -94,32 +91,59 @@ const ClientForm = ({
   });
 
   function handleClose() {
-    form.reset();
+    // form.reset();
     handleCloseExternal?.();
     setIsOpen(false);
   }
 
   const isLoading = form.formState.isSubmitting;
 
+  useEffect(() => {
+    const body = document.querySelector("body");
+    form.reset(defaultValues);
+    if (body) {
+      body.style.pointerEvents = "auto";
+    }
+    return () => {
+      if (body) body.style.pointerEvents = "auto";
+    };
+  }, [isItOpen]);
+
   async function onSubmit({ name, email, phones }: CreateClient) {
     try {
       if (client) {
-        console.log(phones, "PHONES");
-        // await editClientAction({
-        //   clientToEdit: { name, email, id: client.id },
-        // });
+        const phonesToAdd = phones.filter(
+          (phone) => !phone.clientId && !phone.id
+        );
+
+        const phonesToEdit = phones.filter(
+          (phone) => phone.id !== undefined && phone.clientId !== undefined
+        ) as PhoneNumber[];
+        const clientToEdit = { name, email, id: client.id };
+
+        await editClientAction({
+          clientToEdit,
+          phonesToAdd,
+          phonesToDelete: deletedPhones,
+          phonesToEdit,
+        });
       } else {
         await createClientAction({ name, email, phones });
       }
+      handleClose();
+      setDeletedPhones([]);
       toast({
-        title: "New client.",
+        title: client
+          ? `${client.name}'s data has been changed`
+          : "New client.",
         description: (
           <SuccessToastDescription message="A new client has been created." />
         ),
       });
-      handleClose();
+      // handleClose();
     } catch (error: any) {
       console.log(error);
+      form.reset();
       toast({
         variant: "destructive",
         title: "Faild to create a new client.",
@@ -243,7 +267,19 @@ const ClientForm = ({
                     )}
                   />
                   <button
-                    onClick={() => remove(i)}
+                    onClick={() => {
+                      remove(i);
+                      if (
+                        field.clientId &&
+                        phonesNumbers[i].id &&
+                        phonesNumbers[i].clientId
+                      ) {
+                        setDeletedPhones((prev) => [
+                          ...prev,
+                          phonesNumbers[i] as PhoneNumber,
+                        ]);
+                      }
+                    }}
                     className=" rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground "
                     type="button"
                   >

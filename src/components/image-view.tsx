@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ClickAwayListener } from "@mui/base";
+import { ClickAwayListener, Portal } from "@mui/base";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
@@ -56,7 +56,7 @@ const ImageView = ({
 
   return (
     <>
-      {createPortal(
+      <Portal>
         <AnimatePresence>
           {image ? (
             <motion.div
@@ -93,9 +93,8 @@ const ImageView = ({
               </ClickAwayListener>
             </motion.div>
           ) : null}
-        </AnimatePresence>,
-        document.body
-      )}
+        </AnimatePresence>
+      </Portal>
     </>
   );
 };
