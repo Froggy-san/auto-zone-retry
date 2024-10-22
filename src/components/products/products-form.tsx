@@ -67,10 +67,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const { toast } = useToast();
   const isEditing = edit ? true : false || isOpen;
 
+  const params = new URLSearchParams(searchParam);
   function handleOpen(filter: string) {
     if (useParams) {
-      const params = new URLSearchParams(searchParam);
-
       params.set("edit", filter);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     } else {
@@ -86,7 +85,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
     } else {
       setIsOpen(false);
     }
-    form.reset();
+    if (isLoading) return;
+    form.reset(defaultValues);
     setDeletedMedia([]);
   }
 
@@ -190,6 +190,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         });
 
         handleClose();
+        setDeletedMedia([]);
       } else {
         const imagesToUpload = images.length
           ? images.map((image) => {
@@ -200,16 +201,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
               return formData;
             })
           : [];
-        // if (images.length) {
-        //   const imagesToUpload = images.map((image) => {
-        //     const formData = new FormData();
-        //     formData.append("image", image);
-        //     // formData.append("productId", String(prodcutId));
-        //     formData.append("isMain", "false");
-        //     return formData;
-        //   });
-
-        // }
 
         await createProductAction({
           name,
@@ -516,6 +507,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   <FormLabel>Product images</FormLabel>
                   <FormControl>
                     <MultiFileUploader
+                      disabled={isLoading}
                       handleDeleteMedia={handleDeleteMedia}
                       selectedFiles={field.value}
                       fieldChange={field.onChange}
@@ -557,7 +549,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               )}
             />
 
-            <DialogComponent.Footer className="  sm:pb-14 pb-5 pt-4 !mt-4 sticky  bg-background bottom-0">
+            <DialogComponent.Footer className="  sm:pb-14 pb-5 pt-4 !mt-4 sticky  bg-background bottom-0 z-50">
               <Button
                 onClick={handleClose}
                 type="reset"

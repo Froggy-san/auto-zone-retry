@@ -170,7 +170,7 @@ export const EditNameAndNote = z.object({
 
 const phone = z
   .object({
-    id: z.number().nullable(),
+    id: z.number(),
     number: z
       .string()
       .min(11, { message: "This phone number is too short" })
@@ -178,18 +178,18 @@ const phone = z
       .refine((phone) => validateEgyptianPhoneNumber(phone), {
         message: "This phone number is not valid",
       }),
-    clientId: z.number().nullable(),
+    clientId: z.number(),
   })
-  .partial({ id: true, clientId: true })
-  .refine(
-    (data) =>
-      (data.id === null && data.clientId === null) ||
-      (data.id !== null && data.clientId !== null),
-    {
-      message:
-        "id and clientId must either both be included or both be omitted",
-    }
-  );
+  .partial({ id: true, clientId: true });
+// .refine(
+//   (data) =>
+//     (data.id === null && data.clientId === null) ||
+//     (data.id !== null && data.clientId !== null),
+//   {
+//     message:
+//       "id and clientId must either both be included or both be omitted",
+//   }
+// );
 
 export const CreateClientSchema = z.object({
   name: z

@@ -16,6 +16,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import {
   createPhoneNumAction,
+  deletePhoneNumByIdAction,
+  editPhoneNumAction,
   getPhonesAction,
   getPhonesCountAction,
 } from "./phoneActions";
@@ -84,7 +86,7 @@ export async function getClientsAction({
   // console.log(phoneNumbers, "PHONE NUMBERS");
   let ClientsData: ClientWithPhoneNumbers[] = [];
 
-  if (data.length && phoneNumbers.length) {
+  if (data.length) {
     ClientsData = data.map((clientData) => {
       const phoneNumbersData = phoneNumbers.filter(
         (phone: PhoneNumber) => phone.clientId === clientData.id
@@ -158,8 +160,14 @@ export async function createClientAction({
 
 export async function editClientAction({
   clientToEdit,
+  phonesToEdit,
+  phonesToAdd,
+  phonesToDelete,
 }: {
+  phonesToEdit: PhoneNumber[];
+  phonesToDelete: PhoneNumber[];
   clientToEdit: Client;
+  phonesToAdd: { number: string }[];
 }) {
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
@@ -178,21 +186,45 @@ export async function editClientAction({
   console.log(response);
   if (!response.ok) throw new Error("Had truble creating a product.");
 
-  // revalidatePath(`/products/${productToEdit.id}`);
-  revalidateTag("clients");
+  // Adding new phone numbers
+  if (phonesToAdd.length) {
+    const upload = phonesToAdd.map((phone) =>
+      createPhoneNumAction({ number: phone.number, clientId: id })
+    );
+    await Promise.all(upload);
+  }
 
-  // const data = await response.json();
-  // return data;
+  // Handling the editing of phone numbers
+  if (phonesToEdit.length) {
+    const editPhones = phonesToEdit.map((phone) =>
+      editPhoneNumAction({ id: phone.id, number: phone.number })
+    );
+
+    await Promise.all(editPhones);
+  }
+
+  // Handling the deleting of phone numbers.
+
+  if (phonesToDelete.length) {
+    const deletePhones = phonesToDelete.map((phone) =>
+      deletePhoneNumByIdAction(phone.id)
+    );
+
+    await Promise.all(deletePhones);
+  }
+
+  revalidateTag("clients");
+  // revalidatePath("/dashboard/customers");
 }
 
-export async function deleteProductsByIdAction(id: number) {
+export async function deleteClientByIdAction(id: number) {
   //Product?PageNumber=1&PageSize=10
 
   const token = getToken();
 
   if (!token) throw new Error("You are not authorized to make this action.");
 
-  const response = await fetch(`${process.env.API_URL}/api/Product/${id}`, {
+  const response = await fetch(`${process.env.API_URL}/api/Clients/${id}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -205,7 +237,8 @@ export async function deleteProductsByIdAction(id: number) {
   // const data = await response.json();
 
   // return data;
-  revalidatePath("/products");
+  // revalidatePath("/products");
+  revalidateTag("clients");
 }
 
 interface GetProdcutsCountActionProps {

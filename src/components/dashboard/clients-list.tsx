@@ -16,10 +16,12 @@ interface ClientListProps {
 const ClientsList = async ({ pageNumber }: ClientListProps) => {
   const { data, error } = await getClientsAction({ pageNumber });
 
+  if (error) return <p>{error}</p>;
+
   console.log(data, "DDDDDDDDDDDDD");
   return (
     <div>
-      <ClientsTable clients={data} />
+      <ClientsTable currPage={pageNumber} clients={data} />
     </div>
   );
 };

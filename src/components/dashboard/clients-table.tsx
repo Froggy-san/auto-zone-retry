@@ -43,9 +43,18 @@ import SuccessToastDescription, {
 } from "@components/toast-items";
 import Spinner from "@components/Spinner";
 import ClientForm from "./client-form";
+import { deleteClientByIdAction } from "@lib/actions/clientActions";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 const ClientsTable = ({
   clients,
+  currPage,
 }: {
+  currPage: string;
   clients: ClientWithPhoneNumbers[] | null;
 }) => {
   console.log(clients, "CCC");
@@ -55,7 +64,9 @@ const ClientsTable = ({
 
   return (
     <Table className=" max-w-[97%]  mx-auto mt-10">
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>
+        {clients.length ? "A list of your clients." : "No clients"}
+      </TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[100px]">Id</TableHead>
@@ -86,6 +97,7 @@ const ClientsTable = ({
                       Show
                     </Button>
                     <ClientsTableActions
+                      currPage={currPage}
                       client={client}
                       currPageSize={currPageSize}
                     />
@@ -98,6 +110,74 @@ const ClientsTable = ({
     </Table>
   );
 };
+
+function ClientsTableActions({
+  client,
+  currPageSize,
+  currPage,
+}: {
+  currPage: string;
+  client: ClientWithPhoneNumbers;
+  currPageSize: number;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState<"delete" | "edit" | "">("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // console.log(client, "CLIENTSSS");
+
+  function handleClose() {
+    setOpen("");
+  }
+
+  if (isLoading) return <Spinner className=" w-10 h-10" size={14} />;
+
+  return (
+    <>
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="icon" className=" p-0 h-6 w-6">
+            <Ellipsis className=" w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className=" min-w-[200px] mr-5 ">
+          {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+          {/* <DropdownMenuSeparator /> */}
+          <DropdownMenuItem
+            className=" gap-2"
+            onClick={() => {
+              setOpen("edit");
+            }}
+          >
+            <CircleUser className=" w-4 h-4" /> Edit client
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className=" gap-2"
+            onClick={() => {
+              setOpen("delete");
+            }}
+          >
+            <UserRoundMinus className=" w-4 h-4" /> Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <ClientForm
+        open={open === "edit"}
+        handleClose={handleClose}
+        client={client}
+      />
+      <DeleteClientDialog
+        currPage={currPage}
+        pageSize={currPageSize}
+        client={client}
+        isDeleting={isLoading}
+        setIsDeleting={setIsLoading}
+        open={open === "delete"}
+        handleClose={handleClose}
+      />
+    </>
+  );
+}
 
 function PhoneNumbersDialog({ client }: { client: ClientWithPhoneNumbers }) {
   const [open, setOpen] = useState(false);
@@ -161,81 +241,56 @@ function PhoneNumbersDialog({ client }: { client: ClientWithPhoneNumbers }) {
   );
 }
 
-function ClientsTableActions({
-  client,
-  currPageSize,
-}: {
-  client: ClientWithPhoneNumbers;
-  currPageSize: number;
-}) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [open, setOpen] = useState<"delete" | "edit" | "">("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  function handleClose() {
-    setOpen("");
-  }
-
-  return (
-    <>
-      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className=" p-0 h-6 w-6">
-            <Ellipsis className=" w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className=" min-w-[200px] mr-5 ">
-          {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
-          {/* <DropdownMenuSeparator /> */}
-          <DropdownMenuItem
-            className=" gap-2"
-            onClick={() => {
-              setOpen("edit");
-            }}
-          >
-            <CircleUser className=" w-4 h-4" /> Edit client
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className=" gap-2"
-            onClick={() => {
-              setOpen("delete");
-            }}
-          >
-            <UserRoundMinus className=" w-4 h-4" /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <ClientForm
-        open={open === "edit"}
-        handleClose={handleClose}
-        client={client}
-      />
-    </>
-  );
-}
-
 function DeleteClientDialog({
+  currPage,
+  pageSize,
   open,
   handleClose,
   isDeleting,
   setIsDeleting,
   client,
 }: {
+  currPage: string;
   open: boolean;
   isDeleting: boolean;
   setIsDeleting: React.Dispatch<SetStateAction<boolean>>;
   handleClose: () => void;
   client: ClientWithPhoneNumbers;
+  pageSize: number;
 }) {
+  const isFirstPage = currPage === "1";
+
   const { toast } = useToast();
+  const searchParam = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  function checkIfLastItem() {
+    if (pageSize === 1 && !isFirstPage) {
+      const params = new URLSearchParams(searchParam);
+      params.set("page", String(Number(currPage) - 1));
+      router.push(`${pathname}?${params.toString()}`);
+    }
+  }
+
+  useEffect(() => {
+    const body = document.querySelector("body");
+
+    if (body) {
+      body.style.pointerEvents = "auto";
+    }
+    return () => {
+      if (body) body.style.pointerEvents = "auto";
+    };
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px] border-none">
         <DialogHeader>
-          <DialogTitle>Delete car generation</DialogTitle>
+          <DialogTitle>Delete clients data.</DialogTitle>
           <DialogDescription>
-            This action can&apos;t be undone.
+            {`${client.id} You are deleting ${client.name}'s data. That includes their phone numbers and cars information. This action can't be undone. `}
           </DialogDescription>
         </DialogHeader>
 
@@ -246,30 +301,33 @@ function DeleteClientDialog({
             </Button>
           </DialogClose>
           <Button
+            disabled={isDeleting}
             variant="destructive"
             size="sm"
-            onClick={() => {
-              // deleteCargeneration(item.id, {
-              //   onSuccess: () => {
-              //     setOpen(false);
-              //     // handleResetPage();
-              //     toast({
-              //       title: "Deleted.",
-              //       description: (
-              //         <SuccessToastDescription message="Car generation as been deleted." />
-              //       ),
-              //     });
-              //   },
-              //   onError: (error: any) => {
-              //     toast({
-              //       variant: "destructive",
-              //       title: "Something went wrong.",
-              //       description: (
-              //         <ErorrToastDescription error={error.message} />
-              //       ),
-              //     });
-              //   },
-              // });
+            onClick={async () => {
+              setIsDeleting(true);
+              try {
+                await deleteClientByIdAction(client.id);
+                checkIfLastItem();
+                setIsDeleting(false);
+                handleClose();
+                toast({
+                  title: `Client deleted!`,
+                  description: (
+                    <SuccessToastDescription
+                      message={`${client.name}'s data has been deleted`}
+                    />
+                  ),
+                });
+              } catch (error: any) {
+                console.log(error);
+
+                toast({
+                  variant: "destructive",
+                  title: "Faild to delete client's data",
+                  description: <ErorrToastDescription error={error.message} />,
+                });
+              }
             }}
           >
             {isDeleting ? <Spinner className=" h-full" /> : "Confrim"}

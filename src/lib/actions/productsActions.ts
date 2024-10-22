@@ -207,9 +207,6 @@ export async function editProductAction({
 
   revalidatePath(`/products/${productToEdit.id}`);
   revalidateTag("products");
-
-  // const data = await response.json();
-  // return data;
 }
 
 export async function deleteProductsByIdAction(id: number) {
@@ -331,7 +328,6 @@ export async function createProductImageAction(formData: FormData) {
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
-  console.log(formData, "Form data");
   if (!token) return redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/ProductImages`, {
@@ -344,9 +340,6 @@ export async function createProductImageAction(formData: FormData) {
 
   console.log(response);
   if (!response.ok) throw new Error("Had truble creating a product.");
-
-  // const data = await response.json();
-  // return data;
 }
 
 export async function deleteProductsImageAction(imageId: number) {
@@ -366,17 +359,11 @@ export async function deleteProductsImageAction(imageId: number) {
       },
     }
   );
-  console.log(response, "DELETE ACITON");
 
   if (!response.ok) {
     console.log("Something went wrong while grabbing the products.");
     throw new Error("Something went wrong while deleting product images.");
   }
-
-  // const data = await response.json();
-
-  // console.log(data, "DATA");
-  // return { data, error: "" };
 }
 
 /// WTF IS THIS ?
