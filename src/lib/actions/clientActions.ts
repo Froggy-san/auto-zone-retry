@@ -98,6 +98,46 @@ export async function getClientsAction({
   return { data: ClientsData, error: "" };
 }
 
+export async function getClientsDataAction() {
+  const token = getToken();
+
+  if (!token)
+    return { data: null, error: "You are not authorized to make this action." };
+
+  const { data: phoneNumbers, error } = await getPhonesAction({});
+
+  const response = await fetch(`${process.env.API_URL}/api/Clients`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      // "Content-type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    console.log("Something went wrong while grabbing the products.");
+    return {
+      data: null,
+      error: "Something went wrong while grabbing the products.",
+    };
+  }
+
+  const data = (await response.json()) as Client[];
+
+  let ClientsData: ClientWithPhoneNumbers[] = [];
+
+  if (data.length) {
+    ClientsData = data.map((clientData) => {
+      const phoneNumbersData = phoneNumbers.filter(
+        (phone: PhoneNumber) => phone.clientId === clientData.id
+      );
+      return { ...clientData, phoneNumbers: phoneNumbersData };
+    });
+  }
+
+  return { data: ClientsData, error: "" };
+}
+
 export async function getClienttByIdAction(id: number) {
   const token = getToken();
 
@@ -241,21 +281,17 @@ export async function deleteClientByIdAction(id: number) {
   revalidateTag("clients");
 }
 
-interface GetProdcutsCountActionProps {
+interface GetClientsCountActionProps {
   name?: string;
-  categoryId?: string;
-  productTypeId?: string;
-  productBrandId?: string;
-  isAvailable?: string;
+  email?: string;
+  phone?: string;
 }
 
-export async function getProductsCountAction({
+export async function getClientsCountAction({
   name,
-  categoryId,
-  productTypeId,
-  productBrandId,
-  isAvailable,
-}: GetProdcutsCountActionProps) {
+  email,
+  phone,
+}: GetClientsCountActionProps) {
   //Product?PageNumber=1&PageSize=10
 
   const token = getToken();
@@ -266,17 +302,13 @@ export async function getProductsCountAction({
       error: "You are not authorized to get the products count data.",
     };
 
-  let query = `${process.env.API_URL}/api/Product/count?`;
+  let query = `${process.env.API_URL}/api/Clients/count?`;
 
   if (name) query = query + `&Name=${name}`;
 
-  if (categoryId) query = query + `&CategoryId=${categoryId}`;
+  if (phone) query = query + `&phone=${phone}`;
 
-  if (productTypeId) query = query + `&ProductTypeId=${productTypeId}`;
-
-  if (productBrandId) query = query + `&ProductBrandId=${productBrandId}`;
-
-  if (isAvailable) query = query + `&IsAvailable=${isAvailable}`;
+  if (email) query = query + `&email=${email}`;
 
   const response = await fetch(query, {
     method: "GET",

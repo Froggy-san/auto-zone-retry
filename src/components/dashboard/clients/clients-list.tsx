@@ -8,17 +8,24 @@ interface ClientListProps {
 
   pageNumber: string;
   name?: string;
-  categoryId?: string;
-  productTypeId?: string;
-  productBrandId?: string;
-  isAvailable?: string;
+  phone?: string;
+  email?: string;
 }
-const ClientsList = async ({ pageNumber }: ClientListProps) => {
-  const { data, error } = await getClientsAction({ pageNumber });
+const ClientsList = async ({
+  pageNumber,
+  name,
+  email,
+  phone,
+}: ClientListProps) => {
+  const { data, error } = await getClientsAction({
+    pageNumber,
+    name,
+    email,
+    phone,
+  });
 
   if (error) return <p>{error}</p>;
 
-  console.log(data, "DDDDDDDDDDDDD");
   return (
     <div>
       <ClientsTable currPage={pageNumber} clients={data} />

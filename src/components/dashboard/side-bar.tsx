@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import {
   ArrowLeftToLine,
   ArrowRightToLine,
+  Car,
   FolderKanban,
   Grid2x2Plus,
   House,
@@ -38,7 +39,11 @@ const SUB_LINKS = [
     title: "Settings",
     herf: "/dashboard/settings",
   },
-
+  {
+    icon: <Car size={ICON_SIZE} />,
+    title: "Garage",
+    herf: "/dashboard/cars",
+  },
   {
     icon: <PersonStanding size={ICON_SIZE} />,
     title: "Customers",
