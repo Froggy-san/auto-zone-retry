@@ -58,8 +58,6 @@ const ClientForm = ({
   const { toast } = useToast();
   const isItOpen = open !== undefined ? open : isOpen;
 
-  console.log(deletedPhones, "DELETED PHONES");
-
   const clientsPhone = client
     ? client.phoneNumbers.map((phone) => {
         return {
@@ -70,10 +68,9 @@ const ClientForm = ({
       })
     : [];
 
-  console.log(clientsPhone, "Clients phone");
   const defaultValues = {
-    name: client?.name || "",
-    email: client?.email || "",
+    name: client?.name || "adasas",
+    email: client?.email || "froggy@adasd.com",
     phones: clientsPhone,
   };
   const form = useForm<z.infer<typeof CreateClientSchema>>({

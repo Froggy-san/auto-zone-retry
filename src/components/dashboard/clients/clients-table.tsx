@@ -57,13 +57,12 @@ const ClientsTable = ({
   currPage: string;
   clients: ClientWithPhoneNumbers[] | null;
 }) => {
-  console.log(clients, "CCC");
   if (!clients)
     return <p>Something went wrong while getting the client&apos;s data</p>;
   const currPageSize = clients.length;
 
   return (
-    <Table className=" max-w-[97%]  mx-auto mt-10">
+    <Table className="">
       <TableCaption>
         {clients.length ? "A list of your clients." : "No clients"}
       </TableCaption>
@@ -123,8 +122,6 @@ function ClientsTableActions({
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState<"delete" | "edit" | "">("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // console.log(client, "CLIENTSSS");
 
   function handleClose() {
     setOpen("");
@@ -260,17 +257,22 @@ function DeleteClientDialog({
 }) {
   const isFirstPage = currPage === "1";
 
+  console.log(pageSize, "PAGE SIZE");
+  console.log(isFirstPage, "is");
   const { toast } = useToast();
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
   function checkIfLastItem() {
+    const params = new URLSearchParams(searchParam);
+    params.delete("name");
+    params.delete("phone");
+    params.delete("email");
     if (pageSize === 1 && !isFirstPage) {
-      const params = new URLSearchParams(searchParam);
       params.set("page", String(Number(currPage) - 1));
-      router.push(`${pathname}?${params.toString()}`);
     }
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   useEffect(() => {

@@ -181,15 +181,6 @@ const phone = z
     clientId: z.number(),
   })
   .partial({ id: true, clientId: true });
-// .refine(
-//   (data) =>
-//     (data.id === null && data.clientId === null) ||
-//     (data.id !== null && data.clientId !== null),
-//   {
-//     message:
-//       "id and clientId must either both be included or both be omitted",
-//   }
-// );
 
 export const CreateClientSchema = z.object({
   name: z
@@ -198,6 +189,23 @@ export const CreateClientSchema = z.object({
     .max(100, { message: "The name is too long" }),
   email: z.string().describe("Email"),
   phones: phone.array(),
+});
+
+export const CreateCarSchema = z.object({
+  color: z.string(),
+  plateNumber: z
+    .string()
+    .min(1, "Plate number is required")
+    .max(30, { message: "Plate number is too long." }),
+  chassisNumber: z.string(),
+  motorNumber: z.string(),
+  notes: z.string(),
+  clientId: z.number().min(1, { message: "Every car must have an owner" }),
+  carInfoId: z.number(),
+
+  images: z.array(z.custom<FilesWithPreview>()).max(9, {
+    message: "You can only upload up to 9 images at a time.",
+  }),
 });
 
 export interface signUpProps {
@@ -380,3 +388,4 @@ export type CreateCarMaker = z.infer<typeof CreateCarMakerScehma>;
 export type CreateCarModel = z.infer<typeof CreateCarModelSchema>;
 export type CreateCarInfoSchema = z.infer<typeof CreateCarInfoSchema>;
 export type CreateClient = z.infer<typeof CreateClientSchema>;
+export type CreateCar = z.infer<typeof CreateCarSchema>;

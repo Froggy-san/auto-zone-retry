@@ -1,14 +1,41 @@
 "use server";
 
 import { getToken } from "@lib/helper";
-import { Car } from "@lib/types";
+import { Car, CreateCar } from "@lib/types";
 
-export async function getAllCarsAction() {
+interface GetCarsProps {
+  color?: string;
+  plateNumber?: string;
+  chassisNumber?: string;
+  motorNumber?: string;
+  clientId?: number;
+  carInfoId?: number;
+  pageNumber?: number;
+}
+
+export async function getAllCarsAction({
+  color,
+  chassisNumber,
+  motorNumber,
+  clientId,
+  carInfoId,
+  pageNumber,
+}: GetCarsProps) {
   const token = getToken();
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
-  const response = await fetch(`${process.env.API_URL}/api/cars`, {
+
+  let query = `${process.env.API_URL}/api/cars`;
+
+  if (pageNumber) query = query + `pageNumber=${pageNumber}`;
+  if (color) query = query + `color=${color}`;
+  if (chassisNumber) query = query + `ChassisNumber=${chassisNumber}`;
+  if (motorNumber) query = query + `MotorNumber=${motorNumber}`;
+  if (carInfoId) query = query + `CarInfoId=${carInfoId}`;
+  if (clientId) query = query + `clientId=${clientId}`;
+
+  const response = await fetch(query, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -27,7 +54,7 @@ export async function getAllCarsAction() {
   return { data, error: "" };
 }
 
-export async function createCarAction(Car: Car) {
+export async function createCarAction(Car: CreateCar) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
   const response = await fetch(`${process.env.API_URL}/api/cars`, {
