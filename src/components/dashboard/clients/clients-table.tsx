@@ -266,13 +266,15 @@ function DeleteClientDialog({
 
   function checkIfLastItem() {
     const params = new URLSearchParams(searchParam);
-    params.delete("name");
-    params.delete("phone");
-    params.delete("email");
-    if (pageSize === 1 && !isFirstPage) {
-      params.set("page", String(Number(currPage) - 1));
+    if (pageSize === 1) {
+      params.delete("name");
+      params.delete("phone");
+      params.delete("email");
+      if (!isFirstPage) {
+        params.set("page", String(Number(currPage) - 1));
+      }
+      router.push(`${pathname}?${params.toString()}`);
     }
-    router.push(`${pathname}?${params.toString()}`);
   }
 
   useEffect(() => {
