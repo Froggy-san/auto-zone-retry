@@ -20,8 +20,8 @@ export async function middleware(request: NextRequest) {
   }
 
   if (
-    path.startsWith("/dashboard") ||
-    (path.startsWith("/grage") && hasExpired)
+    (path.startsWith("/dashboard") || path.startsWith("/grage")) &&
+    hasExpired
   ) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
