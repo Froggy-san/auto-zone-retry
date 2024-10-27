@@ -402,7 +402,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 control={form.control}
                 name="carinfoId"
                 render={({ field }) => (
-                  <FormItem className=" w-full">
+                  <FormItem className=" w-full ">
                     <FormLabel>Car info</FormLabel>
                     <FormControl>
                       {/* <Input

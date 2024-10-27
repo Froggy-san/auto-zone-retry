@@ -24,6 +24,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
 
       <section className=" pl-4 mt-12">
         <ClientManagement />
+
         <div className=" max-w-[97%]  mx-auto mt-10  ">
           <ClientSearch
             currPage={pageNumber}

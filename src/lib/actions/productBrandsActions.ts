@@ -3,15 +3,15 @@
 import { getToken } from "@lib/helper";
 
 export async function getAllProductBrandsAction() {
-  const token = getToken();
+  // const token = getToken();
 
-  if (!token)
-    return { data: null, error: "You are not authorized to make this action." };
+  // if (!token)
+  //   return { data: null, error: "You are not authorized to make this action." };
   const response = await fetch(`${process.env.API_URL}/api/productbrands`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    // headers: {
+    //   Authorization: `Bearer ${token}`,
+    // },
   });
 
   if (!response.ok) {

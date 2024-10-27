@@ -45,7 +45,15 @@ const NavDrawer = () => {
           >
             <Link href="/products">Products</Link>
           </Button>
-
+          <Button
+            asChild
+            className=" justify-start"
+            variant="ghost"
+            size="sm"
+            onClick={() => setOpen(false)}
+          >
+            <Link href="/grage">Grage</Link>
+          </Button>
           <Button
             asChild
             className=" justify-start"

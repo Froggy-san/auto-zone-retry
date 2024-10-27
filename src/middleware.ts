@@ -19,7 +19,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.nextUrl));
   }
 
-  if (path.startsWith("/dashboard") && hasExpired) {
+  if (
+    path.startsWith("/dashboard") ||
+    (path.startsWith("/grage") && hasExpired)
+  ) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
   // console.log(token);

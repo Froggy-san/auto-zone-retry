@@ -69,10 +69,10 @@ export const CarInfoComboBox: React.FC<ComboBoxProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className=" w-full justify-between   h-fit "
+          className=" w-full   justify-between   h-fit "
         >
           {selected ? (
-            <>
+            <div className=" flex flex-1 break-all items-center">
               <p className=" text-wrap  text-left ">
                 Make: {selected.carMaker.name} / Model: {selected.carModel.name}{" "}
                 / Gen: {selected.carGeneration.name}{" "}
@@ -82,14 +82,14 @@ export const CarInfoComboBox: React.FC<ComboBoxProps> = ({
                 alt="Car logo"
                 className="  object-cover   max-w-[100%]   h-9 w-9  ml-[5px]  rounded-sm "
               />
-            </>
+            </div>
           ) : (
             "Select option..."
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="  w-[300px] sm:w-[400px]   p-0">
+      <PopoverContent className=" h-[30vh] sm:h-[unset]  w-[300px] sm:w-[400px]   p-0">
         <Command>
           <CommandInput placeholder="Search option..." />
           <CommandList>
@@ -109,6 +109,7 @@ export const CarInfoComboBox: React.FC<ComboBoxProps> = ({
                     setValue(option.id === value ? 0 : option.id);
                     setOpen(false);
                   }}
+                  className="gap-2"
                 >
                   <Check
                     className={cn(
@@ -116,12 +117,14 @@ export const CarInfoComboBox: React.FC<ComboBoxProps> = ({
                       value === option.id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  Make: {option.carMaker.name} / Model: {option.carModel.name} /
-                  Gen: {option.carGeneration.name}{" "}
+                  <p className=" break-all flex-1">
+                    Make: {option.carMaker.name} / Model: {option.carModel.name}{" "}
+                    / Gen: {option.carGeneration.name}{" "}
+                  </p>
                   <img
                     src={option.carMaker.logo || DEFAULT_CAR_LOGO}
                     alt="Car logo"
-                    className="  object-cover  flex-1  max-w-9  max-h-9 ml-auto  rounded-sm "
+                    className="  object-cover    max-w-9  max-h-9 ml-auto  rounded-sm "
                   />
                 </CommandItem>
               ))}

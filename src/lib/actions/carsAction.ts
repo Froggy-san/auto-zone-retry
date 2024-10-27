@@ -1,19 +1,22 @@
 "use server";
 
 import { getToken } from "@lib/helper";
-import { Car, CreateCar } from "@lib/types";
+import { Car, CarImage, CarItem } from "@lib/types";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
+import { getClienttByIdAction } from "./clientActions";
 
 interface GetCarsProps {
   color?: string;
   plateNumber?: string;
   chassisNumber?: string;
   motorNumber?: string;
-  clientId?: number;
-  carInfoId?: number;
-  pageNumber?: number;
+  clientId?: string;
+  carInfoId?: string;
+  pageNumber?: string;
 }
 
-export async function getAllCarsAction({
+export async function getCarsAction({
   color,
   chassisNumber,
   motorNumber,
@@ -26,7 +29,7 @@ export async function getAllCarsAction({
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
 
-  let query = `${process.env.API_URL}/api/cars`;
+  let query = `${process.env.API_URL}/api/Cars?`;
 
   if (pageNumber) query = query + `pageNumber=${pageNumber}`;
   if (color) query = query + `color=${color}`;
@@ -39,6 +42,9 @@ export async function getAllCarsAction({
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
+    },
+    next: {
+      tags: ["cars"],
     },
   });
 
@@ -54,7 +60,23 @@ export async function getAllCarsAction({
   return { data, error: "" };
 }
 
-export async function createCarAction(Car: CreateCar) {
+interface CarCreatedProps {
+  color: string;
+  plateNumber: string;
+  chassisNumber: string;
+  motorNumber: string;
+  notes: string;
+  clientId: number;
+  carInfoId: number;
+}
+
+export async function createCarAction({
+  car,
+  images,
+}: {
+  car: CarCreatedProps;
+  images: FormData[];
+}) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
   const response = await fetch(`${process.env.API_URL}/api/cars`, {
@@ -63,35 +85,119 @@ export async function createCarAction(Car: CreateCar) {
       Authorization: `Bearer ${token}`,
       "Content-type": "application/json",
     },
-    body: JSON.stringify(Car),
+    body: JSON.stringify(car),
   });
   if (!response.ok) {
     console.log("Something went wrong while creating the car.");
     throw new Error("Something went wrong!");
   }
 
-  const data = await response.json();
-  return data;
+  const { carId } = await response.json();
+
+  if (images.length) {
+    const upload = images.map((image) => {
+      image.append("carId", carId);
+
+      return createCarImageAction(image);
+    });
+
+    await Promise.all(upload);
+  }
+
+  revalidateTag("cars");
+  return carId;
 }
 
-export async function editCarAction({ Car, id }: { Car: Car; id: string }) {
+export async function getCarByIdAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
-  const response = await fetch(`${process.env.API_URL}/api/cars/${id}`, {
-    method: "PUT",
+
+  if (!token)
+    return { data: null, error: "You are not authorized to make this action." };
+
+  const response = await fetch(`${process.env.API_URL}/api/Cars/${id}`, {
+    method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-type": "application/json",
+      // "Content-type": "application/json",
     },
-    body: JSON.stringify(Car),
   });
+
   if (!response.ok) {
-    console.log("Something went wrong while creating the car.");
-    throw new Error("Something went wrong!");
+    console.log("Something went wrong while grabbing the car.");
+
+    return {
+      data: null,
+      error: "Something went wrong while grabbing the car.",
+    };
   }
 
-  const data = await response.json();
-  return data;
+  const car = (await response.json()) as CarItem;
+
+  const { data, error } = await getClienttByIdAction(car.clientId);
+
+  return { data, error: "" };
+}
+
+export async function editCarAction({
+  car,
+  id,
+  imagesToUpload,
+  imagesToDelete,
+  isEqual,
+}: {
+  car: Car;
+  id: string;
+  imagesToUpload: FormData[];
+  imagesToDelete: CarImage[];
+  isEqual: boolean;
+}) {
+  const { plateNumber, motorNumber, chassisNumber, carInfoId, notes, color } =
+    car;
+  const token = getToken();
+  if (!token) throw new Error("You are not Authorized to make this action.");
+
+  if (!isEqual) {
+    const response = await fetch(`${process.env.API_URL}/api/cars/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({
+        plateNumber,
+        motorNumber,
+        chassisNumber,
+        carInfoId,
+        notes,
+        color,
+      }),
+    });
+    if (!response.ok) {
+      console.log("Something went wrong while creating the car.");
+      throw new Error("Something went wrong!");
+    }
+  }
+
+  if (imagesToUpload.length) {
+    const upload = imagesToUpload.map((image) => {
+      image.append("carId", id);
+
+      return createCarImageAction(image);
+    });
+
+    await Promise.all(upload);
+  }
+
+  if (imagesToDelete.length) {
+    const deleteImages = imagesToDelete.map((deletedImage) =>
+      deleteCarImageAction(deletedImage.id)
+    );
+
+    await Promise.all(deleteImages);
+  }
+
+  revalidateTag("cars");
+  revalidatePath(`/grage/${id}`);
 }
 
 export async function deleteCarAction(id: string) {
@@ -110,6 +216,7 @@ export async function deleteCarAction(id: string) {
   }
 
   const data = await response.json();
+  revalidateTag("cars");
   return data;
 }
 
@@ -134,5 +241,148 @@ export async function getCarsCountAction() {
   }
 
   const data = await response.json();
+  return { data, error: "" };
+}
+
+/// PRODUCT IMAGES.
+
+export async function getProductsImageAction(id: number) {
+  //Product?PageNumber=1&PageSize=10
+
+  const token = getToken();
+
+  if (!token)
+    return { data: null, error: "You are not authorized to make this action." };
+
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductImages/${id}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // "Content-type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    console.log("Something went wrong while grabbing the products.");
+    return {
+      data: null,
+      error: "Something went wrong while grabbing the products.",
+    };
+  }
+
+  const data = await response.json();
+
+  return { data, error: "" };
+}
+
+export async function createCarImageAction(formData: FormData) {
+  const token = getToken();
+
+  if (!token) return redirect("/login");
+
+  const response = await fetch(`${process.env.API_URL}/api/CarImages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  console.log(response);
+  if (!response.ok) throw new Error("Had truble creating a product.");
+}
+
+export async function deleteCarImageAction(imageId: number) {
+  //Product?PageNumber=1&PageSize=10
+
+  const token = getToken();
+
+  if (!token) throw new Error("You are not authorized to do this action.");
+
+  const response = await fetch(
+    `${process.env.API_URL}/api/CarImages/${imageId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // "Content-type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    console.log("Something went wrong while grabbing the products.");
+    throw new Error("Something went wrong while deleting product images.");
+  }
+}
+
+/// WTF IS THIS ?
+
+export async function getProductsImagesMainAction(id: number) {
+  //Product?PageNumber=1&PageSize=10
+
+  const token = getToken();
+
+  if (!token)
+    return { data: null, error: "You are not authorized to make this action." };
+
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductImages/main/${id}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // "Content-type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    console.log("Something went wrong while grabbing the products.");
+    return {
+      data: null,
+      error: "Something went wrong while grabbing the products.",
+    };
+  }
+
+  const data = await response.json();
+
+  console.log(data, "DATA");
+  return { data, error: "" };
+}
+
+export async function deleteProductsImageMainAction(id: number) {
+  //Product?PageNumber=1&PageSize=10
+
+  const token = getToken();
+
+  if (!token)
+    return { data: null, error: "You are not authorized to make this action." };
+
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductImages/main/${id}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // "Content-type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    console.log("Something went wrong while grabbing the products.");
+    return {
+      data: null,
+      error: "Something went wrong while grabbing the products.",
+    };
+  }
+
+  const data = await response.json();
+
+  console.log(data, "DATA");
   return { data, error: "" };
 }
