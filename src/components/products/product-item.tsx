@@ -1,14 +1,21 @@
 import { getProductsImageAction } from "@lib/actions/productsActions";
-import { Product } from "@lib/types";
+import { Product, ProductImage } from "@lib/types";
 import { cn } from "@lib/utils";
-import React from "react";
-import ProductImages from "./product-images";
+import React, { useMemo } from "react";
+import FullImagesGallery from "./product-images";
 import { formatCurrency } from "@lib/helper";
 import { ProdcutAction } from "./product-actions";
 import Link from "next/link";
+import { STATIC_IMAGES } from "@lib/constants";
 
 const ProductItem = async ({ product }: { product: Product }) => {
   const { data, error } = await getProductsImageAction(product.id);
+
+  if (error) return <p>{error}</p>;
+
+  const viewedImages = data?.length
+    ? data.map((image: ProductImage) => image.imageUrl)
+    : STATIC_IMAGES;
 
   return (
     <li className={`${!product.isAvailable && "opacity-50 "}`}>
@@ -19,7 +26,11 @@ const ProductItem = async ({ product }: { product: Product }) => {
         {error ? (
           <h2>{error}</h2>
         ) : (
-          <ProductImages images={data} productId={product.id} />
+          <FullImagesGallery
+            imageUrls={viewedImages}
+            productId={product.id}
+            className="h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden"
+          />
         )}
 
         <div className="    flex-1  space-y-1  flex flex-col ">

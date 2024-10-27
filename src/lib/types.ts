@@ -247,24 +247,29 @@ export interface ProductType {
   name: string;
 }
 
+interface CarMakerData {
+  id: number;
+  name: string;
+  notes: string;
+  logo: string | null;
+}
+interface CarModelData {
+  id: number;
+  name: string;
+  notes: string;
+}
+
+interface CarGenerationData {
+  id: 1;
+  name: string;
+  notes: string;
+}
+
 export interface CarInfoProps {
   id: number;
-  carMaker: {
-    id: number;
-    name: string;
-    notes: string;
-    logo: null;
-  };
-  carModel: {
-    id: number;
-    name: string;
-    notes: string;
-  };
-  carGeneration: {
-    id: 1;
-    name: string;
-    notes: string;
-  };
+  carMaker: CarMakerData;
+  carModel: CarModelData;
+  carGeneration: CarGenerationData;
 }
 
 export interface CarMaker {
@@ -377,6 +382,56 @@ export interface PhoneNumber {
 
 export interface ClientWithPhoneNumbers extends Client {
   phoneNumbers: PhoneNumber[];
+}
+
+export interface CarImage {
+  id: number;
+  imagePath: string;
+  isMain: boolean;
+  carId: number;
+}
+
+export interface CarItem {
+  id: number;
+  color: string;
+  plateNumber: string;
+  chassisNumber: string;
+  motorNumber: string;
+  notes: string;
+  carImages: CarImage[];
+  clientId: number;
+  carInfo: {
+    id: number;
+    carMaker: CarMakerData;
+    carModel: CarModelData;
+    carGeneration: CarGenerationData;
+  };
+}
+
+export interface CarItemWithClient {
+  id: number;
+  color: string;
+  plateNumber: string;
+  chassisNumber: string;
+  motorNumber: string;
+  notes: string;
+  carImages: CarImage[];
+  client: ClientWithPhoneNumbers | undefined;
+  clientId: number;
+  carInfo: {
+    id: number;
+    carMaker: CarMakerData;
+    carModel: CarModelData;
+    carGeneration: CarGenerationData;
+  };
+}
+
+export interface ClientById {
+  id: number;
+  name: string;
+  email: string;
+  phones: PhoneNumber[];
+  cars: CarItem[];
 }
 
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;

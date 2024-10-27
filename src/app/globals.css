@@ -108,6 +108,14 @@ body {
 }
 
 @layer base {
+  .cleints-search-bar-mobile {
+    position: fixed;
+    width: 90% !important;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
   * {
     @apply border-border;
   }
@@ -122,6 +130,31 @@ body {
     .dashboard-children-hight {
       height: calc(100vh - 68px);
     }
+    .cleints-search-bar-mobile {
+      position: static;
+      /* width: 700px !important ; */
+      top: 0;
+      left: 0;
+      transform: translateX(0);
+    }
+    /* Add this to your CSS */
+  }
+
+  /* @media (min-width: 850px) {
+    .cleints-search-bar-mobile {
+      position: static;
+      width: 700px !important ;
+      top: 0;
+      left: 0;
+      transform: translateX(0);
+    }
+  } */
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0; /* Removes extra padding around the swatch */
+  }
+
+  input[type="color"]::-webkit-color-swatch {
+    border: none; /* Removes the border inside the swatch */
   }
 }
 

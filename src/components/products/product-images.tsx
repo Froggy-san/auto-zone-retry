@@ -13,21 +13,21 @@ const imageUrl = [
 ];
 
 const ProductImages = ({
-  images,
+  imageUrls,
   // productId,
   className,
 }: {
-  productId: number;
+  productId?: number;
   className?: string;
-  images: ProductImage[];
+  imageUrls: string[];
 }) => {
   const [viewedImage, setViewedImage] = useState(0);
   const [viewBar, setViewBar] = useState(false);
   const [isTouching, setIsTouching] = useState(false);
-  const imageUrls = useMemo(() => {
-    const viewedImages = images.map((image) => image.imageUrl);
-    return viewedImages.length ? viewedImages : imageUrl;
-  }, [images]);
+  // const imageUrls = useMemo(() => {
+  //   const viewedImages = images.map((image) => image.imageUrl);
+  //   return viewedImages.length ? viewedImages : imageUrl;
+  // }, [images]);
 
   const handleTouchHold = useCallback(() => {
     if (imageUrls.length > 1) {
@@ -65,13 +65,9 @@ const ProductImages = ({
       onMouseOver={() => {
         if (imageUrls.length > 1) setViewBar(true);
       }}
+      className=" w-full h-full"
     >
-      <div
-        className={cn(
-          "h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden",
-          className
-        )}
-      >
+      <div className={cn(" relative ", className)}>
         {imageUrls.map((url, i) => (
           <img
             src={url}

@@ -1,5 +1,5 @@
 import { Button } from "@components/ui/button";
-import { FilesWithPreview, ProductImage } from "@lib/types";
+import { CarImage, FilesWithPreview, ProductImage } from "@lib/types";
 import { cn } from "@lib/utils";
 import { ImageUp, X } from "lucide-react";
 
@@ -9,12 +9,12 @@ import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 interface MultiFileUploaderProps {
   fieldChange: React.Dispatch<SetStateAction<File[]>>;
   selectedFiles: FilesWithPreview[];
-  mediaUrl?: ProductImage[];
+  mediaUrl?: CarImage[];
   disabled?: boolean;
-  handleDeleteMedia: (image: ProductImage) => void;
+  handleDeleteMedia: (image: CarImage) => void;
 }
 
-export function MultiFileUploader({
+export function GrageFileUploader({
   selectedFiles,
   fieldChange,
   handleDeleteMedia,
@@ -86,7 +86,7 @@ export function MultiFileUploader({
                 <X size={15} />
               </Button>
               <img
-                src={media.imageUrl}
+                src={media.imagePath}
                 alt="Image selected"
                 className=" max-h-[250px] sm:max-h-[120px]"
               />

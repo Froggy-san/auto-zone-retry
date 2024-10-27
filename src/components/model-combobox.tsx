@@ -69,7 +69,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
           className=" w-full justify-between  h-fit"
         >
           {selectedItem ? (
-            <p className=" text-wrap text-left">
+            <p className=" text-wrap break-all text-left">
               Model name: {selectedItem.name} Car maker:{" "}
               {selectedItem.carMaker ? selectedItem.carMaker : "None"}{" "}
             </p>
@@ -101,7 +101,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
                       value === option.id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  <span>
+                  <span className=" break-all flex-1">
                     Model name: {option.name} Car maker:{" "}
                     {option.carMaker ? option.carMaker : "None"}
                   </span>{" "}

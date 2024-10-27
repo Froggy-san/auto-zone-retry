@@ -4,6 +4,7 @@ import { AUTH_TOEKN_NAME, PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
 import {
   Client,
+  ClientById,
   ClientWithPhoneNumbers,
   CreateClient,
   CreateProductProps,
@@ -160,7 +161,7 @@ export async function getClienttByIdAction(id: number) {
     };
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as ClientById;
 
   return { data, error: "" };
 }

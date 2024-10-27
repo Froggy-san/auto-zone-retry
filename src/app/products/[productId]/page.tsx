@@ -1,11 +1,16 @@
 import ProductManagement from "@components/dashboard/products-management";
 import ProdcutViewDetials from "@components/products/product-view-detials";
-import ProductViewImages from "@components/products/product-view-images";
+import FullImagesGallery from "@components/full-images-gallery";
 import { Button } from "@components/ui/button";
 import { getProductByIdAction } from "@lib/actions/productsActions";
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
+import { STATIC_IMAGES } from "@lib/constants";
+import { ProductImage } from "@lib/types";
 import Link from "next/link";
 import React from "react";
+
+interface Params {
+  productId: string;
+}
 
 const ProductView = async ({ params }: { params: Params }) => {
   // const [product, productImages] = await Promise.all([
@@ -16,6 +21,7 @@ const ProductView = async ({ params }: { params: Params }) => {
   const { data: productData, error } = await getProductByIdAction(
     params.productId
   );
+
   // const { data: images, error: productImagesError } = productImages;
   // const { data: productData, error: producError } = product;
 
@@ -24,6 +30,9 @@ const ProductView = async ({ params }: { params: Params }) => {
   if (error)
     return <p>Something went wrong while searching for the product&rsquo;</p>;
 
+  const imageUrls = productData?.productImages?.map(
+    (image: ProductImage) => image.imageUrl
+  );
   if (!productData)
     return (
       <p>
@@ -37,8 +46,8 @@ const ProductView = async ({ params }: { params: Params }) => {
 
   return (
     <div>
-      <ProductViewImages
-        images={productData.productImages}
+      <FullImagesGallery
+        images={imageUrls || STATIC_IMAGES}
         productId={productData.productId}
       />
       <div className=" text-xs  text-muted-foreground my-4 text-right px-3">
