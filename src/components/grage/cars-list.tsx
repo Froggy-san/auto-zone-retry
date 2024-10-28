@@ -2,6 +2,7 @@ import { getCarsAction } from "@lib/actions/carsAction";
 import { CarItem as CarItemProps } from "@lib/types";
 import React from "react";
 import CarItem from "./car-item";
+import { Car } from "lucide-react";
 
 interface CarsListProps {
   color: string;
@@ -34,7 +35,12 @@ const CarsList = async ({
 
   if (error) return <p>{error}</p>;
   if (!data) return <p>Something went wrong</p>;
-  if (!data.length) return <p>No cars.</p>;
+  if (!data.length)
+    return (
+      <div className=" h-32  text-center  flex flex-col-reverse   font-semibold  items-center gap-2 justify-center">
+        No cars. <Car className=" w-10 h-10  " />
+      </div>
+    );
 
   return (
     <ul className="  gap-3 border-t  px-2 pt-2 grid grid-cols-1">

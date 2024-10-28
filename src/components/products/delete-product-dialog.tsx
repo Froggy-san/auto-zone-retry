@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect } from "react";
+import React, { SetStateAction, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,13 +13,19 @@ import Spinner from "@components/Spinner";
 import { deleteProductsByIdAction } from "@lib/actions/productsActions";
 import { useToast } from "@hooks/use-toast";
 import { ErorrToastDescription } from "@components/toast-items";
+import { useQueryClient } from "@tanstack/react-query";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 const DeleteProductDialog = ({
   open,
   setOpen,
   productId,
   isLoading,
   setIsLoading,
+  pageSize,
+  currPage,
 }: {
+  pageSize: number;
+  currPage: number;
   productId: number | undefined;
   setIsLoading?: React.Dispatch<SetStateAction<boolean>>;
   isLoading?: boolean;
@@ -27,7 +33,10 @@ const DeleteProductDialog = ({
   setOpen: React.Dispatch<SetStateAction<boolean>>;
 }) => {
   const { toast } = useToast();
-
+  const queryClient = useQueryClient();
+  const searchParam = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   useEffect(() => {
     return () => {
       const body = document.querySelector("body");
@@ -35,11 +44,29 @@ const DeleteProductDialog = ({
     };
   }, [open]);
 
+  const checkIfLastItem = useCallback(() => {
+    const params = new URLSearchParams(searchParam);
+    if (pageSize !== undefined && pageSize === 1) {
+      if (Number(currPage) === 1) {
+        params.delete("categoryId");
+        params.delete("productBrandId");
+        params.delete("productTypeId");
+        params.delete("name");
+      }
+      if (Number(currPage) !== 1) {
+        params.set("page", String(Number(currPage) - 1));
+      }
+      router.push(`${pathname}?${params.toString()}`);
+    }
+  }, [productId, pageSize]);
+
   async function handleDelete() {
     try {
       setIsLoading?.(true);
       await deleteProductsByIdAction(productId as number);
       setOpen(false);
+      checkIfLastItem();
+      queryClient.invalidateQueries(["productCount"]);
     } catch (error: any) {
       console.log(error);
       toast({

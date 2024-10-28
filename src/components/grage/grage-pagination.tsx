@@ -6,9 +6,7 @@ import { Button } from "@components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMediaQuery } from "@mui/material";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { getProductsCountAction } from "@lib/actions/productsActions";
-import { useToast } from "@hooks/use-toast";
-import { ErorrToastDescription } from "@components/toast-items";
+
 import Spinner from "@components/Spinner";
 import { useIntersectionProvidor } from "@components/products/intersection-providor";
 import { getCarsCountAction } from "@lib/actions/carsAction";
@@ -52,7 +50,7 @@ const GragePagination: React.FC<GragePaginationProps> = ({
   const numberOfPages = Math.ceil(count / PAGE_SIZE);
 
   const isSmallScreen = useMediaQuery("(max-width:600px)");
-  const { toast } = useToast();
+
   const { items } = usePagination({
     // defaultPage: Number(defaultValue),
     count: numberOfPages,

@@ -20,7 +20,15 @@ import Link from "next/link";
 import { useState } from "react";
 import DeleteProductDialog from "./delete-product-dialog";
 
-export function ProdcutAction({ productId }: { productId: number }) {
+export function ProdcutAction({
+  productId,
+  currPage,
+  pageSize,
+}: {
+  pageSize: number;
+  currPage: string;
+  productId: number;
+}) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -72,6 +80,8 @@ export function ProdcutAction({ productId }: { productId: number }) {
       </DropdownMenu>
 
       <DeleteProductDialog
+        pageSize={pageSize}
+        currPage={Number(currPage)}
         setIsLoading={setIsLoading}
         open={open}
         setOpen={setOpen}

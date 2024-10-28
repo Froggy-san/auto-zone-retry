@@ -11,6 +11,7 @@ import { useToast } from "@hooks/use-toast";
 import { ErorrToastDescription } from "@components/toast-items";
 import Spinner from "@components/Spinner";
 import { useIntersectionProvidor } from "./intersection-providor";
+import useProductPagination from "@lib/queries/useProductPagination";
 
 interface ProductsListProps {
   name?: string;
@@ -19,22 +20,18 @@ interface ProductsListProps {
   productBrandId?: string;
   isAvailable?: string;
 }
-const ProductPagenation: React.FC<ProductsListProps> = ({
-  name,
-  categoryId,
-  productTypeId,
-  productBrandId,
-  isAvailable,
-}) => {
+const ProductPagenation: React.FC<ProductsListProps> = ({...props}) => {
   const { ref } = useIntersectionProvidor();
 
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
-  const [count, setCount] = React.useState(0);
-  const [error, setError] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
+ const {isLoading , count,error} = useProductPagination(props)
+
+  // const [count, setCount] = React.useState(0);
+  // const [error, setError] = React.useState("");
+  // const [isLoading, setIsLoading] = React.useState(false);
 
   const defaultValue = searchParam.get("page") ?? "1";
   const numberOfPages = Math.ceil(count / PAGE_SIZE);
@@ -54,34 +51,34 @@ const ProductPagenation: React.FC<ProductsListProps> = ({
     },
   });
 
-  React.useEffect(() => {
-    async function getCount() {
-      setIsLoading(true);
-      const { data: count, error: countError } = await getProductsCountAction({
-        name,
-        categoryId,
-        productTypeId,
-        productBrandId,
-        isAvailable,
-      });
+  // React.useEffect(() => {
+  //   async function getCount() {
+  //     setIsLoading(true);
+  //     const { data: count, error: countError } = await getProductsCountAction({
+  //       name,
+  //       categoryId,
+  //       productTypeId,
+  //       productBrandId,
+  //       isAvailable,
+  //     });
 
-      if (countError) {
-        toast({
-          variant: "destructive",
-          title: "Something went wrong.",
-          description: <ErorrToastDescription error={countError} />,
-        });
-        setIsLoading(false);
-        setError(countError);
+  //     if (countError) {
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Something went wrong.",
+  //         description: <ErorrToastDescription error={countError} />,
+  //       });
+  //       setIsLoading(false);
+  //       setError(countError);
 
-        return;
-      }
+  //       return;
+  //     }
 
-      setIsLoading(false);
-      setCount(count);
-    }
-    getCount();
-  }, [categoryId, productTypeId, productBrandId, name]);
+  //     setIsLoading(false);
+  //     setCount(count);
+  //   }
+  //   getCount();
+  // }, [categoryId, productTypeId, productBrandId, name]);
 
   if (isLoading) return <Spinner className=" h-52" />;
   if (error) return <p>{error}</p>;

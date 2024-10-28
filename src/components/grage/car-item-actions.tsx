@@ -69,18 +69,17 @@ export default function CarAction({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push(`/grage/${carId}?edit=open`);
+            }}
+          >
             Edit{" "}
             <DropdownMenuShortcut>
               <Pencil className=" h-4 w-4" />
             </DropdownMenuShortcut>{" "}
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            View{" "}
-            <DropdownMenuShortcut>
-              <View className=" h-4 w-4" />
-            </DropdownMenuShortcut>{" "}
-          </DropdownMenuItem>
+
           <DropdownMenuItem onClick={() => setOpen(true)}>
             Delete{" "}
             <DropdownMenuShortcut>
