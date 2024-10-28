@@ -36,6 +36,7 @@ import { ClientsComboBox } from "@components/clients-combobox";
 import { createCarAction, editCarAction } from "@lib/actions/carsAction";
 import { GrageFileUploader } from "./grage-files-uploader";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 const CarForm = ({
   useParams,
@@ -56,6 +57,8 @@ const CarForm = ({
   const router = useRouter();
   const pathname = usePathname();
   const edit = searchParam.get("edit") ?? "";
+  const queryClient = useQueryClient();
+
   const [isOpen, setIsOpen] = useState(false);
   const [deletedMedia, setDeletedMedia] = useState<CarImage[]>([]);
 
@@ -172,6 +175,8 @@ const CarForm = ({
         });
       } else {
         await createCarAction({ car, images: imagesToUpload });
+
+        queryClient.invalidateQueries({ queryKey: ["carCount"] });
       }
 
       toast({

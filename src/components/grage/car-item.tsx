@@ -6,7 +6,13 @@ import React, { useMemo } from "react";
 import CarAction from "./car-item-actions";
 import Link from "next/link";
 
-const CarItem = ({ car }: { car: CarItemProps }) => {
+const CarItem = ({
+  car,
+  pageSize,
+}: {
+  pageSize?: number;
+  car: CarItemProps;
+}) => {
   const carImages = car.carImages.map((image) => image.imagePath);
 
   const viewedImages = carImages.length ? carImages : STATIC_IMAGES;
@@ -84,7 +90,7 @@ const CarItem = ({ car }: { car: CarItemProps }) => {
                 className=" w-5 h-5 border rounded-md"
               ></div>
             </div>
-            <CarAction />
+            <CarAction pageSize={pageSize} carId={car.id} />
           </div>
         </section>
       </Link>

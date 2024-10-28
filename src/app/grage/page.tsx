@@ -1,4 +1,6 @@
+import CarManagement from "@components/grage/car-management";
 import CarsList from "@components/grage/cars-list";
+import GragePagination from "@components/grage/grage-pagination";
 import Header from "@components/home/header";
 import IntersectionProvidor from "@components/products/intersection-providor";
 import ProductsFilterBar from "@components/products/products-filter-bar";
@@ -29,6 +31,8 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
     motorNumber +
     clientId +
     carInfoId;
+  const paginationKey =
+    color + plateNumber + chassisNumber + motorNumber + clientId + carInfoId;
   return (
     <main
       data-vaul-drawer-wrapper
@@ -59,6 +63,19 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
                 color={color}
               />
             </Suspense>
+            <GragePagination
+              key={paginationKey}
+              color={color}
+              plateNumber={plateNumber}
+              motorNumber={motorNumber}
+              chassisNumber={chassisNumber}
+              clientId={clientId}
+              carInfoId={carInfoId}
+            />
+
+            <div className=" my-10 px-2">
+              <CarManagement />
+            </div>
             {/* <ProductPagenation
               name={name}
               categoryId={categoryId}
