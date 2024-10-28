@@ -1,5 +1,6 @@
 import CarManagement from "@components/grage/car-management";
 import CarsList from "@components/grage/cars-list";
+import GrageFilterbar from "@components/grage/grage-filter-bar";
 import GragePagination from "@components/grage/grage-pagination";
 import Header from "@components/home/header";
 import IntersectionProvidor from "@components/products/intersection-providor";
@@ -41,12 +42,14 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
       <Header />
       <IntersectionProvidor>
         <div className=" flex   flex-1  w-full">
-          <ProductsFilterBar
-          // name={name}
-          // categoryId={categoryId}
-          // productTypeId={productTypeId}
-          // productBrandId={productBrandId}
-          // isAvailable={isAvailable}
+          <GrageFilterbar
+            color={color}
+            chassisNumber={chassisNumber}
+            motorNumber={motorNumber}
+            plateNumber={plateNumber}
+            clientId={clientId}
+            carInfoId={carInfoId}
+            pageNumber={pageNumber}
           />
           <section className=" flex-1 ">
             <Suspense

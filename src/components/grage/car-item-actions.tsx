@@ -34,9 +34,13 @@ export default function CarAction({
   const checkIfLastItem = useCallback(() => {
     const params = new URLSearchParams(searchParam);
     if (pageSize !== undefined && pageSize === 1) {
-      params.delete("name");
-      params.delete("phone");
-      params.delete("email");
+      if (Number(currPage) === 1) {
+        params.delete("plateNumber");
+        params.delete("chassisNumber");
+        params.delete("motorNumber");
+        params.delete("carInfoId");
+        params.delete("clientId");
+      }
       if (Number(currPage) !== 1) {
         params.set("page", String(Number(currPage) - 1));
       }

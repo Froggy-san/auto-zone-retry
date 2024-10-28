@@ -244,14 +244,14 @@ export async function getCarsCountAction({
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
 
-  let query = `${process.env.API_URL}/api/cars/count?`;
+  let query = `${process.env.API_URL}/api/Cars/count?`;
 
   if (color) query = query + `&color=${color}`;
   if (plateNumber) query = query + `&PlateNumber=${plateNumber}`;
   if (chassisNumber) query = query + `&ChassisNumber=${chassisNumber}`;
   if (motorNumber) query = query + `&MotorNumber=${motorNumber}`;
   if (carInfoId) query = query + `&CarInfoId=${carInfoId}`;
-  if (clientId) query = query + `&clientId=${clientId}`;
+  if (clientId) query = query + `&ClientId=${clientId}`;
 
   const response = await fetch(query, {
     method: "GET",

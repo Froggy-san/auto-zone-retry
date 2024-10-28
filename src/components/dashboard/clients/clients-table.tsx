@@ -36,7 +36,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { CircleUser, Ellipsis, UserRoundMinus } from "lucide-react";
+import {
+  CircleUser,
+  Ellipsis,
+  LoaderCircle,
+  UserRoundMinus,
+} from "lucide-react";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
@@ -50,6 +55,8 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
+import useCarCountPerClient from "@lib/queries/useCarCountPerClient";
+import Link from "next/link";
 const ClientsTable = ({
   clients,
   currPage,
@@ -88,13 +95,15 @@ const ClientsTable = ({
                 <TableCell className="text-right ">
                   {" "}
                   <div className=" flex items-center gap-2 justify-end">
-                    <Button
+                    <ShowCars client={client} />
+
+                    {/* <Button
                       size="sm"
                       className="   h-6 px-2 py-3 text-xs"
                       variant="outline"
                     >
                       Show
-                    </Button>
+                    </Button> */}
                     <ClientsTableActions
                       currPage={currPage}
                       client={client}
@@ -238,6 +247,43 @@ function PhoneNumbersDialog({ client }: { client: ClientWithPhoneNumbers }) {
   );
 }
 
+function ShowCars({ client }: { client: ClientWithPhoneNumbers }) {
+  const { isLoading, count, error } = useCarCountPerClient(String(client.id));
+  const router = useRouter();
+  console.log(`${client.name}: ${count} , ID: ${client.id}`);
+
+  if (isLoading) return <LoaderCircle size={12} className="  animate-spin" />;
+  if (error) return null;
+
+  if (!count)
+    return (
+      <TooltipProvider delayDuration={500}>
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="  inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pointer-events-none opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md h-6 px-2 py-3 text-xs">
+              Show
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>This clients doesn&apos;t have cors.</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+
+  return (
+    <Button
+      disabled={!count}
+      onClick={() => {
+        if (count) router.push(`/grage?clientId=${client.id}`);
+      }}
+      size="sm"
+      className="   h-6 px-2 py-3 text-xs"
+      variant="outline"
+    >
+      Show
+    </Button>
+  );
+}
+
 function DeleteClientDialog({
   currPage,
   pageSize,
@@ -257,8 +303,6 @@ function DeleteClientDialog({
 }) {
   const isFirstPage = currPage === "1";
 
-  console.log(pageSize, "PAGE SIZE");
-  console.log(isFirstPage, "is");
   const { toast } = useToast();
   const searchParam = useSearchParams();
   const router = useRouter();
