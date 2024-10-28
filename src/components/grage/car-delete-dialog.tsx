@@ -12,7 +12,9 @@ import {
 import Spinner from "@components/Spinner";
 import { deleteProductsByIdAction } from "@lib/actions/productsActions";
 import { useToast } from "@hooks/use-toast";
-import { ErorrToastDescription } from "@components/toast-items";
+import SuccessToastDescription, {
+  ErorrToastDescription,
+} from "@components/toast-items";
 import { deleteCarAction } from "@lib/actions/carsAction";
 import { useQueryClient } from "@tanstack/react-query";
 const CarDeleteDialog = ({
@@ -46,6 +48,14 @@ const CarDeleteDialog = ({
       checkIfLastItem();
       queryClient.invalidateQueries({ queryKey: ["carCount"] });
       setOpen(false);
+
+      toast({
+        variant: "default",
+        title: "Success.",
+        description: (
+          <SuccessToastDescription message="Car hass been deleted" />
+        ),
+      });
     } catch (error: any) {
       console.log(error);
       toast({
