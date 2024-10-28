@@ -27,7 +27,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const productTypeId = searchParams?.productTypeId ?? "";
   const productBrandId = searchParams?.productBrandId ?? "";
   const isAvailable = searchParams?.isAvailable ?? "";
-  console.log(pageNumber, "PAGE NUMBER");
+
   // if (productsError || categoriesError) {
   //   return <div>Error loading data</div>;
   // }

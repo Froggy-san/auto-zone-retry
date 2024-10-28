@@ -39,7 +39,12 @@ const ProductsList: React.FC<ProductsListProps> = async ({
       <ul className=" grid  grid-cols-1 xs:grid-cols-2  p-3 border-t   xl:grid-cols-3 gap-3">
         {products && products.length
           ? products.map((product: Product, i: number) => (
-              <ProductItem product={product} key={i} />
+              <ProductItem
+                currPage={pageNumber}
+                pageSize={products.length}
+                product={product}
+                key={i}
+              />
             ))
           : null}
       </ul>

@@ -65,21 +65,18 @@ const GrageFilter: React.FC<CarsListProps> = ({
   const pathname = usePathname();
   const isBigScreen = useMediaQuery("(min-width:640px)");
 
-  console.log(chosenClient, "CLIENTS");
-  console.log(clientId, "CLIENTS");
-
-  function handleChange(number: number, name: string, initalValue: number) {
-    const params = new URLSearchParams(searchParams);
-    if (number === initalValue) {
-      params.delete(`${name}`);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    } else {
-      params.set("page", "1");
-      params.set(`${name}`, String(number));
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    }
-    window.scrollTo(0, 0);
-  }
+  // function handleChange(number: number, name: string, initalValue: number) {
+  //   const params = new URLSearchParams(searchParams);
+  //   if (number === initalValue) {
+  //     params.delete(`${name}`);
+  //     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  //   } else {
+  //     params.set("page", "1");
+  //     params.set(`${name}`, String(number));
+  //     router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  //   }
+  //   window.scrollTo(0, 0);
+  // }
 
   async function handleSubmit() {
     const params = new URLSearchParams(searchParams);
@@ -116,6 +113,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
     params.set("page", "1");
 
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    window.scrollTo(0, 0);
   }
 
   return (

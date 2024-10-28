@@ -8,7 +8,15 @@ import { ProdcutAction } from "./product-actions";
 import Link from "next/link";
 import { STATIC_IMAGES } from "@lib/constants";
 
-const ProductItem = async ({ product }: { product: Product }) => {
+const ProductItem = async ({
+  product,
+  pageSize,
+  currPage,
+}: {
+  pageSize: number;
+  currPage: string;
+  product: Product;
+}) => {
   const { data, error } = await getProductsImageAction(product.id);
 
   if (error) return <p>{error}</p>;
@@ -55,7 +63,11 @@ const ProductItem = async ({ product }: { product: Product }) => {
                   ? "In stock"
                   : "Out of stock"}
               </span>
-              <ProdcutAction productId={product.id} />
+              <ProdcutAction
+                currPage={currPage}
+                pageSize={pageSize}
+                productId={product.id}
+              />
             </div>
           </div>
         </div>
