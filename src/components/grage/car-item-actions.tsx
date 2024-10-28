@@ -6,18 +6,62 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { EllipsisIcon, PackageMinus, Pencil, View } from "lucide-react";
+import {
+  Ellipsis,
+  EllipsisIcon,
+  LoaderCircle,
+  PackageMinus,
+  Pencil,
+  View,
+} from "lucide-react";
 import { Button } from "@components/ui/button";
-export default function CarAction() {
+import { useCallback, useState } from "react";
+import CarDeleteDialog from "./car-delete-dialog";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+export default function CarAction({
+  pageSize,
+  carId,
+}: {
+  carId: number;
+  pageSize?: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const searchParam = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const currPage = searchParam.get("page") ?? "1";
+  const checkIfLastItem = useCallback(() => {
+    const params = new URLSearchParams(searchParam);
+    if (pageSize !== undefined && pageSize === 1) {
+      params.delete("name");
+      params.delete("phone");
+      params.delete("email");
+      if (Number(currPage) !== 1) {
+        params.set("page", String(Number(currPage) - 1));
+      }
+      router.push(`${pathname}?${params.toString()}`);
+    }
+  }, [carId, pageSize]);
+
+  if (isLoading)
+    return (
+      <LoaderCircle
+        size={12}
+        className="  absolute right-3 top-3 animate-spin"
+      />
+    );
   return (
-    <>
+    <div className="" onClick={(e) => e.preventDefault()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className=" w-7 h-7 p-0 absolute right-3 top-3"
+            size="icon"
+            className=" w-7 h-7 absolute top-3 right-3  "
           >
-            <EllipsisIcon className=" w-4 h-4" />
+            <Ellipsis size={15} />
+            {/* <EllipsisVertical size={15} /> */}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -33,7 +77,7 @@ export default function CarAction() {
               <View className=" h-4 w-4" />
             </DropdownMenuShortcut>{" "}
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setOpen(true)}>
             Delete{" "}
             <DropdownMenuShortcut>
               <PackageMinus className=" h-4 w-4" />
@@ -41,6 +85,14 @@ export default function CarAction() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </>
+
+      <CarDeleteDialog
+        checkIfLastItem={checkIfLastItem}
+        setIsLoading={setIsLoading}
+        open={open}
+        setOpen={setOpen}
+        carId={carId}
+      />
+    </div>
   );
 }

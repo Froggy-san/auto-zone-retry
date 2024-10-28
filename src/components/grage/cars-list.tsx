@@ -38,7 +38,10 @@ const CarsList = async ({
 
   return (
     <ul className="  gap-3 border-t  px-2 pt-2 grid grid-cols-1">
-      {data && data.map((car: CarItemProps) => <CarItem key={car.id} car={car} />)}
+      {data &&
+        data.map((car: CarItemProps) => (
+          <CarItem pageSize={data.length} key={car.id} car={car} />
+        ))}
     </ul>
   );
 };

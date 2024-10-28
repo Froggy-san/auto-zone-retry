@@ -5,6 +5,7 @@ import { Car, CarImage, CarItem } from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getClienttByIdAction } from "./clientActions";
+import { PAGE_SIZE } from "@lib/constants";
 
 interface GetCarsProps {
   color?: string;
@@ -22,6 +23,7 @@ export async function getCarsAction({
   motorNumber,
   clientId,
   carInfoId,
+  plateNumber,
   pageNumber,
 }: GetCarsProps) {
   const token = getToken();
@@ -29,14 +31,15 @@ export async function getCarsAction({
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
 
-  let query = `${process.env.API_URL}/api/Cars?`;
+  let query = `${process.env.API_URL}/api/Cars?&PageSize=${PAGE_SIZE}`;
 
-  if (pageNumber) query = query + `pageNumber=${pageNumber}`;
-  if (color) query = query + `color=${color}`;
-  if (chassisNumber) query = query + `ChassisNumber=${chassisNumber}`;
-  if (motorNumber) query = query + `MotorNumber=${motorNumber}`;
-  if (carInfoId) query = query + `CarInfoId=${carInfoId}`;
-  if (clientId) query = query + `clientId=${clientId}`;
+  if (pageNumber) query = query + `&pageNumber=${pageNumber}`;
+  if (color) query = query + `&color=${color}`;
+  if (plateNumber) query = query + `&PlateNumber=${plateNumber}`;
+  if (chassisNumber) query = query + `&ChassisNumber=${chassisNumber}`;
+  if (motorNumber) query = query + `&MotorNumber=${motorNumber}`;
+  if (carInfoId) query = query + `&CarInfoId=${carInfoId}`;
+  if (clientId) query = query + `&clientId=${clientId}`;
 
   const response = await fetch(query, {
     method: "GET",
@@ -105,6 +108,7 @@ export async function createCarAction({
   }
 
   revalidateTag("cars");
+  // revalidateTag("carCount");
   return carId;
 }
 
@@ -204,7 +208,7 @@ export async function deleteCarAction(id: string) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
   const response = await fetch(`${process.env.API_URL}/api/cars/${id}`, {
-    method: "PUT",
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-type": "application/json",
@@ -215,21 +219,48 @@ export async function deleteCarAction(id: string) {
     throw new Error("Something went wrong!");
   }
 
-  const data = await response.json();
   revalidateTag("cars");
-  return data;
+  // revalidateTag("carCount");
+}
+interface GragePaginationProps {
+  color?: string;
+  plateNumber?: string;
+  chassisNumber?: string;
+  motorNumber?: string;
+  clientId?: string;
+  carInfoId?: string;
 }
 
-export async function getCarsCountAction() {
+export async function getCarsCountAction({
+  color,
+  plateNumber,
+  motorNumber,
+  chassisNumber,
+  clientId,
+  carInfoId,
+}: GragePaginationProps) {
   const token = getToken();
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
-  const response = await fetch(`${process.env.API_URL}/api/cars/count`, {
+
+  let query = `${process.env.API_URL}/api/cars/count?`;
+
+  if (color) query = query + `&color=${color}`;
+  if (plateNumber) query = query + `&PlateNumber=${plateNumber}`;
+  if (chassisNumber) query = query + `&ChassisNumber=${chassisNumber}`;
+  if (motorNumber) query = query + `&MotorNumber=${motorNumber}`;
+  if (carInfoId) query = query + `&CarInfoId=${carInfoId}`;
+  if (clientId) query = query + `&clientId=${clientId}`;
+
+  const response = await fetch(query, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    // next: {
+    //   tags: ["carCount"],
+    // },
   });
 
   if (!response.ok) {
