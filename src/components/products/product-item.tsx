@@ -1,5 +1,5 @@
 import { getProductsImageAction } from "@lib/actions/productsActions";
-import { Product, ProductImage } from "@lib/types";
+import { Product, ProductImage, ProductWithCategory } from "@lib/types";
 import { cn } from "@lib/utils";
 import React, { useMemo } from "react";
 import FullImagesGallery from "./product-images";
@@ -15,7 +15,7 @@ const ProductItem = async ({
 }: {
   pageSize: number;
   currPage: string;
-  product: Product;
+  product: ProductWithCategory;
 }) => {
   const { data, error } = await getProductsImageAction(product.id);
 
@@ -40,7 +40,7 @@ const ProductItem = async ({
             className="h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden"
           />
         )}
-
+        {/* {product.category} */}
         <div className="    flex-1  space-y-1  flex flex-col ">
           <h1 className=" line-clamp-1 text-xl font-semibold">
             {product.name}

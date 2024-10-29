@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Client,
   ClientWithPhoneNumbers,
   CreateClient,
   CreateClientSchema,
@@ -116,7 +117,7 @@ const ClientForm = ({
         const phonesToEdit = phones.filter(
           (phone) => phone.id !== undefined && phone.clientId !== undefined
         ) as PhoneNumber[];
-        const clientToEdit = { name, email, id: client.id };
+        const clientToEdit = { name, email, id: client.id } as Client;
 
         await editClientAction({
           clientToEdit,

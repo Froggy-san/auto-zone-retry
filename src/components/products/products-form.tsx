@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -67,6 +67,16 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const { toast } = useToast();
   const isEditing = edit ? true : false || isOpen;
 
+  const [isMainImage, setIsMainImage] = useState<ProductImage | null | number>(
+    null
+  );
+
+  const isMainChange =
+    productToEdit?.productImages.find((image) => image.isMain === true) || null;
+
+  console.log(isMainImage, "AAAAA ");
+  console.log(isMainChange === isMainImage, "CCCCC");
+
   const params = new URLSearchParams(searchParam);
   function handleOpen(filter: string) {
     if (useParams) {
@@ -87,6 +97,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
     }
     if (isLoading) return;
     form.reset(defaultValues);
+
+    setIsMainImage(
+      productToEdit?.productImages.find((image) => image.isMain === true) ||
+        null
+    );
     setDeletedMedia([]);
   }
 
@@ -143,9 +158,16 @@ const ProductForm: React.FC<ProductFormProps> = ({
   // checking if the user changet the forms data in order to enable the user to change it. if not we check if they deleted any images as shown below in the (disabled variable).
   const isEqual = useObjectCompare(defaultValues, form.getValues());
   // if the user didn't change the form's data nor did he delete any already uploaded images we want the submit button to be disabled to prevent any unnecessary api calls.
-  const disabled = isEqual && !deletedMedia.length;
+  const disabled = isMainChange === isMainImage && !deletedMedia.length;
 
   const isLoading = form.formState.isSubmitting;
+
+  useEffect(() => {
+    setIsMainImage(
+      productToEdit?.productImages.find((image) => image.isMain === true) ||
+        null
+    );
+  }, [isEditing]);
 
   async function onSubmit({
     name,
@@ -162,12 +184,19 @@ const ProductForm: React.FC<ProductFormProps> = ({
     images,
   }: z.infer<typeof ProductsSchema>) {
     try {
+      const isMainEdited = isMainImage && typeof isMainImage !== "number";
+
       if (productToEdit) {
-        const imagesToUpload = images.map((image) => {
+        const imagesToUpload = images.map((image, i) => {
           const formData = new FormData();
           formData.append("image", image);
           formData.append("productId", String(productToEdit.id));
-          formData.append("isMain", "false");
+          formData.append(
+            "isMain",
+            typeof isMainImage === "number" && isMainImage === i
+              ? "true"
+              : "false"
+          );
           return formData;
         });
 
@@ -186,6 +215,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           productToEdit: productToEditData,
           imagesToUpload,
           imagesToDelete: deletedMedia,
+          isMain: isMainEdited ? isMainImage : null,
           isEqual,
         });
 
@@ -193,11 +223,16 @@ const ProductForm: React.FC<ProductFormProps> = ({
         setDeletedMedia([]);
       } else {
         const imagesToUpload = images.length
-          ? images.map((image) => {
+          ? images.map((image, i) => {
               const formData = new FormData();
               formData.append("image", image);
               // formData.append("productId", String(prodcutId));
-              formData.append("isMain", "false");
+              formData.append(
+                "isMain",
+                typeof isMainImage === "number" && isMainImage === i
+                  ? "true"
+                  : "false"
+              );
               return formData;
             })
           : [];
@@ -507,6 +542,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   <FormLabel>Product images</FormLabel>
                   <FormControl>
                     <MultiFileUploader
+                      isMainImage={isMainImage}
+                      setIsMainImage={setIsMainImage}
                       disabled={isLoading}
                       handleDeleteMedia={handleDeleteMedia}
                       selectedFiles={field.value}

@@ -208,6 +208,24 @@ export const CreateCarSchema = z.object({
   }),
 });
 
+export const ProductBoughtSchema = z
+  .object({
+    pricePerUnit: z.number().min(1, { message: "Price per unit is requried" }),
+    discount: z.number(),
+    count: z.number().min(1, { message: "Count is requried" }),
+    note: z.string(),
+    productId: z.number(),
+    productsRestockingBillId: z.number(),
+  })
+  .refine((data) => data.pricePerUnit * data.count - data.discount > 0, {
+    message: "Discount must be less than the total amount",
+    path: ["discount"],
+  });
+
+export const CreateProductBoughtSchema = z.object({
+  productBought: ProductBoughtSchema.array(),
+});
+
 export interface signUpProps {
   username: string;
   email: string;
@@ -321,6 +339,13 @@ export interface CreateProductProps {
   images: FormData[];
 }
 
+export interface mainProductImage {
+  id: number;
+  imageUrl: string;
+  isMain: boolean;
+  productId: number;
+}
+
 export interface Product {
   id: number;
   categoryId: number;
@@ -331,7 +356,11 @@ export interface Product {
   salePrice: number;
   stock: number;
   isAvailable: boolean;
-  mainProductImage: null | string;
+  mainProductImage: mainProductImage | null;
+}
+
+export interface ProductWithCategory extends Product {
+  category: string;
 }
 
 export interface ProductImage {
@@ -371,6 +400,7 @@ export interface EditProduct {
 export interface Client {
   id: number;
   name: string;
+  carsCount: number;
   email: string;
 }
 
@@ -434,6 +464,25 @@ export interface ClientById {
   cars: CarItem[];
 }
 
+export interface ProductBought {
+  id: number;
+  pricePerUnit: number;
+  discount: number;
+  count: number;
+  isReturned: boolean;
+  note: string;
+  totalPriceAfterDiscount: number;
+  productId: number;
+  productsRestockingBillId: number;
+}
+
+export interface RestockingBill {
+  id: number;
+  shopName: string;
+  dateOfOrder: string;
+  productsBought: ProductBought[];
+}
+
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
 export type CarGeneration = z.infer<typeof CarGenerationsSchema>;
 export type CarInfo = z.infer<typeof CarInfoSchema>;
@@ -444,3 +493,4 @@ export type CreateCarModel = z.infer<typeof CreateCarModelSchema>;
 export type CreateCarInfoSchema = z.infer<typeof CreateCarInfoSchema>;
 export type CreateClient = z.infer<typeof CreateClientSchema>;
 export type CreateCar = z.infer<typeof CreateCarSchema>;
+export type CreateProductBought = z.infer<typeof CreateProductBoughtSchema>;
