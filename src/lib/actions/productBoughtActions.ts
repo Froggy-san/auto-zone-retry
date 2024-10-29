@@ -5,14 +5,17 @@ import { getAllCategories } from "@lib/data-service";
 import { getToken } from "@lib/helper";
 import {
   Category,
+  CreateProductBought,
   CreateProductProps,
   EditProduct,
   Product,
+  ProductBoughtSchema,
   ProductImage,
 } from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 interface GetProdcutsActionProps {
   name?: string;
@@ -121,57 +124,33 @@ export async function getProductByIdAction(id: string) {
   return { data, error: "" };
 }
 
-export async function createProductAction({
-  name,
-  categoryId,
-  productTypeId,
-  productBrandId,
-  description,
-  listPrice,
-  carinfoId,
-  salePrice,
-  stock,
-  isAvailable,
-  images,
-}: CreateProductProps) {
+export async function createProductBoughtBulkAction(
+  data: z.infer<typeof ProductBoughtSchema>[]
+) {
+  //   console.log(data, ">>>>>>>>>>");
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
   if (!token) return redirect("/login");
 
-  const response = await fetch(`${process.env.API_URL}/api/Product`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name,
-      categoryId,
-      productTypeId,
-      productBrandId,
-      description,
-      listPrice,
-      carinfoId,
-      salePrice,
-      stock,
-      isAvailable,
-    }),
-  });
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductsBought/bulk`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
 
   console.log(response);
   if (!response.ok) throw new Error("Had truble creating a product.");
 
-  const { prodcutId } = await response.json();
+  //   const { prodcutId } = await response.json();
 
-  if (images.length) {
-    const upload = images.map((image) => {
-      image.append("productId", String(prodcutId));
-      return createProductImageAction(image);
-    });
-    await Promise.all(upload);
-  }
-  revalidateTag("products");
+  revalidateTag("productBought");
 }
 
 export async function editProductAction({

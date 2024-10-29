@@ -17,7 +17,7 @@ const CarItem = ({
 
   const viewedImages = carImages.length ? carImages : STATIC_IMAGES;
   return (
-    <li className="   border  rounded-xl  min-h-[250px]">
+    <Card className="   border    min-h-[250px]">
       <Link
         href={`/grage/${car.id}`}
         className="  flex  flex-col  md:flex-row h-full w-full relative "
@@ -94,7 +94,7 @@ const CarItem = ({
           </div>
         </section>
       </Link>
-    </li>
+    </Card>
   );
 };
 

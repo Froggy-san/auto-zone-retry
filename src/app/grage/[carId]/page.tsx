@@ -3,6 +3,12 @@ import FullImagesGallery from "@components/full-images-gallery";
 import { getCarByIdAction } from "@lib/actions/carsAction";
 import { STATIC_IMAGES } from "@lib/constants";
 import { ClientWithPhoneNumbers } from "@lib/types";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import React from "react";
 import CarManagement from "@components/grage/car-management";
 import DeleteCar from "@components/grage/delete-car";
@@ -195,24 +201,32 @@ const Page = async ({ params }: { params: Params }) => {
           {/* Generation Ends */}
         </div>
         {/* Car Information  ends*/}
-        {/* Related */}
-        {clientOtherCars.length ? (
-          <div>
-            <h2 className="font-semibold  text-xl">Related cars:</h2>
-            <ul className=" grid  px-4  mt-10 gap-3">
-              {clientOtherCars.map((car, i) => (
-                <CarItem car={car} key={i} />
-              ))}
-            </ul>
-          </div>
-        ) : null}
-        {/* Related */}
         <div className=" space-y-5   ">
           <h2 className=" text-xl font-semibold">Actions</h2>
 
           <DeleteCar carId={car?.id.toString()} />
           <CarManagement useParams carToEdit={car} />
         </div>
+        {/* Related */}
+        {clientOtherCars.length ? (
+          <div>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="item-1">
+                <AccordionTrigger className="font-semibold  text-xl">
+                  Related cars:
+                </AccordionTrigger>
+                <AccordionContent>
+                  <ul className=" grid  px-4  mt-10 gap-3">
+                    {clientOtherCars.map((car, i) => (
+                      <CarItem car={car} key={i} />
+                    ))}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        ) : null}
+        {/* Related */}
       </section>
     </main>
   );

@@ -248,14 +248,9 @@ function PhoneNumbersDialog({ client }: { client: ClientWithPhoneNumbers }) {
 }
 
 function ShowCars({ client }: { client: ClientWithPhoneNumbers }) {
-  const { isLoading, count, error } = useCarCountPerClient(String(client.id));
   const router = useRouter();
-  console.log(`${client.name}: ${count} , ID: ${client.id}`);
 
-  if (isLoading) return <LoaderCircle size={12} className="  animate-spin" />;
-  if (error) return null;
-
-  if (!count)
+  if (!client.carsCount)
     return (
       <TooltipProvider delayDuration={500}>
         <Tooltip>
@@ -271,9 +266,9 @@ function ShowCars({ client }: { client: ClientWithPhoneNumbers }) {
 
   return (
     <Button
-      disabled={!count}
+      disabled={!client.carsCount}
       onClick={() => {
-        if (count) router.push(`/grage?clientId=${client.id}`);
+        if (client.carsCount) router.push(`/grage?clientId=${client.id}`);
       }}
       size="sm"
       className="   h-6 px-2 py-3 text-xs"

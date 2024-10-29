@@ -1,4 +1,5 @@
 import { Button } from "@components/ui/button";
+import { Checkbox } from "@components/ui/checkbox";
 import { FilesWithPreview, ProductImage } from "@lib/types";
 import { cn } from "@lib/utils";
 import { ImageUp, X } from "lucide-react";
@@ -7,6 +8,8 @@ import React, { SetStateAction, useCallback, useEffect } from "react";
 import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 
 interface MultiFileUploaderProps {
+  isMainImage: ProductImage | number | null;
+  setIsMainImage: React.Dispatch<SetStateAction<ProductImage | number | null>>;
   fieldChange: React.Dispatch<SetStateAction<File[]>>;
   selectedFiles: FilesWithPreview[];
   mediaUrl?: ProductImage[];
@@ -15,6 +18,8 @@ interface MultiFileUploaderProps {
 }
 
 export function MultiFileUploader({
+  isMainImage,
+  setIsMainImage,
   selectedFiles,
   fieldChange,
   handleDeleteMedia,
@@ -69,12 +74,17 @@ export function MultiFileUploader({
           )}
         >
           {mediaUrl?.map((media, i) => (
-            <li key={i} className="relative flex justify-center items-center">
+            <li
+              onClick={(e) => e.stopPropagation()}
+              key={i}
+              className="relative flex justify-center items-center"
+            >
               <Button
                 disabled={disabled}
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() => {
+                  // e.stopPropagation();
+                  if (isMainImage === media) setIsMainImage(null);
                   handleDeleteMedia(media);
                   // handleDeleteSelectedImages(file);
                 }}
@@ -90,16 +100,34 @@ export function MultiFileUploader({
                 alt="Image selected"
                 className=" max-h-[250px] sm:max-h-[120px]"
               />
+              <Checkbox
+                disabled={disabled}
+                checked={
+                  (typeof isMainImage !== "number" &&
+                    isMainImage &&
+                    isMainImage.id === media.id) ||
+                  false
+                }
+                onClick={() => {
+                  if (isMainImage === media) setIsMainImage(null);
+                  else setIsMainImage(media);
+                }}
+                className=" absolute left-1 bottom-1 "
+              />
             </li>
           ))}
 
           {selectedFiles.map((file, i) => (
-            <li key={i} className="relative flex justify-center items-center">
+            <li
+              onClick={(e) => e.stopPropagation()}
+              key={i}
+              className="relative flex justify-center items-center"
+            >
               <Button
                 disabled={disabled}
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() => {
+                  if (isMainImage === i) setIsMainImage(null);
                   handleDeleteSelectedImages(file);
                 }}
                 aria-label={`the remove button for the image number ${
@@ -113,6 +141,15 @@ export function MultiFileUploader({
                 src={file.preview}
                 alt="Image selected"
                 className="max-h-[250px] sm:max-h-[120px]"
+              />
+              <Checkbox
+                disabled={disabled}
+                checked={typeof isMainImage === "number" && isMainImage === i}
+                onClick={() => {
+                  if (isMainImage === i) setIsMainImage(null);
+                  else setIsMainImage(i);
+                }}
+                className=" absolute left-1 bottom-1 "
               />
             </li>
           ))}

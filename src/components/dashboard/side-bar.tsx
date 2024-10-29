@@ -12,6 +12,7 @@ import {
   LockKeyhole,
   LockKeyholeOpen,
   LogOut,
+  Package,
   PersonStanding,
   SlidersVertical,
 } from "lucide-react";
@@ -30,9 +31,9 @@ const SUB_LINKS = [
   },
 
   {
-    icon: <FolderKanban size={ICON_SIZE} />,
-    title: "Product management",
-    herf: "/dashboard/product-management",
+    icon: <Package size={ICON_SIZE} />,
+    title: "Inventory",
+    herf: "/dashboard/inventory",
   },
   {
     icon: <SlidersVertical size={ICON_SIZE} />,
