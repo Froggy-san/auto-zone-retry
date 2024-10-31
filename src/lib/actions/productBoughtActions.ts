@@ -223,27 +223,33 @@ export async function editProductAction({
   revalidateTag("products");
 }
 
-export async function deleteProductsByIdAction(id: number) {
+export async function deleteProductsBoughtByIdAction(id: number) {
   //Product?PageNumber=1&PageSize=10
 
+  console.log(id, "PROO TO DELETE");
   const token = getToken();
 
   if (!token) throw new Error("You are not authorized to make this action.");
 
-  const response = await fetch(`${process.env.API_URL}/api/Product/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      // "Content-type": "application/json",
-    },
-  });
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductsBought/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // "Content-type": "application/json",
+      },
+    }
+  );
 
   if (!response.ok)
-    throw new Error(`Failed to delete a product with the id of ${id} `);
+    throw new Error(
+      `Failed to delete a product from the inventory with the id of ${id} `
+    );
   // const data = await response.json();
 
   // return data;
-  revalidatePath("/products");
+  revalidatePath("/restockingBills");
 }
 
 interface GetProdcutsCountActionProps {
