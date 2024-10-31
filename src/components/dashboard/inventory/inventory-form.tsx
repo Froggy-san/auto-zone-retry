@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,7 +82,10 @@ const InventoryForm = ({
 
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
 
-  const productBoughtArr = form.getValues().productBought;
+  const productBoughtArr = useWatch({
+    control: form.control,
+    name: "productBought",
+  });
 
   console.log(productBoughtArr, "BBBB");
   const { fields, append, remove } = useFieldArray({
@@ -362,14 +365,16 @@ const InventoryForm = ({
                       {/* <span className="sr-only">Close</span> */}
                     </button>
 
-                    {/* <div>
+                    <div>
                       Total amount spent:
                       <span className=" ml-3">
-                        {productBoughtArr[i].pricePerUnit *
-                          productBoughtArr[i].count -
-                          productBoughtArr[i].discount}
+                        {formatCurrency(
+                          productBoughtArr[i]?.pricePerUnit *
+                            productBoughtArr[i]?.count -
+                            productBoughtArr[i]?.discount
+                        )}
                       </span>
-                    </div> */}
+                    </div>
                   </motion.div>
                 </React.Fragment>
               ))}
