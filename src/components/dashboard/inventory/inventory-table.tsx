@@ -702,18 +702,18 @@ function DeleteDialog({
     : null;
   console.log(proTodelete, "WWWWWWWWWWWW");
 
-  function checkIfLastItem() {
-    const params = new URLSearchParams(searchParam);
-    if (pageSize === 1) {
-      params.delete("name");
-      params.delete("phone");
-      params.delete("email");
-      if (!isFirstPage) {
-        params.set("page", String(Number(currPage) - 1));
-      }
-      router.push(`${pathname}?${params.toString()}`);
-    }
-  }
+  // function checkIfLastItem() {
+  //   const params = new URLSearchParams(searchParam);
+  //   if (pageSize === 1) {
+  //     params.delete("name");
+  //     params.delete("phone");
+  //     params.delete("email");
+  //     if (!isFirstPage) {
+  //       params.set("page", String(Number(currPage) - 1));
+  //     }
+  //     router.push(`${pathname}?${params.toString()}`);
+  //   }
+  // }
 
   useEffect(() => {
     const body = document.querySelector("body");
@@ -758,11 +758,11 @@ function DeleteDialog({
                 setIsDeleting(true);
                 if (proTodelete)
                   await deleteProductsBoughtByIdAction(proTodelete.id);
-                checkIfLastItem();
+                // checkIfLastItem();
                 setIsDeleting(false);
                 setOpen(null);
-
-                handleClose();
+                setMainDialong(true);
+                // handleClose();
                 toast({
                   title: `Client deleted!`,
                   description: (
