@@ -142,8 +142,8 @@ export async function deleteRestockingBillAction(id: string) {
     throw new Error("Something went wrong!");
   }
   revalidateTag("restockingBills");
-  const data = await response.json();
-  return data;
+  // const data = await response.json();
+  // return data;
 }
 
 export async function getProductsRestockingBillsCountAction() {

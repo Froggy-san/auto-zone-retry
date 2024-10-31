@@ -44,6 +44,8 @@ import {
   CircleUser,
   Ellipsis,
   LoaderCircle,
+  PackageMinus,
+  Pencil,
   UserRoundMinus,
 } from "lucide-react";
 import { useToast } from "@hooks/use-toast";
@@ -66,6 +68,7 @@ import { Input } from "@components/ui/input";
 import { Switch } from "@components/ui/switch";
 import { Label } from "@components/ui/label";
 import { Checkbox } from "@components/ui/checkbox";
+import { deleteProductsBoughtByIdAction } from "@lib/actions/productBoughtActions";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
@@ -84,7 +87,7 @@ const InventoryTable = ({
   const currPageSize = productBought.length;
 
   return (
-    <Table className="">
+    <Table className=" mt-10">
       <TableCaption>
         {productBought.length ? "A list of your clients." : "No clients"}
       </TableCaption>
@@ -93,6 +96,7 @@ const InventoryTable = ({
           <TableHead className="w-[100px]">Id</TableHead>
           <TableHead>Shop name</TableHead>
           <TableHead className="text-right">Date of order</TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -148,9 +152,19 @@ function Row({
   currPageSize: number;
 }) {
   const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  console.log(open, "AAA");
+  function handleClose() {
+    setOpen(false);
+  }
   return (
     <>
-      <TableRow onClick={() => setOpen(true)}>
+      <TableRow
+        onClick={() => setOpen(true)}
+        className={`${isLoading && "opacity-60  pointer-events-none"}`}
+      >
         <TableCell className="font-medium">{proBought.id}</TableCell>
         <TableCell>{proBought.shopName}</TableCell>
         <TableCell className="text-right ">{proBought.dateOfOrder}</TableCell>
@@ -175,7 +189,25 @@ function Row({
           </div>
         </TableCell>
       </TableRow>
-      <ProductsDialog proBought={proBought} open={open} setOpen={setOpen} />
+      <DeleteDialog
+        currPage={currPage}
+        pageSize={currPageSize}
+        proBought={proBought}
+        isDeleting={isLoading}
+        setOpen={setDeleteOpen}
+        setMainDialong={setOpen}
+        setIsDeleting={setIsLoading}
+        open={typeof deleteOpen === "number"}
+        productBoughtId={deleteOpen}
+        handleClose={handleClose}
+      />
+      <ProductsDialog
+        proBought={proBought}
+        open={open}
+        handleClose={handleClose}
+        setOpen={setOpen}
+        setDeleteOpen={setDeleteOpen}
+      />
     </>
   );
 }
@@ -200,7 +232,7 @@ function TableActions({
   if (isLoading) return <Spinner className=" w-10 h-10" size={14} />;
 
   return (
-    <>
+    <div onClick={(e) => e.stopPropagation()}>
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="icon" className=" p-0 h-6 w-6">
@@ -219,6 +251,7 @@ function TableActions({
             <CircleUser className=" w-4 h-4" /> Edit client
           </DropdownMenuItem>
           <DropdownMenuItem
+            disabled={proBought.productsBought.length > 0}
             className=" gap-2"
             onClick={() => {
               setOpen("delete");
@@ -233,16 +266,16 @@ function TableActions({
         handleClose={handleClose}
         client={client}
       /> */}
-      <DeleteDialog
+      <DeleteRestockingDialog
         currPage={currPage}
         pageSize={currPageSize}
-        proBought={proBought}
+        restockingBill={proBought}
         isDeleting={isLoading}
         setIsDeleting={setIsLoading}
         open={open === "delete"}
         handleClose={handleClose}
       />
-    </>
+    </div>
   );
 }
 
@@ -250,9 +283,13 @@ function ProductsDialog({
   proBought,
   open,
   setOpen,
+  setDeleteOpen,
+  handleClose,
 }: {
   open: boolean;
+  setDeleteOpen: React.Dispatch<SetStateAction<number | null>>;
   setOpen: React.Dispatch<SetStateAction<boolean>>;
+  handleClose: () => void;
   proBought: ProductBoughtData;
 }) {
   const [priceValue, setPriceValue] = useState("");
@@ -268,13 +305,13 @@ function ProductsDialog({
   // console.log(hasReturnedValue, "SSSSSSS");
 
   productsArr = productsArr.filter((product) => {
-    const price = new RegExp(priceValue, "i");
-    const discount = new RegExp(discountValue, "i");
-    const count = new RegExp(countValue, "i");
-    const totalPriceAfterDiscount = new RegExp(
-      totalPriceAfterDiscountValue,
-      "i"
-    );
+    // const price = new RegExp(priceValue, "i");
+    // const discount = new RegExp(discountValue, "i");
+    // const count = new RegExp(countValue, "i");
+    // const totalPriceAfterDiscount = new RegExp(
+    //   totalPriceAfterDiscountValue,
+    //   "i"
+    // );
     const name = new RegExp(nameValue, "i"); // 'i' for case-insensitive
     const hasReturned = new RegExp(String(hasReturnedValue), "i");
 
@@ -285,13 +322,7 @@ function ProductsDialog({
     //   totalPriceAfterDiscount.test(String(product.totalPriceAfterDiscount)) &&
     //   name.test(product.productName);
 
-    let filterValue =
-      // product.pricePerUnit === Number(priceValue) &&
-      // product.discount === Number(discountValue) &&
-      // product.count === Number(countValue) &&
-      // product.totalPriceAfterDiscount ===
-      //   Number(totalPriceAfterDiscountValue) &&
-      name.test(product.productName);
+    let filterValue = name.test(product.productName);
     if (checked)
       filterValue = filterValue && hasReturned.test(String(product.isReturned));
 
@@ -322,32 +353,8 @@ function ProductsDialog({
     { totalDiscount: 0, totalPrice: 0 }
   );
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {/* {productsArr.length ? (
-        <Button
-          onClick={() => setOpen(true)}
-          size="sm"
-          className="   h-6 px-2 py-3 text-xs"
-          variant="outline"
-        >
-          Show
-        </Button>
-      ) : (
-        <TooltipProvider delayDuration={500}>
-          <Tooltip>
-            <TooltipTrigger>
-              <span className="  inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pointer-events-none opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md h-6 px-2 py-3 text-xs">
-                Show
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              This client doesn&apos;t have a phone number.
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )} */}
-
-      <DialogContent className=" border-none      max-w-[900px]">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className=" border-none    flex flex-col    max-h-[85vh]     max-w-[900px]">
         <DialogHeader className=" hidden  invisible">
           <DialogTitle>{`'s phome numbers`}</DialogTitle>
           <DialogDescription className=" hidden">
@@ -356,129 +363,154 @@ function ProductsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <main className="  gap-6  flex flex-col  max-h-[70vh]    ">
-          <div className="border-b pb-3 space-y-3 text-sm">
-            <div className=" flex  flex-col sm:flex-row items-center  gap-3 ">
-              <div className=" space-y-2 w-full">
-                <label htmlFor="price">Price per unit</label>
-                <Input
-                  id="price"
-                  placeholder="Price per unit"
-                  value={priceValue}
-                  onChange={(e) => setPriceValue(e.target.value)}
-                />
-              </div>
-              <div className=" space-y-2 w-full">
-                <label htmlFor="price">Discount</label>
-                <Input
-                  placeholder="Discount..."
-                  value={discountValue}
-                  onChange={(e) => setDiscountValue(e.target.value)}
-                />
-              </div>
-              <div className=" space-y-2 w-full">
-                <label htmlFor="price">Count</label>
-                <Input
-                  placeholder="Count..."
-                  value={countValue}
-                  onChange={(e) => setCountValue(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className=" flex items-center gap-3 flex-col sm:flex-row">
-              <div className=" space-y-2 w-full">
-                <label htmlFor="price">Total price after discount</label>
-                <Input
-                  placeholder="Total price after discount..."
-                  value={totalPriceAfterDiscountValue}
-                  onChange={(e) => setTotalPriceAfterDiscount(e.target.value)}
-                />
-              </div>
-              <div className=" space-y-2 w-full">
-                <label htmlFor="price">Name</label>
-                <Input
-                  placeholder="Total price after discount..."
-                  value={nameValue}
-                  onChange={(e) => setNameValue(e.target.value)}
-                />
-              </div>
+        {/* <main className="  gap-6  flex flex-col max-h-[90%]  h-full relative   "> */}
+        <div className="border-b flex flex-wrap gap-3  pb-3  text-sm">
+          {/* <div className=" flex  flex-col sm:flex-row items-center  gap-3 "> */}
+          <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
+            <label htmlFor="price">Price per unit</label>
+            <Input
+              id="price"
+              placeholder="Price per unit"
+              value={priceValue}
+              onChange={(e) => setPriceValue(e.target.value)}
+            />
+          </div>
+          <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
+            <label htmlFor="price">Discount</label>
+            <Input
+              placeholder="Discount..."
+              value={discountValue}
+              onChange={(e) => setDiscountValue(e.target.value)}
+            />
+          </div>
+          <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
+            <label htmlFor="price">Count</label>
+            <Input
+              placeholder="Count..."
+              value={countValue}
+              onChange={(e) => setCountValue(e.target.value)}
+            />
+          </div>
+          <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
+            <label htmlFor="price">Total price after discount</label>
+            <Input
+              placeholder="Total price after discount..."
+              value={totalPriceAfterDiscountValue}
+              onChange={(e) => setTotalPriceAfterDiscount(e.target.value)}
+            />
+          </div>
+          <div className=" space-y-2   w-[48%] sm:w-[32%]  mb-auto">
+            <label htmlFor="price">Name</label>
+            <Input
+              placeholder="Total price after discount..."
+              value={nameValue}
+              onChange={(e) => setNameValue(e.target.value)}
+            />
+          </div>
 
-              <div className="flex items-center  justify-end  space-x-2  w-full">
-                <Switch
-                  id="airplane-mode"
-                  checked={hasReturnedValue}
-                  // onChange={() => setHasReturnedValue((is) => !is)}
-                  onClick={() => setHasReturnedValue((is) => !is)}
-                  disabled={!checked}
-                />
-                <Label htmlFor="airplane-mode">Has it returned</Label>
-                <Checkbox
-                  checked={checked}
-                  onClick={() => {
-                    if (hasReturnedValue) setHasReturnedValue(false);
-                    setChecked((is) => !is);
-                  }}
-                />
+          <div className="flex items-center  justify-end  space-x-2   w-[48%] sm:w-[32%] ">
+            <Switch
+              id="airplane-mode"
+              checked={hasReturnedValue}
+              // onChange={() => setHasReturnedValue((is) => !is)}
+              onClick={() => setHasReturnedValue((is) => !is)}
+              disabled={!checked}
+            />
+            <Label htmlFor="airplane-mode">Has it returned</Label>
+            <Checkbox
+              checked={checked}
+              onClick={() => {
+                if (hasReturnedValue) setHasReturnedValue(false);
+                setChecked((is) => !is);
+              }}
+            />
+          </div>
+        </div>
+
+        <div className=" space-y-4    flex-1    overflow-y-auto">
+          {productsArr.length ? (
+            productsArr.map((product, i) => (
+              <div
+                key={i}
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground px-4 py-2"
+              >
+                <Link
+                  href={`/products/${product.productId}`}
+                  className="flex text-sm  h-fit flex-wrap  font-semibold !text-green-400  !justify-start  items-center  max-w-full    gap-x-6 gap-y-3"
+                >
+                  <div className=" ">
+                    Product name:{" "}
+                    <span className=" text-xs text-muted-foreground  break-all whitespace-normal">{` ${product.productName}`}</span>{" "}
+                  </div>
+                  <div className=" ">
+                    Price:{" "}
+                    <span className=" text-xs text-muted-foreground">{` ${formatCurrency(
+                      product.pricePerUnit
+                    )}`}</span>{" "}
+                  </div>
+                  <div>
+                    {" "}
+                    Discount:{" "}
+                    <span className="text-xs text-muted-foreground">{` ${formatCurrency(
+                      product.discount
+                    )}`}</span>
+                  </div>
+                  <div>
+                    Count:{" "}
+                    <span className="text-xs text-muted-foreground">{` ${product.count}`}</span>
+                  </div>
+                  <div>
+                    Has it been returned?:{" "}
+                    <span className="text-xs text-muted-foreground">
+                      {` ${product.isReturned ? "Yes" : "No"}`}
+                    </span>
+                  </div>
+                  <div>
+                    Total price after discount:{" "}
+                    <span className="text-xs text-muted-foreground   break-all whitespace-normal">{` ${formatCurrency(
+                      product.totalPriceAfterDiscount
+                    )}`}</span>
+                  </div>
+                  <div className=" break-all  whitespace-normal">{`Note: ${product.note}`}</div>
+
+                  <div className=" flex items-center gap-2 ml-auto">
+                    <Button
+                      variant="outline"
+                      onClick={(e) => {
+                        e.preventDefault();
+                      }}
+                      className=" p-0 w-8 h-8"
+                    >
+                      <Pencil className=" h-4 w-4" />
+                    </Button>
+                    <Button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setDeleteOpen(product.id);
+                        setOpen(false);
+                      }}
+                      variant="destructive"
+                      size="sm"
+                      className=" p-0 w-8 h-8"
+                    >
+                      <PackageMinus className=" h-4 w-4" />
+                    </Button>
+                  </div>
+                </Link>
               </div>
-            </div>
-          </div>
-          <div className=" space-y-4     overflow-y-auto">
-            {productsArr.length ? (
-              productsArr.map((product, i) => (
-                <Button key={i} variant="outline" asChild>
-                  <Link
-                    href={`/products/${product.productId}`}
-                    className="flex text-sm  h-fit flex-wrap  font-semibold !text-green-400  !justify-start  items-center     gap-x-6 gap-y-3"
-                  >
-                    <div className=" ">
-                      Product name:{" "}
-                      <span className=" text-xs text-muted-foreground">{` ${product.productName}`}</span>{" "}
-                    </div>
-                    <div className=" ">
-                      Price:{" "}
-                      <span className=" text-xs text-muted-foreground">{` ${formatCurrency(
-                        product.pricePerUnit
-                      )}`}</span>{" "}
-                    </div>
-                    <div>
-                      {" "}
-                      Discount:{" "}
-                      <span className="text-xs text-muted-foreground">{` ${formatCurrency(
-                        product.discount
-                      )}`}</span>
-                    </div>
-                    <div>
-                      Count:{" "}
-                      <span className="text-xs text-muted-foreground">{` ${product.count}`}</span>
-                    </div>
-                    <div>
-                      Has it been returned?:{" "}
-                      <span className="text-xs text-muted-foreground">
-                        {` ${product.isReturned ? "Yes" : "No"}`}
-                      </span>
-                    </div>
-                    <div>
-                      Total price after discount:{" "}
-                      <span className="text-xs text-muted-foreground">{` ${formatCurrency(
-                        product.totalPriceAfterDiscount
-                      )}`}</span>
-                    </div>
-                    <span>{`Note: ${product.note}`}</span>
-                  </Link>
-                </Button>
-              ))
-            ) : (
-              <p>No Products.</p>
-            )}
-          </div>
-        </main>
+            ))
+          ) : (
+            <p className=" text-center  py-3">No Products.</p>
+          )}
+        </div>
+        {/* </main> */}
         <div className=" space-y-3">
           <DialogClose asChild>
             <Button size="sm" className=" w-full" variant="secondary">
               Close
             </Button>
           </DialogClose>
-          <div className=" flex gap-10 flex-wrap">
+          <div className=" flex gap-x-10 gap-y-2 flex-wrap">
             <div>
               Total:{" "}
               <span className=" text-xs  text-muted-foreground">
@@ -533,21 +565,21 @@ function ShowCars({ client }: { client: ClientWithPhoneNumbers }) {
   );
 }
 
-function DeleteDialog({
+function DeleteRestockingDialog({
   currPage,
   pageSize,
   open,
   handleClose,
   isDeleting,
   setIsDeleting,
-  proBought,
+  restockingBill,
 }: {
   currPage: string;
   open: boolean;
   isDeleting: boolean;
   setIsDeleting: React.Dispatch<SetStateAction<boolean>>;
   handleClose: () => void;
-  proBought: ProductBoughtData;
+  restockingBill: ProductBoughtData;
   pageSize: number;
 }) {
   const isFirstPage = currPage === "1";
@@ -587,7 +619,7 @@ function DeleteDialog({
         <DialogHeader>
           <DialogTitle>Delete clients data.</DialogTitle>
           <DialogDescription>
-            {`${proBought.id} You are deleting ${proBought.shopName}'s data. That includes their phone numbers and cars information. This action can't be undone. `}
+            {`${restockingBill.id} You are deleting ${restockingBill.shopName}'s data. That includes their phone numbers and cars information. This action can't be undone. `}
           </DialogDescription>
         </DialogHeader>
 
@@ -604,9 +636,132 @@ function DeleteDialog({
             onClick={async () => {
               setIsDeleting(true);
               try {
-                await deleteRestockingBillAction(String(proBought.id));
+                await deleteRestockingBillAction(String(restockingBill.id));
                 checkIfLastItem();
                 setIsDeleting(false);
+                handleClose();
+                toast({
+                  title: `Client deleted!`,
+                  description: (
+                    <SuccessToastDescription
+                      message={`${restockingBill.shopName}'s data has been deleted`}
+                    />
+                  ),
+                });
+              } catch (error: any) {
+                console.log(error);
+
+                toast({
+                  variant: "destructive",
+                  title: "Faild to delete client's data",
+                  description: <ErorrToastDescription error={error.message} />,
+                });
+              }
+            }}
+          >
+            {isDeleting ? <Spinner className=" h-full" /> : "Confrim"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteDialog({
+  currPage,
+  pageSize,
+  open,
+  handleClose,
+  isDeleting,
+  setMainDialong,
+  productBoughtId,
+  setOpen,
+  setIsDeleting,
+  proBought,
+}: {
+  currPage: string;
+  open: boolean;
+  isDeleting: boolean;
+  setOpen: React.Dispatch<SetStateAction<number | null>>;
+  productBoughtId: number | null;
+  setMainDialong: React.Dispatch<SetStateAction<boolean>>;
+  setIsDeleting: React.Dispatch<SetStateAction<boolean>>;
+  handleClose: () => void;
+  proBought: ProductBoughtData;
+  pageSize: number;
+}) {
+  const isFirstPage = currPage === "1";
+
+  const { toast } = useToast();
+  const searchParam = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const proTodelete = productBoughtId
+    ? proBought.productsBought.find((pro) => pro.id === productBoughtId)
+    : null;
+  console.log(proTodelete, "WWWWWWWWWWWW");
+
+  function checkIfLastItem() {
+    const params = new URLSearchParams(searchParam);
+    if (pageSize === 1) {
+      params.delete("name");
+      params.delete("phone");
+      params.delete("email");
+      if (!isFirstPage) {
+        params.set("page", String(Number(currPage) - 1));
+      }
+      router.push(`${pathname}?${params.toString()}`);
+    }
+  }
+
+  useEffect(() => {
+    const body = document.querySelector("body");
+
+    if (body) {
+      body.style.pointerEvents = "auto";
+    }
+    return () => {
+      if (body) body.style.pointerEvents = "auto";
+    };
+  }, [open]);
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        handleClose();
+        setOpen(null);
+        setMainDialong(true);
+      }}
+    >
+      <DialogContent className="sm:max-w-[425px] border-none">
+        <DialogHeader>
+          <DialogTitle>Delete clients data.</DialogTitle>
+          <DialogDescription>
+            {`${proTodelete?.id} You are deleting ${proBought.shopName}'s data. That includes their phone numbers and cars information. This action can't be undone. `}
+          </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter className="   gap-2 sm:gap-0">
+          <DialogClose asChild>
+            <Button size="sm" variant="secondary">
+              Cancel
+            </Button>
+          </DialogClose>
+          <Button
+            disabled={isDeleting}
+            variant="destructive"
+            size="sm"
+            onClick={async () => {
+              try {
+                setIsDeleting(true);
+                if (proTodelete)
+                  await deleteProductsBoughtByIdAction(proTodelete.id);
+                checkIfLastItem();
+                setIsDeleting(false);
+                setOpen(null);
+
                 handleClose();
                 toast({
                   title: `Client deleted!`,
@@ -625,6 +780,7 @@ function DeleteDialog({
                   description: <ErorrToastDescription error={error.message} />,
                 });
               }
+              setIsDeleting(false);
             }}
           >
             {isDeleting ? <Spinner className=" h-full" /> : "Confrim"}
