@@ -268,25 +268,47 @@ function ProductsDialog({
   // console.log(hasReturnedValue, "SSSSSSS");
 
   productsArr = productsArr.filter((product) => {
-    const price = new RegExp(priceValue, "i"); // 'i' for case-insensitive
+    const price = new RegExp(priceValue, "i");
     const discount = new RegExp(discountValue, "i");
     const count = new RegExp(countValue, "i");
     const totalPriceAfterDiscount = new RegExp(
       totalPriceAfterDiscountValue,
       "i"
     );
-    const name = new RegExp(nameValue, "i");
+    const name = new RegExp(nameValue, "i"); // 'i' for case-insensitive
     const hasReturned = new RegExp(String(hasReturnedValue), "i");
 
-    let filterValue =
-      price.test(String(product.pricePerUnit)) &&
-      discount.test(String(product.discount)) &&
-      count.test(String(product.count)) &&
-      totalPriceAfterDiscount.test(String(product.totalPriceAfterDiscount)) &&
-      name.test(product.productName);
+    // let filterValue =
+    //   price.test(String(product.pricePerUnit)) &&
+    //   discount.test(String(product.discount)) &&
+    //   count.test(String(product.count)) &&
+    //   totalPriceAfterDiscount.test(String(product.totalPriceAfterDiscount)) &&
+    //   name.test(product.productName);
 
+    let filterValue =
+      // product.pricePerUnit === Number(priceValue) &&
+      // product.discount === Number(discountValue) &&
+      // product.count === Number(countValue) &&
+      // product.totalPriceAfterDiscount ===
+      //   Number(totalPriceAfterDiscountValue) &&
+      name.test(product.productName);
     if (checked)
       filterValue = filterValue && hasReturned.test(String(product.isReturned));
+
+    if (Number(priceValue))
+      filterValue = filterValue && product.pricePerUnit === Number(priceValue);
+
+    if (Number(discountValue))
+      filterValue = filterValue && product.discount === Number(discountValue);
+
+    if (Number(countValue))
+      filterValue = filterValue && product.count === Number(countValue);
+
+    if (Number(totalPriceAfterDiscountValue))
+      filterValue =
+        filterValue &&
+        product.totalPriceAfterDiscount ===
+          Number(totalPriceAfterDiscountValue);
 
     return filterValue;
   });
@@ -427,9 +449,7 @@ function ProductsDialog({
                     </div>
                     <div>
                       Count:{" "}
-                      <span className="text-xs text-muted-foreground">{` ${formatCurrency(
-                        product.count
-                      )}`}</span>
+                      <span className="text-xs text-muted-foreground">{` ${product.count}`}</span>
                     </div>
                     <div>
                       Has it been returned?:{" "}
