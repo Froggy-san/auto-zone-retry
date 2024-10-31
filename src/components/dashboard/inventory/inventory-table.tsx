@@ -347,8 +347,8 @@ function ProductsDialog({
         </TooltipProvider>
       )} */}
 
-      <DialogContent className=" border-none     max-w-[900px]">
-        <DialogHeader className=" hidden">
+      <DialogContent className=" border-none      max-w-[900px]">
+        <DialogHeader className=" hidden invisible">
           <DialogTitle>{`'s phome numbers`}</DialogTitle>
           <DialogDescription className=" hidden">
             This action cannot be undone. This will permanently delete your
@@ -356,9 +356,9 @@ function ProductsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <main className="  gap-6  flex flex-col  max-h-[80vh]    ">
+        <main className="  gap-6  flex flex-col  max-h-[70vh]    ">
           <div className="border-b pb-3 space-y-3 text-sm">
-            <div className=" flex items-center  gap-3 ">
+            <div className=" flex  flex-col sm:flex-row items-center  gap-3 ">
               <div className=" space-y-2 w-full">
                 <label htmlFor="price">Price per unit</label>
                 <Input
