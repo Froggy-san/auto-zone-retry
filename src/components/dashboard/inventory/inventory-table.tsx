@@ -348,7 +348,7 @@ function ProductsDialog({
       )} */}
 
       <DialogContent className=" border-none      max-w-[900px]">
-        <DialogHeader className=" hidden invisible">
+        <DialogHeader className=" hidden  invisible">
           <DialogTitle>{`'s phome numbers`}</DialogTitle>
           <DialogDescription className=" hidden">
             This action cannot be undone. This will permanently delete your
