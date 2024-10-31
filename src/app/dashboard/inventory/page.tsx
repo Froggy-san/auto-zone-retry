@@ -21,7 +21,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const minTotalPrice = searchParams.minTotalPrice ?? "";
   const maxTotalPrice = searchParams.maxTotalPrice ?? "";
   return (
-    <main>
+    <main className=" relative">
       <h2 className="  font-semibold text-4xl">INVENTORY MANAGEMENT.</h2>
       <section className=" pl-4">
         <div className=" space-y-5 mt-12">
