@@ -72,14 +72,14 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
           className=" w-full   justify-between   h-fit "
         >
           {selected ? (
-            <div className=" flex flex-1 break-all items-center">
+            <div className=" flex flex-1 break-all   justify-center gap-5 items-center">
               <p className=" text-wrap  text-left ">
                 Name: {selected.name} / Category : {selected.categoryId}
               </p>
               <img
                 src={selected.mainProductImage?.imageUrl || DEFAULT_CAR_LOGO}
                 alt="Car logo"
-                className="  object-cover   max-w-[100%]   h-9 w-9  ml-auto  rounded-sm "
+                className="  object-cover   max-w-[100%]   h-9 w-9   rounded-sm "
               />
             </div>
           ) : (
@@ -103,7 +103,7 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
                     setValue(option.id === value ? 0 : option.id);
                     setOpen(false);
                   }}
-                  className="gap-2"
+                  className="gap-2 justify-between"
                 >
                   <Check
                     className={cn(
@@ -117,7 +117,7 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
                   <img
                     src={option.mainProductImage?.imageUrl || DEFAULT_CAR_LOGO}
                     alt="Car logo"
-                    className="  object-cover   max-w-[100%]   h-9 w-9  ml-auto  rounded-sm "
+                    className="  object-cover   max-w-[100%]   h-9 w-9   rounded-sm "
                   />
                 </CommandItem>
               ))}

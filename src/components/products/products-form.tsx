@@ -74,8 +74,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const isMainChange =
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
 
-  console.log(isMainImage, "AAAAA ");
-  console.log(isMainChange === isMainImage, "CCCCC");
+  // console.log(isMainImage, "AAAAA ");
+  // console.log(isMainChange === isMainImage, "CCCCC");
 
   const params = new URLSearchParams(searchParam);
   function handleOpen(filter: string) {
@@ -158,7 +158,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
   // checking if the user changet the forms data in order to enable the user to change it. if not we check if they deleted any images as shown below in the (disabled variable).
   const isEqual = useObjectCompare(defaultValues, form.getValues());
   // if the user didn't change the form's data nor did he delete any already uploaded images we want the submit button to be disabled to prevent any unnecessary api calls.
-  const disabled = isMainChange === isMainImage && !deletedMedia.length;
+  const disabled =
+    isMainChange === isMainImage && isEqual && !deletedMedia.length;
 
   const isLoading = form.formState.isSubmitting;
 
