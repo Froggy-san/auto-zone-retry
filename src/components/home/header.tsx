@@ -10,7 +10,7 @@ import NavDrawer from "../nav-drawer";
 const Header = async () => {
   const user = await getCurrentUser();
   return (
-    <header className=" flex justify-between items-center p-6">
+    <header className=" flex  relative justify-between items-center p-6">
       <div className=" flex items-center  gap-5">
         <NavDrawer />
         <Image src={Logo} alt="logo" className=" w-[120px] sm:w-[200px]" />
