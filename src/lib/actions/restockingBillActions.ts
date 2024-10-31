@@ -1,43 +1,43 @@
 "use server";
 
+import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 interface GetRestockingProps {
   pageNumber?: string;
-  minPricePerUnit?: string;
-  maxPricePerUnit?: string;
-  discount?: string;
-  count?: string;
-  isReturned?: boolean;
-  productId?: number;
-  productsRestockingBillId?: number;
+  name?: string;
+  shopName?: string;
+  dateOfOrderFrom?: string;
+  dateOfOrderTo?: string;
+  minTotalPrice?: string;
+  maxTotalPrice?: string;
 }
 
 export async function getRestockingBillsAction({
   pageNumber,
-  minPricePerUnit,
-  maxPricePerUnit,
-  discount,
-  count,
-  isReturned,
-  productId,
-  productsRestockingBillId,
+  name,
+  dateOfOrderFrom,
+  dateOfOrderTo,
+  minTotalPrice,
+  maxTotalPrice,
 }: GetRestockingProps) {
   //   await new Promise((res) => setTimeout(res, 9000));
   const token = getToken();
 
-  let query = `${process.env.API_URL}/api/ProductsRestockingBills?`;
+  let query = `${process.env.API_URL}/api/ProductsRestockingBills?&PageSize=${PAGE_SIZE}`;
 
-  if (pageNumber) query = query + `&pageNumber=${pageNumber}`;
-  if (minPricePerUnit) query = query + `&minPricePerUnit=${minPricePerUnit}`;
-  if (maxPricePerUnit) query = query + `&maxPricePerUnit=${maxPricePerUnit}`;
-  if (discount) query = query + `&discount=${discount}`;
-  if (count) query = query + `&count=${count}`;
-  if (isReturned) query = query + `&isReturned=${isReturned}`;
-  if (productId) query = query + `&productId=${productId}`;
-  if (productsRestockingBillId)
-    query = query + `&productsRestockingBillId=${productsRestockingBillId}`;
+  if (name) query = query + `&Name=${name}`;
+
+  if (pageNumber) query = query + `&PageNumber=${pageNumber}`;
+
+  if (dateOfOrderFrom) query = query + `&dateOfOrderFrom=${dateOfOrderFrom}`;
+
+  if (dateOfOrderTo) query = query + `&dateOfOrderTo=${dateOfOrderTo}`;
+
+  if (minTotalPrice) query = query + `&minTotalPrice=${minTotalPrice}`;
+
+  if (maxTotalPrice) query = query + `&maxTotalPrice=${maxTotalPrice}`;
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
@@ -81,9 +81,10 @@ export async function createRestockingBillAction(shopName: string) {
     }
   );
   if (!response.ok) {
-    console.log("Something went wrong while creating the category.");
-    throw new Error("Something went wrong!");
+    console.log("Something went wrong while creating the a restocking bill.");
+    throw new Error("Something went wrong while create restocking bill");
   }
+
   //   revalidatePath("/dashboard/insert-data");
   revalidateTag("restockingBills");
 
@@ -114,7 +115,7 @@ export async function editRestockingBillAction({
     }
   );
   if (!response.ok) {
-    console.log("Something went wrong while creating the category.");
+    console.log("Something went wrong while creating the a restocking bill.");
     throw new Error("Something went wrong!");
   }
 
@@ -137,7 +138,7 @@ export async function deleteRestockingBillAction(id: string) {
     }
   );
   if (!response.ok) {
-    console.log("Something went wrong while deleting the category.");
+    console.log("Something went wrong while deleting the a restocking bill.");
     throw new Error("Something went wrong!");
   }
   revalidateTag("restockingBills");

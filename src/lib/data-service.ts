@@ -3,14 +3,14 @@ import { getToken } from "./helper";
 
 export async function getAllCategories() {
   // await new Promise((res) => setTimeout(res, 9000));
-  const token = getToken();
+  // const token = getToken();
 
-  if (!token) throw new Error("You are not authorized to make this action.");
+  // if (!token) throw new Error("You are not authorized to make this action.");
   const response = await fetch(`${process.env.API_URL}/api/categories`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    // headers: {
+    //   Authorization: `Bearer ${token}`,
+    // },
   });
 
   if (!response.ok) {
