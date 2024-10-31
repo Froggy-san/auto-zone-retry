@@ -72,6 +72,7 @@ const InventoryForm = ({
 
   const defaultValues = {
     productBought: [],
+    shopName: "",
   };
   const form = useForm<CreateProductBought>({
     mode: "onChange",
@@ -108,11 +109,11 @@ const InventoryForm = ({
     };
   }, [isItOpen]);
 
-  async function onSubmit({ productBought }: CreateProductBought) {
+  async function onSubmit({ productBought, shopName }: CreateProductBought) {
     try {
       //   console.log(productBought, "DDDDD");
 
-      await createProductBoughtBulkAction(productBought);
+      await createProductBoughtBulkAction({ shopName, data: productBought });
 
       handleClose();
       //   setDeletedPhones([]);
@@ -155,7 +156,7 @@ const InventoryForm = ({
             <div className=" space-y-4">
               <div className=" border  flex  items-center px-4 py-2 rounded-lg justify-between">
                 <span className=" text-muted-foreground text-sm">
-                  Add product bought
+                  Add new inventory
                 </span>
                 <Button
                   size="sm"
@@ -168,7 +169,7 @@ const InventoryForm = ({
                       count: 0,
                       note: "",
                       productId: 0,
-                      productsRestockingBillId: 0,
+                      productsRestockingBillId: "",
                     })
                   }
                 >
@@ -309,17 +310,22 @@ const InventoryForm = ({
                       <FormField
                         disabled={isLoading}
                         control={form.control}
-                        name={`productBought.${i}.productsRestockingBillId`}
+                        name="shopName"
                         render={({ field }) => (
                           <FormItem className=" flex-1">
                             <FormLabel>Shop</FormLabel>
                             <FormControl>
-                              <RestockingComboBox
+                              <Input
+                                type="text"
+                                placeholder="Shop name..."
+                                {...field}
+                              />
+                              {/* <RestockingComboBox
                                 value={field.value}
                                 setValue={field.onChange}
                                 options={restockings}
                                 disabled={isLoading}
-                              />
+                              /> */}
                             </FormControl>
                             <FormDescription>Enter shop name.</FormDescription>
                             <FormMessage />
@@ -344,6 +350,7 @@ const InventoryForm = ({
                         </FormItem>
                       )}
                     />
+
                     <button
                       onClick={() => {
                         remove(i);
@@ -367,6 +374,26 @@ const InventoryForm = ({
                 </React.Fragment>
               ))}
             </div>
+
+            {form.getValues().productBought.length ? (
+              <Button
+                size="sm"
+                type="button"
+                className=" text-xs w-full"
+                onClick={() =>
+                  append({
+                    pricePerUnit: 0,
+                    discount: 0,
+                    count: 0,
+                    note: "",
+                    productId: 0,
+                    productsRestockingBillId: "",
+                  })
+                }
+              >
+                ADD
+              </Button>
+            ) : null}
             <div className=" relative flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
               <Button
                 onClick={() => form.reset()}

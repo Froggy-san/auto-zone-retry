@@ -215,7 +215,7 @@ export const ProductBoughtSchema = z
     count: z.number().min(1, { message: "Count is requried" }),
     note: z.string(),
     productId: z.number(),
-    productsRestockingBillId: z.number(),
+    productsRestockingBillId: z.string(),
   })
   .refine((data) => data.pricePerUnit * data.count - data.discount > 0, {
     message: "Discount must be less than the total amount",
@@ -224,6 +224,10 @@ export const ProductBoughtSchema = z
 
 export const CreateProductBoughtSchema = z.object({
   productBought: ProductBoughtSchema.array(),
+  shopName: z
+    .string()
+    .min(4, { message: "Shop name is required." })
+    .max(77, { message: "Shop name is too long." }),
 });
 
 export interface signUpProps {
@@ -472,8 +476,16 @@ export interface ProductBought {
   isReturned: boolean;
   note: string;
   totalPriceAfterDiscount: number;
+  productName: string;
   productId: number;
   productsRestockingBillId: number;
+}
+
+export interface ProductBoughtData {
+  id: number;
+  shopName: string;
+  dateOfOrder: string;
+  productsBought: ProductBought[];
 }
 
 export interface RestockingBill {
