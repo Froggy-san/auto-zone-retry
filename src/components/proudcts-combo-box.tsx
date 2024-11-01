@@ -57,6 +57,7 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
   options,
   disabled,
 }) => {
+  // console.log(options, "Options");
   const [open, setOpen] = React.useState(false);
   // const [value, setValue] = React.useState(0);
   const selected = options.find((option) => option.id === value);

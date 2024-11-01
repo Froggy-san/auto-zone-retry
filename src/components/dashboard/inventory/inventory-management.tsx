@@ -2,13 +2,21 @@ import React from "react";
 import InventoryForm from "./inventory-form";
 import { getProductsAction } from "@lib/actions/productsActions";
 import { getRestockingBillsAction } from "@lib/actions/restockingBillActions";
+import { getProductBoughtByIdAction } from "@lib/actions/productBoughtActions";
 
-const InventoryManagement = async () => {
+const InventoryManagement = async ({ edit }: { edit: string }) => {
   const [productsData, restockingData] = await Promise.all([
     getProductsAction({}),
     getRestockingBillsAction({}),
   ]);
 
+  let productToEdit;
+
+  if (edit) {
+    const { data, error } = await getProductBoughtByIdAction(edit);
+    productToEdit = { data, error };
+    console.log(data, "Data");
+  }
   const { data: products, error } = productsData;
   const { data: restockings, error: restockingsError } = restockingData;
 
@@ -22,7 +30,12 @@ const InventoryManagement = async () => {
         <p className=" text-muted-foreground text-sm">Add new Inventory.</p>
       </div>
       <div className=" sm:pr-2">
-        <InventoryForm products={products} restockings={restockings} />
+        <InventoryForm
+          open={edit ? true : false}
+          products={products}
+          restockings={restockings}
+          proBoughtToEdit={productToEdit?.data}
+        />
       </div>
     </div>
   );
