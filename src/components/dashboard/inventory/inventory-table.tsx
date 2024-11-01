@@ -46,6 +46,7 @@ import {
   LoaderCircle,
   PackageMinus,
   Pencil,
+  ReceiptText,
   UserRoundMinus,
 } from "lucide-react";
 import { useToast } from "@hooks/use-toast";
@@ -63,7 +64,10 @@ import {
 } from "next/navigation";
 import useCarCountPerClient from "@lib/queries/useCarCountPerClient";
 import Link from "next/link";
-import { deleteRestockingBillAction } from "@lib/actions/restockingBillActions";
+import {
+  deleteRestockingBillAction,
+  editRestockingBillAction,
+} from "@lib/actions/restockingBillActions";
 import { Input } from "@components/ui/input";
 import { Switch } from "@components/ui/switch";
 import { Label } from "@components/ui/label";
@@ -208,73 +212,6 @@ function Row({
         setDeleteOpen={setDeleteOpen}
       />
     </>
-  );
-}
-
-function TableActions({
-  proBought,
-  currPageSize,
-  currPage,
-}: {
-  currPage: string;
-  proBought: ProductBoughtData;
-  currPageSize: number;
-}) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [open, setOpen] = useState<"delete" | "edit" | "">("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  function handleClose() {
-    setOpen("");
-  }
-
-  if (isLoading) return <Spinner className=" w-10 h-10" size={14} />;
-
-  return (
-    <div onClick={(e) => e.stopPropagation()}>
-      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className=" p-0 h-6 w-6">
-            <Ellipsis className=" w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className=" min-w-[200px] mr-5 ">
-          {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
-          {/* <DropdownMenuSeparator /> */}
-          <DropdownMenuItem
-            className=" gap-2"
-            onClick={() => {
-              setOpen("edit");
-            }}
-          >
-            <CircleUser className=" w-4 h-4" /> Edit client
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={proBought.productsBought.length > 0}
-            className=" gap-2"
-            onClick={() => {
-              setOpen("delete");
-            }}
-          >
-            <UserRoundMinus className=" w-4 h-4" /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      {/* <ClientForm
-        open={open === "edit"}
-        handleClose={handleClose}
-        client={client}
-      /> */}
-      <DeleteRestockingDialog
-        currPage={currPage}
-        pageSize={currPageSize}
-        restockingBill={proBought}
-        isDeleting={isLoading}
-        setIsDeleting={setIsLoading}
-        open={open === "delete"}
-        handleClose={handleClose}
-      />
-    </div>
   );
 }
 
@@ -544,37 +481,278 @@ function ProductsDialog({
   );
 }
 
-function ShowCars({ client }: { client: ClientWithPhoneNumbers }) {
-  const router = useRouter();
+function TableActions({
+  proBought,
+  currPageSize,
+  currPage,
+}: {
+  currPage: string;
+  proBought: ProductBoughtData;
+  currPageSize: number;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState<"delete" | "edit" | "">("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  if (!client.carsCount)
+  function handleClose() {
+    setOpen("");
+  }
+
+  if (isLoading)
     return (
-      <TooltipProvider delayDuration={500}>
-        <Tooltip>
-          <TooltipTrigger>
-            <span className="  inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pointer-events-none opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md h-6 px-2 py-3 text-xs">
-              Show
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            This productBought doesn&apos;t have cors.
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Spinner
+        className="  w-4 h-4   flex items-center mr-1 justify-center "
+        size={15}
+      />
     );
 
   return (
-    <Button
-      disabled={!client.carsCount}
-      onClick={() => {
-        if (client.carsCount) router.push(`/grage?clientId=${client.id}`);
-      }}
-      size="sm"
-      className="   h-6 px-2 py-3 text-xs"
-      variant="outline"
-    >
-      Show
-    </Button>
+    <div onClick={(e) => e.stopPropagation()}>
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="icon" className=" p-0 h-6 w-6">
+            <Ellipsis className=" w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className=" min-w-[200px] mr-5 ">
+          {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+          {/* <DropdownMenuSeparator /> */}
+          <DropdownMenuItem
+            className=" gap-2"
+            onClick={() => {
+              setOpen("edit");
+            }}
+          >
+            <ReceiptText className=" w-4 h-4" /> Edit receipt
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={proBought.productsBought.length > 0}
+            className=" gap-2"
+            onClick={() => {
+              setOpen("delete");
+            }}
+          >
+            <UserRoundMinus className=" w-4 h-4" /> Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {/* <ClientForm
+        open={open === "edit"}
+        handleClose={handleClose}
+        client={client}
+      /> */}
+
+      <EditReceipt
+        open={open === "edit"}
+        handleClose={handleClose}
+        restockingBill={proBought}
+        isDeleting={isLoading}
+        setIsDeleting={setIsLoading}
+      />
+
+      <DeleteRestockingDialog
+        currPage={currPage}
+        pageSize={currPageSize}
+        restockingBill={proBought}
+        isDeleting={isLoading}
+        setIsDeleting={setIsLoading}
+        open={open === "delete"}
+        handleClose={handleClose}
+      />
+    </div>
+  );
+}
+
+import { format, isEqual } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@components/ui/popover";
+
+function EditReceipt({
+  open,
+  handleClose,
+  isDeleting,
+  setIsDeleting,
+  restockingBill,
+}: {
+  open: boolean;
+  isDeleting: boolean;
+  setIsDeleting: React.Dispatch<SetStateAction<boolean>>;
+  handleClose: () => void;
+  restockingBill: ProductBoughtData;
+}) {
+  const { toast } = useToast();
+  console.log(isDeleting, "DDDD");
+  const billDate = new Date(restockingBill.dateOfOrder);
+  const [shopName, setShopName] = useState(restockingBill.shopName);
+  const [dateOfOrder, setSetDateOfOrder] = useState<Date | undefined>(billDate);
+  const [errors, setErrors] = useState({
+    shopNameError: "",
+    dateOfOrderError: "",
+  });
+  const stripTime = (date: Date) => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  };
+
+  // console.log(format(dateOfOrder, "yyyy-MM-dd"), "Daaa");
+  // Just to note, here we are not deleting anything but we are still using the isdeleting as an isLoading state.
+  const hasNotChange =
+    isEqual(stripTime(billDate), stripTime(dateOfOrder || new Date())) &&
+    restockingBill.shopName === shopName;
+  const disabled =
+    hasNotChange ||
+    errors.dateOfOrderError.trim() !== "" ||
+    errors.shopNameError.trim() !== "" ||
+    isDeleting;
+
+  const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      console.log("Setting isDeleting to true...");
+      setIsDeleting(true);
+
+      console.log("Calling editRestockingBillAction...");
+      await editRestockingBillAction({
+        restockingToEdit: {
+          shopName: shopName,
+          dateOfOrder: dateOfOrder ? format(dateOfOrder, "yyyy-MM-dd") : "",
+        },
+        id: restockingBill.id.toString(),
+      });
+
+      console.log("Setting isDeleting to false (success)...");
+      setIsDeleting(false);
+      handleClose();
+      toast({
+        title: `Client deleted!`,
+        description: (
+          <SuccessToastDescription
+            message={`${restockingBill.shopName}'s data has been deleted`}
+          />
+        ),
+      });
+    } catch (error: any) {
+      console.log(error);
+      setIsDeleting(false);
+      toast({
+        variant: "destructive",
+        title: "Faild to delete client's data",
+        description: <ErorrToastDescription error={error.message} />,
+      });
+    }
+  };
+
+  // console.log(isEqual(billDate, dateOfOrder || new Date()));
+
+  useEffect(() => {
+    if (!dateOfOrder) {
+      setErrors((err) => ({ ...err, dateOfOrderError: "Date is required" }));
+    } else {
+      setErrors((err) => ({ ...err, dateOfOrderError: "" }));
+    }
+  }, [dateOfOrder]);
+  useEffect(() => {
+    const body = document.querySelector("body");
+    setSetDateOfOrder(new Date(restockingBill.dateOfOrder));
+    setShopName(restockingBill.shopName);
+    if (body) {
+      body.style.pointerEvents = "auto";
+    }
+    return () => {
+      if (body) body.style.pointerEvents = "auto";
+    };
+  }, [open]);
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[425px] border-none">
+        <DialogHeader>
+          <DialogTitle>Edit receipt.</DialogTitle>
+          <DialogDescription>Edit receipt&apos;s data.</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleEdit} className="  space-y-5 ">
+          <div className="   space-y-2">
+            <Label className={`${errors.shopNameError && "text-destructive"}`}>
+              Shop name
+            </Label>
+            <Input
+              value={shopName}
+              onChange={(e) => {
+                const value = e.target.value;
+                setShopName(value);
+                if (value.trim().length < 3) {
+                  setErrors((err) => ({
+                    ...err,
+                    shopNameError: "Shop name has to be longer.",
+                  }));
+                } else {
+                  setErrors((err) => ({ ...err, shopNameError: "" }));
+                }
+              }}
+            />
+            {errors.shopNameError && (
+              <p className=" text-destructive">{errors.shopNameError}</p>
+            )}
+          </div>
+
+          <div className="   space-y-2">
+            <Label
+              className={`${errors.dateOfOrderError && "text-destructive"}`}
+            >
+              Date of order
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant={"outline"}
+                  className={cn(
+                    " w-full justify-start text-left gap-4 items-center font-normal",
+                    !dateOfOrder && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon />
+                  {dateOfOrder ? (
+                    format(dateOfOrder, "PPP")
+                  ) : (
+                    <span>Pick a date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dateOfOrder}
+                  onSelect={setSetDateOfOrder}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            {errors.dateOfOrderError && (
+              <p className=" text-destructive">{errors.dateOfOrderError}</p>
+            )}
+          </div>
+
+          <div className="  flex  flex-col-reverse    gap-2 ">
+            <DialogClose asChild>
+              <Button size="sm" variant="secondary" type="button">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button disabled={disabled} size="sm" type="submit">
+              {isDeleting ? <Spinner className=" h-full" /> : "Confrim"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -714,18 +892,18 @@ function DeleteDialog({
     ? proBought.productsBought.find((pro) => pro.id === productBoughtId)
     : null;
 
-  // function checkIfLastItem() {
-  //   const params = new URLSearchParams(searchParam);
-  //   if (pageSize === 1) {
-  //     params.delete("name");
-  //     params.delete("phone");
-  //     params.delete("email");
-  //     if (!isFirstPage) {
-  //       params.set("page", String(Number(currPage) - 1));
-  //     }
-  //     router.push(`${pathname}?${params.toString()}`);
-  //   }
-  // }
+  function checkIfLastItem() {
+    const params = new URLSearchParams(searchParam);
+    if (pageSize === 1) {
+      params.delete("name");
+      params.delete("phone");
+      params.delete("email");
+      if (!isFirstPage) {
+        params.set("page", String(Number(currPage) - 1));
+      }
+      router.push(`${pathname}?${params.toString()}`);
+    }
+  }
 
   useEffect(() => {
     const body = document.querySelector("body");

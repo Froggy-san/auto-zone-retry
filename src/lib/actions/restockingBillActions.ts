@@ -120,8 +120,8 @@ export async function editRestockingBillAction({
   }
 
   revalidateTag("restockingBills");
-  const data = await response.json();
-  return data;
+  // const data = await response.json();
+  // return data;
 }
 
 export async function deleteRestockingBillAction(id: string) {
