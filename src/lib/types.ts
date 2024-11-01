@@ -214,7 +214,7 @@ export const ProductBoughtSchema = z
     discount: z.number(),
     count: z.number().min(1, { message: "Count is requried" }),
     note: z.string(),
-    productId: z.number(),
+    productId: z.number().min(1, { message: "Product is required" }),
     productsRestockingBillId: z.string(),
   })
   .refine((data) => data.pricePerUnit * data.count - data.discount > 0, {

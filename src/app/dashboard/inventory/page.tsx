@@ -11,6 +11,7 @@ interface SearchParams {
   dateOfOrderTo?: string;
   minTotalPrice?: string;
   maxTotalPrice?: string;
+  edit?: string;
 }
 const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const pageNumber = searchParams?.page ?? "1";
@@ -20,13 +21,19 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const dateOfOrderTo = searchParams.dateOfOrderTo ?? "";
   const minTotalPrice = searchParams.minTotalPrice ?? "";
   const maxTotalPrice = searchParams.maxTotalPrice ?? "";
+  const edit = searchParams.edit ?? "";
   return (
     <main className=" relative">
       <h2 className="  font-semibold text-4xl">INVENTORY MANAGEMENT.</h2>
       <section className=" pl-4">
         <div className=" space-y-5 mt-12">
-          <RestockingForm />
-          <InventoryManagement />
+          {/* <RestockingForm /> */}
+          <Suspense
+            key={edit}
+            fallback={<Spinner size={30} className=" mt-10" />}
+          >
+            <InventoryManagement edit={edit} />
+          </Suspense>
         </div>
 
         <Suspense fallback={<Spinner size={30} className=" mt-10" />}>

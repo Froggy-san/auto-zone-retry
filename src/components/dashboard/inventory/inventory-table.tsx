@@ -155,7 +155,6 @@ function Row({
   const [deleteOpen, setDeleteOpen] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log(open, "AAA");
   function handleClose() {
     setOpen(false);
   }
@@ -300,8 +299,17 @@ function ProductsDialog({
   const [nameValue, setNameValue] = useState("");
   const [hasReturnedValue, setHasReturnedValue] = useState<boolean>(false);
   const [checked, setChecked] = useState(false);
+  const searchParam = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   let productsArr = proBought.productsBought;
 
+  function handleOpenEdit(filter: string) {
+    const params = new URLSearchParams(searchParam);
+    params.set("edit", filter);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
   // console.log(hasReturnedValue, "SSSSSSS");
 
   productsArr = productsArr.filter((product) => {
@@ -428,6 +436,9 @@ function ProductsDialog({
         </div>
 
         <div className=" space-y-4    flex-1    overflow-y-auto">
+          <h2 className=" font-semibold text-xl">
+            {proBought.productsBought.length} Products bought.
+          </h2>
           {productsArr.length ? (
             productsArr.map((product, i) => (
               <div
@@ -478,6 +489,8 @@ function ProductsDialog({
                       variant="outline"
                       onClick={(e) => {
                         e.preventDefault();
+                        handleOpenEdit(String(product.id));
+                        setOpen(false);
                       }}
                       className=" p-0 w-8 h-8"
                     >
@@ -700,7 +713,6 @@ function DeleteDialog({
   const proTodelete = productBoughtId
     ? proBought.productsBought.find((pro) => pro.id === productBoughtId)
     : null;
-  console.log(proTodelete, "WWWWWWWWWWWW");
 
   // function checkIfLastItem() {
   //   const params = new URLSearchParams(searchParam);

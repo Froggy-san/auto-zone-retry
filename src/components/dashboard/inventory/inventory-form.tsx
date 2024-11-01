@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -41,11 +40,16 @@ import {
   editClientAction,
 } from "@lib/actions/clientActions";
 import { RotateCcw } from "lucide-react";
-import { createProductBoughtBulkAction } from "@lib/actions/productBoughtActions";
+import {
+  createProductBoughtBulkAction,
+  editProductBoughtAction,
+} from "@lib/actions/productBoughtActions";
 import { ProductsComboBox } from "@components/proudcts-combo-box";
 import { RestockingComboBox } from "@components/restocking-combo-box";
 import { Textarea } from "@components/ui/textarea";
 import DialogComponent from "@components/dialog-component";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Switch } from "@components/ui/switch";
 
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
@@ -58,7 +62,9 @@ const InventoryForm = ({
   open,
   client,
   handleClose: handleCloseExternal,
+  proBoughtToEdit,
 }: {
+  proBoughtToEdit?: ProductBought;
   products: ProductWithCategory[];
   restockings: RestockingBill[];
   open?: boolean;
@@ -66,39 +72,70 @@ const InventoryForm = ({
   client?: ClientWithPhoneNumbers;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [deletedPhones, setDeletedPhones] = useState<PhoneNumber[]>([]);
+  const [isReturned, setIsReturned] = useState<boolean>(
+    proBoughtToEdit?.isReturned ? proBoughtToEdit.isReturned : false
+  );
   const { toast } = useToast();
-  const isItOpen = open !== undefined ? open : isOpen;
+  const searchParam = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  // const edit = searchParam.get("edit") ?? "";
+
+  const isItOpen = open ? true : isOpen;
+
+  const editProBught = {
+    pricePerUnit: proBoughtToEdit?.pricePerUnit,
+    discount: proBoughtToEdit?.discount,
+    count: proBoughtToEdit?.count,
+    note: proBoughtToEdit?.note,
+    productId: proBoughtToEdit?.productId,
+    productsRestockingBillId: "",
+  };
 
   const defaultValues = {
-    productBought: [],
-    shopName: "",
+    productBought: proBoughtToEdit ? [editProBught] : [],
+    shopName: proBoughtToEdit ? "Editting" : "",
   };
+
   const form = useForm<CreateProductBought>({
     mode: "onChange",
     resolver: zodResolver(CreateProductBoughtSchema),
     defaultValues,
   });
 
+  const initialIsReturned = proBoughtToEdit?.isReturned;
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
+
+  const disabled = initialIsReturned === isReturned && isEqual;
 
   const productBoughtArr = useWatch({
     control: form.control,
     name: "productBought",
   });
 
-  console.log(productBoughtArr, "BBBB");
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "productBought",
   });
 
-  function handleClose() {
-    // form.reset();
-    handleCloseExternal?.();
-    setIsOpen(false);
-  }
+  // function handleClose() {
+  //   // form.reset();
+  //   handleCloseExternal?.();
+  //   setIsOpen(false);
+  // }
 
+  function handleClose() {
+    if (open) {
+      const params = new URLSearchParams(searchParam);
+      params.delete("edit");
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    } else {
+      handleCloseExternal?.();
+      setIsOpen(false);
+    }
+    if (isLoading) return;
+    form.reset(defaultValues);
+  }
   const isLoading = form.formState.isSubmitting;
 
   useEffect(() => {
@@ -112,11 +149,41 @@ const InventoryForm = ({
     };
   }, [isItOpen]);
 
+  useEffect(() => {
+    productBoughtArr.forEach((item, index) => {
+      const totalAmount = item.pricePerUnit * item.count - item.discount;
+      if (totalAmount > 0) {
+        form.clearErrors(`productBought.${index}.discount`);
+      }
+    });
+  }, [productBoughtArr, form]);
+
+  const total = productBoughtArr.reduce(
+    (acc, item) => {
+      acc.totalDiscount += item.discount;
+      acc.totalpriceAfter += item.pricePerUnit * item.count - item.discount;
+
+      return acc;
+    },
+    { totalDiscount: 0, totalpriceAfter: 0 }
+  );
+
   async function onSubmit({ productBought, shopName }: CreateProductBought) {
     try {
-      //   console.log(productBought, "DDDDD");
+      const pro = productBought[0];
 
-      await createProductBoughtBulkAction({ shopName, data: productBought });
+      if (proBoughtToEdit) {
+        await editProductBoughtAction({
+          pricePerUnit: pro.pricePerUnit,
+          discount: pro.discount,
+          count: pro.count,
+          isReturned: isReturned,
+          note: pro.note,
+          id: proBoughtToEdit.id,
+        });
+      } else {
+        await createProductBoughtBulkAction({ shopName, data: productBought });
+      }
 
       handleClose();
       //   setDeletedPhones([]);
@@ -141,11 +208,9 @@ const InventoryForm = ({
   }
   return (
     <DialogComponent open={isItOpen} onOpenChange={handleClose}>
-      {open === undefined && (
-        <Button onClick={() => setIsOpen(true)} size="sm" className=" w-full">
-          Create client
-        </Button>
-      )}
+      <Button onClick={() => setIsOpen(true)} size="sm" className=" w-full">
+        Create client
+      </Button>
 
       <DialogComponent.Content className=" max-h-[65vh]  sm:max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogComponent.Header>
@@ -154,281 +219,549 @@ const InventoryForm = ({
             Create a new client.
           </DialogComponent.Description>
         </DialogComponent.Header>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
-            <div className=" space-y-4">
-              <div className=" border  flex  items-center px-4 py-2 rounded-lg justify-between">
-                <span className=" text-muted-foreground text-sm">
-                  Add new inventory
-                </span>
-                <Button
-                  size="sm"
-                  type="button"
-                  className=" text-xs"
-                  onClick={() =>
-                    append({
-                      pricePerUnit: 0,
-                      discount: 0,
-                      count: 0,
-                      note: "",
-                      productId: 0,
-                      productsRestockingBillId: "",
-                    })
-                  }
-                >
-                  ADD
-                </Button>
+        {proBoughtToEdit ? (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
+              <div className=" space-y-4">
+                {fields.map((field, i) => (
+                  <React.Fragment key={i}>
+                    <motion.div
+                      initial={{
+                        opacity: 0.2,
+                        y: -20,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        transition: { duration: 0.6, type: "spring" },
+                      }}
+                      exit={{
+                        opacity: 0.2,
+                        y: -150,
+                        transition: { duration: 0.1, type: "spring" },
+                      }}
+                      key={field.id}
+                      className=" space-y-4  "
+                    >
+                      <div className=" flex  flex-col gap-2  sm:flex-row  ">
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.pricePerUnit`}
+                          render={({ field }) => (
+                            <FormItem className="  w-full mb-auto ">
+                              <FormLabel>Price per unit</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  disabled={isLoading}
+                                  value={field.value}
+                                  onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    if (/^\d*$/.test(inputValue)) {
+                                      field.onChange(Number(inputValue));
+                                    }
+                                  }}
+                                  placeholder="Additional notes..."
+                                  // {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter the cost of each unit.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.discount`}
+                          render={({ field }) => (
+                            <FormItem className="  w-full mb-auto">
+                              <FormLabel>Discount</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  disabled={isLoading}
+                                  value={field.value}
+                                  onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    if (/^\d*$/.test(inputValue)) {
+                                      field.onChange(Number(inputValue));
+                                    }
+                                  }}
+                                  placeholder="Additional notes..."
+                                  // {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter the total discount you got.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.count`}
+                          render={({ field }) => (
+                            <FormItem className=" w-full  mb-auto">
+                              <FormLabel>Count</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  disabled={isLoading}
+                                  value={field.value}
+                                  onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    if (/^\d*$/.test(inputValue)) {
+                                      field.onChange(Number(inputValue));
+                                    }
+                                  }}
+                                  placeholder="Additional notes..."
+                                  // {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter the amount you bought.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className=" flex  flex-col gap-2 sm:flex-row">
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.productId`}
+                          render={({ field }) => (
+                            <FormItem className=" flex-1">
+                              <FormLabel>Product</FormLabel>
+                              <FormControl>
+                                <ProductsComboBox
+                                  value={field.value}
+                                  setValue={field.onChange}
+                                  options={products}
+                                  disabled={true}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter what product you bought.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name="shopName"
+                          render={({ field }) => (
+                            <FormItem className=" flex-1">
+                              <FormLabel>Shop</FormLabel>
+                              <FormControl>
+                                {/* <Input
+                      type="text"
+                      placeholder="Shop name..."
+                      {...field}
+                    /> */}
+                                <RestockingComboBox
+                                  value={
+                                    proBoughtToEdit.productsRestockingBillId
+                                  }
+                                  setValue={field.onChange}
+                                  options={restockings}
+                                  disabled={true}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter shop name.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Security emails</FormLabel>
+                          <FormDescription>
+                            Receive emails about your account security.
+                          </FormDescription>
+                        </div>
+
+                        <Switch
+                          checked={isReturned}
+                          onClick={() => setIsReturned((is) => !is)}
+                          aria-readonly
+                        />
+                      </div>
+
+                      <FormField
+                        disabled={isLoading}
+                        control={form.control}
+                        name={`productBought.${i}.note`}
+                        render={({ field }) => (
+                          <FormItem className=" flex-1">
+                            <FormLabel>Notes</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="note..." {...field} />
+                            </FormControl>
+                            <FormDescription>
+                              Enter additional detials.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div>
+                        Total amount spent:
+                        <span className=" ml-3">
+                          {formatCurrency(
+                            productBoughtArr[i]?.pricePerUnit *
+                              productBoughtArr[i]?.count -
+                              productBoughtArr[i]?.discount
+                          )}
+                        </span>
+                      </div>
+                    </motion.div>
+                  </React.Fragment>
+                ))}
               </div>
 
-              {fields.map((field, i) => (
-                <React.Fragment key={i}>
-                  <h2>{i + 1}.</h2>
-                  <motion.div
-                    initial={{
-                      opacity: 0.2,
-                      y: -20,
-                    }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      transition: { duration: 0.6, type: "spring" },
-                    }}
-                    exit={{
-                      opacity: 0.2,
-                      y: -150,
-                      transition: { duration: 0.1, type: "spring" },
-                    }}
-                    key={field.id}
-                    className=" space-y-4  border p-3 rounded-xl "
+              <div className=" relative flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
+                <Button
+                  onClick={() => form.reset()}
+                  type="button"
+                  className=" p-0 h-6 w-6 hidden sm:block  absolute left-5 bottom-0"
+                  variant="outline"
+                >
+                  <RotateCcw className=" w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={handleClose}
+                  disabled={isLoading}
+                  type="reset"
+                  variant="secondary"
+                  size="sm"
+                  className=" w-full sm:w-[unset]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={isLoading || disabled}
+                  className=" w-full sm:w-[unset]"
+                >
+                  {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
+              <div className=" space-y-4">
+                <div className=" border  flex  items-center px-4 py-2 rounded-lg justify-between">
+                  <span className=" text-muted-foreground text-sm">
+                    Add new inventory
+                  </span>
+                  <Button
+                    size="sm"
+                    type="button"
+                    className=" text-xs"
+                    onClick={() =>
+                      append({
+                        pricePerUnit: 0,
+                        discount: 0,
+                        count: 0,
+                        note: "",
+                        productId: 0,
+                        productsRestockingBillId: "",
+                      })
+                    }
                   >
-                    <div className=" flex  flex-col gap-2  sm:flex-row  ">
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`productBought.${i}.pricePerUnit`}
-                        render={({ field }) => (
-                          <FormItem className="  w-full mb-auto ">
-                            <FormLabel>Price per unit</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="text"
-                                disabled={isLoading}
-                                onChange={(e) => {
-                                  const inputValue = e.target.value;
-                                  if (/^\d*$/.test(inputValue)) {
-                                    field.onChange(Number(inputValue));
-                                  }
-                                }}
-                                placeholder="Additional notes..."
-                                // {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter the cost of each unit.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`productBought.${i}.discount`}
-                        render={({ field }) => (
-                          <FormItem className="  w-full mb-auto">
-                            <FormLabel>Discount</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="text"
-                                disabled={isLoading}
-                                onChange={(e) => {
-                                  const inputValue = e.target.value;
-                                  if (/^\d*$/.test(inputValue)) {
-                                    field.onChange(Number(inputValue));
-                                  }
-                                }}
-                                placeholder="Additional notes..."
-                                // {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter the total discount you got.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`productBought.${i}.count`}
-                        render={({ field }) => (
-                          <FormItem className=" w-full  mb-auto">
-                            <FormLabel>Count</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="text"
-                                disabled={isLoading}
-                                onChange={(e) => {
-                                  const inputValue = e.target.value;
-                                  if (/^\d*$/.test(inputValue)) {
-                                    field.onChange(Number(inputValue));
-                                  }
-                                }}
-                                placeholder="Additional notes..."
-                                // {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter the amount you bought.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div className=" flex  flex-col gap-2 sm:flex-row">
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`productBought.${i}.productId`}
-                        render={({ field }) => (
-                          <FormItem className=" flex-1">
-                            <FormLabel>Product</FormLabel>
-                            <FormControl>
-                              <ProductsComboBox
-                                value={field.value}
-                                setValue={field.onChange}
-                                options={products}
-                                disabled={isLoading}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter what product you bought.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name="shopName"
-                        render={({ field }) => (
-                          <FormItem className=" flex-1">
-                            <FormLabel>Shop</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="text"
-                                placeholder="Shop name..."
-                                {...field}
-                              />
-                              {/* <RestockingComboBox
-                                value={field.value}
+                    ADD
+                  </Button>
+                </div>
+
+                {fields.map((field, i) => (
+                  <React.Fragment key={i}>
+                    <h2>{i + 1}.</h2>
+                    <motion.div
+                      initial={{
+                        opacity: 0.2,
+                        y: -20,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        transition: { duration: 0.6, type: "spring" },
+                      }}
+                      exit={{
+                        opacity: 0.2,
+                        y: -150,
+                        transition: { duration: 0.1, type: "spring" },
+                      }}
+                      key={field.id}
+                      className=" space-y-4  border p-3 rounded-xl "
+                    >
+                      <div className=" flex  flex-col gap-2  sm:flex-row  ">
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.pricePerUnit`}
+                          render={({ field }) => (
+                            <FormItem className="  w-full mb-auto ">
+                              <FormLabel>Price per unit</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  disabled={isLoading}
+                                  onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    if (/^\d*$/.test(inputValue)) {
+                                      field.onChange(Number(inputValue));
+                                    }
+                                  }}
+                                  placeholder="Additional notes..."
+                                  // {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter the cost of each unit.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.discount`}
+                          render={({ field }) => (
+                            <FormItem className="  w-full mb-auto">
+                              <FormLabel>Discount</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  disabled={isLoading}
+                                  onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    if (/^\d*$/.test(inputValue)) {
+                                      field.onChange(Number(inputValue));
+                                    }
+                                  }}
+                                  placeholder="Additional notes..."
+                                  // {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter the total discount you got.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.count`}
+                          render={({ field }) => (
+                            <FormItem className=" w-full  mb-auto">
+                              <FormLabel>Count</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  disabled={isLoading}
+                                  onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    if (/^\d*$/.test(inputValue)) {
+                                      field.onChange(Number(inputValue));
+                                    }
+                                  }}
+                                  placeholder="Additional notes..."
+                                  // {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter the amount you bought.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className=" flex  flex-col gap-2 sm:flex-row">
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.productId`}
+                          render={({ field }) => (
+                            <FormItem className=" flex-1">
+                              <FormLabel>Product</FormLabel>
+                              <FormControl>
+                                <ProductsComboBox
+                                  value={field.value}
+                                  setValue={field.onChange}
+                                  options={products}
+                                  disabled={isLoading}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter what product you bought.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name="shopName"
+                          render={({ field }) => (
+                            <FormItem className=" flex-1">
+                              <FormLabel>Shop</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  placeholder="Shop name..."
+                                  {...field}
+                                />
+                                {/* <RestockingComboBox
+                                value={24}
                                 setValue={field.onChange}
                                 options={restockings}
-                                disabled={isLoading}
+                                disabled={true}
                               /> */}
+                              </FormControl>
+                              <FormDescription>
+                                Enter shop name.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <FormField
+                        disabled={isLoading}
+                        control={form.control}
+                        name={`productBought.${i}.note`}
+                        render={({ field }) => (
+                          <FormItem className=" flex-1">
+                            <FormLabel>Notes</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="note..." {...field} />
                             </FormControl>
-                            <FormDescription>Enter shop name.</FormDescription>
+                            <FormDescription>
+                              Enter additional detials.
+                            </FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
-                    </div>
-                    <FormField
-                      disabled={isLoading}
-                      control={form.control}
-                      name={`productBought.${i}.note`}
-                      render={({ field }) => (
-                        <FormItem className=" flex-1">
-                          <FormLabel>Notes</FormLabel>
-                          <FormControl>
-                            <Textarea placeholder="note..." {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            Enter additional detials.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
 
-                    <button
-                      onClick={() => {
-                        remove(i);
-                      }}
-                      className="  absolute  top-0 right-5 rounded-sm outline-none        opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  "
-                      type="button"
-                    >
-                      <Cross2Icon className="h-4 w-4" />
-                      {/* <span className="sr-only">Close</span> */}
-                    </button>
+                      <button
+                        onClick={() => {
+                          remove(i);
+                        }}
+                        className="  absolute  top-0 right-5 rounded-sm outline-none        opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  "
+                        type="button"
+                      >
+                        <Cross2Icon className="h-4 w-4" />
+                        {/* <span className="sr-only">Close</span> */}
+                      </button>
 
+                      <div>
+                        Total amount spent:
+                        <span className=" ml-3">
+                          {formatCurrency(
+                            productBoughtArr[i]?.pricePerUnit *
+                              productBoughtArr[i]?.count -
+                              productBoughtArr[i]?.discount
+                          )}
+                        </span>
+                      </div>
+                    </motion.div>
+                  </React.Fragment>
+                ))}
+              </div>
+
+              {form.getValues().productBought.length ? (
+                <>
+                  <div className=" flex items-center flex-wrap flex-col sm:flex-row gap-x-4">
                     <div>
-                      Total amount spent:
-                      <span className=" ml-3">
-                        {formatCurrency(
-                          productBoughtArr[i]?.pricePerUnit *
-                            productBoughtArr[i]?.count -
-                            productBoughtArr[i]?.discount
-                        )}
+                      Bulk price after discount:{" "}
+                      <span className=" text-xs text-muted-foreground">
+                        {formatCurrency(total.totalpriceAfter)}
                       </span>
                     </div>
-                  </motion.div>
-                </React.Fragment>
-              ))}
-            </div>
 
-            {form.getValues().productBought.length ? (
-              <Button
-                size="sm"
-                type="button"
-                className=" text-xs w-full"
-                onClick={() =>
-                  append({
-                    pricePerUnit: 0,
-                    discount: 0,
-                    count: 0,
-                    note: "",
-                    productId: 0,
-                    productsRestockingBillId: "",
-                  })
-                }
-              >
-                ADD
-              </Button>
-            ) : null}
-            <div className=" relative flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
-              <Button
-                onClick={() => form.reset()}
-                type="button"
-                className=" p-0 h-6 w-6 hidden sm:block  absolute left-5 bottom-0"
-                variant="outline"
-              >
-                <RotateCcw className=" w-4 h-4" />
-              </Button>
-              <Button
-                onClick={handleClose}
-                disabled={isLoading}
-                type="reset"
-                variant="secondary"
-                size="sm"
-                className=" w-full sm:w-[unset]"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                size="sm"
-                disabled={isLoading || isEqual}
-                className=" w-full sm:w-[unset]"
-              >
-                {isLoading ? <Spinner className=" h-full" /> : "Create"}
-              </Button>
-            </div>
-          </form>
-        </Form>
+                    <div>
+                      Bulk discount:{" "}
+                      <span className=" text-xs text-muted-foreground">
+                        {formatCurrency(total.totalDiscount)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    type="button"
+                    className=" text-xs w-full"
+                    onClick={() =>
+                      append({
+                        pricePerUnit: 0,
+                        discount: 0,
+                        count: 0,
+                        note: "",
+                        productId: 0,
+                        productsRestockingBillId: "",
+                      })
+                    }
+                  >
+                    ADD
+                  </Button>
+                </>
+              ) : null}
+
+              <div className=" relative flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
+                <Button
+                  onClick={() => form.reset()}
+                  type="button"
+                  className=" p-0 h-6 w-6 hidden sm:block  absolute left-5 bottom-0"
+                  variant="outline"
+                >
+                  <RotateCcw className=" w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={handleClose}
+                  disabled={isLoading}
+                  type="reset"
+                  variant="secondary"
+                  size="sm"
+                  className=" w-full sm:w-[unset]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={isLoading || isEqual}
+                  className=" w-full sm:w-[unset]"
+                >
+                  {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        )}
       </DialogComponent.Content>
     </DialogComponent>
   );

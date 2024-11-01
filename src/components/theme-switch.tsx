@@ -29,7 +29,7 @@ export function ModeToggle() {
   };
 
   return (
-    <div className=" h-full flex   items-center  w-fit    rounded-lg border">
+    <div className=" h-full flex  bg-background  items-center  w-fit    rounded-lg border">
       <Button
         onClick={() => {
           playSound();

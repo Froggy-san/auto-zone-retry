@@ -99,19 +99,22 @@ export async function getProductsBoughtAction({
   return { data: productsWithCategories, error: "" };
 }
 
-export async function getProductByIdAction(id: string) {
+export async function getProductBoughtByIdAction(id: string) {
   const token = getToken();
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
 
-  const response = await fetch(`${process.env.API_URL}/api/Product/${id}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      // "Content-type": "application/json",
-    },
-  });
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductsBought/${id}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // "Content-type": "application/json",
+      },
+    }
+  );
 
   if (!response.ok) {
     console.log("Something went wrong while grabbing the products.");
@@ -145,6 +148,8 @@ export async function createProductBoughtBulkAction({
     return { ...product, productsRestockingBillId: shopData.id };
   });
 
+  console.log(productsBoughtArr, "ERRORRRRRR ????");
+
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsBought/bulk`,
     {
@@ -165,62 +170,45 @@ export async function createProductBoughtBulkAction({
   revalidateTag("productBought");
 }
 
-export async function editProductAction({
-  productToEdit,
-  imagesToUpload,
-  imagesToDelete,
-  isMain,
-  isEqual,
-}: {
-  productToEdit: EditProduct;
-  imagesToUpload: FormData[];
-  imagesToDelete: ProductImage[];
-  isEqual: boolean;
-  isMain?: ProductImage | null;
-}) {
+interface EditProps {
+  pricePerUnit: number;
+  discount: number;
+  count: number;
+  isReturned: boolean;
+  note: string;
+  id: number;
+}
+
+export async function editProductBoughtAction({
+  pricePerUnit,
+  discount,
+  count,
+  isReturned,
+  note,
+  id,
+}: EditProps) {
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
   if (!token) return redirect("/login");
 
-  if (!isEqual) {
-    const response = await fetch(
-      `${process.env.API_URL}/api/Product/${productToEdit.id}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(productToEdit),
-      }
-    );
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductsBought/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ pricePerUnit, discount, count, isReturned, note }),
+    }
+  );
 
-    console.log(response);
-    if (!response.ok) throw new Error("Had truble creating a product.");
-  }
+  console.log(response);
+  if (!response.ok) throw new Error("Had truble creating a product.");
 
-  if (imagesToUpload.length) {
-    const upload = imagesToUpload.map((image) =>
-      createProductImageAction(image)
-    );
-    await Promise.all(upload);
-  }
-
-  if (imagesToDelete.length) {
-    const deleteImages = imagesToDelete.map((deletedImage) =>
-      deleteProductsImageAction(deletedImage.id)
-    );
-
-    await Promise.all(deleteImages);
-  }
-
-  if (isMain) {
-    await setProductImageAsMain(isMain.id);
-  }
-
-  revalidatePath(`/products/${productToEdit.id}`);
-  revalidateTag("products");
+  revalidateTag("productBought");
+  revalidateTag("restockingBills");
 }
 
 export async function deleteProductsBoughtByIdAction(id: number) {
