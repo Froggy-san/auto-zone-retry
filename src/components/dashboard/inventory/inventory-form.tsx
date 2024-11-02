@@ -57,6 +57,7 @@ export const formatCurrency = (value: number) =>
   );
 
 const InventoryForm = ({
+  reStockingBillId,
   products,
   restockings,
   open,
@@ -64,6 +65,7 @@ const InventoryForm = ({
   handleClose: handleCloseExternal,
   proBoughtToEdit,
 }: {
+  reStockingBillId?: string;
   proBoughtToEdit?: ProductBought;
   products: ProductWithCategory[];
   restockings: RestockingBill[];
@@ -72,14 +74,15 @@ const InventoryForm = ({
   client?: ClientWithPhoneNumbers;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+
   const [isReturned, setIsReturned] = useState<boolean>(
     proBoughtToEdit?.isReturned ? proBoughtToEdit.isReturned : false
   );
+
   const { toast } = useToast();
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  // const edit = searchParam.get("edit") ?? "";
 
   const isItOpen = open ? true : isOpen;
 
@@ -94,7 +97,7 @@ const InventoryForm = ({
 
   const defaultValues = {
     productBought: proBoughtToEdit ? [editProBught] : [],
-    shopName: proBoughtToEdit ? "Editting" : "",
+    shopName: proBoughtToEdit || reStockingBillId ? "just a random string" : "",
   };
 
   const form = useForm<CreateProductBought>({
@@ -118,16 +121,11 @@ const InventoryForm = ({
     name: "productBought",
   });
 
-  // function handleClose() {
-  //   // form.reset();
-  //   handleCloseExternal?.();
-  //   setIsOpen(false);
-  // }
-
   function handleClose() {
     if (open) {
       const params = new URLSearchParams(searchParam);
       params.delete("edit");
+      params.delete("reStockingBillId");
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     } else {
       handleCloseExternal?.();
@@ -182,7 +180,11 @@ const InventoryForm = ({
           id: proBoughtToEdit.id,
         });
       } else {
-        await createProductBoughtBulkAction({ shopName, data: productBought });
+        await createProductBoughtBulkAction({
+          shopName,
+          data: productBought,
+          reStockingBillId: reStockingBillId ? Number(reStockingBillId) : null,
+        });
       }
 
       handleClose();
@@ -214,9 +216,19 @@ const InventoryForm = ({
 
       <DialogComponent.Content className=" max-h-[65vh]  sm:max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogComponent.Header>
-          <DialogComponent.Title>Clients</DialogComponent.Title>
+          <DialogComponent.Title>
+            {reStockingBillId
+              ? "Add more inventory"
+              : proBoughtToEdit
+              ? "Edit inventory"
+              : "Add inventory"}
+          </DialogComponent.Title>
           <DialogComponent.Description>
-            Create a new client.
+            {reStockingBillId
+              ? "Add more inventory to the same recipt."
+              : proBoughtToEdit
+              ? `Edit inventory data. `
+              : "Make a recipt for all the inventory bought."}
           </DialogComponent.Description>
         </DialogComponent.Header>
         {proBoughtToEdit ? (
@@ -524,6 +536,7 @@ const InventoryForm = ({
                                 <Input
                                   type="text"
                                   disabled={isLoading}
+                                  value={field.value}
                                   onChange={(e) => {
                                     const inputValue = e.target.value;
                                     if (/^\d*$/.test(inputValue)) {
@@ -552,6 +565,7 @@ const InventoryForm = ({
                                 <Input
                                   type="text"
                                   disabled={isLoading}
+                                  value={field.value}
                                   onChange={(e) => {
                                     const inputValue = e.target.value;
                                     if (/^\d*$/.test(inputValue)) {
@@ -580,6 +594,7 @@ const InventoryForm = ({
                                 <Input
                                   type="text"
                                   disabled={isLoading}
+                                  value={field.value}
                                   onChange={(e) => {
                                     const inputValue = e.target.value;
                                     if (/^\d*$/.test(inputValue)) {
@@ -629,11 +644,20 @@ const InventoryForm = ({
                             <FormItem className=" flex-1">
                               <FormLabel>Shop</FormLabel>
                               <FormControl>
-                                <Input
-                                  type="text"
-                                  placeholder="Shop name..."
-                                  {...field}
-                                />
+                                {reStockingBillId ? (
+                                  <RestockingComboBox
+                                    value={Number(reStockingBillId)}
+                                    setValue={field.onChange}
+                                    options={restockings}
+                                    disabled={true}
+                                  />
+                                ) : (
+                                  <Input
+                                    type="text"
+                                    placeholder="Shop name..."
+                                    {...field}
+                                  />
+                                )}
                                 {/* <RestockingComboBox
                                 value={24}
                                 setValue={field.onChange}

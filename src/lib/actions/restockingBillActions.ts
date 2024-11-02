@@ -17,6 +17,7 @@ interface GetRestockingProps {
 export async function getRestockingBillsAction({
   pageNumber,
   name,
+  shopName,
   dateOfOrderFrom,
   dateOfOrderTo,
   minTotalPrice,
@@ -25,11 +26,13 @@ export async function getRestockingBillsAction({
   //   await new Promise((res) => setTimeout(res, 9000));
   const token = getToken();
 
+  if (!token)
+    return { data: null, error: "You are not authorized to make this action." };
   let query = `${process.env.API_URL}/api/ProductsRestockingBills?&PageSize=${PAGE_SIZE}`;
 
-  if (name) query = query + `&Name=${name}`;
-
   if (pageNumber) query = query + `&PageNumber=${pageNumber}`;
+
+  if (shopName) query = query + `&shopName=${shopName}`;
 
   if (dateOfOrderFrom) query = query + `&dateOfOrderFrom=${dateOfOrderFrom}`;
 
@@ -39,8 +42,6 @@ export async function getRestockingBillsAction({
 
   if (maxTotalPrice) query = query + `&maxTotalPrice=${maxTotalPrice}`;
 
-  if (!token)
-    return { data: null, error: "You are not authorized to make this action." };
   const response = await fetch(query, {
     method: "GET",
     headers: {
@@ -146,20 +147,41 @@ export async function deleteRestockingBillAction(id: string) {
   // return data;
 }
 
-export async function getProductsRestockingBillsCountAction() {
+export async function getProductsRestockingBillsCountAction({
+  shopName,
+  dateOfOrderFrom,
+  dateOfOrderTo,
+  maxTotalPrice,
+  minTotalPrice,
+}: {
+  shopName?: string;
+  dateOfOrderFrom?: string;
+  dateOfOrderTo?: string;
+  minTotalPrice?: string;
+  maxTotalPrice?: string;
+}) {
   const token = getToken();
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
-  const response = await fetch(
-    `${process.env.API_URL}/api/ProductsRestockingBills/count`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+
+  let query = `${process.env.API_URL}/api/ProductsRestockingBills/count?`;
+
+  if (shopName) query = query + `&shopName=${shopName}`;
+
+  if (dateOfOrderFrom) query = query + `&dateOfOrderFrom=${dateOfOrderFrom}`;
+
+  if (dateOfOrderTo) query = query + `&dateOfOrderTo=${dateOfOrderTo}`;
+
+  if (minTotalPrice) query = query + `&minTotalPrice=${minTotalPrice}`;
+
+  if (maxTotalPrice) query = query + `&maxTotalPrice=${maxTotalPrice}`;
+  const response = await fetch(query, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   if (!response.ok) {
     console.log(
