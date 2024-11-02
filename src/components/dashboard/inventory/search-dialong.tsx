@@ -215,6 +215,7 @@ const SearchDialog = ({
                   },
                   "& .MuiSlider-thumb": {
                     backgroundColor: "hsl(var(--accent))",
+                    border: "solid 1px  hsl(var(--border))",
                     "&:hover, &.Mui-active, &.Mui-focusVisible": {
                       boxShadow: "none", // Remove the box shadow on hover, focus, or active state
                       border: "none",
