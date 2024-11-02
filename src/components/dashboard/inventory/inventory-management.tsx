@@ -4,7 +4,13 @@ import { getProductsAction } from "@lib/actions/productsActions";
 import { getRestockingBillsAction } from "@lib/actions/restockingBillActions";
 import { getProductBoughtByIdAction } from "@lib/actions/productBoughtActions";
 
-const InventoryManagement = async ({ edit }: { edit: string }) => {
+const InventoryManagement = async ({
+  edit,
+  reStockingBillId,
+}: {
+  edit: string;
+  reStockingBillId: string;
+}) => {
   const [productsData, restockingData] = await Promise.all([
     getProductsAction({}),
     getRestockingBillsAction({}),
@@ -20,6 +26,7 @@ const InventoryManagement = async ({ edit }: { edit: string }) => {
   const { data: products, error } = productsData;
   const { data: restockings, error: restockingsError } = restockingData;
 
+  const isOpen = edit || reStockingBillId ? true : false;
   if (error || restockingsError) return <p>{error || restockingsError}</p>;
   if (!products) return <p>Soemthng went wrong</p>;
 
@@ -31,7 +38,8 @@ const InventoryManagement = async ({ edit }: { edit: string }) => {
       </div>
       <div className=" sm:pr-2">
         <InventoryForm
-          open={edit ? true : false}
+          open={isOpen}
+          reStockingBillId={reStockingBillId}
           products={products}
           restockings={restockings}
           proBoughtToEdit={productToEdit?.data}

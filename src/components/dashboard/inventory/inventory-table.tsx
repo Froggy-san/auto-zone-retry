@@ -33,18 +33,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import {
   CircleUser,
   Ellipsis,
   LoaderCircle,
   PackageMinus,
+  PackagePlus,
   Pencil,
   ReceiptText,
   UserRoundMinus,
@@ -494,6 +489,10 @@ function TableActions({
   const [open, setOpen] = useState<"delete" | "edit" | "">("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const searchParam = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
   function handleClose() {
     setOpen("");
   }
@@ -501,7 +500,7 @@ function TableActions({
   if (isLoading)
     return (
       <Spinner
-        className="  w-4 h-4   flex items-center mr-1 justify-center "
+        className="  w-4 h-4 flex items-center mr-1 justify-center "
         size={15}
       />
     );
@@ -524,6 +523,18 @@ function TableActions({
             }}
           >
             <ReceiptText className=" w-4 h-4" /> Edit receipt
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className=" gap-2"
+            onClick={() => {
+              const params = new URLSearchParams(searchParam);
+              params.set("reStockingBillId", proBought.id.toString());
+              router.replace(`${pathname}?${params.toString()}`, {
+                scroll: false,
+              });
+            }}
+          >
+            <PackagePlus className=" w-4 h-4" /> Add more bought products
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={proBought.productsBought.length > 0}
@@ -589,7 +600,7 @@ function EditReceipt({
   restockingBill: ProductBoughtData;
 }) {
   const { toast } = useToast();
-  console.log(isDeleting, "DDDD");
+
   const billDate = new Date(restockingBill.dateOfOrder);
   const [shopName, setShopName] = useState(restockingBill.shopName);
   const [dateOfOrder, setSetDateOfOrder] = useState<Date | undefined>(billDate);
@@ -783,9 +794,11 @@ function DeleteRestockingDialog({
   function checkIfLastItem() {
     const params = new URLSearchParams(searchParam);
     if (pageSize === 1) {
-      params.delete("name");
-      params.delete("phone");
-      params.delete("email");
+      params.delete("dateOfOrderTo");
+      params.delete("dateOfOrderFrom");
+      params.delete("minTotalPrice");
+      params.delete("maxTotalPrice");
+      params.delete("shopName");
       if (!isFirstPage) {
         params.set("page", String(Number(currPage) - 1));
       }
@@ -881,29 +894,11 @@ function DeleteDialog({
   proBought: ProductBoughtData;
   pageSize: number;
 }) {
-  const isFirstPage = currPage === "1";
-
   const { toast } = useToast();
-  const searchParam = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
 
   const proTodelete = productBoughtId
     ? proBought.productsBought.find((pro) => pro.id === productBoughtId)
     : null;
-
-  function checkIfLastItem() {
-    const params = new URLSearchParams(searchParam);
-    if (pageSize === 1) {
-      params.delete("name");
-      params.delete("phone");
-      params.delete("email");
-      if (!isFirstPage) {
-        params.set("page", String(Number(currPage) - 1));
-      }
-      router.push(`${pathname}?${params.toString()}`);
-    }
-  }
 
   useEffect(() => {
     const body = document.querySelector("body");

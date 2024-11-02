@@ -130,9 +130,11 @@ export async function getProductBoughtByIdAction(id: string) {
 }
 
 export async function createProductBoughtBulkAction({
+  reStockingBillId,
   data,
   shopName,
 }: {
+  reStockingBillId: number | null;
   data: z.infer<typeof ProductBoughtSchema>[];
   shopName: string;
 }) {
@@ -142,10 +144,19 @@ export async function createProductBoughtBulkAction({
 
   if (!token) return redirect("/login");
 
-  const shopData = await createRestockingBillAction(shopName);
+  let shopNameId: number | null = null;
+  if (!reStockingBillId) {
+    const shopData = await createRestockingBillAction(shopName);
+    shopNameId = shopData.id;
+  }
 
   const productsBoughtArr = data.map((product) => {
-    return { ...product, productsRestockingBillId: shopData.id };
+    return {
+      ...product,
+      productsRestockingBillId: reStockingBillId
+        ? reStockingBillId
+        : shopNameId,
+    };
   });
 
   console.log(productsBoughtArr, "ERRORRRRRR ????");
