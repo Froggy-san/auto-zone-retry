@@ -30,6 +30,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useToast } from "@hooks/use-toast";
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
     value
@@ -63,8 +64,10 @@ const SearchDialog = ({
     shopName: shopName,
   };
   const rangeValues = [initalValus.minTotalPrice, initalValus.maxTotalPrice];
+  const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [nameValue, setNameValue] = useState(initalValus.shopName);
+  const [step, setStep] = useState(50);
   const [date, setDate] = React.useState<DateRange | undefined>({
     to: initalValus.dateOfOrderTo,
     from: initalValus.dateOfOrderFrom,
@@ -75,7 +78,40 @@ const SearchDialog = ({
   const pathname = usePathname();
   const router = useRouter();
 
+  console.log(value, "VALUESS");
   const page = Number(currPage);
+
+  const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    if (/^\d*$/.test(inputValue)) {
+      const newMinPrice = Number(inputValue);
+      if (newMinPrice <= value[1]) {
+        setValue([newMinPrice, value[1]]);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Invalid value",
+          description: `Min total price must be lower than ${value[1]}`,
+        });
+      }
+    }
+  };
+
+  const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    if (/^\d*$/.test(inputValue)) {
+      const newMaxPrice = Number(inputValue);
+      if (newMaxPrice >= value[0]) {
+        setValue([value[0], newMaxPrice]);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Invalid value",
+          description: `Max total price must be higher than ${value[0]}`,
+        });
+      }
+    }
+  };
 
   async function handleSub() {
     const name = nameValue.trim();
@@ -117,7 +153,7 @@ const SearchDialog = ({
       params.set("maxTotalPrice", maxTotalPrice.toString());
     }
 
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     setOpen(false);
   }
 
@@ -154,7 +190,7 @@ const SearchDialog = ({
           </DialogDescription>
         </DialogHeader>
         <form action={handleSub}>
-          <div className=" flex flex-wrap   gap-2">
+          <div className=" flex flex-wrap   gap-2 gap-y-3">
             <Input
               value={nameValue}
               onChange={(e) => setNameValue(e.target.value)}
@@ -201,7 +237,25 @@ const SearchDialog = ({
                 </PopoverContent>
               </Popover>
             </div>
-
+            <div className=" space-y-2 w-full sm:w-[48%]">
+              <Input
+                type="text"
+                value={value[0]}
+                onChange={handleMinPriceChange}
+                placeholder="Min price"
+                className=""
+              />
+              <p className=" text-xs text-muted-foreground">Min total price.</p>
+            </div>
+            <div className=" w-full sm:w-[48%] space-y-2">
+              <Input
+                type="text"
+                value={value[1]}
+                onChange={handleMaxPriceChange}
+                placeholder="Max price"
+              />
+              <p className=" text-xs text-muted-foreground">Max total price.</p>
+            </div>
             <Box sx={{ width: "100%" }}>
               <Slider
                 sx={{
@@ -242,10 +296,24 @@ const SearchDialog = ({
                 getAriaLabel={() => "Temperature range"}
                 value={value}
                 max={300000}
-                step={100}
+                step={step}
                 onChange={handleChange}
                 valueLabelDisplay="auto"
                 getAriaValueText={valueText}
+              />
+              <Input
+                type="text"
+                value={step}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  if (/^\d*$/.test(inputValue)) {
+                    const value = Number(inputValue);
+
+                    setStep(value);
+                  }
+                }}
+                placeholder="Max price"
+                className=" w-10 h-7  p-1  pl-[.4rem]  ml-auto"
               />
             </Box>
             <div className=" flex items-center gap-3 flex-wrap text-xs">
