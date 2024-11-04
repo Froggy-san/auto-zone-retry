@@ -212,7 +212,7 @@ function AvailableSwitch({
   function handleSwitch() {
     if (check) {
       params.set("isAvailable", String(!available));
-      params.set("page", "1");
+
       router.replace(`${pathname}?${String(params)}`);
     }
   }
