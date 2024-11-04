@@ -88,7 +88,9 @@ const InventoryTable = ({
   return (
     <Table className=" mt-10">
       <TableCaption>
-        {productBought.length ? "A list of your clients." : "No clients"}
+        {productBought.length
+          ? "A list of all your inventory receipts."
+          : "No receipts"}
       </TableCaption>
       <TableHeader>
         <TableRow>
@@ -294,7 +296,7 @@ function ProductsDialog({
   );
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className=" border-none    flex flex-col    max-h-[85vh]     max-w-[900px]">
+      <DialogContent className=" border-none p-4  sm:p-6  !pb-0  flex flex-col  overflow-y-auto    max-h-[81vh]     max-w-[900px]">
         <DialogHeader className=" hidden  invisible">
           <DialogTitle>{`'s phome numbers`}</DialogTitle>
           <DialogDescription className=" hidden">
@@ -304,6 +306,7 @@ function ProductsDialog({
         </DialogHeader>
 
         {/* <main className="  gap-6  flex flex-col max-h-[90%]  h-full relative   "> */}
+
         <div className="border-b flex flex-wrap gap-3  pb-3  text-sm">
           {/* <div className=" flex  flex-col sm:flex-row items-center  gap-3 "> */}
           <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
@@ -367,10 +370,20 @@ function ProductsDialog({
           </div>
         </div>
 
-        <div className=" space-y-4    flex-1    overflow-y-auto">
-          <h2 className=" font-semibold text-xl">
-            {proBought.productsBought.length} Products bought.
-          </h2>
+        <div className=" space-y-4    sm:flex-1  sm:px-2   sm:overflow-y-auto">
+          <div className=" flex items-center justify-between">
+            <h2 className=" font-semibold text-xl  whitespace-nowrap">
+              {proBought.productsBought.length} Products bought.
+            </h2>
+            <div className=" text-xs   justify-end flex items-center gap-y-1 gap-x-3 flex-wrap text-muted-foreground  ">
+              <div>
+                Shop: <span>{proBought.shopName}</span>
+              </div>
+              <div>
+                Date: <span>{proBought.dateOfOrder}</span>
+              </div>
+            </div>
+          </div>
           {productsArr.length ? (
             productsArr.map((product, i) => (
               <div
@@ -449,7 +462,7 @@ function ProductsDialog({
           )}
         </div>
         {/* </main> */}
-        <div className=" space-y-3">
+        <div className=" sticky pb-6 pt-4 sm:pt-0 bottom-0 left-0 bg-background  space-y-3">
           <DialogClose asChild>
             <Button size="sm" className=" w-full" variant="secondary">
               Close
@@ -612,7 +625,6 @@ function EditReceipt({
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   };
 
-  // console.log(format(dateOfOrder, "yyyy-MM-dd"), "Daaa");
   // Just to note, here we are not deleting anything but we are still using the isdeleting as an isLoading state.
   const hasNotChange =
     isEqual(stripTime(billDate), stripTime(dateOfOrder || new Date())) &&
@@ -629,7 +641,6 @@ function EditReceipt({
       console.log("Setting isDeleting to true...");
       setIsDeleting(true);
 
-      console.log("Calling editRestockingBillAction...");
       await editRestockingBillAction({
         restockingToEdit: {
           shopName: shopName,
@@ -638,7 +649,6 @@ function EditReceipt({
         id: restockingBill.id.toString(),
       });
 
-      console.log("Setting isDeleting to false (success)...");
       setIsDeleting(false);
       handleClose();
       toast({
@@ -821,9 +831,9 @@ function DeleteRestockingDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px] border-none">
         <DialogHeader>
-          <DialogTitle>Delete clients data.</DialogTitle>
+          <DialogTitle>Delete receipt.</DialogTitle>
           <DialogDescription>
-            {`${restockingBill.id} You are deleting ${restockingBill.shopName}'s data. That includes their phone numbers and cars information. This action can't be undone. `}
+            {`You are about to delete a receipt dated '${restockingBill.dateOfOrder}', made at a shop called '${restockingBill.shopName}', along with all its associated data.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -922,9 +932,9 @@ function DeleteDialog({
     >
       <DialogContent className="sm:max-w-[425px] border-none">
         <DialogHeader>
-          <DialogTitle>Delete clients data.</DialogTitle>
+          <DialogTitle>Delete inventory bought.</DialogTitle>
           <DialogDescription>
-            {`${proTodelete?.id} You are deleting ${proBought.shopName}'s data. That includes their phone numbers and cars information. This action can't be undone. `}
+            {`You are about to delete the product '${proTodelete?.productName}' from a receipt dated '${proBought.dateOfOrder}', purchased from the shop '${proBought.shopName}'`}
           </DialogDescription>
         </DialogHeader>
 

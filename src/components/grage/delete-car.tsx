@@ -82,27 +82,25 @@ function DeleteDialog({ carId }: { carId: string | undefined }) {
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter>
-          <div className=" flex items-center justify-end  gap-2">
-            <Button
-              onClick={() => setOpen(false)}
-              type="reset"
-              variant="secondary"
-              size="sm"
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              type="submit"
-              size="sm"
-              disabled={isLoading}
-            >
-              {isLoading ? <Spinner /> : "Delete"}
-            </Button>
-          </div>
+        <DialogFooter className=" gap-y-2">
+          <Button
+            onClick={() => setOpen(false)}
+            type="reset"
+            variant="secondary"
+            size="sm"
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            type="submit"
+            size="sm"
+            disabled={isLoading}
+          >
+            {isLoading ? <Spinner /> : "Delete"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

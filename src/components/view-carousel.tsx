@@ -38,6 +38,19 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
       setCurrent(api.selectedScrollSnap() + 1);
     });
   }, [api, index]);
+
+  React.useEffect(() => {
+    const body = document.querySelector("body");
+    if (body) {
+      if (index) body.style.overflow = "hidden";
+      else body.style.overflow = "auto";
+    }
+
+    return () => {
+      if (body) body.style.overflow = "auto";
+    };
+  }, [index]);
+
   return (
     <motion.div
       exit={{ opacity: 0 }}
