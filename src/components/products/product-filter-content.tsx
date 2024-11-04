@@ -241,6 +241,7 @@ function AvailableSwitch({
             params.delete("isAvailable");
           } else {
             params.set("isAvailable", String(available));
+            params.set("page", "1");
           }
           setCheck((checked) => !checked);
           router.replace(`${pathname}?${String(params)}`);
