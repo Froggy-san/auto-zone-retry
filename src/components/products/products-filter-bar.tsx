@@ -5,11 +5,11 @@ import React from "react";
 import ProductsFilterContent from "./product-filter-content";
 
 interface Props {
-  name?: string;
-  categoryId?: string;
+  name: string;
+  categoryId: string;
   productTypeId?: string;
-  productBrandId?: string;
-  isAvailable?: string;
+  productBrandId: string;
+  isAvailable: string;
 }
 const ProductsFilterBar: React.FC<Props> = async ({
   categoryId,

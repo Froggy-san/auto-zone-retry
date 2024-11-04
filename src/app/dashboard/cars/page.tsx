@@ -31,7 +31,7 @@ const page = ({ searchParams }: { searchParams: SearchParams }) => {
     <main>
       <h2 className="  font-semibold text-4xl">MANAGE GRAGE.</h2>
 
-      <section className=" pl-4 mt-12">
+      <section className=" sm:pl-4 mt-12">
         <CarManagement />
         <div className=" max-w-[97%]  mx-auto mt-10  ">
           <Suspense

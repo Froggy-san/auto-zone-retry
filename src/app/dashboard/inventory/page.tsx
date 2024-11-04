@@ -33,7 +33,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   return (
     <main className=" relative">
       <h2 className="  font-semibold text-4xl">INVENTORY MANAGEMENT.</h2>
-      <section className=" pl-4">
+      <section className=" sm:pl-4">
         <div className=" space-y-5 mt-12">
           {/* <RestockingForm /> */}
           <Suspense

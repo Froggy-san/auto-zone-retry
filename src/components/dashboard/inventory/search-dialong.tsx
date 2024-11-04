@@ -182,7 +182,7 @@ const SearchDialog = ({
           </kbd>
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] border-none">
+      <DialogContent className="max-h-[70vh] overflow-y-auto sm:max-w-[425px] border-none">
         <DialogHeader>
           <DialogTitle>Search for recipts</DialogTitle>
           <DialogDescription>

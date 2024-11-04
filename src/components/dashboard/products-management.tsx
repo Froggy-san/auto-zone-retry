@@ -1,4 +1,5 @@
 import ProductForm from "@components/products/products-form";
+import { getCurrentUser } from "@lib/actions/authActions";
 import { getAllCarsInfoAction } from "@lib/actions/carInfoActions";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
@@ -17,18 +18,21 @@ const ProductManagement = async ({
   className?: string;
   useParams?: boolean;
 }) => {
-  const [categories, carInfos, productBrands, brandTypes] = await Promise.all([
-    getAllCategoriesAction(),
-    getAllCarsInfoAction(),
-    getAllProductBrandsAction(),
-    getAllProductTypesAction(),
-  ]);
+  const [categories, carInfos, productBrands, brandTypes, user] =
+    await Promise.all([
+      getAllCategoriesAction(),
+      getAllCarsInfoAction(),
+      getAllProductBrandsAction(),
+      getAllProductTypesAction(),
+      getCurrentUser(),
+    ]);
 
   const { data: categoriesData, error: categoriesError } = categories;
   const { data: carInfosData, error: carInfosError } = carInfos;
   const { data: productBrandsData, error: productBrandsError } = productBrands;
   const { data: brandTypesData, error: brandTypesError } = brandTypes;
 
+  if (!user) return null;
   const isError =
     categoriesError || carInfosError || productBrandsError || brandTypesError;
 

@@ -280,7 +280,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         {productToEdit ? " Edit" : "Create"} a porduct
       </Button>
 
-      <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14 pb-0 sm:pb-0">
+      <DialogComponent.Content className="  max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14 pb-0 sm:pb-0">
         <DialogComponent.Header>
           <DialogComponent.Title>Product form</DialogComponent.Title>
           <DialogComponent.Description>
@@ -559,30 +559,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     </span>
                   </FormDescription>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="isMain"
-              render={({ field }) => (
-                <FormItem className="flex flex-row h-fit  items-center justify-between rounded-lg border p-3 shadow-sm w-full">
-                  <div className="space-y-0.5 ">
-                    <FormLabel>Main image?</FormLabel>
-                    <FormDescription>
-                      Set the image as the main image.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      disabled
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      aria-readonly
-                    />
-                  </FormControl>
                 </FormItem>
               )}
             />
