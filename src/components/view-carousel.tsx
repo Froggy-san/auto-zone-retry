@@ -61,7 +61,7 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
       <Carousel id="carousel" setApi={setApi}>
         <Button
           variant="secondary"
-          className="absolute right-5 top-10 z-50 h-7 w-7 cursor-pointer rounded-full bg-muted p-0"
+          className="absolute right-1 top-5 z-50 h-7 w-7 cursor-pointer rounded-full bg-muted p-0"
           onClick={closeFunction} // Ensure this button calls the handleClose function
         >
           <X size={16} />
@@ -109,11 +109,11 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
             }
           })}
         </CarouselContent>
-        <CarouselPrevious className="left-2" />
-        <CarouselNext className="right-2" />
-        <div className="absolute bottom-0 left-1/2 z-50 translate-x-[-50%] rounded-tl-lg rounded-tr-lg bg-primary-foreground p-2 py-2 text-center text-sm font-semibold text-muted-foreground">
+        <CarouselPrevious variant="default" className="left-2" />
+        <CarouselNext variant="default" className="right-2" />
+        {/* <div className="absolute bottom-0 left-1/2 z-50 translate-x-[-50%] rounded-tl-lg rounded-tr-lg bg-primary-foreground p-2 py-2 text-center text-sm font-semibold text-muted-foreground">
           Slide {current} of {count}
-        </div>
+        </div> */}
       </Carousel>
     </motion.div>
   );

@@ -77,7 +77,7 @@ const CarDeleteDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className=" gap-y-2">
+        <DialogFooter className=" gap-y-2 ">
           <Button
             onClick={() => setOpen(false)}
             type="reset"

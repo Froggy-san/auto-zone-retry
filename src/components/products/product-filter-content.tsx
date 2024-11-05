@@ -199,9 +199,8 @@ function AvailableSwitch({
   isAvailable: string;
   className?: string;
 }) {
-  const [check, setCheck] = useState(false);
-
   const available = JSON.parse(isAvailable);
+  const [check, setCheck] = useState(Boolean(available));
 
   const searchParams = useSearchParams();
   const pathname = usePathname();

@@ -32,7 +32,7 @@ const page = ({ searchParams }: { searchParams: SearchParams }) => {
       <h2 className="  font-semibold text-4xl">MANAGE GRAGE.</h2>
 
       <section className=" sm:pl-4 mt-12">
-        <CarManagement />
+        {/* <CarManagement />
         <div className=" max-w-[97%]  mx-auto mt-10  ">
           <Suspense
             fallback={<Spinner className=" h-[300px]" size={30} />}
@@ -48,7 +48,7 @@ const page = ({ searchParams }: { searchParams: SearchParams }) => {
               color={color}
             />
           </Suspense>
-        </div>
+        </div> */}
       </section>
     </main>
   );
