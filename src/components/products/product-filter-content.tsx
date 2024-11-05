@@ -206,13 +206,14 @@ function AvailableSwitch({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-
   const params = new URLSearchParams(searchParams);
+
+  const page = searchParams.get("page") || "";
 
   function handleSwitch() {
     if (check) {
+      if (page) params.set("page", "1");
       params.set("isAvailable", String(!available));
-
       router.replace(`${pathname}?${String(params)}`);
     }
   }
@@ -239,9 +240,10 @@ function AvailableSwitch({
         onClick={() => {
           if (check) {
             params.delete("isAvailable");
+            if (page) params.set("page", "1");
           } else {
             params.set("isAvailable", String(available));
-            params.set("page", "1");
+            if (page) params.set("page", "1");
           }
           setCheck((checked) => !checked);
           router.replace(`${pathname}?${String(params)}`);
