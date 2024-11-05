@@ -69,7 +69,7 @@ function DeleteDialog({ carId }: { carId: string | undefined }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="destructive">
+        <Button size="sm" variant="destructive" className="  w-full">
           {isLoading ? <Spinner className=" h-full" size={12} /> : "Delete"}
         </Button>
       </DialogTrigger>

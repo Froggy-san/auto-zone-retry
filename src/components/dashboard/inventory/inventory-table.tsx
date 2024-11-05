@@ -310,7 +310,9 @@ function ProductsDialog({
         <div className="border-b flex flex-wrap gap-3  pb-3  text-sm">
           {/* <div className=" flex  flex-col sm:flex-row items-center  gap-3 "> */}
           <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
-            <label htmlFor="price">Price per unit</label>
+            <label className=" text-xs " htmlFor="price">
+              Price per unit
+            </label>
             <Input
               id="price"
               placeholder="Price per unit"
@@ -319,32 +321,44 @@ function ProductsDialog({
             />
           </div>
           <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
-            <label htmlFor="price">Discount</label>
+            <label className=" text-xs " htmlFor="discount">
+              Discount
+            </label>
             <Input
+              id="discount"
               placeholder="Discount..."
               value={discountValue}
               onChange={(e) => setDiscountValue(e.target.value)}
             />
           </div>
           <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
-            <label htmlFor="price">Count</label>
+            <label className=" text-xs " htmlFor="count">
+              Count
+            </label>
             <Input
+              id="count"
               placeholder="Count..."
               value={countValue}
               onChange={(e) => setCountValue(e.target.value)}
             />
           </div>
           <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
-            <label htmlFor="price">Total price after discount</label>
+            <label className=" text-xs " htmlFor="totalPrice">
+              Total price after discount
+            </label>
             <Input
+              id="totalPrice"
               placeholder="Total price after discount..."
               value={totalPriceAfterDiscountValue}
               onChange={(e) => setTotalPriceAfterDiscount(e.target.value)}
             />
           </div>
           <div className=" space-y-2   w-[48%] sm:w-[32%]  mb-auto">
-            <label htmlFor="price">Name</label>
+            <label className=" text-xs " htmlFor="name">
+              Name
+            </label>
             <Input
+              id="name"
               placeholder="Total price after discount..."
               value={nameValue}
               onChange={(e) => setNameValue(e.target.value)}
@@ -359,7 +373,9 @@ function ProductsDialog({
               onClick={() => setHasReturnedValue((is) => !is)}
               disabled={!checked}
             />
-            <Label htmlFor="airplane-mode">Has it returned</Label>
+            <Label className=" text-xs " htmlFor="airplane-mode">
+              Has it returned
+            </Label>
             <Checkbox
               checked={checked}
               onClick={() => {
