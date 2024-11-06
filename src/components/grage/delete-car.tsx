@@ -21,7 +21,7 @@ const DeleteCar = ({ carId }: { carId: string | undefined }) => {
   return (
     <div
       className={
-        "flex  flex-col  gap-y-2 xs:flex-row xs:items-center justify-between rounded-lg border p-3 shadow-sm gap-x-7"
+        "flex  flex-col w-full  gap-y-2 xs:flex-row xs:items-center justify-between rounded-lg border p-3 shadow-sm gap-x-7"
       }
     >
       <div className="space-y-0.5   ">

@@ -1,10 +1,14 @@
+import Collapse, {
+  CollapseButton,
+  CollapseContant,
+} from "@components/collapse";
 import { formatCurrency } from "@lib/helper";
 import { ProductById } from "@lib/types";
 import React from "react";
 
 const ProdcutViewDetials = ({ product }: { product: ProductById }) => {
   return (
-    <main className=" mt-10">
+    <main className=" my-10">
       <h1 className=" text-center text-3xl font-semibold tracking-wide">
         {product.name}
       </h1>
@@ -39,7 +43,12 @@ const ProdcutViewDetials = ({ product }: { product: ProductById }) => {
 
         <div>
           <h2 className=" text-xl">Description</h2>
-          <p className=" text-muted-foreground">{product.description}</p>
+          <Collapse textLenght={1200}>
+            <CollapseContant className="mt-16 text-lg ">
+              {product.description}
+            </CollapseContant>
+            <CollapseButton arrowPositionX="right" />
+          </Collapse>
         </div>
       </section>
     </main>

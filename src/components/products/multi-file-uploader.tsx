@@ -3,7 +3,12 @@ import { Checkbox } from "@components/ui/checkbox";
 import { FilesWithPreview, ProductImage } from "@lib/types";
 import { cn } from "@lib/utils";
 import { ImageUp, X } from "lucide-react";
-
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import React, { SetStateAction, useCallback, useEffect } from "react";
 import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 
@@ -100,20 +105,34 @@ export function MultiFileUploader({
                 alt="Image selected"
                 className=" max-h-[250px] sm:max-h-[120px]"
               />
-              <Checkbox
-                disabled={disabled}
-                checked={
-                  (typeof isMainImage !== "number" &&
-                    isMainImage &&
-                    isMainImage.id === media.id) ||
-                  false
-                }
-                onClick={() => {
-                  if (isMainImage === media) setIsMainImage(null);
-                  else setIsMainImage(media);
-                }}
-                className=" absolute left-1 bottom-1 "
-              />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Checkbox
+                      disabled={disabled}
+                      checked={
+                        (typeof isMainImage !== "number" &&
+                          isMainImage &&
+                          isMainImage.id === media.id) ||
+                        false
+                      }
+                      onClick={() => {
+                        if (isMainImage === media) setIsMainImage(null);
+                        else setIsMainImage(media);
+                      }}
+                      className={` absolute left-1 bottom-1 ${
+                        typeof isMainImage !== "number" &&
+                        isMainImage &&
+                        isMainImage.id === media.id &&
+                        "bg-primary"
+                      } `}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Set as main image</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </li>
           ))}
 
@@ -142,7 +161,32 @@ export function MultiFileUploader({
                 alt="Image selected"
                 className="max-h-[250px] sm:max-h-[120px]"
               />
-              <Checkbox
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Checkbox
+                      disabled={disabled}
+                      checked={
+                        typeof isMainImage === "number" && isMainImage === i
+                      }
+                      onClick={() => {
+                        if (isMainImage === i) setIsMainImage(null);
+                        else setIsMainImage(i);
+                      }}
+                      className={`${
+                        typeof isMainImage === "number" &&
+                        isMainImage === i &&
+                        "bg-primary"
+                      } absolute left-1 bottom-1`}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Set as main image</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              {/* <Checkbox
                 disabled={disabled}
                 checked={typeof isMainImage === "number" && isMainImage === i}
                 onClick={() => {
@@ -150,7 +194,7 @@ export function MultiFileUploader({
                   else setIsMainImage(i);
                 }}
                 className=" absolute left-1 bottom-1 "
-              />
+              /> */}
             </li>
           ))}
         </ul>
