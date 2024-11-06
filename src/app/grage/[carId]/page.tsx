@@ -12,6 +12,14 @@ import {
 import React from "react";
 import CarManagement from "@components/grage/car-management";
 import DeleteCar from "@components/grage/delete-car";
+import { Card } from "@components/ui/card";
+import { ArrowLeft, Blend, Car } from "lucide-react";
+import NoteDialog from "@components/grage/note-dialog";
+import { VscTypeHierarchySuper } from "react-icons/vsc";
+import { TbBoxModel2 } from "react-icons/tb";
+import { BsFillPersonLinesFill } from "react-icons/bs";
+import { Button } from "@components/ui/button";
+import Link from "next/link";
 
 interface Params {
   carId: string;
@@ -38,180 +46,191 @@ const Page = async ({ params }: { params: Params }) => {
     <main className=" min-h-screen ">
       <FullImagesGallery images={images?.length ? images : STATIC_IMAGES} />
 
-      <section className="mt-10  space-y-40 px-2 sm:px-4 pb-10">
-        {/* ---- */}
-        <div className=" flex text-sm justify-between items-center">
-          <div>
-            Plate number:{" "}
-            <span className=" text-xs text-muted-foreground">
-              {car?.plateNumber}
-            </span>
-          </div>
-
-          <div className=" flex items-center gap-3">
-            Mark:{" "}
-            {carInfo?.carMaker.logo ? (
-              <img
-                src={carInfo.carMaker.logo}
-                className="  object-contain max-w-12 max-h-12"
+      <section className="mt-10   space-y-14   px-2 sm:px-4 pb-10">
+        {/* Car Information  starts*/}
+        <div className=" space-y-5">
+          <Button asChild variant="secondary" size="sm">
+            <Link href="/grage" className=" group">
+              <ArrowLeft
+                size={25}
+                className="  group-hover:-translate-x-1 transition-all"
               />
-            ) : (
-              <span className=" text-xs text-muted-foreground">Logo</span>
-            )}
-          </div>
-        </div>{" "}
-        {/* ---- */}
-        {/* Client */}
-        <div className=" space-y-7">
-          <h2 className=" font-semibold text-xl">Clinet:</h2>
-          <div>
-            <div className=" ">
-              <span>Name:</span>{" "}
-              <span className=" text-sm text-muted-foreground break-all">
-                {client.name}
-              </span>
-            </div>
-
-            <div>
-              <span>Email: </span>{" "}
-              <span className=" text-sm text-muted-foreground break-all">
-                {client.email}
-              </span>
-            </div>
-
-            <div className=" flex items-center   flex-wrap">
-              <span>Phones: </span>
-              <div className="">
-                {clinetPhones.length ? (
-                  clinetPhones.map((phone, i) => (
-                    <span
-                      key={i}
-                      className=" text-xs  ml-3 text-muted-foreground"
-                    >
-                      {i + 1}: {phone.number}
-                    </span>
-                  ))
-                ) : (
-                  <span> - </span>
-                )}
+            </Link>
+          </Button>
+          <h2 className=" text-2xl font-semibold">Car information.</h2>
+          <div className=" grid  gap-5 grid-cols-1 md:grid-cols-2">
+            <Card className="  p-5  text-sm relative">
+              <div className=" w-14 h-14 rounded-full    bg-dashboard-orange  text-dashboard-text-orange  flex items-center justify-center mb-3">
+                <Car size={30} />
               </div>
-            </div>
-          </div>
-        </div>
-        {/* Client */}
-        {/* Car Information starts*/}
-        <div className="space-y-7">
-          <h2 className=" text-xl font-semibold">Car Information:</h2>
 
-          <div className=" text-sm ">
-            <div className=" flex flex-wrap items-center gap-5  ">
               <div>
-                <span>Plate number: </span>
-                <span className=" text-xs text-muted-foreground break-all">
+                Plate number:{" "}
+                <span className=" text-muted-foreground">
                   {car?.plateNumber}
                 </span>
               </div>
-
               <div>
-                <span>Chassis number: </span>
-                <span className=" text-xs text-muted-foreground break-all">
+                Motor number:{" "}
+                <span className=" text-muted-foreground">
                   {car?.motorNumber}
                 </span>
               </div>
-
               <div>
-                <span>Motor number: </span>
-                <span className=" text-xs text-muted-foreground break-all">
-                  {car?.motorNumber}
+                Chassis number:{" "}
+                <span className=" text-muted-foreground">
+                  {car?.chassisNumber}
                 </span>
               </div>
-
-              <div className=" flex items-center gap-3 ">
-                <span>Color: </span>
-                <span
-                  className=" h-7 w-7 rounded-lg border"
-                  style={{ backgroundColor: `${car?.color}` }}
+              <div className=" flex items-center gap-3">
+                Color:{" "}
+                <div
+                  className="  w-6 h-6 rounded-full border"
+                  style={{ backgroundColor: `${car?.color || "black"}` }}
                 />
               </div>
-            </div>
+              <NoteDialog
+                title="Car note."
+                content={<p>{car?.notes}</p>}
+                className=" absolute right-5 top-7"
+              />
+            </Card>
 
-            <div className=" mt-7">
-              <h3 className=" font-semibold text-lg">Notes:</h3>
-              <p className=" break-all">{car?.notes}</p>
-            </div>
+            <Card className="  p-5  text-sm relative">
+              <div className=" w-14 h-14 rounded-full  bg-dashboard-green text-dashboard-text-green  flex items-center justify-center mb-3">
+                <VscTypeHierarchySuper size={30} />
+              </div>
+
+              <div>
+                Generation:{" "}
+                <span className=" text-muted-foreground break-all">
+                  {carInfo?.carGeneration.name}
+                </span>
+              </div>
+
+              {carInfo && carInfo.carGeneration.notes.length < 300 ? (
+                <div className=" mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
+                  Note:{" "}
+                  <p className=" text-muted-foreground break-all">
+                    {carInfo?.carGeneration.notes}
+                  </p>
+                </div>
+              ) : (
+                <NoteDialog
+                  title="Car model note."
+                  content={<p>{carInfo?.carGeneration.notes}</p>}
+                  className=" absolute right-5 top-7"
+                />
+              )}
+            </Card>
+
+            <Card className="  p-5  text-sm relative">
+              <div className=" w-14 h-14 rounded-full   bg-dashboard-blue text-dashboard-text-blue  flex items-center justify-center mb-3">
+                <Blend size={30} />
+              </div>
+
+              <div>
+                Maker:{" "}
+                <span className=" text-muted-foreground break-all">
+                  {carInfo?.carMaker.name}
+                </span>
+              </div>
+              <div className=" flex items-center mt-3 gap-3">
+                Logo:{" "}
+                {carInfo?.carMaker.logo ? (
+                  <img
+                    src={carInfo.carMaker.logo}
+                    alt="Car logo"
+                    className=" h-10 w-10 object-contain"
+                  />
+                ) : (
+                  <span>Logo</span>
+                )}
+              </div>
+              <NoteDialog
+                title="Car maker note."
+                content={<p>{carInfo?.carMaker.notes}</p>}
+                className=" absolute right-5 top-7"
+              />
+            </Card>
+
+            <Card className="  p-5  text-sm relative">
+              <div className=" w-14 h-14 rounded-full   bg-dashboard-indigo text-dashboard-text-indigo  flex items-center justify-center mb-3">
+                <TbBoxModel2 size={30} />
+              </div>
+
+              <div>
+                Model:{" "}
+                <span className=" text-muted-foreground break-all">
+                  {carInfo?.carModel.name}
+                </span>
+              </div>
+
+              {carInfo && carInfo.carModel.notes.length < 300 ? (
+                <div className=" mt-3 flex  flex-col sm:flex-row sm:items-center gap-2">
+                  Note:{" "}
+                  <p className=" text-muted-foreground break-all">
+                    {carInfo?.carModel.notes}
+                  </p>
+                </div>
+              ) : (
+                <NoteDialog
+                  title="Car model note."
+                  content={<p>{carInfo?.carModel.notes}</p>}
+                  className=" absolute right-5 top-7"
+                />
+              )}
+            </Card>
           </div>
-          {/* Maker Starts */}
-          <div className=" space-y-5 ">
-            <h3 className="  font-semibold">Car maker:</h3>
-
-            <div className=" text-sm">
-              Name:{" "}
-              <span className=" text-xs text-muted-foreground break-all">
-                {carInfo?.carMaker.name}
-              </span>
-            </div>
-
-            <div className=" text-sm">
-              Notes:{" "}
-              <span className=" text-xs text-muted-foreground break-all">
-                {carInfo?.carMaker.notes}
-              </span>
-            </div>
-          </div>
-          {/* Maker Ends */}
-
-          {/* Model Starts */}
-          <div className=" space-y-5 ">
-            <h3 className=" font-semibold">Car model:</h3>
-
-            <div className=" text-sm">
-              Name:{" "}
-              <span className=" text-xs text-muted-foreground break-all">
-                {carInfo?.carModel.name}
-              </span>
-            </div>
-
-            <div className=" text-sm">
-              Notes:{" "}
-              <span className=" text-xs text-muted-foreground break-all">
-                {carInfo?.carModel.notes}
-              </span>
-            </div>
-          </div>
-          {/* Model Ends */}
-
-          {/* Generation Starts */}
-          <div className=" space-y-5 ">
-            <h3 className=" font-semibold">Car generation:</h3>
-
-            <div className=" text-sm">
-              Name:{" "}
-              <span className=" text-xs text-muted-foreground break-all">
-                {carInfo?.carGeneration.name}
-              </span>
-            </div>
-
-            <div className=" text-sm">
-              Notes:{" "}
-              <span className=" text-xs text-muted-foreground break-all">
-                {carInfo?.carGeneration.notes}
-              </span>
-            </div>
-          </div>
-          {/* Generation Ends */}
         </div>
         {/* Car Information  ends*/}
+
+        <div className=" space-y-5">
+          <h2 className=" text-2xl font-semibold">Cleint.</h2>
+          <Card className=" p-5  text-sm relative max-w-[800px] mx-auto">
+            <div className=" w-14 h-14 rounded-full     bg-muted   flex items-center justify-center mb-3">
+              <BsFillPersonLinesFill size={30} />
+            </div>
+
+            <div className=" space-y-2">
+              <div>
+                Name:{" "}
+                <span className=" text-muted-foreground">{client.name}</span>
+              </div>
+
+              <div>
+                Email:{" "}
+                <span className=" text-muted-foreground">{client.email}</span>
+              </div>
+
+              <div className=" space-y-3">
+                <h3 className=" font-semibold">Phones:</h3>
+                <ul className="list-decimal list-inside flex gap-3 flex-wrap text-muted-foreground ">
+                  {clinetPhones.length ? (
+                    clinetPhones.map((phone, i) => (
+                      <li key={i}>{phone.number}</li>
+                    ))
+                  ) : (
+                    <span className=" text-muted-foreground">No phones.</span>
+                  )}
+                </ul>
+              </div>
+            </div>
+          </Card>
+        </div>
+
         <div className=" space-y-5   ">
           <h2 className=" text-xl font-semibold">Actions</h2>
-
-          <DeleteCar carId={car?.id.toString()} />
-          <CarManagement useParams carToEdit={car} />
+          <div className=" flex flex-col sm:flex-row items-center gap-3">
+            <DeleteCar carId={car?.id.toString()} />
+            <CarManagement useParams carToEdit={car} />
+          </div>
         </div>
         {/* Related */}
         {clientOtherCars.length ? (
           <div>
             <Accordion type="single" collapsible>
-              <AccordionItem value="item-1">
+              <AccordionItem value="item-1" className=" border-none">
                 <AccordionTrigger className="font-semibold  text-xl">
                   Related cars:
                 </AccordionTrigger>
