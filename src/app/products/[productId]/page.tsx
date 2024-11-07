@@ -7,21 +7,19 @@ import { STATIC_IMAGES } from "@lib/constants";
 import { ProductImage } from "@lib/types";
 import Link from "next/link";
 import React from "react";
+import { getCurrentUser } from "@lib/actions/authActions";
 
 interface Params {
   productId: string;
 }
 
 const ProductView = async ({ params }: { params: Params }) => {
-  // const [product, productImages] = await Promise.all([
-  //   getProductByIdAction(params.productId),
-  //   getProductsImageAction(params.productId),
-  // ]);
+  const [product, user] = await Promise.all([
+    getProductByIdAction(params.productId),
+    getCurrentUser(),
+  ]);
 
-  const { data: productData, error } = await getProductByIdAction(
-    params.productId
-  );
-
+  const { data: productData, error } = product;
   // const { data: images, error: productImagesError } = productImages;
   // const { data: productData, error: producError } = product;
 
@@ -33,6 +31,8 @@ const ProductView = async ({ params }: { params: Params }) => {
   const imageUrls = productData?.productImages?.map(
     (image: ProductImage) => image.imageUrl
   );
+
+  console.log(imageUrls, "WWWW");
   if (!productData)
     return (
       <p>
@@ -47,7 +47,7 @@ const ProductView = async ({ params }: { params: Params }) => {
   return (
     <div>
       <FullImagesGallery
-        images={imageUrls || STATIC_IMAGES}
+        images={imageUrls.length ? imageUrls : STATIC_IMAGES}
         productId={productData.productId}
       />
       <div className=" text-xs  text-muted-foreground my-4 text-right px-3">
@@ -59,13 +59,15 @@ const ProductView = async ({ params }: { params: Params }) => {
           <i>Out of stock</i>
         )}
       </div>
-      <ProdcutViewDetials product={productData} />
+      <ProdcutViewDetials user={user} product={productData} />
 
-      <ProductManagement
-        useParams
-        className=" w-[97%] mx-auto mb-6"
-        productToEdit={productData}
-      />
+      {user ? (
+        <ProductManagement
+          useParams
+          className=" w-[97%] mx-auto mb-6"
+          productToEdit={productData}
+        />
+      ) : null}
     </div>
   );
 };

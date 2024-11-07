@@ -46,18 +46,21 @@ const DeleteProductDialog = ({
 
   const checkIfLastItem = useCallback(() => {
     const params = new URLSearchParams(searchParam);
-    if (pageSize !== undefined && pageSize === 1) {
+
+    if (pageSize === 1) {
       if (Number(currPage) === 1) {
         params.delete("categoryId");
         params.delete("productBrandId");
         params.delete("productTypeId");
         params.delete("name");
       }
-      if (Number(currPage) !== 1) {
+
+      if (Number(currPage) > 1) {
         params.set("page", String(Number(currPage) - 1));
       }
-      router.push(`${pathname}?${params.toString()}`);
     }
+
+    router.push(`${pathname}?${params.toString()}`);
   }, [productId, pageSize]);
 
   async function handleDelete() {

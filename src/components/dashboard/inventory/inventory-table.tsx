@@ -109,33 +109,6 @@ const InventoryTable = ({
                 currPage={currPage}
                 currPageSize={currPageSize}
               />
-              // <TableRow key={i}>
-              //   <TableCell className="font-medium">{proBought.id}</TableCell>
-              //   <TableCell>{proBought.shopName}</TableCell>
-              //   <TableCell className="text-right ">
-              //     {proBought.dateOfOrder}
-              //   </TableCell>
-
-              //   <TableCell>
-              //     {" "}
-              //     <div className=" flex items-center gap-2 justify-end">
-              //       {/* <ShowCars client={client} /> */}
-
-              //       {/* <Button
-              //         size="sm"
-              //         className="   h-6 px-2 py-3 text-xs"
-              //         variant="outline"
-              //       >
-              //         Show
-              //       </Button> */}
-              //       <TableActions
-              //         currPage={currPage}
-              //         proBought={proBought}
-              //         currPageSize={currPageSize}
-              //       />
-              //     </div>
-              //   </TableCell>
-              // </TableRow>
             ))
           : null}
       </TableBody>
@@ -810,8 +783,6 @@ function DeleteRestockingDialog({
   restockingBill: ProductBoughtData;
   pageSize: number;
 }) {
-  const isFirstPage = currPage === "1";
-
   const { toast } = useToast();
   const searchParam = useSearchParams();
   const router = useRouter();
@@ -820,12 +791,14 @@ function DeleteRestockingDialog({
   function checkIfLastItem() {
     const params = new URLSearchParams(searchParam);
     if (pageSize === 1) {
-      params.delete("dateOfOrderTo");
-      params.delete("dateOfOrderFrom");
-      params.delete("minTotalPrice");
-      params.delete("maxTotalPrice");
-      params.delete("shopName");
-      if (!isFirstPage) {
+      if (Number(currPage) === 1 && pageSize === 1) {
+        params.delete("dateOfOrderTo");
+        params.delete("dateOfOrderFrom");
+        params.delete("minTotalPrice");
+        params.delete("maxTotalPrice");
+        params.delete("shopName");
+      }
+      if (Number(currPage) > 1) {
         params.set("page", String(Number(currPage) - 1));
       }
       router.push(`${pathname}?${params.toString()}`);
