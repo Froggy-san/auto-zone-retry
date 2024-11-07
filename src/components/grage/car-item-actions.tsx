@@ -41,11 +41,12 @@ export default function CarAction({
         params.delete("carInfoId");
         params.delete("clientId");
       }
-      if (Number(currPage) !== 1) {
+
+      if (Number(currPage) > 1) {
         params.set("page", String(Number(currPage) - 1));
       }
-      router.push(`${pathname}?${params.toString()}`);
     }
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }, [carId, pageSize]);
 
   if (isLoading)

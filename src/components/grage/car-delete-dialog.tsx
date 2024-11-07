@@ -48,7 +48,7 @@ const CarDeleteDialog = ({
       checkIfLastItem();
       queryClient.invalidateQueries({ queryKey: ["carCount"] });
       setOpen(false);
-
+      setIsLoading?.(false);
       toast({
         variant: "default",
         title: "Success.",
@@ -58,6 +58,7 @@ const CarDeleteDialog = ({
       });
     } catch (error: any) {
       console.log(error);
+      setIsLoading?.(false);
       toast({
         variant: "destructive",
         title: "Something went wrong.",

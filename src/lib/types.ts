@@ -386,7 +386,7 @@ export interface ProductById {
   salePrice: number;
   stock: number;
   isAvailable: boolean;
-  carInfos: [];
+  carInfos: CarInfoProps[];
   productImages: ProductImage[];
 }
 

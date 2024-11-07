@@ -18,21 +18,18 @@ const ProductManagement = async ({
   className?: string;
   useParams?: boolean;
 }) => {
-  const [categories, carInfos, productBrands, brandTypes, user] =
-    await Promise.all([
-      getAllCategoriesAction(),
-      getAllCarsInfoAction(),
-      getAllProductBrandsAction(),
-      getAllProductTypesAction(),
-      getCurrentUser(),
-    ]);
+  const [categories, carInfos, productBrands, brandTypes] = await Promise.all([
+    getAllCategoriesAction(),
+    getAllCarsInfoAction(),
+    getAllProductBrandsAction(),
+    getAllProductTypesAction(),
+  ]);
 
   const { data: categoriesData, error: categoriesError } = categories;
   const { data: carInfosData, error: carInfosError } = carInfos;
   const { data: productBrandsData, error: productBrandsError } = productBrands;
   const { data: brandTypesData, error: brandTypesError } = brandTypes;
 
-  if (!user) return null;
   const isError =
     categoriesError || carInfosError || productBrandsError || brandTypesError;
 
