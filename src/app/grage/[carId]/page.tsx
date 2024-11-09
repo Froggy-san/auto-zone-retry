@@ -20,6 +20,7 @@ import { TbBoxModel2 } from "react-icons/tb";
 import { BsFillPersonLinesFill } from "react-icons/bs";
 import { Button } from "@components/ui/button";
 import Link from "next/link";
+import ServiceManagement from "@components/grage/add-service";
 
 interface Params {
   carId: string;
@@ -35,8 +36,13 @@ const Page = async ({ params }: { params: Params }) => {
   const car = data.cars.find((car) => car.id === Number(params.carId));
   const images = car?.carImages.map((image) => image.imagePath);
   const carInfo = car?.carInfo;
-  const client = { name: data.name, email: data.email };
   const clinetPhones = data.phones;
+  const client = {
+    name: data.name,
+    email: data.email,
+    id: car?.clientId,
+    phones: clinetPhones,
+  };
 
   const clientOtherCars = data.cars.filter(
     (car) => car.id !== Number(params.carId)
@@ -219,11 +225,23 @@ const Page = async ({ params }: { params: Params }) => {
           </Card>
         </div>
 
-        <div className=" space-y-5   ">
+        <div className=" space-y-5 ">
           <h2 className=" text-xl font-semibold">Actions</h2>
           <div className=" flex flex-col sm:flex-row items-center gap-3">
-            <DeleteCar carId={car?.id.toString()} />
-            <CarManagement useParams carToEdit={car} />
+            <CarManagement
+              useParams
+              carToEdit={car}
+              className=" sm:flex-col   sm:items-stretch lg:flex-row lg:items-center"
+            />
+            <DeleteCar
+              carId={car?.id.toString()}
+              className=" sm:flex-col   sm:items-stretch lg:flex-row lg:items-center"
+            />
+            <ServiceManagement
+              car={car}
+              client={client}
+              className=" sm:flex-col   sm:items-stretch lg:flex-row lg:items-center"
+            />
           </div>
         </div>
         {/* Related */}

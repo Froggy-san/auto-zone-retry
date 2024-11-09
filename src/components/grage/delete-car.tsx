@@ -17,12 +17,20 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
 import { useRouter } from "next/navigation";
-const DeleteCar = ({ carId }: { carId: string | undefined }) => {
+import { cn } from "@lib/utils";
+const DeleteCar = ({
+  carId,
+  className,
+}: {
+  carId: string | undefined;
+  className?: string;
+}) => {
   return (
     <div
-      className={
-        "flex  flex-col w-full  gap-y-2 xs:flex-row xs:items-center justify-between rounded-lg border p-3 shadow-sm gap-x-7"
-      }
+      className={cn(
+        "flex  flex-col w-full  gap-y-2 xs:flex-row xs:items-center justify-between rounded-lg border p-3 shadow-sm gap-x-7",
+        className
+      )}
     >
       <div className="space-y-0.5   ">
         <label className=" font-semibold">Products</label>
