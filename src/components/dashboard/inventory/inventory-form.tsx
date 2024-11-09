@@ -35,10 +35,6 @@ import SuccessToastDescription, {
 
 import useObjectCompare from "@hooks/use-compare-objs";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import {
-  createClientAction,
-  editClientAction,
-} from "@lib/actions/clientActions";
 import { RotateCcw } from "lucide-react";
 import {
   createProductBoughtBulkAction,
@@ -504,7 +500,7 @@ const InventoryForm = ({
                 </div>
 
                 {fields.map((field, i) => (
-                  <React.Fragment key={i}>
+                  <React.Fragment key={field.id}>
                     <h2>{i + 1}.</h2>
                     <motion.div
                       initial={{

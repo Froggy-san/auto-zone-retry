@@ -230,6 +230,43 @@ export const CreateProductBoughtSchema = z.object({
     .max(77, { message: "Shop name is too long." }),
 });
 
+export const ProductToSellSchema = z
+  .object({
+    pricePerUnit: z.number().min(1, { message: "Price is required" }),
+    discount: z.number(),
+    count: z.number().min(1, { message: "Count is required" }),
+    note: z.string(),
+    productId: z.number().min(1, { message: "Product is required" }),
+  })
+  .refine((data) => data.pricePerUnit * data.count - data.discount > 0, {
+    message: "Discount must be less than the total amount",
+    path: ["discount"],
+  });
+
+export const CreateServiceFeeSchema = z
+  .object({
+    categoryId: z.number().min(1, { message: "Category is required." }),
+    price: z.number().min(1, { message: "Price is required" }),
+    discount: z.number(),
+    notes: z.string(),
+  })
+  .refine((data) => data.price > data.discount, {
+    message: "Discount amount can't exceed the price amount.",
+    path: ["discount"],
+  });
+
+export const CreateServiceSchema = z.object({
+  clientId: z.number().min(1, { message: "Client is required." }),
+  carId: z.number().min(1, { message: "car is required." }),
+  serviceStatusId: z.number(),
+  note: z.string(),
+  productsToSell: ProductToSellSchema.array(),
+  serviceFees: CreateServiceFeeSchema.array(),
+  // .min(1, {
+  //   message: "Service must have atleast on serivce fee.",
+  // }),
+});
+
 export interface signUpProps {
   username: string;
   email: string;
@@ -495,6 +532,12 @@ export interface RestockingBill {
   productsBought: ProductBought[];
 }
 
+export interface ServiceStatus {
+  id: number;
+  name: string;
+  description: null | string;
+}
+
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
 export type CarGeneration = z.infer<typeof CarGenerationsSchema>;
 export type CarInfo = z.infer<typeof CarInfoSchema>;
@@ -506,3 +549,4 @@ export type CreateCarInfoSchema = z.infer<typeof CreateCarInfoSchema>;
 export type CreateClient = z.infer<typeof CreateClientSchema>;
 export type CreateCar = z.infer<typeof CreateCarSchema>;
 export type CreateProductBought = z.infer<typeof CreateProductBoughtSchema>;
+export type CreateService = z.infer<typeof CreateServiceSchema>;
