@@ -48,7 +48,13 @@ import { cn } from "@lib/utils";
 import { ComboBox } from "@components/combo-box";
 import { ProductsComboBox } from "@components/proudcts-combo-box";
 import { createServiceAction } from "@lib/actions/serviceActions";
-
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import Alert from "@components/alert";
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
     value
@@ -86,10 +92,10 @@ const ServicesForm = ({
   const edit = searchParam.get("edit") ?? "";
 
   const [isOpen, setIsOpen] = useState(false);
-
+  const [currTab, setCurrTab] = useState("item-1");
   const { toast } = useToast();
 
-  const isEditing = edit ? true : false || isOpen;
+  // const isEditing = edit ? true : false || isOpen;
 
   const defaultValues = {
     clientId: (client && client.id) || 0,
@@ -124,12 +130,45 @@ const ServicesForm = ({
     remove: removeProduct,
   } = useFieldArray({ name: "productsToSell", control: form.control });
 
+  console.log(form.formState.errors, "ERRORS");
+
+  const errors = form.formState.errors;
   // checking if the user changet the forms data in order to enable the user to change it. if not we check if they deleted any images as shown below in the (disabled variable).
   const isEqual = useObjectCompare(defaultValues, form.getValues());
   // if the user didn't change the form's data nor did he delete any already uploaded images we want the submit button to be disabled to prevent any unnecessary api calls.
-  const disabled = isEqual;
+
+  const checkIfErrors =
+    errors.serviceStatusId ||
+    errors.serviceFees?.length ||
+    errors.productsToSell?.length
+      ? true
+      : false;
+  const disabled = isEqual || checkIfErrors;
 
   const isLoading = form.formState.isSubmitting;
+
+  const totalFees = serviceFees.reduce(
+    (acc, curr) => {
+      acc.totalPrice += curr.price;
+      acc.totalDiscount += curr.discount;
+
+      return acc;
+    },
+    {
+      totalPrice: 0,
+      totalDiscount: 0,
+    }
+  );
+
+  const totalProductSoldAmounts = productsToSell.reduce(
+    (acc, curr) => {
+      acc.totalPrice += curr.pricePerUnit * curr.count;
+      acc.totalDiscount += curr.discount;
+
+      return acc;
+    },
+    { totalPrice: 0, totalDiscount: 0 }
+  );
 
   const params = new URLSearchParams(searchParam);
   function handleOpen(filter: string) {
@@ -198,7 +237,7 @@ const ServicesForm = ({
     }
   }
   return (
-    <DialogComponent open={isEditing} onOpenChange={handleClose}>
+    <DialogComponent open={isOpen} onOpenChange={handleClose}>
       {open === undefined && (
         <Button
           onClick={() => handleOpen("open")}
@@ -210,14 +249,828 @@ const ServicesForm = ({
         </Button>
       )}
 
-      <DialogComponent.Content className="   max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
+      <DialogComponent.Content className="   max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:px-12">
         <DialogComponent.Header>
-          <DialogComponent.Title>Car creation</DialogComponent.Title>
+          <DialogComponent.Title className=" text-2xl">
+            Service
+          </DialogComponent.Title>
           <DialogComponent.Description>
-            Create a new car.
+            You are initiating a service for &lsquo;asaassa&lsquo; on the
+            vehicle with plate number &lsquo;123123131&lsquo;.
           </DialogComponent.Description>
         </DialogComponent.Header>
-        {/* <div className=" flex   justify-center   gap-5 my-10">
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full   "
+              defaultValue="item-1"
+              onValueChange={(value) => setCurrTab(value)}
+            >
+              <AccordionItem value="item-1">
+                <AccordionTrigger className="text-xl sm:text-2xl font-semibold">
+                  Service detials
+                </AccordionTrigger>
+                {errors.serviceStatusId && currTab !== "item-1" && (
+                  <Alert className=" mb-4">Attention needed!</Alert>
+                )}
+                <AccordionContent className=" px-1 space-y-4">
+                  <div className=" flex flex-col sm:flex-row  gap-2   space-y-4 sm:space-y-0">
+                    <FormItem className=" w-full  mb-auto">
+                      <Label>Client</Label>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          disabled
+                          placeholder="Client's data"
+                          value={`Name: ${client?.name}`}
+                          className=" flex-1
+                          "
+                          // {...field}
+                        />
+                      </FormControl>
+
+                      <FormDescription>Enter car&apos;s color.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+
+                    <FormItem className=" w-full mb-auto">
+                      <FormLabel>Car</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          disabled
+                          placeholder="Car "
+                          value={`Plate number: ${car?.plateNumber}`}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Enter the car this service was provided to.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+
+                    <FormField
+                      disabled={isLoading}
+                      control={form.control}
+                      name="serviceStatusId"
+                      render={({ field }) => (
+                        <FormItem className=" w-full mb-auto">
+                          <FormLabel>Service status</FormLabel>
+                          <FormControl>
+                            <ServiceStatusCombobox
+                              setValue={field.onChange}
+                              value={field.value}
+                              options={serviceStatus}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter car&apos;s chassis number.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    disabled={isLoading}
+                    control={form.control}
+                    name="note"
+                    render={({ field }) => (
+                      <FormItem className=" w-full mb-auto">
+                        <FormLabel>Notes</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            disabled={isLoading}
+                            placeholder="Car information..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Enter car&apos;s information.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-2">
+                <AccordionTrigger className="  text-xl sm:text-2xl font-semibold">
+                  Add service fees
+                </AccordionTrigger>
+                {errors.serviceFees?.length && currTab !== "item-2" && (
+                  <Alert className=" mb-4">Attention needed!</Alert>
+                )}
+                <AccordionContent className=" px-1  space-y-5">
+                  {/* Service fees starts */}
+                  <div className=" py-10 space-y-8">
+                    {/* <h2 className=" font-semibold text-3xl">Service fees</h2> */}
+                    {/* <div className="   flex  items-center py-2  justify-between">
+                      <h2 className=" font-semibold text-2xl xs:text-3xl">
+                        Service fees
+                      </h2>
+                      <Button
+                        size="sm"
+                        variant="orange"
+                        type="button"
+                        className=" text-xs"
+                        onClick={() =>
+                          append({
+                            price: 0,
+                            discount: 0,
+                            categoryId: 0,
+                            notes: "",
+                          })
+                        }
+                      >
+                        ADD A FEE
+                      </Button>
+                    </div> */}
+
+                    <ul className=" space-y-10">
+                      {fields.map((item, i) => (
+                        <motion.li
+                          initial={{
+                            opacity: 0.2,
+                            y: -20,
+                          }}
+                          animate={{
+                            opacity: 1,
+                            y: 0,
+                            transition: { duration: 0.6, type: "spring" },
+                          }}
+                          exit={{
+                            opacity: 0.2,
+                            y: -150,
+                            transition: { duration: 0.1, type: "spring" },
+                          }}
+                          key={item.id}
+                          className=" space-y-6"
+                        >
+                          <h2>{i + 1}.</h2>
+                          <div
+                            className={cn("space-y-4  relative ", {
+                              " border p-3 rounded-xl ": i !== 0,
+                            })}
+                          >
+                            {i !== 0 && (
+                              <button
+                                onClick={() => {
+                                  remove(i);
+                                }}
+                                className="  absolute  top-5 right-5 rounded-sm outline-none    opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  "
+                                type="button"
+                              >
+                                <Cross2Icon className="h-4 w-4" />
+                              </button>
+                            )}
+                            <div className=" flex  flex-col gap-2  sm:flex-row  ">
+                              <FormField
+                                disabled={isLoading}
+                                control={form.control}
+                                name={`serviceFees.${i}.price`}
+                                render={({ field }) => (
+                                  <FormItem className="  w-full mb-auto ">
+                                    <FormLabel>Price</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        disabled={isLoading}
+                                        value={field.value}
+                                        onChange={(e) => {
+                                          const inputValue = e.target.value;
+                                          if (/^\d*$/.test(inputValue)) {
+                                            field.onChange(Number(inputValue));
+                                          }
+                                        }}
+                                        placeholder="Additional notes..."
+                                        // {...field}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter the cost of each unit.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                disabled={isLoading}
+                                control={form.control}
+                                name={`serviceFees.${i}.discount`}
+                                render={({ field }) => (
+                                  <FormItem className="  w-full mb-auto">
+                                    <FormLabel>Discount</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        disabled={isLoading}
+                                        value={field.value}
+                                        onChange={(e) => {
+                                          const inputValue = e.target.value;
+                                          if (/^\d*$/.test(inputValue)) {
+                                            field.onChange(Number(inputValue));
+                                          }
+                                        }}
+                                        placeholder="Additional notes..."
+                                        // {...field}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter the total discount you got.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                disabled={isLoading}
+                                control={form.control}
+                                name={`serviceFees.${i}.categoryId`}
+                                render={({ field }) => (
+                                  <FormItem className=" w-full  mb-auto">
+                                    <FormLabel>Category</FormLabel>
+                                    <FormControl>
+                                      <ComboBox
+                                        setValue={field.onChange}
+                                        value={field.value}
+                                        options={categories}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter the amount you bought.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <FormField
+                              disabled={isLoading}
+                              control={form.control}
+                              name={`serviceFees.${i}.notes`}
+                              render={({ field }) => (
+                                <FormItem className=" w-full mb-auto">
+                                  <FormLabel>Notes</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      disabled={isLoading}
+                                      placeholder="Car information..."
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Enter car&apos;s information.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <div className=" text-sm text-muted-foreground">
+                              Total:{" "}
+                              {formatCurrency(
+                                serviceFees[i]?.price - serviceFees[i]?.discount
+                              )}
+                            </div>
+                          </div>
+                        </motion.li>
+                      ))}
+                      {serviceFees.length && (
+                        <Button
+                          size="sm"
+                          variant="orange"
+                          type="button"
+                          className="  w-full"
+                          onClick={() =>
+                            append({
+                              price: 0,
+                              discount: 0,
+                              categoryId: 0,
+                              notes: "",
+                            })
+                          }
+                        >
+                          ADD A FEE
+                        </Button>
+                      )}
+
+                      <div className="w-[300px]">
+                        <h3 className=" text-sm">Total:</h3>
+                        <div className=" py-2  border-b border-t space-y-2 text-xs text-muted-foreground">
+                          <div>
+                            Total fees: {formatCurrency(totalFees.totalPrice)}
+                          </div>
+                          <div>
+                            Total fees discount:{" "}
+                            {formatCurrency(totalFees.totalDiscount)}
+                          </div>
+                          <div className=" border-t pt-1">
+                            Net:{" "}
+                            {formatCurrency(
+                              totalFees.totalPrice - totalFees.totalDiscount
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </ul>
+                  </div>
+                  {/* Service fees ends */}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3">
+                <AccordionTrigger className="  text-xl sm:text-2xl font-semibold">
+                  Add product sold
+                </AccordionTrigger>
+                {errors.productsToSell?.length && currTab !== "item-3" && (
+                  <Alert className=" mb-4">Attention needed!</Alert>
+                )}
+                <AccordionContent className=" px-1 space-y-5">
+                  {/* products to sell starts */}
+                  <div className=" py-10 space-y-8">
+                    {/* <h2 className=" font-semibold text-3xl">Service fees</h2> */}
+                    {/* <div className="   flex  items-center py-2  justify-between">
+                      <h2 className=" font-semibold text-2xl xs:text-3xl">
+                        Products sold
+                      </h2>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        type="button"
+                        className=" text-xs"
+                        onClick={() =>
+                          appendProduct({
+                            pricePerUnit: 0,
+                            discount: 0,
+                            count: 0,
+                            productId: 0,
+                            note: "",
+                          })
+                        }
+                      >
+                        ADD PRODUCT SOLD
+                      </Button>
+                    </div> */}
+
+                    <ul className=" space-y-10">
+                      {productsToSellFields.map((item, i) => (
+                        <motion.li
+                          initial={{
+                            opacity: 0.2,
+                            y: -20,
+                          }}
+                          animate={{
+                            opacity: 1,
+                            y: 0,
+                            transition: { duration: 0.6, type: "spring" },
+                          }}
+                          exit={{
+                            opacity: 0.2,
+                            y: -150,
+                            transition: { duration: 0.1, type: "spring" },
+                          }}
+                          key={item.id}
+                          className=" space-y-6"
+                        >
+                          <h2>{i + 1}.</h2>
+                          <div
+                            className={cn(
+                              "space-y-4 border p-3 rounded-xl  relative "
+                            )}
+                          >
+                            <button
+                              onClick={() => {
+                                removeProduct(i);
+                              }}
+                              className="  absolute  top-5 right-5 rounded-sm outline-none    opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  "
+                              type="button"
+                            >
+                              <Cross2Icon className="h-4 w-4" />
+                            </button>
+
+                            <div className=" flex  flex-col gap-2  sm:flex-row  ">
+                              <FormField
+                                disabled={isLoading}
+                                control={form.control}
+                                name={`productsToSell.${i}.pricePerUnit`}
+                                render={({ field }) => (
+                                  <FormItem className="  w-full mb-auto ">
+                                    <FormLabel>Price per unit</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        disabled={isLoading}
+                                        value={field.value}
+                                        onChange={(e) => {
+                                          const inputValue = e.target.value;
+                                          if (/^\d*$/.test(inputValue)) {
+                                            field.onChange(Number(inputValue));
+                                          }
+                                        }}
+                                        placeholder="Additional notes..."
+                                        // {...field}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter the cost of each unit.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                disabled={isLoading}
+                                control={form.control}
+                                name={`productsToSell.${i}.discount`}
+                                render={({ field }) => (
+                                  <FormItem className="  w-full mb-auto">
+                                    <FormLabel>Discount</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        disabled={isLoading}
+                                        value={field.value}
+                                        onChange={(e) => {
+                                          const inputValue = e.target.value;
+                                          if (/^\d*$/.test(inputValue)) {
+                                            field.onChange(Number(inputValue));
+                                          }
+                                        }}
+                                        placeholder="Additional notes..."
+                                        // {...field}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter the total discount you got.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                disabled={isLoading}
+                                control={form.control}
+                                name={`productsToSell.${i}.count`}
+                                render={({ field }) => (
+                                  <FormItem className=" w-full  mb-auto">
+                                    <FormLabel>Count</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        disabled={isLoading}
+                                        value={field.value}
+                                        onChange={(e) => {
+                                          const inputValue = e.target.value;
+                                          if (/^\d*$/.test(inputValue)) {
+                                            field.onChange(Number(inputValue));
+                                          }
+                                        }}
+                                        placeholder="Additional notes..."
+                                        // {...field}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      Enter the amount you bought.
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <FormField
+                              disabled={isLoading}
+                              control={form.control}
+                              name={`productsToSell.${i}.productId`}
+                              render={({ field }) => (
+                                <FormItem className=" w-full mb-auto">
+                                  <FormLabel>Notes</FormLabel>
+                                  <FormControl>
+                                    <ProductsComboBox
+                                      setValue={field.onChange}
+                                      value={field.value}
+                                      options={products}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Enter car&apos;s information.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              disabled={isLoading}
+                              control={form.control}
+                              name={`productsToSell.${i}.note`}
+                              render={({ field }) => (
+                                <FormItem className=" w-full mb-auto">
+                                  <FormLabel>Notes</FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      disabled={isLoading}
+                                      placeholder="Car information..."
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormDescription>
+                                    Enter car&apos;s information.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <div>
+                              Total amount spent:
+                              <span className=" ml-3">
+                                {formatCurrency(
+                                  productsToSell[i]?.pricePerUnit *
+                                    productsToSell[i]?.count -
+                                    productsToSell[i]?.discount
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        </motion.li>
+                      ))}
+
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        type="button"
+                        className="  w-full"
+                        onClick={() =>
+                          appendProduct({
+                            pricePerUnit: 0,
+                            discount: 0,
+                            count: 0,
+                            productId: 0,
+                            note: "",
+                          })
+                        }
+                      >
+                        ADD PRODUCT SOLD
+                      </Button>
+
+                      <div className="w-[300px]">
+                        <h3 className=" text-sm">Total:</h3>
+                        <div className=" py-2  border-b border-t space-y-2 text-xs text-muted-foreground">
+                          <div>
+                            Amount:{" "}
+                            <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-dashboard-indigo ">
+                              {productsToSell.length}
+                            </span>
+                          </div>
+                          <div>
+                            Total revenue:{" "}
+                            {formatCurrency(totalProductSoldAmounts.totalPrice)}
+                          </div>
+                          <div>
+                            Total discount:{" "}
+                            {formatCurrency(
+                              totalProductSoldAmounts.totalDiscount
+                            )}
+                          </div>
+                          <div className=" border-t pt-1">
+                            Net:{" "}
+                            {formatCurrency(
+                              totalProductSoldAmounts.totalPrice -
+                                totalProductSoldAmounts.totalDiscount
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </ul>
+                  </div>
+                  {/* products to sell ends */}
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-4">
+                <AccordionTrigger className=" text-xl sm:text-2xl font-semibold">
+                  Summary
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="max-w-[500px] mx-auto">
+                    <h3 className=" text-sm">Total:</h3>
+                    <div className=" py-2   border-t space-y-2 text-xs text-muted-foreground">
+                      <div className=" flex  flex-col xs:flex-row  gap-5 xs:items-center  justify-between">
+                        <div className=" space-y-2  ">
+                          <div>
+                            Products amount:{" "}
+                            <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-dashboard-indigo ">
+                              {productsToSell.length}
+                            </span>
+                          </div>
+                          <div>
+                            Total products revenue:{" "}
+                            {formatCurrency(totalProductSoldAmounts.totalPrice)}
+                          </div>
+                          <div>
+                            Total product discount:{" "}
+                            {formatCurrency(
+                              totalProductSoldAmounts.totalDiscount
+                            )}
+                          </div>
+                          <div className="  py-2 border-y w-fit text-xs">
+                            Products sold net:{" "}
+                            <span className=" text-dashboard-indigo">
+                              {" "}
+                              {formatCurrency(
+                                totalProductSoldAmounts.totalPrice -
+                                  totalProductSoldAmounts.totalDiscount
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                        <div className=" space-y-2">
+                          <div>
+                            Fees amount:{" "}
+                            <span className=" relative after:content-['fees'] after:absolute after:-right-7 after:-top-1 after:text-dashboard-orange ">
+                              {serviceFees.length}
+                            </span>
+                          </div>
+                          <div>
+                            Total fees revenue:{" "}
+                            {formatCurrency(totalFees.totalPrice)}
+                          </div>
+                          <div>
+                            Total fees discount:{" "}
+                            {formatCurrency(totalFees.totalDiscount)}
+                          </div>
+                          <div className="  py-2 border-y  w-fit">
+                            Net fees:{" "}
+                            <span className=" text-dashboard-orange text-xs">
+                              {" "}
+                              {formatCurrency(
+                                totalFees.totalPrice - totalFees.totalDiscount
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className=" border-t pt-1">
+                        <div>
+                          {" "}
+                          Total Revenue:{" "}
+                          {formatCurrency(
+                            totalFees.totalPrice +
+                              totalProductSoldAmounts.totalPrice
+                          )}
+                        </div>
+                        <div>
+                          {" "}
+                          Total discount:{" "}
+                          {formatCurrency(
+                            totalFees.totalDiscount +
+                              totalProductSoldAmounts.totalDiscount
+                          )}
+                        </div>
+                        <div>
+                          Net:{" "}
+                          {formatCurrency(
+                            totalProductSoldAmounts.totalPrice +
+                              totalFees.totalPrice -
+                              (totalProductSoldAmounts.totalDiscount +
+                                totalFees.totalDiscount)
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            {/* <div className="max-w-[500px] mx-auto">
+              <h3 className=" text-sm">Total:</h3>
+              <div className=" py-2   border-t space-y-2 text-xs text-muted-foreground">
+                <div className=" flex  flex-col xs:flex-row  gap-5 xs:items-center  justify-between">
+                  <div className=" space-y-2  ">
+                    <div>
+                      Products amount:{" "}
+                      <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-dashboard-indigo ">
+                        {productsToSell.length}
+                      </span>
+                    </div>
+                    <div>
+                      Total products revenue:{" "}
+                      {formatCurrency(totalProductSoldAmounts.totalPrice)}
+                    </div>
+                    <div>
+                      Total product discount:{" "}
+                      {formatCurrency(totalProductSoldAmounts.totalDiscount)}
+                    </div>
+                    <div className="  py-2 border-y w-fit text-xs">
+                      Products sold net:{" "}
+                      <span className=" text-dashboard-indigo">
+                        {" "}
+                        {formatCurrency(
+                          totalProductSoldAmounts.totalPrice -
+                            totalProductSoldAmounts.totalDiscount
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                  <div className=" space-y-2">
+                    <div>
+                      Fees amount:{" "}
+                      <span className=" relative after:content-['fees'] after:absolute after:-right-7 after:-top-1 after:text-dashboard-orange ">
+                        {serviceFees.length}
+                      </span>
+                    </div>
+                    <div>
+                      Total fees revenue: {formatCurrency(totalFees.totalPrice)}
+                    </div>
+                    <div>
+                      Total fees discount:{" "}
+                      {formatCurrency(totalFees.totalDiscount)}
+                    </div>
+                    <div className="  py-2 border-y  w-fit">
+                      Net fees:{" "}
+                      <span className=" text-dashboard-orange text-xs">
+                        {" "}
+                        {formatCurrency(
+                          totalFees.totalPrice - totalFees.totalDiscount
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className=" border-t pt-1">
+                  <div>
+                    {" "}
+                    Total Revenue:{" "}
+                    {formatCurrency(
+                      totalFees.totalPrice + totalProductSoldAmounts.totalPrice
+                    )}
+                  </div>
+                  <div>
+                    {" "}
+                    Total discount:{" "}
+                    {formatCurrency(
+                      totalFees.totalDiscount +
+                        totalProductSoldAmounts.totalDiscount
+                    )}
+                  </div>
+                  <div>
+                    Net:{" "}
+                    {formatCurrency(
+                      totalProductSoldAmounts.totalPrice +
+                        totalFees.totalPrice -
+                        (totalProductSoldAmounts.totalDiscount +
+                          totalFees.totalDiscount)
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div> */}
+            <div className=" relative flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
+              <Button
+                onClick={() => form.reset()}
+                type="button"
+                className=" p-0 h-6 w-6  hidden sm:flex  absolute left-5 bottom-0"
+                variant="outline"
+              >
+                <RotateCcw className=" w-4 h-4" />
+              </Button>
+              <Button
+                onClick={handleClose}
+                disabled={isLoading}
+                type="reset"
+                variant="secondary"
+                size="sm"
+                className=" w-full sm:w-[unset]"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={disabled || isLoading}
+                className=" w-full sm:w-[unset]"
+              >
+                {isLoading ? (
+                  <Spinner className=" h-full" />
+                ) : carToEdit ? (
+                  "Edit"
+                ) : (
+                  "Create"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogComponent.Content>
+    </DialogComponent>
+  );
+};
+
+export default ServicesForm;
+{
+  /* <div className=" flex   justify-center   gap-5 my-10">
           <div className="   flex  flex-col  sm:flex-row justify-center  items-center gap-1">
             <div className=" relative">
               <span className=" text-[10px] sm:text-sm  absolute bottom-10 left-1/2 -translate-x-1/2  whitespace-nowrap">
@@ -273,553 +1126,5 @@ const ServicesForm = ({
               </Button>
             </div>
           </div>
-        </div> */}
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
-            <div className=" flex flex-col sm:flex-row  gap-2 space-y-4 sm:space-y-0">
-              <FormItem className=" w-full  mb-auto">
-                <Label>Client</Label>
-                <FormControl>
-                  <Input
-                    type="text"
-                    disabled
-                    placeholder="Client's data"
-                    value={`Name: ${client?.name}`}
-                    className=" flex-1
-                          "
-                    // {...field}
-                  />
-                </FormControl>
-
-                <FormDescription>Enter car&apos;s color.</FormDescription>
-                <FormMessage />
-              </FormItem>
-
-              <FormItem className=" w-full mb-auto">
-                <FormLabel>Car</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    disabled
-                    placeholder="Car "
-                    value={`Plate number: ${car?.plateNumber}`}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Enter the car this service was provided to.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="serviceStatusId"
-                render={({ field }) => (
-                  <FormItem className=" w-full mb-auto">
-                    <FormLabel>Service status</FormLabel>
-                    <FormControl>
-                      <ServiceStatusCombobox
-                        setValue={field.onChange}
-                        value={field.value}
-                        options={serviceStatus}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter car&apos;s chassis number.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="note"
-              render={({ field }) => (
-                <FormItem className=" w-full mb-auto">
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      disabled={isLoading}
-                      placeholder="Car information..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Enter car&apos;s information.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Service fees starts */}
-            <div className=" py-20 border-b border-t space-y-8">
-              {/* <h2 className=" font-semibold text-3xl">Service fees</h2> */}
-              <div className="   flex  items-center py-2  justify-between">
-                <h2 className=" font-semibold text-2xl xs:text-3xl">
-                  Service fees
-                </h2>
-                <Button
-                  size="sm"
-                  variant="orange"
-                  type="button"
-                  className=" text-xs"
-                  onClick={() =>
-                    append({
-                      price: 0,
-                      discount: 0,
-                      categoryId: 0,
-                      notes: "",
-                    })
-                  }
-                >
-                  ADD A FEE
-                </Button>
-              </div>
-
-              <ul className=" space-y-10">
-                {fields.map((item, i) => (
-                  <motion.li
-                    initial={{
-                      opacity: 0.2,
-                      y: -20,
-                    }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      transition: { duration: 0.6, type: "spring" },
-                    }}
-                    exit={{
-                      opacity: 0.2,
-                      y: -150,
-                      transition: { duration: 0.1, type: "spring" },
-                    }}
-                    key={item.id}
-                    className=" space-y-6"
-                  >
-                    <h2>{i + 1}.</h2>
-                    <div
-                      className={cn("space-y-4  relative ", {
-                        " border p-3 rounded-xl ": i !== 0,
-                      })}
-                    >
-                      {i !== 0 && (
-                        <button
-                          onClick={() => {
-                            remove(i);
-                          }}
-                          className="  absolute  top-5 right-5 rounded-sm outline-none    opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  "
-                          type="button"
-                        >
-                          <Cross2Icon className="h-4 w-4" />
-                        </button>
-                      )}
-                      <div className=" flex  flex-col gap-2  sm:flex-row  ">
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name={`serviceFees.${i}.price`}
-                          render={({ field }) => (
-                            <FormItem className="  w-full mb-auto ">
-                              <FormLabel>Price</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="text"
-                                  disabled={isLoading}
-                                  value={field.value}
-                                  onChange={(e) => {
-                                    const inputValue = e.target.value;
-                                    if (/^\d*$/.test(inputValue)) {
-                                      field.onChange(Number(inputValue));
-                                    }
-                                  }}
-                                  placeholder="Additional notes..."
-                                  // {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter the cost of each unit.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name={`serviceFees.${i}.discount`}
-                          render={({ field }) => (
-                            <FormItem className="  w-full mb-auto">
-                              <FormLabel>Discount</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="text"
-                                  disabled={isLoading}
-                                  value={field.value}
-                                  onChange={(e) => {
-                                    const inputValue = e.target.value;
-                                    if (/^\d*$/.test(inputValue)) {
-                                      field.onChange(Number(inputValue));
-                                    }
-                                  }}
-                                  placeholder="Additional notes..."
-                                  // {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter the total discount you got.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name={`serviceFees.${i}.categoryId`}
-                          render={({ field }) => (
-                            <FormItem className=" w-full  mb-auto">
-                              <FormLabel>Category</FormLabel>
-                              <FormControl>
-                                <ComboBox
-                                  setValue={field.onChange}
-                                  value={field.value}
-                                  options={categories}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter the amount you bought.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`serviceFees.${i}.notes`}
-                        render={({ field }) => (
-                          <FormItem className=" w-full mb-auto">
-                            <FormLabel>Notes</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                disabled={isLoading}
-                                placeholder="Car information..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter car&apos;s information.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className=" text-sm text-muted-foreground">
-                        Total:{" "}
-                        {formatCurrency(
-                          serviceFees[i]?.price - serviceFees[i]?.discount
-                        )}
-                      </div>
-                    </div>
-                  </motion.li>
-                ))}
-                {serviceFees.length && (
-                  <Button
-                    size="sm"
-                    variant="orange"
-                    type="button"
-                    className="  w-full"
-                    onClick={() =>
-                      append({
-                        price: 0,
-                        discount: 0,
-                        categoryId: 0,
-                        notes: "",
-                      })
-                    }
-                  >
-                    ADD A FEE
-                  </Button>
-                )}
-              </ul>
-            </div>
-            {/* Service fees ends */}
-
-            {/* products to sell starts */}
-            <div className=" py-20 border-b border-t space-y-8">
-              {/* <h2 className=" font-semibold text-3xl">Service fees</h2> */}
-              <div className="   flex  items-center py-2  justify-between">
-                <h2 className=" font-semibold text-2xl xs:text-3xl">
-                  Products sold
-                </h2>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  type="button"
-                  className=" text-xs"
-                  onClick={() =>
-                    appendProduct({
-                      pricePerUnit: 0,
-                      discount: 0,
-                      count: 0,
-                      productId: 0,
-                      note: "",
-                    })
-                  }
-                >
-                  ADD PRODUCT SOLD
-                </Button>
-              </div>
-
-              <ul className=" space-y-10">
-                {productsToSellFields.map((item, i) => (
-                  <motion.li
-                    initial={{
-                      opacity: 0.2,
-                      y: -20,
-                    }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      transition: { duration: 0.6, type: "spring" },
-                    }}
-                    exit={{
-                      opacity: 0.2,
-                      y: -150,
-                      transition: { duration: 0.1, type: "spring" },
-                    }}
-                    key={item.id}
-                    className=" space-y-6"
-                  >
-                    <h2>{i + 1}.</h2>
-                    <div
-                      className={cn(
-                        "space-y-4 border p-3 rounded-xl  relative "
-                      )}
-                    >
-                      <button
-                        onClick={() => {
-                          removeProduct(i);
-                        }}
-                        className="  absolute  top-5 right-5 rounded-sm outline-none    opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  "
-                        type="button"
-                      >
-                        <Cross2Icon className="h-4 w-4" />
-                      </button>
-
-                      <div className=" flex  flex-col gap-2  sm:flex-row  ">
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name={`productsToSell.${i}.pricePerUnit`}
-                          render={({ field }) => (
-                            <FormItem className="  w-full mb-auto ">
-                              <FormLabel>Price per unit</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="text"
-                                  disabled={isLoading}
-                                  value={field.value}
-                                  onChange={(e) => {
-                                    const inputValue = e.target.value;
-                                    if (/^\d*$/.test(inputValue)) {
-                                      field.onChange(Number(inputValue));
-                                    }
-                                  }}
-                                  placeholder="Additional notes..."
-                                  // {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter the cost of each unit.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name={`productsToSell.${i}.discount`}
-                          render={({ field }) => (
-                            <FormItem className="  w-full mb-auto">
-                              <FormLabel>Discount</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="text"
-                                  disabled={isLoading}
-                                  value={field.value}
-                                  onChange={(e) => {
-                                    const inputValue = e.target.value;
-                                    if (/^\d*$/.test(inputValue)) {
-                                      field.onChange(Number(inputValue));
-                                    }
-                                  }}
-                                  placeholder="Additional notes..."
-                                  // {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter the total discount you got.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name={`productsToSell.${i}.count`}
-                          render={({ field }) => (
-                            <FormItem className=" w-full  mb-auto">
-                              <FormLabel>Count</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="text"
-                                  disabled={isLoading}
-                                  value={field.value}
-                                  onChange={(e) => {
-                                    const inputValue = e.target.value;
-                                    if (/^\d*$/.test(inputValue)) {
-                                      field.onChange(Number(inputValue));
-                                    }
-                                  }}
-                                  placeholder="Additional notes..."
-                                  // {...field}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter the amount you bought.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`productsToSell.${i}.productId`}
-                        render={({ field }) => (
-                          <FormItem className=" w-full mb-auto">
-                            <FormLabel>Notes</FormLabel>
-                            <FormControl>
-                              <ProductsComboBox
-                                setValue={field.onChange}
-                                value={field.value}
-                                options={products}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter car&apos;s information.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        disabled={isLoading}
-                        control={form.control}
-                        name={`productsToSell.${i}.note`}
-                        render={({ field }) => (
-                          <FormItem className=" w-full mb-auto">
-                            <FormLabel>Notes</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                disabled={isLoading}
-                                placeholder="Car information..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter car&apos;s information.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div>
-                        Total amount spent:
-                        <span className=" ml-3">
-                          {formatCurrency(
-                            productsToSell[i]?.pricePerUnit *
-                              productsToSell[i]?.count -
-                              productsToSell[i]?.discount
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  </motion.li>
-                ))}
-                {productsToSell.length > 0 && (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    type="button"
-                    className="  w-full"
-                    onClick={() =>
-                      appendProduct({
-                        pricePerUnit: 0,
-                        discount: 0,
-                        count: 0,
-                        productId: 0,
-                        note: "",
-                      })
-                    }
-                  >
-                    ADD PRODUCT SOLD
-                  </Button>
-                )}
-              </ul>
-            </div>
-            {/* products to sell ends */}
-
-            <div className=" relative flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
-              <Button
-                onClick={() => form.reset()}
-                type="button"
-                className=" p-0 h-6 w-6  hidden sm:flex  absolute left-5 bottom-0"
-                variant="outline"
-              >
-                <RotateCcw className=" w-4 h-4" />
-              </Button>
-              <Button
-                onClick={handleClose}
-                disabled={isLoading}
-                type="reset"
-                variant="secondary"
-                size="sm"
-                className=" w-full sm:w-[unset]"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                size="sm"
-                disabled={disabled || isLoading}
-                className=" w-full sm:w-[unset]"
-              >
-                {isLoading ? (
-                  <Spinner className=" h-full" />
-                ) : carToEdit ? (
-                  "Edit"
-                ) : (
-                  "Create"
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogComponent.Content>
-    </DialogComponent>
-  );
-};
-
-export default ServicesForm;
+        </div> */
+}
