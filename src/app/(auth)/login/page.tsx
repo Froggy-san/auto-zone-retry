@@ -53,7 +53,7 @@ const Page = () => {
           <SuccessToastDescription message="Glad to see you again." />
         ),
       });
-    } catch (error :any) {
+    } catch (error: any) {
       console.log(error.message, "ERROR");
       toast({
         variant: "destructive",
@@ -99,14 +99,14 @@ const Page = () => {
           />
 
           <div className=" flex flex-col  pt-10   gap-2  ">
-            <Button type="submit">
+            <Button type="submit" disabled={isLoading}>
               {!isLoading ? (
                 "Login"
               ) : (
                 <LoaderCircle size={20} className="  animate-spin" />
               )}
             </Button>
-            <Button variant="secondary" asChild>
+            <Button variant="secondary" asChild disabled={isLoading}>
               <Link href="/signup">Don&apos;t have and account? Login</Link>
             </Button>
           </div>
