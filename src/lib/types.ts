@@ -389,6 +389,13 @@ export interface mainProductImage {
   productId: number;
 }
 
+export interface ProductImage {
+  id: number;
+  imageUrl: string;
+  isMain: boolean;
+  productId: number;
+}
+
 export interface Product {
   id: number;
   categoryId: number;
@@ -402,15 +409,24 @@ export interface Product {
   mainProductImage: mainProductImage | null;
 }
 
-export interface ProductWithCategory extends Product {
-  category: string;
+export interface ProductInProductToSell {
+  id: number;
+  name: string;
+  category: Category;
+  productType: ProductType;
+  productBrand: ProductBrand;
+  dateAdded: string;
+  description: string;
+  listPrice: number;
+  salePrice: number;
+  stock: number;
+  isAvailable: boolean;
+  carInfos: CarInfoProps[];
+  productImages: ProductImage[];
 }
 
-export interface ProductImage {
-  id: number;
-  imageUrl: string;
-  isMain: boolean;
-  productId: number;
+export interface ProductWithCategory extends Product {
+  category: string;
 }
 
 export interface ProductById {
@@ -534,10 +550,59 @@ export interface RestockingBill {
   productsBought: ProductBought[];
 }
 
+export interface productsToSellProps {
+  id: number;
+  pricePerUnit: number;
+  discount: number;
+  count: number;
+  totalPriceAfterDiscount: number;
+  isReturned: boolean;
+  note: string;
+  product: Product;
+}
+
 export interface ServiceStatus {
   id: number;
   name: string;
   description: null | string;
+}
+
+export interface ProductToSell {
+  id: number;
+  pricePerUnit: number;
+  discount: number;
+  count: number;
+  totalPriceAfterDiscount: number;
+  isReturned: boolean;
+  note: string;
+  product: ProductInProductToSell;
+}
+
+export interface ServiceFee {
+  id: number;
+  price: number;
+  discount: number;
+  totalPriceAfterDiscount: number;
+  isReturned: boolean;
+  notes: string;
+  categoryId: number;
+  serviceId: number;
+}
+
+export interface Service {
+  id: number;
+  date: string;
+  totalPriceAfterDiscount: number;
+  client: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  car: CarItem;
+  status: ServiceStatus;
+  note: string;
+  productsToSell: ProductToSell[];
+  serviceFees: ServiceFee[];
 }
 
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;

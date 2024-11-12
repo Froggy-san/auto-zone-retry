@@ -16,7 +16,7 @@ interface GetRestockingProps {
   maxPrice?: string;
 }
 
-export async function getRestockingBillsAction({
+export async function getServicesAction({
   pageNumber,
   dateFrom,
   dateTo,
