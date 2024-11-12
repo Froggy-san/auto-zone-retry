@@ -10,7 +10,6 @@ import IntersectionProvidor from "@components/products/intersection-providor";
 // Define the type for searchParam
 interface SearchParams {
   // Add the properties you expect in searchParam
-  query: string;
 
   page?: string;
   name?: string;
