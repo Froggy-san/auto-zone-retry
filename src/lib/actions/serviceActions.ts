@@ -123,7 +123,7 @@ export async function editRestockingBillAction({
   // return data;
 }
 
-export async function deleteRestockingBillAction(id: string) {
+export async function deleteServiceAction(id: string) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
   const response = await fetch(`${process.env.API_URL}/api/Services/${id}`, {
@@ -143,17 +143,21 @@ export async function deleteRestockingBillAction(id: string) {
 }
 
 export async function getServicesCountAction({
-  shopName,
-  dateOfOrderFrom,
-  dateOfOrderTo,
-  maxTotalPrice,
-  minTotalPrice,
+  dateFrom,
+  dateTo,
+  clientId,
+  carId,
+  minPrice,
+  maxPrice,
+  serviceStatusId,
 }: {
-  shopName?: string;
-  dateOfOrderFrom?: string;
-  dateOfOrderTo?: string;
-  minTotalPrice?: string;
-  maxTotalPrice?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  clientId?: string;
+  carId?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  serviceStatusId?: string;
 }) {
   const token = getToken();
 
@@ -162,15 +166,20 @@ export async function getServicesCountAction({
 
   let query = `${process.env.API_URL}/api/Services/count?`;
 
-  if (shopName) query = query + `&shopName=${shopName}`;
+  if (dateFrom) query = query + `&dateFrom=${dateFrom}`;
 
-  if (dateOfOrderFrom) query = query + `&dateOfOrderFrom=${dateOfOrderFrom}`;
+  if (dateTo) query = query + `&dateTo=${dateTo}`;
 
-  if (dateOfOrderTo) query = query + `&dateOfOrderTo=${dateOfOrderTo}`;
+  if (clientId) query = query + `&clientId=${clientId}`;
 
-  if (minTotalPrice) query = query + `&minTotalPrice=${minTotalPrice}`;
+  if (carId) query = query + `&carId=${carId}`;
 
-  if (maxTotalPrice) query = query + `&maxTotalPrice=${maxTotalPrice}`;
+  if (serviceStatusId) query = query + `&serviceStatusId=${serviceStatusId}`;
+
+  if (minPrice) query = query + `&minPrice=${minPrice}`;
+
+  if (maxPrice) query = query + `&maxPrice=${maxPrice}`;
+
   const response = await fetch(query, {
     method: "GET",
     headers: {

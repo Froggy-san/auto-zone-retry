@@ -17,7 +17,7 @@ const PaginationControl = ({ count, currPage }: PaginationControlProps) => {
   const pathname = usePathname();
   const router = useRouter();
   const params = new URLSearchParams(searchParam);
-
+  console.log(count, "COUNT");
   function handleNext() {
     if (page === pageCount) return;
     params.set("page", String(page + 1));

@@ -269,6 +269,32 @@ export const CreateServiceSchema = z.object({
   // }),
 });
 
+export const EditServiceFeeSchema = z
+  .object({
+    price: z.number().min(1, { message: "Price is requried" }),
+    discount: z.number(),
+    isReturned: z.boolean(),
+    notes: z.string(),
+    categoryId: z.number().min(1, { message: "Category is requried" }),
+  })
+  .refine((data) => data.price > data.discount, {
+    message: "Discount amount can't exceed the price amount.",
+    path: ["discount"],
+  });
+
+export const EditProductSoldSchema = z
+  .object({
+    pricePerUnit: z.number().min(1, { message: "Requried!" }),
+    discount: z.number(),
+    count: z.number().min(1, { message: "Requried!" }),
+    isReturned: z.boolean(),
+    note: z.string(),
+  })
+  .refine((data) => data.pricePerUnit * data.count - data.discount > 0, {
+    message: "Discount must be less than the total amount",
+    path: ["discount"],
+  });
+
 export interface signUpProps {
   username: string;
   email: string;
@@ -617,3 +643,5 @@ export type CreateClient = z.infer<typeof CreateClientSchema>;
 export type CreateCar = z.infer<typeof CreateCarSchema>;
 export type CreateProductBought = z.infer<typeof CreateProductBoughtSchema>;
 export type CreateService = z.infer<typeof CreateServiceSchema>;
+export type EditServiceFee = z.infer<typeof EditServiceFeeSchema>;
+export type EditProductSold = z.infer<typeof EditProductSoldSchema>;

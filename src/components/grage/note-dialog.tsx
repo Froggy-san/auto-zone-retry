@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { SetStateAction } from "react";
 import {
   Dialog,
   DialogClose,
@@ -25,26 +25,30 @@ function NoteDialog({
   description,
   content,
   className,
+  open,
+  onOpenChange,
 }: {
   className?: string;
+  open?: boolean;
+  onOpenChange?: React.Dispatch<SetStateAction<boolean>>;
   content: React.ReactNode;
   title?: string;
   description?: React.ReactNode;
 }) {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <DialogTrigger asChild>
-              <span
+              <button
                 className={cn(
                   "flex items-center justify-center rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  ",
                   className
                 )}
               >
                 <NotepadTextDashed className=" w-5 h-5" />
-              </span>
+              </button>
             </DialogTrigger>
           </TooltipTrigger>
           <TooltipContent>

@@ -2,7 +2,13 @@ import { Badge } from "@components/ui/badge";
 import { cn } from "@lib/utils";
 import React from "react";
 
-type Status = "Pending" | "InProgress" | "Done" | "Canceled" | string;
+type Status =
+  | "Pending"
+  | "InProgress"
+  | "Done"
+  | "Canceled"
+  | string
+  | undefined;
 const StatusBadge = ({
   className,
   status,
@@ -14,7 +20,7 @@ const StatusBadge = ({
     return (
       <div
         className={cn(
-          "text-xs w-fit font-semibold  px-2 py-1 bg-dashboard-orange text-dashboard-text-orange text-center rounded-lg",
+          "text-xs w-fit font-semibold  px-2 py-1  whitespace-nowrap bg-dashboard-orange text-dashboard-text-orange text-center rounded-lg",
           className
         )}
       >
@@ -25,7 +31,7 @@ const StatusBadge = ({
     return (
       <div
         className={cn(
-          "text-xs w-fit font-semibold  px-2 py-1 bg-dashboard-blue text-dashboard-text-blue text-center rounded-lg",
+          "text-xs w-fit font-semibold  px-2 py-1  whitespace-nowrap bg-dashboard-blue text-dashboard-text-blue text-center rounded-lg",
           className
         )}
       >
@@ -36,7 +42,7 @@ const StatusBadge = ({
     return (
       <div
         className={cn(
-          "text-xs w-fit font-semibold  px-2 py-1  text-red-800  dark:text-red-200  bg-destructive/70 text-center rounded-lg",
+          "text-xs w-fit font-semibold  px-2 py-1  whitespace-nowrap  text-red-800  dark:text-red-200  bg-destructive/70 text-center rounded-lg",
           className
         )}
       >
@@ -47,14 +53,14 @@ const StatusBadge = ({
     return (
       <div
         className={cn(
-          "text-xs w-fit font-semibold  px-2 py-1 bg-dashboard-green text-dashboard-text-green text-center rounded-lg",
+          "text-xs w-fit font-semibold  px-2 py-1  whitespace-nowrap bg-dashboard-green text-dashboard-text-green text-center rounded-lg",
           className
         )}
       >
         Done
       </div>
     );
-  return <Badge>{status}</Badge>;
+  return <Badge>{status || ""}</Badge>;
 };
 
 export default StatusBadge;

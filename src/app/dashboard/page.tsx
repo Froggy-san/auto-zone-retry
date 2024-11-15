@@ -1,9 +1,8 @@
+import EditFeesManagement from "@components/dashboard/home/edit-fees-management";
+import EditProductSoldManagement from "@components/dashboard/home/edit-product-sold";
 import ServiceList from "@components/dashboard/home/service-list";
-import InventoryList from "@components/dashboard/inventory/inventory-list";
-import InventoryManagement from "@components/dashboard/inventory/inventory-management";
-import InventoryPagination from "@components/dashboard/inventory/inventory-pagination";
-import RestockingForm from "@components/dashboard/inventory/restocking-form";
-import SearchDialog from "@components/dashboard/inventory/search-dialong";
+import ServicePagination from "@components/dashboard/home/service-pagination";
+
 import Spinner from "@components/Spinner";
 import React, { Suspense } from "react";
 interface SearchParams {
@@ -11,18 +10,24 @@ interface SearchParams {
   dateFrom?: string;
   dateTo?: string;
   clientId?: string;
+  serviceStatusId?: string;
   carId?: string;
   minPrice?: string;
   maxPrice?: string;
+  editFee?: string;
+  editSold?: string;
 }
 const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const pageNumber = searchParams?.page ?? "1";
   const dateFrom = searchParams.dateFrom ?? "";
   const dateTo = searchParams.dateTo ?? "";
   const clientId = searchParams.clientId ?? "";
+  const serviceStatusId = searchParams.serviceStatusId ?? "";
   const carId = searchParams.carId ?? "";
   const minPrice = searchParams.minPrice ?? "";
   const maxPrice = searchParams.maxPrice ?? "";
+  const editFee = searchParams.editFee ?? "";
+  const editSold = searchParams.editSold ?? "";
 
   const key =
     pageNumber + dateFrom + dateTo + clientId + carId + minPrice + maxPrice;
@@ -40,6 +45,18 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
           maxTotalPrice={maxTotalPrice}
         /> */}
 
+        <Suspense
+          fallback={<Spinner size={30} className=" mt-10" key={editFee} />}
+        >
+          <EditFeesManagement feesId={editFee} />
+        </Suspense>
+
+        <Suspense
+          fallback={<Spinner size={30} className=" mt-10" key={editSold} />}
+        >
+          <EditProductSoldManagement editSold={editSold} />
+        </Suspense>
+
         <Suspense fallback={<Spinner size={30} className=" mt-10" key={key} />}>
           <ServiceList
             pageNumber={pageNumber}
@@ -47,24 +64,27 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
             dateFrom={dateTo}
             clientId={clientId}
             carId={carId}
+            serviceStatusId={serviceStatusId}
             minPrice={minPrice}
             maxPrice={maxPrice}
           />
         </Suspense>
 
-        {/* <Suspense
+        <Suspense
           key={pageKey}
           fallback={<Spinner className=" h-fit" size={15} />}
         >
-          <InventoryPagination
+          <ServicePagination
             pageNumber={pageNumber}
-            shopName={shopName}
-            dateOfOrderFrom={dateOfOrderFrom}
-            dateOfOrderTo={dateOfOrderTo}
-            minTotalPrice={minTotalPrice}
-            maxTotalPrice={maxTotalPrice}
+            dateTo={dateFrom}
+            dateFrom={dateTo}
+            clientId={clientId}
+            carId={carId}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            serviceStatusId={serviceStatusId}
           />
-        </Suspense> */}
+        </Suspense>
       </section>
     </main>
   );
