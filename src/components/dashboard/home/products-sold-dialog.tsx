@@ -1,5 +1,5 @@
-import { Service, ServiceFee } from "@lib/types";
-import React, { useEffect, useReducer, useState } from "react";
+import { ProductToSell, Service } from "@lib/types";
+import React, { useReducer, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -22,13 +22,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@components/ui/tooltip";
+import Link from "next/link";
+import { LinkPreview } from "@components/link-preview";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
+import { deleteProductToSellAction } from "@lib/actions/product-sold-actions";
 import { useToast } from "@hooks/use-toast";
 import Spinner from "@components/Spinner";
-import { deleteServiceFeeAction } from "@lib/actions/serviceFeeAction";
+
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
     value
@@ -36,12 +39,26 @@ const formatCurrency = (value: number) =>
 interface ServiceStates {
   priceValue: string;
   discountValue: string;
+  nameValue: string;
+  countValue: string;
   totalPriceAfterDiscountValue: string;
   hasReturnedValue: boolean;
   checked: boolean;
   open: boolean;
-  deleteOpen: ServiceFee | null;
+  deleteOpen: ProductToSell | null;
 }
+
+const initalState = {
+  priceValue: "",
+  discountValue: "",
+  totalPriceAfterDiscountValue: "",
+  nameValue: "",
+  hasReturnedValue: false,
+  checked: false,
+  countValue: "",
+  open: false,
+  deleteOpen: null,
+};
 
 type PriceAction = {
   type: "price";
@@ -57,6 +74,16 @@ type TotalPriceAction = {
   payload: string;
 };
 
+type CountAction = {
+  type: "count";
+  payload: string;
+};
+
+type NameAction = {
+  type: "name";
+  payload: string;
+};
+
 type HasReturnedAction = {
   type: "has-returned";
 };
@@ -68,20 +95,9 @@ type Checked = {
 type Open = {
   type: "open";
 };
-
 type DeleteOpen = {
   type: "delete-open";
-  payload: ServiceFee | null;
-};
-
-const initalState = {
-  priceValue: "",
-  discountValue: "",
-  totalPriceAfterDiscountValue: "",
-  hasReturnedValue: false,
-  checked: false,
-  open: false,
-  deleteOpen: null,
+  payload: ProductToSell | null;
 };
 
 type Action =
@@ -91,6 +107,8 @@ type Action =
   | HasReturnedAction
   | Checked
   | Open
+  | CountAction
+  | NameAction
   | DeleteOpen;
 
 function reducer(state: ServiceStates, action: Action) {
@@ -103,6 +121,12 @@ function reducer(state: ServiceStates, action: Action) {
 
     case "total-price":
       return { ...state, totalPriceAfterDiscountValue: action.payload };
+
+    case "count":
+      return { ...state, countValue: action.payload };
+
+    case "name":
+      return { ...state, nameValue: action.payload };
 
     case "open":
       return { ...state, open: !state.open };
@@ -118,16 +142,18 @@ function reducer(state: ServiceStates, action: Action) {
   }
 }
 
-function ServiceFeesDialog({ service }: { service: Service }) {
+const ProductSoldDialog = ({ service }: { service: Service }) => {
   const [
     {
       deleteOpen,
       open,
-      checked,
-      hasReturnedValue,
       priceValue,
       discountValue,
       totalPriceAfterDiscountValue,
+      nameValue,
+      checked,
+      hasReturnedValue,
+      countValue,
     },
     dispatch,
   ] = useReducer(reducer, initalState);
@@ -135,42 +161,59 @@ function ServiceFeesDialog({ service }: { service: Service }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParam = useSearchParams();
-
-  let servicesArr = service.serviceFees;
-
-  function handleOpenEdit(filter: string) {
-    const params = new URLSearchParams(searchParam);
-    params.set("editFee", filter);
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }
-
-  servicesArr = servicesArr.filter((service) => {
-    // const hasReturned = new RegExp(String(hasReturnedValue), "i");
-
-    let filterValue = true;
-    if (checked)
-      filterValue = filterValue && service.isReturned === hasReturnedValue;
-
-    if (Number(priceValue))
-      filterValue = filterValue && service.price === Number(priceValue);
-
-    if (Number(discountValue))
-      filterValue = filterValue && service.discount === Number(discountValue);
-
-    if (Number(totalPriceAfterDiscountValue))
-      filterValue =
-        filterValue &&
-        service.totalPriceAfterDiscount ===
-          Number(totalPriceAfterDiscountValue);
-
-    return filterValue;
-  });
+  const soldProducts = service.productsToSell;
 
   function handleOpenChange() {
     dispatch({ type: "open" });
   }
 
-  const totals = servicesArr.reduce(
+  function handleOpenEdit(filter: string) {
+    const params = new URLSearchParams(searchParam);
+    params.set("editSold", filter);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+  // console.log(hasReturnedValue, "SSSSSSS");
+
+  //   const [priceValue, setPriceValue] = useState("");
+  //   const [discountValue, setDiscountValue] = useState("");
+  //   const [countValue, setCountValue] = useState("");
+  //   const [totalPriceAfterDiscountValue, setTotalPriceAfterDiscount] =
+  //     useState("");
+  //   const [nameValue, setNameValue] = useState("");
+  //   const [hasReturnedValue, setHasReturnedValue] = useState<boolean>(false);
+  //   const [checked, setChecked] = useState(false);
+  //   const searchParam = useSearchParams();
+  //   const router = useRouter();
+  //   const pathname = usePathname();
+
+  let productsArr = soldProducts;
+
+  productsArr = productsArr.filter((product) => {
+    const name = new RegExp(nameValue, "i"); // 'i' for case-insensitive
+
+    let filterValue = name.test(product.product.name);
+    if (checked)
+      filterValue = filterValue && product.isReturned === hasReturnedValue;
+
+    if (Number(priceValue))
+      filterValue = filterValue && product.pricePerUnit === Number(priceValue);
+
+    if (Number(discountValue))
+      filterValue = filterValue && product.discount === Number(discountValue);
+
+    if (Number(countValue))
+      filterValue = filterValue && product.count === Number(countValue);
+
+    if (Number(totalPriceAfterDiscountValue))
+      filterValue =
+        filterValue &&
+        product.totalPriceAfterDiscount ===
+          Number(totalPriceAfterDiscountValue);
+
+    return filterValue;
+  });
+
+  const totals = productsArr.reduce(
     (acc, item) => {
       acc.totalDiscount += item.discount;
       acc.totalPrice += item.totalPriceAfterDiscount;
@@ -179,7 +222,7 @@ function ServiceFeesDialog({ service }: { service: Service }) {
     { totalDiscount: 0, totalPrice: 0 }
   );
 
-  // if (!service.serviceFees.length)
+  // if (!soldProducts.length)
   //   return (
   //     <TooltipProvider delayDuration={500}>
   //       <Tooltip>
@@ -188,7 +231,7 @@ function ServiceFeesDialog({ service }: { service: Service }) {
   //             Show
   //           </span>
   //         </TooltipTrigger>
-  //         <TooltipContent>No services were preformed.</TooltipContent>
+  //         <TooltipContent>No products were sold.</TooltipContent>
   //       </Tooltip>
   //     </TooltipProvider>
   //   );
@@ -204,8 +247,7 @@ function ServiceFeesDialog({ service }: { service: Service }) {
         >
           Show
         </Button>
-
-        <DialogContent className=" border-none p-4  sm:p-6  !pb-0  flex flex-col  overflow-y-auto    max-h-[81vh]     max-w-[900px]">
+        <DialogContent className="  p-4  sm:p-6  !pb-0  flex flex-col  overflow-y-auto    max-h-[81vh]     max-w-[900px]">
           <DialogHeader className=" hidden  invisible">
             <DialogTitle>{`'s phome numbers`}</DialogTitle>
             <DialogDescription className=" hidden">
@@ -220,11 +262,11 @@ function ServiceFeesDialog({ service }: { service: Service }) {
             {/* <div className=" flex  flex-col sm:flex-row items-center  gap-3 "> */}
             <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
               <label className=" text-xs " htmlFor="price">
-                Price
+                Price per unit
               </label>
               <Input
                 id="price"
-                placeholder="Price..."
+                placeholder="Price per unit"
                 value={priceValue}
                 onChange={(e) =>
                   dispatch({ type: "price", payload: e.target.value })
@@ -244,10 +286,22 @@ function ServiceFeesDialog({ service }: { service: Service }) {
                 }
               />
             </div>
-
+            <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
+              <label className=" text-xs " htmlFor="count">
+                Count
+              </label>
+              <Input
+                id="count"
+                placeholder="Count..."
+                value={countValue}
+                onChange={(e) =>
+                  dispatch({ type: "count", payload: e.target.value })
+                }
+              />
+            </div>
             <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
               <label className=" text-xs " htmlFor="totalPrice">
-                Total after discount
+                Total price after discount
               </label>
               <Input
                 id="totalPrice"
@@ -255,6 +309,19 @@ function ServiceFeesDialog({ service }: { service: Service }) {
                 value={totalPriceAfterDiscountValue}
                 onChange={(e) =>
                   dispatch({ type: "total-price", payload: e.target.value })
+                }
+              />
+            </div>
+            <div className=" space-y-2   w-[48%] sm:w-[32%]  mb-auto">
+              <label className=" text-xs " htmlFor="name">
+                Name
+              </label>
+              <Input
+                id="name"
+                placeholder="Total price after discount..."
+                value={nameValue}
+                onChange={(e) =>
+                  dispatch({ type: "name", payload: e.target.value })
                 }
               />
             </div>
@@ -272,11 +339,7 @@ function ServiceFeesDialog({ service }: { service: Service }) {
               </Label>
               <Checkbox
                 checked={checked}
-                onClick={() => {
-                  //   if (hasReturnedValue) setHasReturnedValue(false);
-                  //   setChecked((is) => !is);
-                  dispatch({ type: "checked" });
-                }}
+                onClick={() => dispatch({ type: "checked" })}
               />
             </div>
           </div>
@@ -284,89 +347,108 @@ function ServiceFeesDialog({ service }: { service: Service }) {
           <div className=" space-y-4    sm:flex-1  sm:px-2   sm:overflow-y-auto">
             <div className=" flex items-center justify-between">
               <h2 className=" font-semibold text-xl  whitespace-nowrap">
-                {servicesArr.length} Service fees.
+                {productsArr.length} Products sold.
               </h2>
               <div className=" text-xs   justify-end flex items-center gap-y-1 gap-x-3 flex-wrap text-muted-foreground  ">
                 <div>
-                  Car: <span>{service.car.plateNumber}</span>
+                  Shop: <span>{service.date}</span>
                 </div>
                 <div>
                   Date: <span>{service.date}</span>
                 </div>
               </div>
             </div>
-            {servicesArr.length ? (
-              servicesArr.map((serviceFee, i) => (
-                <div
-                  key={i}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground px-4 py-2"
-                >
+            {productsArr.length ? (
+              productsArr.map((product, i) => {
+                const productImages = product.product.productImages;
+                const image =
+                  productImages.find((image) => image.isMain)?.imageUrl ||
+                  product.product.productImages[0].imageUrl;
+
+                return (
                   <div
-                    // href={`/serviceFees/${serviceFee.serviceFeeId}`}
-                    className="flex text-sm  h-fit flex-wrap  font-semibold !text-green-400  !justify-start  items-center  max-w-full    gap-x-6 gap-y-3"
+                    key={i}
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground px-4 py-2"
                   >
-                    <div className=" ">
-                      Price:{" "}
-                      <span className=" text-xs text-muted-foreground">{` ${formatCurrency(
-                        serviceFee.price
-                      )}`}</span>{" "}
-                    </div>
-                    <div>
-                      {" "}
-                      Discount:{" "}
-                      <span className="text-xs text-muted-foreground">{` ${formatCurrency(
-                        serviceFee.discount
-                      )}`}</span>
-                    </div>
-
-                    <div>
-                      Has it been returned?:{" "}
-                      <span className="text-xs text-muted-foreground">
-                        {` ${serviceFee.isReturned ? "Yes" : "No"}`}
-                      </span>
-                    </div>
-                    <div>
-                      Total price after discount:{" "}
-                      <span className="text-xs text-muted-foreground   break-all whitespace-normal">{` ${formatCurrency(
-                        serviceFee.totalPriceAfterDiscount
-                      )}`}</span>
-                    </div>
-
-                    <div className=" flex items-center gap-2 ml-auto">
-                      <Button
-                        variant="outline"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleOpenEdit(String(serviceFee.id));
-                          dispatch({ type: "open" });
-                        }}
-                        className=" p-0 w-8 h-8"
+                    <LinkPreview
+                      url={`/products/${product.product.id}`}
+                      isStatic
+                      imageSrc={image}
+                    >
+                      <div
+                        //   href={`/products/${product.product.id}`}
+                        className="flex text-sm  h-fit flex-wrap  font-semibold !text-green-400  !justify-start  items-center  max-w-full    gap-x-6 gap-y-3"
                       >
-                        <Pencil className=" h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          dispatch({ type: "open" });
-                          dispatch({
-                            type: "delete-open",
-                            payload: serviceFee,
-                          });
-                          // setDeleteOpen(serviceFee.id);
-                          //   setOpen(false);
-                        }}
-                        variant="destructive"
-                        size="sm"
-                        className=" p-0 w-8 h-8"
-                      >
-                        <PackageMinus className=" h-4 w-4" />
-                      </Button>
-                    </div>
+                        <div className="   pointer-events-none">
+                          Product name:{" "}
+                          <span className=" text-xs text-muted-foreground  break-all whitespace-normal">{` ${product.product.name}`}</span>{" "}
+                        </div>
+                        <div className="   pointer-events-none">
+                          Price:{" "}
+                          <span className=" text-xs text-muted-foreground">{` ${formatCurrency(
+                            product.pricePerUnit
+                          )}`}</span>{" "}
+                        </div>
+                        <div className="   pointer-events-none">
+                          {" "}
+                          Discount:{" "}
+                          <span className="text-xs text-muted-foreground">{` ${formatCurrency(
+                            product.discount
+                          )}`}</span>
+                        </div>
+                        <div className="   pointer-events-none">
+                          Count:{" "}
+                          <span className="text-xs text-muted-foreground">{` ${product.count}`}</span>
+                        </div>
+                        <div className="   pointer-events-none">
+                          Has it been returned?:{" "}
+                          <span className="text-xs text-muted-foreground">
+                            {` ${product.isReturned ? "Yes" : "No"}`}
+                          </span>
+                        </div>
+                        <div className="   pointer-events-none">
+                          Total price after discount:{" "}
+                          <span className="text-xs text-muted-foreground   break-all whitespace-normal">{` ${formatCurrency(
+                            product.totalPriceAfterDiscount
+                          )}`}</span>
+                        </div>
+                        <div className=" break-all  whitespace-normal pointer-events-none">{`Note: ${product.note}`}</div>
+
+                        <div className=" flex items-center gap-2 ml-auto">
+                          <Button
+                            variant="outline"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleOpenEdit(String(product.id));
+                              dispatch({ type: "open" });
+                            }}
+                            className=" p-0 w-8 h-8"
+                          >
+                            <Pencil className=" h-4 w-4" />
+                          </Button>
+                          <Button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              dispatch({ type: "open" });
+                              dispatch({
+                                type: "delete-open",
+                                payload: product,
+                              });
+                            }}
+                            variant="destructive"
+                            size="sm"
+                            className=" p-0 w-8 h-8"
+                          >
+                            <PackageMinus className=" h-4 w-4 " />
+                          </Button>
+                        </div>
+                      </div>
+                    </LinkPreview>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
-              <p className=" text-center  py-3">No service Fees.</p>
+              <p className=" text-center  py-3">No Products.</p>
             )}
           </div>
           {/* </main> */}
@@ -394,9 +476,10 @@ function ServiceFeesDialog({ service }: { service: Service }) {
           </div>
         </DialogContent>
       </Dialog>
+
       <DeleteFee
         deleteOpen={deleteOpen ? true : false}
-        fee={deleteOpen}
+        proSold={deleteOpen}
         handleClose={() => {
           dispatch({ type: "delete-open", payload: null });
           dispatch({ type: "open" });
@@ -404,15 +487,15 @@ function ServiceFeesDialog({ service }: { service: Service }) {
       />
     </>
   );
-}
+};
 
 function DeleteFee({
   deleteOpen,
-  fee,
+  proSold,
   handleClose,
 }: {
   deleteOpen: boolean;
-  fee: ServiceFee | null;
+  proSold: ProductToSell | null;
   handleClose: () => void;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -422,7 +505,7 @@ function DeleteFee({
     <Dialog open={deleteOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px] border-none">
         <DialogHeader>
-          <DialogTitle>Delete fee.</DialogTitle>
+          <DialogTitle>Product sold.</DialogTitle>
           <DialogDescription>
             {`You are about to delete a fee along with all its associated data.`}
           </DialogDescription>
@@ -441,7 +524,8 @@ function DeleteFee({
             onClick={async () => {
               setIsDeleting(true);
               try {
-                if (fee) await deleteServiceFeeAction(String(fee.id));
+                if (proSold)
+                  await deleteProductToSellAction(String(proSold.id));
                 setIsDeleting(false);
                 handleClose();
                 toast({
@@ -471,4 +555,4 @@ function DeleteFee({
   );
 }
 
-export default ServiceFeesDialog;
+export default ProductSoldDialog;

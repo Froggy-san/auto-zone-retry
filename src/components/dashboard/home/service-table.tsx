@@ -83,6 +83,9 @@ import {
 } from "@components/ui/popover";
 import StatusBadge from "./status-badge";
 import ServiceFeesDialog from "./service-Fee-dialog";
+import ProductSoldDialog from "./products-sold-dialog";
+import CarDialog from "./car-dialog";
+import ClientDialog from "./client-dialog";
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
     value
@@ -108,7 +111,6 @@ const ServiceTable = ({
     return acc;
   }, 0);
 
-  console.log(soldProducts, "SERC");
   const totalFees = fees.reduce((acc, item) => {
     acc += item.totalPriceAfterDiscount;
 
@@ -129,15 +131,17 @@ const ServiceTable = ({
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Id</TableHead>
+          <TableHead className=" min-w-[20px]">Id</TableHead>
           <TableHead>Dates</TableHead>
+          <TableHead>Client</TableHead>
+          <TableHead>Car</TableHead>
           <TableHead>Status</TableHead>
           <TableHead>Fees</TableHead>
-          <TableHead>Sold products</TableHead>
-          <TableHead>Total price</TableHead>
-          <TableHead>Car</TableHead>
-          <TableHead>Client</TableHead>
-          <TableHead className="text-right"></TableHead>
+          <TableHead className=" whitespace-nowrap">Products sold</TableHead>
+          {/* <TableHead className=""></TableHead> */}
+          <TableHead className="text-right" colSpan={2}>
+            Total price
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -154,18 +158,21 @@ const ServiceTable = ({
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
+          <TableCell colSpan={5}>Total</TableCell>
+
           <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
             {formatCurrency(totalFees)}
           </TableCell>
+
           <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
             {formatCurrency(totalSoldProducts)}
           </TableCell>
-          <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
+
+          <TableCell
+            colSpan={2}
+            className=" text-right   min-w-[100px] max-w-[120px]  break-all"
+          >
             {formatCurrency(totals)}
-          </TableCell>
-          <TableCell colSpan={3} className="text-right">
-            {" "}
           </TableCell>
         </TableRow>
       </TableFooter>
@@ -196,46 +203,48 @@ function Row({
         className={`${isLoading && "opacity-60  pointer-events-none"}`}
       >
         <TableCell className="font-medium">{service.id}</TableCell>
-        {/* <TableCell>{service.shopName}</TableCell>
-        <TableCell className="text-right ">{service.dateOfOrder}</TableCell> */}
+
         <TableCell>{service.date}</TableCell>
 
         <TableCell>
-          <StatusBadge status={service.status.name} />
+          <ClientDialog service={service} />
+        </TableCell>
+
+        <TableCell>
+          <CarDialog service={service} />
+        </TableCell>
+
+        <TableCell>
+          <StatusBadge status={service?.status.name || ""} />
         </TableCell>
 
         <TableCell>
           <ServiceFeesDialog service={service} />
         </TableCell>
 
-        <TableCell>Sold products</TableCell>
+        <TableCell className=" min-w-[100px]">
+          <ProductSoldDialog service={service} />
+        </TableCell>
 
-        <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
+        <TableCell className=" min-w-[120px] max-w-[170px] break-all ">
           {formatCurrency(service.totalPriceAfterDiscount)}
         </TableCell>
 
-        <TableCell>Car</TableCell>
+        <TableCell className=" w-[80px] ">
+          <TableActions
+            service={service}
+            currPage={currPage}
+            currPageSize={currPageSize}
+          />
+        </TableCell>
 
-        <TableCell>Client</TableCell>
-        <TableCell>
+        {/* <TableCell>
           {" "}
           <div className=" flex items-center gap-2 justify-end">
-            {/* <ShowCars client={client} /> */}
 
-            {/* <Button
-      size="sm"
-      className="   h-6 px-2 py-3 text-xs"
-      variant="outline"
-      >
-      Show
-      </Button> */}
-            <TableActions
-              currPage={currPage}
-              service={service}
-              currPageSize={currPageSize}
-            />
+       
           </div>
-        </TableCell>
+        </TableCell> */}
       </TableRow>
       <DeleteDialog
         currPage={currPage}
@@ -290,10 +299,13 @@ function TableActions({
     );
 
   return (
-    <div onClick={(e) => e.stopPropagation()}>
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className=" flex items-center justify-end"
+    >
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className=" p-0 h-6 w-6">
+          <Button variant="outline" size="icon" className="     p-0 h-6 w-6">
             <Ellipsis className=" w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>

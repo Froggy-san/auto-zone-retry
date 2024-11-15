@@ -13,6 +13,7 @@ interface Props {
   dateTo?: string;
   clientId?: string;
   carId?: string;
+  serviceStatusId?: string;
   minPrice?: string;
   maxPrice?: string;
 }
@@ -22,6 +23,7 @@ const ServiceList = async ({
   dateTo,
   clientId,
   carId,
+  serviceStatusId,
   minPrice,
   maxPrice,
 }: Props) => {
@@ -31,6 +33,7 @@ const ServiceList = async ({
     dateTo,
     clientId,
     carId,
+    serviceStatusId,
     minPrice,
     maxPrice,
   });

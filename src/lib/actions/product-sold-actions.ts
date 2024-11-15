@@ -2,7 +2,7 @@
 
 import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
-import { EditServiceFee } from "@lib/types";
+import { EditProductSold, EditServiceFee, ProductToSell } from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -95,17 +95,20 @@ export async function createServiceFeeAction(shopName: string) {
   return data;
 }
 
-export async function getServiceFeesById(id: string) {
+export async function getProductToSellById(id: string) {
   const token = getToken();
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
-  const response = await fetch(`${process.env.API_URL}/api/ServicesFee/${id}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-type": "application/json",
-    },
-  });
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductsToSell/${id}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "application/json",
+      },
+    }
+  );
   if (!response.ok) {
     console.log("Something went wrong while deleting the a restocking bill.");
     throw new Error("Something went wrong!");
@@ -116,11 +119,11 @@ export async function getServiceFeesById(id: string) {
   return { data: data, error: "" };
 }
 
-export async function editServiceFeeAction({
-  serviceFee,
+export async function editProductToSellAction({
+  productToSell,
   id,
 }: {
-  serviceFee: EditServiceFee;
+  productToSell: EditProductSold;
   id: number;
 }) {
   const token = getToken();
@@ -128,14 +131,17 @@ export async function editServiceFeeAction({
     redirect("/login");
     // throw new Error("You are not Authorized to make this action.");
   }
-  const response = await fetch(`${process.env.API_URL}/api/ServicesFee/${id}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-type": "application/json",
-    },
-    body: JSON.stringify(serviceFee),
-  });
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductsToSell/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(productToSell),
+    }
+  );
   if (!response.ok) {
     console.log("Something went wrong while editing the service fee.");
     throw new Error("Something went wrong while editing the service fee.");
@@ -146,16 +152,19 @@ export async function editServiceFeeAction({
   // return data;
 }
 
-export async function deleteServiceFeeAction(id: string) {
+export async function deleteProductToSellAction(id: string) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
-  const response = await fetch(`${process.env.API_URL}/api/ServicesFee/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-type": "application/json",
-    },
-  });
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductsToSell/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "application/json",
+      },
+    }
+  );
   if (!response.ok) {
     console.log("Something went wrong while deleting the a restocking bill.");
     throw new Error("Something went wrong!");

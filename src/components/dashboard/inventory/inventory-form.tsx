@@ -229,7 +229,10 @@ const InventoryForm = ({
         </DialogComponent.Header>
         {proBoughtToEdit ? (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-8   "
+            >
               <div className=" space-y-4">
                 {fields.map((field, i) => (
                   <React.Fragment key={i}>
@@ -474,7 +477,10 @@ const InventoryForm = ({
           </Form>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-8  "
+            >
               <div className=" space-y-4">
                 <div className=" border  flex  items-center px-4 py-2 rounded-lg justify-between">
                   <span className=" text-muted-foreground text-sm">
@@ -518,8 +524,18 @@ const InventoryForm = ({
                         transition: { duration: 0.1, type: "spring" },
                       }}
                       key={field.id}
-                      className=" space-y-4  border p-3 rounded-xl "
+                      className=" space-y-4  border p-3 rounded-xl relative "
                     >
+                      <button
+                        onClick={() => {
+                          remove(i);
+                        }}
+                        className="  absolute  top-3 right-4 rounded-sm outline-none opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  "
+                        type="button"
+                      >
+                        <Cross2Icon className="h-4 w-4" />
+                        {/* <span className="sr-only">Close</span> */}
+                      </button>
                       <div className=" flex  flex-col gap-2  sm:flex-row  ">
                         <FormField
                           disabled={isLoading}
@@ -686,17 +702,6 @@ const InventoryForm = ({
                           </FormItem>
                         )}
                       />
-
-                      <button
-                        onClick={() => {
-                          remove(i);
-                        }}
-                        className="  absolute  top-0 right-5 rounded-sm outline-none        opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  "
-                        type="button"
-                      >
-                        <Cross2Icon className="h-4 w-4" />
-                        {/* <span className="sr-only">Close</span> */}
-                      </button>
 
                       <div>
                         Total amount spent:
