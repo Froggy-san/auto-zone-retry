@@ -72,7 +72,15 @@ export async function getServiceFeesAction({
 
 // The service fees are created in the service actions.
 
-export async function createServiceFeeAction(shopName: string) {
+interface CreateProps {
+  categoryId: number;
+  price: number;
+  discount: number;
+  notes: string;
+  serviceId: number;
+}
+
+export async function createServiceFeeAction(newFee: CreateProps) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
   const response = await fetch(`${process.env.API_URL}/api/ServicesFee`, {
@@ -81,7 +89,7 @@ export async function createServiceFeeAction(shopName: string) {
       Authorization: `Bearer ${token}`,
       "Content-type": "application/json",
     },
-    body: JSON.stringify({ shopName }),
+    body: JSON.stringify(newFee),
   });
   if (!response.ok) {
     console.log("Something went wrong while creating the a restocking bill.");
@@ -90,9 +98,6 @@ export async function createServiceFeeAction(shopName: string) {
 
   //   revalidatePath("/dashboard/insert-data");
   revalidateTag("services");
-
-  const data = await response.json();
-  return data;
 }
 
 export async function getServiceFeesById(id: string) {

@@ -15,16 +15,9 @@ import {
 } from "@/components/ui/form";
 
 import {
-  CarModelProps,
-  CarMaker,
-  CarGenerationProps,
-  CarInfoSchema,
-  ServiceFee,
-  Category,
-  EditServiceFee,
-  EditServiceFeeSchema,
-  EditProductSold,
-  EditProductSoldSchema,
+  ProductSold,
+  ProductSoldSchema,
+  ProductWithCategory,
 } from "@lib/types";
 
 import Spinner from "@components/Spinner";
@@ -37,23 +30,31 @@ import SuccessToastDescription, {
 import useObjectCompare from "@hooks/use-compare-objs";
 import DialogComponent from "@components/dialog-component";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ComboBox } from "@components/combo-box";
+
 import { Input } from "@components/ui/input";
 import { Textarea } from "@components/ui/textarea";
 import { Switch } from "@components/ui/switch";
 import { Label } from "@components/ui/label";
-import { editProductToSellAction } from "@lib/actions/product-sold-actions";
+import {
+  createProductToSellAction,
+  editProductToSellAction,
+} from "@lib/actions/product-sold-actions";
+import { ProductsComboBox } from "@components/proudcts-combo-box";
 
-interface ProById extends EditProductSold {
+interface ProById extends ProductSold {
   id: number;
 }
 
 const EditSoldForm = ({
   open,
   proSold,
+  addSoldId,
+  products,
 }: {
   open: boolean;
   proSold: ProById;
+  addSoldId?: string;
+  products: ProductWithCategory[];
 }) => {
   const { toast } = useToast();
   const router = useRouter();
@@ -65,10 +66,12 @@ const EditSoldForm = ({
     count: proSold?.count || 0,
     isReturned: proSold?.isReturned || false,
     note: proSold?.note || "",
+    productId: proSold ? 1 : 0,
+    serviceId: addSoldId ? Number(addSoldId) : 1,
   };
-  const form = useForm<EditProductSold>({
+  const form = useForm<ProductSold>({
     mode: "onChange",
-    resolver: zodResolver(EditProductSoldSchema),
+    resolver: zodResolver(ProductSoldSchema),
     defaultValues,
   });
 
@@ -88,16 +91,37 @@ const EditSoldForm = ({
   const handleClose = useCallback(() => {
     const params = new URLSearchParams(searchParams);
     params.delete("editSold");
+    params.delete("addSoldId");
     router.push(`${pathname}?${String(params)}`, { scroll: false });
     form.reset();
   }, [open]);
 
   const isLoading = form.formState.isSubmitting;
 
-  async function onSubmit(data: EditProductSold) {
+  async function onSubmit({
+    pricePerUnit,
+    discount,
+    count,
+    isReturned,
+    note,
+    productId,
+    serviceId,
+  }: ProductSold) {
+    const editData = { pricePerUnit, discount, count, isReturned, note };
+    const addSoldProduct = { ...editData, productId, serviceId };
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
-      await editProductToSellAction({ productToSell: data, id: proSold.id });
+
+      if (addSoldId) {
+        await createProductToSellAction(addSoldProduct);
+      }
+
+      if (proSold) {
+        await editProductToSellAction({
+          productToSell: editData,
+          id: proSold.id,
+        });
+      }
       handleClose();
       toast({
         title: "Success!.",
@@ -121,8 +145,12 @@ const EditSoldForm = ({
     <DialogComponent open={open} onOpenChange={handleClose}>
       <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogComponent.Header>
-          <DialogComponent.Title>Car information</DialogComponent.Title>
-          <DialogComponent.Description>
+          <DialogComponent.Title>
+            {addSoldId
+              ? "Add more product sold to the service."
+              : "Edit product sold."}
+          </DialogComponent.Title>
+          <DialogComponent.Description className="hidden">
             Create a new car information.
           </DialogComponent.Description>
         </DialogComponent.Header>
@@ -214,6 +242,31 @@ const EditSoldForm = ({
               />
             </div>
 
+            {addSoldId && (
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name={"productId"}
+                render={({ field }) => (
+                  <FormItem className=" flex-1">
+                    <FormLabel>Product</FormLabel>
+                    <FormControl>
+                      <ProductsComboBox
+                        value={field.value}
+                        setValue={field.onChange}
+                        options={products}
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter what product you bought.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               disabled={isLoading}
               control={form.control}
@@ -232,27 +285,29 @@ const EditSoldForm = ({
               )}
             />
 
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="isReturned"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="flex  justify-end items-center space-x-2">
-                      <Switch
-                        id="airplane-mode"
-                        checked={field.value}
-                        onClick={() => field.onChange(!field.value)}
-                      />
-                      <Label htmlFor="airplane-mode">is it returned?</Label>
-                    </div>
-                  </FormControl>
+            {!addSoldId && (
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="isReturned"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex  justify-end items-center space-x-2">
+                        <Switch
+                          id="airplane-mode"
+                          checked={field.value}
+                          onClick={() => field.onChange(!field.value)}
+                        />
+                        <Label htmlFor="airplane-mode">is it returned?</Label>
+                      </div>
+                    </FormControl>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <DialogComponent.Footer>
               <Button
                 onClick={handleClose}

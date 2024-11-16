@@ -269,7 +269,7 @@ export const CreateServiceSchema = z.object({
   // }),
 });
 
-export const EditServiceFeeSchema = z
+export const ServiceFeeSchema = z
   .object({
     price: z.number().min(1, { message: "Price is requried" }),
     discount: z.number(),
@@ -282,13 +282,15 @@ export const EditServiceFeeSchema = z
     path: ["discount"],
   });
 
-export const EditProductSoldSchema = z
+export const ProductSoldSchema = z
   .object({
     pricePerUnit: z.number().min(1, { message: "Requried!" }),
     discount: z.number(),
     count: z.number().min(1, { message: "Requried!" }),
     isReturned: z.boolean(),
     note: z.string(),
+    productId: z.number().min(1, { message: "Required!" }),
+    serviceId: z.number().min(1, { message: "Required!" }),
   })
   .refine((data) => data.pricePerUnit * data.count - data.discount > 0, {
     message: "Discount must be less than the total amount",
@@ -643,5 +645,5 @@ export type CreateClient = z.infer<typeof CreateClientSchema>;
 export type CreateCar = z.infer<typeof CreateCarSchema>;
 export type CreateProductBought = z.infer<typeof CreateProductBoughtSchema>;
 export type CreateService = z.infer<typeof CreateServiceSchema>;
-export type EditServiceFee = z.infer<typeof EditServiceFeeSchema>;
-export type EditProductSold = z.infer<typeof EditProductSoldSchema>;
+export type EditServiceFee = z.infer<typeof ServiceFeeSchema>;
+export type ProductSold = z.infer<typeof ProductSoldSchema>;

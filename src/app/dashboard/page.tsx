@@ -1,4 +1,5 @@
 import EditFeesManagement from "@components/dashboard/home/edit-fees-management";
+import ProductSoldManagement from "@components/dashboard/home/edit-product-sold";
 import EditProductSoldManagement from "@components/dashboard/home/edit-product-sold";
 import ServiceList from "@components/dashboard/home/service-list";
 import ServicePagination from "@components/dashboard/home/service-pagination";
@@ -15,7 +16,9 @@ interface SearchParams {
   minPrice?: string;
   maxPrice?: string;
   editFee?: string;
+  addFeeId?: string;
   editSold?: string;
+  addSoldId?: string;
 }
 const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const pageNumber = searchParams?.page ?? "1";
@@ -27,7 +30,9 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const minPrice = searchParams.minPrice ?? "";
   const maxPrice = searchParams.maxPrice ?? "";
   const editFee = searchParams.editFee ?? "";
+  const addFeeId = searchParams.addFeeId ?? "";
   const editSold = searchParams.editSold ?? "";
+  const addSoldId = searchParams.addSoldId ?? "";
 
   const key =
     pageNumber + dateFrom + dateTo + clientId + carId + minPrice + maxPrice;
@@ -46,15 +51,19 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
         /> */}
 
         <Suspense
-          fallback={<Spinner size={30} className=" mt-10" key={editFee} />}
+          fallback={
+            <Spinner size={30} className=" mt-10" key={editFee + addFeeId} />
+          }
         >
-          <EditFeesManagement feesId={editFee} />
+          <EditFeesManagement feesId={editFee} addFeeId={addFeeId} />
         </Suspense>
 
         <Suspense
-          fallback={<Spinner size={30} className=" mt-10" key={editSold} />}
+          fallback={
+            <Spinner size={30} className=" mt-10" key={editSold + addSoldId} />
+          }
         >
-          <EditProductSoldManagement editSold={editSold} />
+          <ProductSoldManagement editSold={editSold} addSoldId={addSoldId} />
         </Suspense>
 
         <Suspense fallback={<Spinner size={30} className=" mt-10" key={key} />}>
