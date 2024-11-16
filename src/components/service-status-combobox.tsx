@@ -26,6 +26,7 @@ import {
   ServiceStatus,
 } from "@lib/types";
 import { DEFAULT_CAR_LOGO } from "@lib/constants";
+import StatusBadge from "./dashboard/home/status-badge";
 
 // const frameworks = [
 //   {
@@ -77,7 +78,14 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
           aria-expanded={open}
           className=" w-full   justify-between   h-fit "
         >
-          {selected ? `Stattus: ${selected.name}` : "Select option..."}
+          {selected ? (
+            <div className=" flex items-center gap-2">
+              Status:{" "}
+              <StatusBadge status={selected.name} className=" py-[.1rem]" />
+            </div>
+          ) : (
+            "Select option..."
+          )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -104,12 +112,13 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
                       value === option.id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  <p className=" text-wrap  text-left ">
-                    Status: {option.name}
+                  <div className="  flex items-center gap-2 ">
+                    Status:{" "}
+                    <StatusBadge status={option.name} className=" py-[.1rem]" />
                     {option.description
                       ? ` / Descrioptin: ${option.description}`
                       : null}
-                  </p>
+                  </div>
                 </CommandItem>
               ))}
             </CommandGroup>

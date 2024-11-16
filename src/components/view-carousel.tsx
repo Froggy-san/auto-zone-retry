@@ -101,7 +101,7 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
                       exit={{ scale: 0.7, opacity: 0 }}
                       transition={{ duration: 0.2, type: "spring" }}
                       alt="Enlarged view"
-                      className="max-h-[90%] max-w-[100%] object-contain sm:max-h-[100%]"
+                      className="max-h-[90%] max-w-[100%] object-contain sm:max-h-[95%]"
                     />
                   </div>
                 </CarouselItem>
