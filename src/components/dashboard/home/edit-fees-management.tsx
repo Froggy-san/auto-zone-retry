@@ -4,36 +4,33 @@ import React from "react";
 import EditFeesForm from "./edit-fees-form";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 
-const EditFeesManagement = async ({ feesId }: { feesId?: string }) => {
+const EditFeesManagement = async ({
+  feesId,
+  addFeeId,
+}: {
+  feesId?: string;
+  addFeeId?: string;
+}) => {
   let categoriesArr;
   let fee;
-  let errors;
 
   if (feesId) {
-    const [feesToEdit, categories] = await Promise.all([
-      getServiceFeesById(feesId),
-      getAllCategoriesAction(),
-    ]);
-
-    const { data: feeData, error: feesError } = feesToEdit;
-    const { data: CategoriesData, error: categoriesErorr } = categories;
-
-    if (feesError || categoriesErorr) errors = feesError || categoriesErorr;
-
-    categoriesArr = CategoriesData;
-    fee = feeData;
+    const data = await getServiceFeesById(feesId);
+    fee = data;
   }
 
+  const { data: categories, error } = await getAllCategoriesAction();
   //   const { data: fee, error } = feesToEdit;
   //   const { data: CategoriesData, error: categoriesErorr } = categories;
 
-  if (errors) return <p>{errors}</p>;
+  if (fee?.error || error) return <p>{fee?.error || error}</p>;
   //   if (!fee) return <div />;
   return (
     <EditFeesForm
-      open={fee ? true : false}
-      categories={categoriesArr}
-      feesToEdit={fee}
+      open={fee?.data || addFeeId ? true : false}
+      addFeeId={addFeeId}
+      categories={categories}
+      feesToEdit={fee?.data}
     />
   );
 };

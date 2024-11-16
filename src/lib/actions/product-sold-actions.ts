@@ -2,7 +2,7 @@
 
 import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
-import { EditProductSold, EditServiceFee, ProductToSell } from "@lib/types";
+import { EditServiceFee, ProductSold, ProductToSell } from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -72,16 +72,16 @@ export async function getServiceFeesAction({
 
 // The service fees are created in the service actions.
 
-export async function createServiceFeeAction(shopName: string) {
+export async function createProductToSellAction(productToSell: ProductSold) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
-  const response = await fetch(`${process.env.API_URL}/api/ServicesFee`, {
+  const response = await fetch(`${process.env.API_URL}/api/ProductsToSell`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-type": "application/json",
     },
-    body: JSON.stringify({ shopName }),
+    body: JSON.stringify(productToSell),
   });
   if (!response.ok) {
     console.log("Something went wrong while creating the a restocking bill.");
@@ -91,8 +91,8 @@ export async function createServiceFeeAction(shopName: string) {
   //   revalidatePath("/dashboard/insert-data");
   revalidateTag("services");
 
-  const data = await response.json();
-  return data;
+  // const data = await response.json();
+  // return data;
 }
 
 export async function getProductToSellById(id: string) {
@@ -119,11 +119,19 @@ export async function getProductToSellById(id: string) {
   return { data: data, error: "" };
 }
 
+interface EditProps {
+  pricePerUnit: number;
+  discount: number;
+  count: number;
+  isReturned: boolean;
+  note: string;
+}
+
 export async function editProductToSellAction({
   productToSell,
   id,
 }: {
-  productToSell: EditProductSold;
+  productToSell: EditProps;
   id: number;
 }) {
   const token = getToken();

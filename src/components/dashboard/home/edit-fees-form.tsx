@@ -1,7 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,14 +15,10 @@ import {
 } from "@/components/ui/form";
 
 import {
-  CarModelProps,
-  CarMaker,
-  CarGenerationProps,
-  CarInfoSchema,
   ServiceFee,
   Category,
   EditServiceFee,
-  EditServiceFeeSchema,
+  ServiceFeeSchema,
 } from "@lib/types";
 
 import Spinner from "@components/Spinner";
@@ -40,14 +36,19 @@ import { Input } from "@components/ui/input";
 import { Textarea } from "@components/ui/textarea";
 import { Switch } from "@components/ui/switch";
 import { Label } from "@components/ui/label";
-import { editServiceFeeAction } from "@lib/actions/serviceFeeAction";
+import {
+  createServiceFeeAction,
+  editServiceFeeAction,
+} from "@lib/actions/serviceFeeAction";
 const EditFeesForm = ({
   open,
   feesToEdit,
+  addFeeId,
   categories,
 }: {
   open: boolean;
   feesToEdit: ServiceFee;
+  addFeeId?: string;
   categories: Category[];
 }) => {
   const { toast } = useToast();
@@ -61,31 +62,67 @@ const EditFeesForm = ({
     notes: feesToEdit?.notes || "",
     categoryId: feesToEdit?.categoryId || 0,
   };
-  const form = useForm<EditServiceFee>({
+  const form = useForm<z.infer<typeof ServiceFeeSchema>>({
     mode: "onChange",
-    resolver: zodResolver(EditServiceFeeSchema),
+    resolver: zodResolver(ServiceFeeSchema),
     defaultValues,
   });
+
+  const { discount, price } = form.watch();
 
   useEffect(() => {
     form.reset(defaultValues);
   }, [open]);
+
+  useEffect(() => {
+    if (price > discount) {
+      form.clearErrors("discount");
+    }
+  }, [discount, price, form]);
+
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
   const handleClose = useCallback(() => {
     const params = new URLSearchParams(searchParams);
     params.delete("editFee");
+    params.delete("addFeeId");
     router.push(`${pathname}?${String(params)}`, { scroll: false });
     form.reset();
   }, [open]);
 
   const isLoading = form.formState.isSubmitting;
 
-  console.log(form.formState.errors, "ERRPRR");
-  console.log(form.getValues(), "WWWW");
-  async function onSubmit(data: EditServiceFee) {
+  async function onSubmit({
+    price,
+    discount,
+    categoryId,
+    isReturned,
+    notes,
+  }: EditServiceFee) {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
-      await editServiceFeeAction({ serviceFee: data, id: feesToEdit.id });
+
+      if (addFeeId) {
+        await createServiceFeeAction({
+          price,
+          discount,
+          categoryId,
+          notes,
+          serviceId: Number(addFeeId),
+        });
+      }
+
+      if (feesToEdit) {
+        await editServiceFeeAction({
+          serviceFee: {
+            price,
+            discount,
+            categoryId,
+            isReturned,
+            notes,
+          },
+          id: feesToEdit.id,
+        });
+      }
       handleClose();
       toast({
         title: "Success!.",
@@ -109,10 +146,10 @@ const EditFeesForm = ({
     <DialogComponent open={open} onOpenChange={handleClose}>
       <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogComponent.Header>
-          <DialogComponent.Title>Car information</DialogComponent.Title>
-          <DialogComponent.Description>
-            Create a new car information.
-          </DialogComponent.Description>
+          <DialogComponent.Title>
+            {addFeeId ? `Add more service fees` : "Edit service fee"}
+          </DialogComponent.Title>
+          <DialogComponent.Description className=" hidden"></DialogComponent.Description>
         </DialogComponent.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
@@ -213,27 +250,29 @@ const EditFeesForm = ({
               )}
             />
 
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="isReturned"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="flex  justify-end items-center space-x-2">
-                      <Switch
-                        id="airplane-mode"
-                        checked={field.value}
-                        onClick={() => field.onChange(!field.value)}
-                      />
-                      <Label htmlFor="airplane-mode">is it returned?</Label>
-                    </div>
-                  </FormControl>
+            {!addFeeId && (
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="isReturned"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <div className="flex  justify-end items-center space-x-2">
+                        <Switch
+                          id="airplane-mode"
+                          checked={field.value}
+                          onClick={() => field.onChange(!field.value)}
+                        />
+                        <Label htmlFor="airplane-mode">is it returned?</Label>
+                      </div>
+                    </FormControl>
 
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <DialogComponent.Footer>
               <Button
                 onClick={handleClose}

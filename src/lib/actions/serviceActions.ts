@@ -95,30 +95,34 @@ export async function createServiceAction(service: CreateService) {
 }
 
 interface EditProps {
-  restockingToEdit: { shopName: string; dateOfOrder: string };
-  id: string;
+  id: number;
+  date: string;
+  clientId: number;
+  carId: number;
+  serviceStatusId: number;
+  note: string;
 }
 
-export async function editRestockingBillAction({
-  restockingToEdit,
-  id,
-}: EditProps) {
+export async function editServiceAction(serivceToEdit: EditProps) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
-  const response = await fetch(`${process.env.API_URL}/api/Services/${id}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-type": "application/json",
-    },
-    body: JSON.stringify(restockingToEdit),
-  });
+  const response = await fetch(
+    `${process.env.API_URL}/api/Services/${serivceToEdit.id}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(serivceToEdit),
+    }
+  );
   if (!response.ok) {
     console.log("Something went wrong while creating the a restocking bill.");
     throw new Error("Something went wrong!");
   }
 
-  revalidateTag("restockingBills");
+  revalidateTag("service");
   // const data = await response.json();
   // return data;
 }
@@ -137,9 +141,7 @@ export async function deleteServiceAction(id: string) {
     console.log("Something went wrong while deleting the a restocking bill.");
     throw new Error("Something went wrong!");
   }
-  revalidateTag("restockingBills");
-  // const data = await response.json();
-  // return data;
+  revalidateTag("services");
 }
 
 export async function getServicesCountAction({

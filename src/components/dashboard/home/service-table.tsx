@@ -39,6 +39,7 @@ import {
 import {
   CircleUser,
   Ellipsis,
+  HandPlatter,
   LoaderCircle,
   PackageMinus,
   PackagePlus,
@@ -86,6 +87,10 @@ import ServiceFeesDialog from "./service-Fee-dialog";
 import ProductSoldDialog from "./products-sold-dialog";
 import CarDialog from "./car-dialog";
 import ClientDialog from "./client-dialog";
+import {
+  deleteServiceAction,
+  editServiceAction,
+} from "@lib/actions/serviceActions";
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
     value
@@ -285,6 +290,7 @@ function TableActions({
   const searchParam = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const params = new URLSearchParams(searchParam);
 
   function handleClose() {
     setOpen("");
@@ -293,7 +299,7 @@ function TableActions({
   if (isLoading)
     return (
       <Spinner
-        className="  w-4 h-4 flex items-center mr-1 justify-center "
+        className="  w-4 h-4 flex items-center mr-1 justify-center  ml-auto"
         size={15}
       />
     );
@@ -323,17 +329,28 @@ function TableActions({
           <DropdownMenuItem
             className=" gap-2"
             onClick={() => {
-              const params = new URLSearchParams(searchParam);
-              params.set("reStockingBillId", service.id.toString());
-              router.replace(`${pathname}?${params.toString()}`, {
+              params.set("addFeeId", service.id.toString());
+              router.push(`${pathname}?${params.toString()}`, {
                 scroll: false,
               });
             }}
           >
-            <PackagePlus className=" w-4 h-4" /> Add more bought products
+            <HandPlatter className=" w-4 h-4" /> Add more service fees{" "}
           </DropdownMenuItem>
           <DropdownMenuItem
-            disabled={service.productsToSell.length > 0}
+            className=" gap-2"
+            onClick={() => {
+              const params = new URLSearchParams(searchParam);
+              params.set("addSoldId", service.id.toString());
+              router.push(`${pathname}?${params.toString()}`, {
+                scroll: false,
+              });
+            }}
+          >
+            <PackagePlus className=" w-4 h-4" /> Add more sold products
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={isLoading}
             className=" gap-2"
             onClick={() => {
               setOpen("delete");
@@ -599,9 +616,9 @@ function DeleteRestockingDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px] border-none">
         <DialogHeader>
-          <DialogTitle>Delete receipt.</DialogTitle>
+          <DialogTitle>Delete service receipt.</DialogTitle>
           <DialogDescription>
-            {`You are about to delete a receipt dated '', made at a shop called '', along with all its associated data.`}
+            {`You are about to delete a receipt dated '${service.date}', issued to the client '${service.client.name}', along with all its associated data.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -618,7 +635,14 @@ function DeleteRestockingDialog({
             onClick={async () => {
               setIsDeleting(true);
               try {
-                // await deleteRestockingBillAction(String(restockingBill.id));
+                await editServiceAction({
+                  date: service.date,
+                  clientId: service.client.id,
+                  carId: service.car.id,
+                  serviceStatusId: 4,
+                  note: service.note,
+                  id: service.id,
+                });
                 checkIfLastItem();
                 setIsDeleting(false);
                 handleClose();
@@ -632,7 +656,7 @@ function DeleteRestockingDialog({
                 });
               } catch (error: any) {
                 console.log(error);
-
+                setIsDeleting(false);
                 toast({
                   variant: "destructive",
                   title: "Faild to delete client's data",
@@ -700,9 +724,9 @@ function DeleteDialog({
     >
       <DialogContent className="sm:max-w-[425px] border-none">
         <DialogHeader>
-          <DialogTitle>Delete inventory bought.</DialogTitle>
+          <DialogTitle>Delete service.</DialogTitle>
           <DialogDescription>
-            {`You are about to delete the product '' from a receipt dated '', purchased from the shop ''`}
+            {`You are about to delete a service receipt dated '${service.date}', isussed to the cutomer '${service.client.name}', along with all it's related data.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -720,7 +744,7 @@ function DeleteDialog({
               try {
                 setIsDeleting(true);
                 // if (proTodelete)
-                //   await deleteProductsBoughtByIdAction(proTodelete.id);
+                await deleteServiceAction(service.id.toString());
                 // checkIfLastItem();
                 setIsDeleting(false);
                 setOpen(null);
