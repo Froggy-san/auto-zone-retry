@@ -297,6 +297,14 @@ export const ProductSoldSchema = z
     path: ["discount"],
   });
 
+export const EditServiceSchema = z.object({
+  date: z.date(),
+  clientId: z.number().min(1, { message: "Requried" }),
+  carId: z.number().min(1, { message: "Requried" }),
+  serviceStatusId: z.number().min(1, { message: "Requried" }),
+  note: z.string(),
+});
+
 export interface signUpProps {
   username: string;
   email: string;
@@ -647,3 +655,4 @@ export type CreateProductBought = z.infer<typeof CreateProductBoughtSchema>;
 export type CreateService = z.infer<typeof CreateServiceSchema>;
 export type EditServiceFee = z.infer<typeof ServiceFeeSchema>;
 export type ProductSold = z.infer<typeof ProductSoldSchema>;
+export type EditService = z.infer<typeof EditServiceSchema>;

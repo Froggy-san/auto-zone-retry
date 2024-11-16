@@ -15,6 +15,7 @@ import {
   PhoneNumber,
   ProductBoughtData,
   Service,
+  ServiceStatus,
 } from "@lib/types";
 import { Button } from "@components/ui/button";
 import {
@@ -22,7 +23,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -37,6 +42,7 @@ import {
 } from "@/components/ui/dialog";
 
 import {
+  Check,
   CircleUser,
   Ellipsis,
   HandPlatter,
@@ -45,6 +51,7 @@ import {
   PackagePlus,
   Pencil,
   ReceiptText,
+  Replace,
   UserRoundMinus,
 } from "lucide-react";
 import { useToast } from "@hooks/use-toast";
@@ -99,7 +106,9 @@ const formatCurrency = (value: number) =>
 const ServiceTable = ({
   services,
   currPage,
+  status,
 }: {
+  status: ServiceStatus[];
   currPage: string;
   services: Service[];
 }) => {
@@ -153,6 +162,7 @@ const ServiceTable = ({
         {services && services.length
           ? services.map((service, i) => (
               <Row
+                status={status}
                 service={service}
                 key={i}
                 currPage={currPage}
@@ -186,10 +196,12 @@ const ServiceTable = ({
 };
 
 function Row({
+  status,
   service,
   currPage,
   currPageSize,
 }: {
+  status: ServiceStatus[];
   currPage: string;
   service: Service;
   currPageSize: number;
@@ -237,6 +249,7 @@ function Row({
 
         <TableCell className=" w-[80px] ">
           <TableActions
+            status={status}
             service={service}
             currPage={currPage}
             currPageSize={currPageSize}
@@ -275,23 +288,60 @@ function Row({
 }
 
 function TableActions({
+  status,
   service,
   currPageSize,
   currPage,
 }: {
+  status: ServiceStatus[];
   currPage: string;
   service: Service;
   currPageSize: number;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState<"delete" | "edit" | "">("");
+  // const [chosenStatus, setChosenStatus] = useState<number>(service.status.id);
   const [isLoading, setIsLoading] = useState(false);
-
+  const { toast } = useToast();
   const searchParam = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
   const params = new URLSearchParams(searchParam);
 
+  const handleChangeStatus = async (id: number) => {
+    setIsLoading(true);
+    try {
+      await editServiceAction({
+        date: service.date,
+        clientId: service.client.id,
+        carId: service.car.id,
+        serviceStatusId: id,
+        note: service.note,
+        id: service.id,
+      });
+
+      setIsLoading(false);
+      handleClose();
+      toast({
+        title: `Client deleted!`,
+        description: (
+          <SuccessToastDescription message={`''s data has been deleted`} />
+        ),
+      });
+    } catch (error: any) {
+      console.log(error);
+      setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Faild to delete client's data",
+        description: <ErorrToastDescription error={error.message} />,
+      });
+    }
+  };
+
+  // useEffect(() => {
+  //   handleChangeStatus();
+  // }, [chosenStatus]);
   function handleClose() {
     setOpen("");
   }
@@ -349,15 +399,39 @@ function TableActions({
           >
             <PackagePlus className=" w-4 h-4" /> Add more sold products
           </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={isLoading}
-            className=" gap-2"
-            onClick={() => {
-              setOpen("delete");
-            }}
+          <DropdownMenuSub
+          // disabled={isLoading}
+          // className=" gap-2"
+          // onClick={() => {
+          //   setOpen("delete");
+          // }}
           >
-            <UserRoundMinus className=" w-4 h-4" /> Delete
-          </DropdownMenuItem>
+            <DropdownMenuSubTrigger className=" gap-2">
+              {" "}
+              <Replace className=" w-4 h-4" /> Change status
+            </DropdownMenuSubTrigger>
+
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                {status.map((status, i) => (
+                  <DropdownMenuItem
+                    key={i}
+                    className=" gap-2 justify-between"
+                    onClick={async () => {
+                      // setChosenStatus(status.id)
+                      if (status.id === service.status.id) return;
+                      await handleChangeStatus(status.id);
+                    }}
+                  >
+                    <StatusBadge status={status.name} className=" py-[.1rem]" />
+                    {service.status.id === status.id && (
+                      <Check className=" w-3 h-3" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
         </DropdownMenuContent>
       </DropdownMenu>
       {/* <ClientForm

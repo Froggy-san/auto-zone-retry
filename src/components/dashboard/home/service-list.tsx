@@ -6,6 +6,7 @@ import { getProductsBoughtAction } from "@lib/actions/productBoughtActions";
 import { getRestockingBillsAction } from "@lib/actions/restockingBillActions";
 import ServiceTable from "./service-table";
 import { getServicesAction } from "@lib/actions/serviceActions";
+import { getServiceStatusAction } from "@lib/actions/serviceStatusAction";
 
 interface Props {
   pageNumber: string;
@@ -38,11 +39,16 @@ const ServiceList = async ({
     maxPrice,
   });
 
+  const { data: status, error: statusError } = await getServiceStatusAction();
   if (error) return <p>{error}</p>;
 
   return (
     <div>
-      <ServiceTable currPage={pageNumber} services={data || []} />
+      <ServiceTable
+        currPage={pageNumber}
+        services={data || []}
+        status={status}
+      />
     </div>
   );
 };
