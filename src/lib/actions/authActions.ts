@@ -101,8 +101,8 @@ export async function logoutUser() {
     throw new Error("something went wrong with the logout process");
   getCookies.delete("auto-zone-token");
 
+  redirect("/login");
   const data = await response.json();
-  console.log(data, "LOGOUT DATA");
 }
 
 export async function car() {

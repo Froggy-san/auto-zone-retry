@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { SetStateAction, useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/form";
 
 import {
+  CarItem,
+  ClientWithPhoneNumbers,
   EditService,
   EditServiceSchema,
   ProductSold,
@@ -36,7 +38,7 @@ import DialogComponent from "@components/dialog-component";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ReceiptText } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -48,20 +50,28 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@components/ui/input";
 import { Textarea } from "@components/ui/textarea";
-import { Switch } from "@components/ui/switch";
-import { Label } from "@components/ui/label";
-import { ProductsComboBox } from "@components/proudcts-combo-box";
 import { ServiceStatusCombobox } from "@components/service-status-combobox";
+import { editServiceAction } from "@lib/actions/serviceActions";
+import { ClientsComboBox } from "@components/clients-combobox";
+import { CarsComboBox } from "@components/car-combo-box";
 
 const EditServiceForm = ({
+  clients,
+  cars,
   status,
   service,
+  open,
+  setOpen,
+  setIsLoading,
 }: {
+  clients: ClientWithPhoneNumbers[];
+  cars: CarItem[];
+  open: boolean;
+  setOpen: React.Dispatch<SetStateAction<boolean>>;
+  setIsLoading: React.Dispatch<SetStateAction<boolean>>;
   service: Service;
   status: ServiceStatus[];
 }) => {
-  const [open, setOpen] = useState(false);
-
   const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
@@ -79,39 +89,50 @@ const EditServiceForm = ({
     defaultValues,
   });
 
+  const isEqual = useObjectCompare(form.getValues(), defaultValues);
   useEffect(() => {
     form.reset(defaultValues);
-  }, [open]);
 
-  const isEqual = useObjectCompare(form.getValues(), defaultValues);
-  const handleClose = useCallback(() => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("editSold");
-    params.delete("addSoldId");
-    router.push(`${pathname}?${String(params)}`, { scroll: false });
-    form.reset();
+    const body = document.querySelector("body");
+    if (body) {
+      body.style.pointerEvents = "auto";
+    }
+    return () => {
+      if (body) body.style.pointerEvents = "auto";
+    };
   }, [open]);
-
   const isLoading = form.formState.isSubmitting;
 
   async function onSubmit(data: EditService) {
+    // format(value, "yyyy-MM-dd")
+    const editedData = {
+      ...data,
+      date: format(data.date, "yyyy-MM-dd"),
+      id: service.id,
+    };
+
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
+      setIsLoading(true);
 
-      handleClose();
+      await editServiceAction(editedData);
+      setOpen(false);
       toast({
         title: "Success!.",
         description: (
-          <SuccessToastDescription message="Service fee data has been updated." />
+          <SuccessToastDescription message="Service data has been updated." />
         ),
       });
     } catch (error: any) {
       console.log(error);
+
       toast({
         variant: "destructive",
         title: "Something went wrong while updating the service fee data.",
         description: <ErorrToastDescription error={error.message} />,
       });
+    } finally {
+      setIsLoading(false);
     }
   }
   return (
@@ -130,52 +151,62 @@ const EditServiceForm = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
             <div className=" flex    items-center gap-3">
-              <FormItem className=" w-full mb-auto">
-                <FormLabel>Car</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    disabled={true}
-                    value={`Car plate: ${service.car.plateNumber}`}
-                    placeholder="Additional notes..."
-                    // {...field}
-                  />
-                </FormControl>
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="carId"
+                render={({ field }) => (
+                  <FormItem className=" w-full mb-auto">
+                    <FormLabel>Car</FormLabel>
+                    <FormControl>
+                      <CarsComboBox
+                        value={field.value}
+                        setValue={field.onChange}
+                        options={cars}
+                      />
+                    </FormControl>
 
-                <FormMessage />
-              </FormItem>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <FormItem className=" w-full mb-auto">
-                <FormLabel>Total discount</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    disabled={isLoading}
-                    value={`Client: ${service.client.name}`}
-                    placeholder=""
-                    // {...field}
-                  />
-                </FormControl>
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="clientId"
+                render={({ field }) => (
+                  <FormItem className=" w-full mb-auto">
+                    <FormLabel>Client</FormLabel>
+                    <FormControl>
+                      <ClientsComboBox
+                        value={field.value}
+                        setValue={field.onChange}
+                        options={clients}
+                      />
+                    </FormControl>
 
-                <FormMessage />
-              </FormItem>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <div className="flex    items-center gap-3">
+            <div className="flex  flex-col xs:flex-row    items-center gap-3">
               <FormField
                 disabled={isLoading}
                 control={form.control}
                 name="date"
                 render={({ field }) => (
                   <FormItem className=" w-full mb-auto">
-                    <FormLabel>Count</FormLabel>
+                    <FormLabel>Date</FormLabel>
                     <FormControl>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "w-[240px] justify-start text-left font-normal",
+                              " w-full justify-start text-left gap-2 font-normal",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -209,7 +240,7 @@ const EditServiceForm = ({
                 name="serviceStatusId"
                 render={({ field }) => (
                   <FormItem className=" w-full mb-auto">
-                    <FormLabel>Count</FormLabel>
+                    <FormLabel>Status</FormLabel>
                     <FormControl>
                       <ServiceStatusCombobox
                         value={field.value}
@@ -244,7 +275,7 @@ const EditServiceForm = ({
 
             <DialogComponent.Footer>
               <Button
-                onClick={handleClose}
+                onClick={() => setOpen(false)}
                 disabled={isLoading}
                 type="reset"
                 variant="secondary"

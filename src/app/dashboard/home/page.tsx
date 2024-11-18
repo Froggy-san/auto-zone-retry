@@ -10,6 +10,7 @@ interface SearchParams {
   clientId?: string;
   carId?: string;
   minPrice?: string;
+  serviceStatusId?: string;
   maxPrice?: string;
   editFee?: string;
 }
@@ -22,6 +23,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const minPrice = searchParams.minPrice ?? "";
   const maxPrice = searchParams.maxPrice ?? "";
   const editFee = searchParams.editFee ?? "";
+  const serviceStatusId = searchParams.serviceStatusId ?? "";
 
   console.log(editFee, "?????????????????");
   console.log(pageNumber, "??dasaaaaaaaaaaaaa");
@@ -47,6 +49,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
 
         <Suspense fallback={<Spinner size={30} className=" mt-10" key={key} />}>
           <ServiceList
+            serviceStatusId={serviceStatusId}
             pageNumber={pageNumber}
             dateTo={dateFrom}
             dateFrom={dateTo}

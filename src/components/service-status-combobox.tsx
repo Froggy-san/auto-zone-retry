@@ -56,12 +56,14 @@ interface ComboBoxProps {
   value: number;
   options: ServiceStatus[];
   disabled?: boolean;
+  className?: string;
 }
 
 export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
   setValue,
   value,
   options,
+  className,
   disabled,
 }) => {
   const [open, setOpen] = React.useState(false);
@@ -76,7 +78,7 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className=" w-full   justify-between   h-fit "
+          className={cn("w-full   justify-between   h-fit ", className)}
         >
           {selected ? (
             <div className=" flex items-center gap-2">
@@ -89,7 +91,7 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className=" h-[30vh] sm:h-[unset]  w-[300px] sm:w-[400px]   p-0">
+      <PopoverContent className=" max-h-[30vh] sm:h-[unset]  w-[300px] sm:w-[400px]   p-0">
         <Command>
           <CommandInput placeholder="Search option..." />
           <CommandList>

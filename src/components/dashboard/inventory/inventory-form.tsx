@@ -760,7 +760,7 @@ const InventoryForm = ({
                 <Button
                   onClick={() => form.reset()}
                   type="button"
-                  className=" p-0 h-6 w-6 hidden sm:block  absolute left-5 bottom-0"
+                  className=" p-0 h-6 w-6 hidden sm:flex  absolute left-5 bottom-0"
                   variant="outline"
                 >
                   <RotateCcw className=" w-4 h-4" />
