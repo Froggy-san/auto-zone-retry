@@ -5,8 +5,6 @@ import {
   getClientsDataAction,
 } from "@lib/actions/clientActions";
 
-import { getProductsBoughtAction } from "@lib/actions/productBoughtActions";
-import { getRestockingBillsAction } from "@lib/actions/restockingBillActions";
 import ServiceTable from "./service-table";
 import { getServicesAction } from "@lib/actions/serviceActions";
 import { getServiceStatusAction } from "@lib/actions/serviceStatusAction";
@@ -34,6 +32,7 @@ const ServiceList = async ({
   minPrice,
   maxPrice,
 }: Props) => {
+  
   const { data, error } = await getServicesAction({
     pageNumber,
     dateFrom,
@@ -66,8 +65,8 @@ const ServiceList = async ({
         status={status}
         carId={carId}
         clientId={clientId}
-        dateFrom={dateFrom}
         dateTo={dateTo}
+        dateFrom={dateFrom}
         serviceStatusId={serviceStatusId}
         maxPrice={maxPrice}
         minPrice={minPrice}

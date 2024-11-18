@@ -55,10 +55,10 @@ const SearchDialog = ({
   currPage,
   carId,
   clientId,
+  dateTo,
   dateFrom,
   status,
   serviceStatusId,
-  dateTo,
   minPrice,
   maxPrice,
 }: SearchProps) => {
@@ -71,6 +71,9 @@ const SearchDialog = ({
     clientId: Number(clientId) || 0,
     statusId: Number(serviceStatusId) || 0,
   };
+
+  console.log(dateFrom, "FFFFFFROm");
+  console.log(dateTo, "DATE TTOOOO");
   const rangeValues = [initalValus.minPrice, initalValus.maxPrice];
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
@@ -140,12 +143,6 @@ const SearchDialog = ({
 
     if (page > 1) params.set("page", String(page - 1));
 
-    // if (!name.length) {
-    //   params.delete("carId");
-    // } else {
-    //   params.set("carId", name);
-    // }
-
     if (!car) {
       params.delete("carId");
     } else {
@@ -187,7 +184,7 @@ const SearchDialog = ({
       params.set("maxPrice", maxPrice.toString());
     }
 
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
     setOpen(false);
   }
 
@@ -220,7 +217,7 @@ const SearchDialog = ({
         <DialogComponent.Header>
           <DialogComponent.Title>Search for recipts</DialogComponent.Title>
           <DialogComponent.Description>
-            Make changes to your profile here. Click save when you&apos;re done.
+            Filter through all the sales you made.
           </DialogComponent.Description>
         </DialogComponent.Header>
         <form action={handleSub}>

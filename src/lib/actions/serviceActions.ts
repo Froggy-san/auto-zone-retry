@@ -49,6 +49,8 @@ export async function getServicesAction({
 
   if (maxPrice) query = query + `&maxPrice=${maxPrice}`;
 
+  // console.log(query, "QQQQQQQ");
+
   const response = await fetch(query, {
     method: "GET",
     headers: {
@@ -61,6 +63,7 @@ export async function getServicesAction({
 
   if (!response.ok) {
     console.log("Something went wrong while trying to fetch Services data.");
+
     return {
       data: null,
       error: "Something went wrong while trying to fetch Services data.",
@@ -68,6 +71,7 @@ export async function getServicesAction({
   }
 
   const data = await response.json();
+
   return { data, error: "" };
 }
 
