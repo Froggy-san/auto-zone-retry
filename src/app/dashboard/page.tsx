@@ -69,8 +69,8 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
         <Suspense fallback={<Spinner size={30} className=" mt-10" key={key} />}>
           <ServiceList
             pageNumber={pageNumber}
-            dateTo={dateFrom}
-            dateFrom={dateTo}
+            dateTo={dateTo}
+            dateFrom={dateFrom}
             clientId={clientId}
             carId={carId}
             serviceStatusId={serviceStatusId}

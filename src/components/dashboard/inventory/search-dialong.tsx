@@ -185,9 +185,7 @@ const SearchDialog = ({
       <DialogContent className="max-h-[70vh] overflow-y-auto sm:max-w-[425px] border-none">
         <DialogHeader>
           <DialogTitle>Search for recipts</DialogTitle>
-          <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
-          </DialogDescription>
+          <DialogDescription>Filter throught the inventory.</DialogDescription>
         </DialogHeader>
         <form action={handleSub}>
           <div className=" flex flex-wrap   gap-2 gap-y-3">

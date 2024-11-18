@@ -16,8 +16,8 @@ interface SearchParams {
 }
 const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const pageNumber = searchParams?.page ?? "1";
-  const dateFrom = searchParams.dateFrom ?? "";
   const dateTo = searchParams.dateTo ?? "";
+  const dateFrom = searchParams.dateFrom ?? "";
   const clientId = searchParams.clientId ?? "";
   const carId = searchParams.carId ?? "";
   const minPrice = searchParams.minPrice ?? "";
@@ -25,8 +25,12 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const editFee = searchParams.editFee ?? "";
   const serviceStatusId = searchParams.serviceStatusId ?? "";
 
-  console.log(editFee, "?????????????????");
-  console.log(pageNumber, "??dasaaaaaaaaaaaaa");
+  console.log(dateFrom, "AYOOOOO FROM HERE");
+  console.log(
+    dateTo,
+    "AYYYYYYYYYYYYYYYYYYYYYOOOOOOOOOOOOOOOOOOOOOOOOO TO HEREEEE"
+  );
+
   const key =
     pageNumber + dateFrom + dateTo + clientId + carId + minPrice + maxPrice;
   const pageKey = dateFrom + dateTo + clientId + carId + minPrice + maxPrice;
@@ -51,8 +55,8 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
           <ServiceList
             serviceStatusId={serviceStatusId}
             pageNumber={pageNumber}
-            dateTo={dateFrom}
-            dateFrom={dateTo}
+            dateTo={dateTo}
+            dateFrom={dateFrom}
             clientId={clientId}
             carId={carId}
             minPrice={minPrice}
@@ -66,8 +70,8 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
         >
           <ServicePagination
             pageNumber={pageNumber}
-            dateTo={dateFrom}
-            dateFrom={dateTo}
+            dateTo={dateTo}
+            dateFrom={dateFrom}
             clientId={clientId}
             carId={carId}
             minPrice={minPrice}
