@@ -5,6 +5,7 @@ import { CarItem as CarItemProps } from "@lib/types";
 import React, { useMemo } from "react";
 import CarAction from "./car-item-actions";
 import Link from "next/link";
+import { ImageOff } from "lucide-react";
 
 const CarItem = ({
   car,
@@ -15,7 +16,7 @@ const CarItem = ({
 }) => {
   const carImages = car.carImages.map((image) => image.imagePath);
 
-  const viewedImages = carImages.length ? carImages : STATIC_IMAGES;
+  const viewedImages = carImages.length ? carImages : [];
   return (
     <Card className="   border    min-h-[250px]">
       <Link
@@ -23,10 +24,16 @@ const CarItem = ({
         className="  flex  flex-col  md:flex-row h-full w-full relative "
       >
         <div className="  min-h-[250px] lg:min-h-[300px]  md:min-w-[270px] flex-1">
-          <ProductImages
-            imageUrls={viewedImages}
-            className=" h-full  rounded-tl-xl rounded-tr-xl md:rounded-tr-none  md:rounded-bl-xl  overflow-hidden"
-          />
+          {viewedImages.length ? (
+            <ProductImages
+              imageUrls={viewedImages}
+              className=" h-full  rounded-tl-xl rounded-tr-xl md:rounded-tr-none  md:rounded-bl-xl  overflow-hidden"
+            />
+          ) : (
+            <div className=" h-full flex items-center justify-center  bg-foreground/10   rounded-tl-xl rounded-tr-xl md:rounded-tr-none  md:rounded-bl-xl">
+              <ImageOff className=" w-20 h-20" />
+            </div>
+          )}
         </div>
         <section className="  w-full  xl:pl-14   text-xs  grid grid-cols-1 items-center xs:grid-cols-2   md:grid-cols-1 lg:grid-cols-2  md:w-[65%] gap-y-2 gap-x-3 md:gap-0  p-3 lg:max-w-[900px]   md:pr-10">
           {/* top */}

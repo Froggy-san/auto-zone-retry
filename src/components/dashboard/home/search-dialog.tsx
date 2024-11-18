@@ -205,8 +205,8 @@ const SearchDialog = ({
 
   return (
     <DialogComponent open={open} onOpenChange={setOpen}>
-      <DialogComponent.Trigger className=" block ml-auto">
-        <div className="text-sm border text-muted-foreground mt-7  flex items-center gap-2  py-1 px-2  rounded-sm w-full  sm:w-[250px] justify-between    ">
+      <DialogComponent.Trigger className=" block ml-auto w-full   sm:w-[250px]">
+        <div className="text-sm border text-muted-foreground mt-7  flex items-center gap-2  py-1 px-2  rounded-sm  justify-between    ">
           Search...{" "}
           <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1  border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 rounded-md">
             <span className="text-xs">⌘</span>k

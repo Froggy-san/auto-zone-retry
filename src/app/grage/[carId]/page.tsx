@@ -13,7 +13,7 @@ import React from "react";
 import CarManagement from "@components/grage/car-management";
 import DeleteCar from "@components/grage/delete-car";
 import { Card } from "@components/ui/card";
-import { ArrowLeft, Blend, Car } from "lucide-react";
+import { ArrowLeft, Blend, Car, ImageOff } from "lucide-react";
 import NoteDialog from "@components/grage/note-dialog";
 import { VscTypeHierarchySuper } from "react-icons/vsc";
 import { TbBoxModel2 } from "react-icons/tb";
@@ -50,7 +50,13 @@ const Page = async ({ params }: { params: Params }) => {
   // const client: ClientWithPhoneNumbers = data.client;
   return (
     <main className=" min-h-screen ">
-      <FullImagesGallery images={images?.length ? images : STATIC_IMAGES} />
+      {images && images.length ? (
+        <FullImagesGallery images={images} />
+      ) : (
+        <div className=" h-full flex items-center justify-center  bg-foreground/10  font-semibold text-xl py-5 gap-3">
+          <ImageOff className=" w-10 h-10" /> No images.
+        </div>
+      )}
 
       <section className="mt-10   space-y-14   px-2 sm:px-4 pb-10">
         {/* Car Information  starts*/}
