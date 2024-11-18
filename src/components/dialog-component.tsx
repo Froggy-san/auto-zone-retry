@@ -54,8 +54,8 @@ function DialogComponent({
 
   const handleOpenChange = () => {
     setIsOpen((is) => !is);
-    if (open) {
-      onOpenChange?.(open);
+    if (open !== undefined) {
+      onOpenChange?.(!open);
     }
   };
 

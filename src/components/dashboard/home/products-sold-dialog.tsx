@@ -15,7 +15,7 @@ import { Switch } from "@components/ui/switch";
 import { Checkbox } from "@components/ui/checkbox";
 import { Label } from "@components/ui/label";
 import { Button } from "@components/ui/button";
-import { PackageMinus, Pencil } from "lucide-react";
+import { PackageMinus, PackageSearch, Pencil } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -216,25 +216,30 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
   const totals = productsArr.reduce(
     (acc, item) => {
       acc.totalDiscount += item.discount;
-      acc.totalPrice += item.totalPriceAfterDiscount;
+      acc.totalPriceBeforeDiscount += item.pricePerUnit * item.count;
+      acc.totalPriceAfterDiscount += item.totalPriceAfterDiscount;
       return acc;
     },
-    { totalDiscount: 0, totalPrice: 0 }
+    {
+      totalDiscount: 0,
+      totalPriceAfterDiscount: 0,
+      totalPriceBeforeDiscount: 0,
+    }
   );
 
-  // if (!soldProducts.length)
-  //   return (
-  //     <TooltipProvider delayDuration={500}>
-  //       <Tooltip>
-  //         <TooltipTrigger>
-  //           <span className="  inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pointer-events-none opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md h-6 px-2 py-3 text-xs">
-  //             Show
-  //           </span>
-  //         </TooltipTrigger>
-  //         <TooltipContent>No products were sold.</TooltipContent>
-  //       </Tooltip>
-  //     </TooltipProvider>
-  //   );
+  if (!soldProducts.length)
+    return (
+      <TooltipProvider delayDuration={500}>
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="  inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pointer-events-none opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md h-6 px-2 py-3  text-xs ">
+              Show
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>No products were sold.</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
 
   return (
     <>
@@ -326,7 +331,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
               />
             </div>
 
-            <div className="flex items-center  justify-end  space-x-2   w-[48%] sm:w-[32%] ">
+            <div className="flex items-center  justify-center  space-x-2   w-[48%] sm:w-[32%] ">
               <Switch
                 id="airplane-mode"
                 checked={hasReturnedValue}
@@ -347,7 +352,8 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
           <div className=" space-y-4    sm:flex-1  sm:px-2   sm:overflow-y-auto">
             <div className=" flex items-center justify-between">
               <h2 className=" font-semibold text-xl  whitespace-nowrap">
-                {productsArr.length} Products sold.
+                <span className=" text-primary">{productsArr.length}</span>{" "}
+                Products sold.
               </h2>
               <div className=" text-xs   justify-end flex items-center gap-y-1 gap-x-3 flex-wrap text-muted-foreground  ">
                 <div>
@@ -377,7 +383,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
                     >
                       <div
                         //   href={`/products/${product.product.id}`}
-                        className="flex text-sm  h-fit flex-wrap  font-semibold !text-green-400  !justify-start  items-center  max-w-full    gap-x-6 gap-y-3"
+                        className="flex text-sm  h-fit flex-wrap  font-semibold !text-primary !justify-start  items-center  max-w-full    gap-x-6 gap-y-3"
                       >
                         <div className="   pointer-events-none">
                           Product name:{" "}
@@ -448,7 +454,11 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
                 );
               })
             ) : (
-              <p className=" text-center  py-3">No Products.</p>
+              <p className="  flex items-center justify-center gap-3  py-3  ">
+                {" "}
+                <PackageSearch size={30} className="text-primary" /> No
+                Products.
+              </p>
             )}
           </div>
           {/* </main> */}
@@ -458,18 +468,25 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
                 Close
               </Button>
             </DialogClose>
-            <div className=" flex gap-x-10 gap-y-2 flex-wrap">
+            <div className=" flex gap-x-5  text-xs gap-y-2 flex-wrap">
               <div>
-                Total:{" "}
-                <span className=" text-xs  text-muted-foreground">
-                  {formatCurrency(totals.totalPrice)}
+                Total price:{" "}
+                <span className="   text-muted-foreground">
+                  {formatCurrency(totals.totalPriceBeforeDiscount)}
                 </span>
               </div>
 
               <div>
                 Total discount:{" "}
-                <span className=" text-xs  text-muted-foreground">
+                <span className="   text-muted-foreground">
                   {formatCurrency(totals.totalDiscount)}
+                </span>
+              </div>
+
+              <div>
+                Net:{" "}
+                <span className="   text-muted-foreground">
+                  {formatCurrency(totals.totalPriceAfterDiscount)}
                 </span>
               </div>
             </div>

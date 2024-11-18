@@ -1,4 +1,4 @@
-import { Service, ServiceFee } from "@lib/types";
+import { Category, Service, ServiceFee } from "@lib/types";
 import React, { useEffect, useReducer, useState } from "react";
 import {
   Dialog,
@@ -15,7 +15,7 @@ import { Switch } from "@components/ui/switch";
 import { Checkbox } from "@components/ui/checkbox";
 import { Label } from "@components/ui/label";
 import { Button } from "@components/ui/button";
-import { PackageMinus, Pencil } from "lucide-react";
+import { HandPlatter, PackageMinus, Pencil } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -118,7 +118,13 @@ function reducer(state: ServiceStates, action: Action) {
   }
 }
 
-function ServiceFeesDialog({ service }: { service: Service }) {
+function ServiceFeesDialog({
+  service,
+  categories,
+}: {
+  service: Service;
+  categories: Category[];
+}) {
   const [
     {
       deleteOpen,
@@ -145,8 +151,6 @@ function ServiceFeesDialog({ service }: { service: Service }) {
   }
 
   servicesArr = servicesArr.filter((service) => {
-    // const hasReturned = new RegExp(String(hasReturnedValue), "i");
-
     let filterValue = true;
     if (checked)
       filterValue = filterValue && service.isReturned === hasReturnedValue;
@@ -173,25 +177,26 @@ function ServiceFeesDialog({ service }: { service: Service }) {
   const totals = servicesArr.reduce(
     (acc, item) => {
       acc.totalDiscount += item.discount;
+      acc.totalPriceBeforeDiscount += item.price;
       acc.totalPrice += item.totalPriceAfterDiscount;
       return acc;
     },
-    { totalDiscount: 0, totalPrice: 0 }
+    { totalPriceBeforeDiscount: 0, totalDiscount: 0, totalPrice: 0 }
   );
 
-  // if (!service.serviceFees.length)
-  //   return (
-  //     <TooltipProvider delayDuration={500}>
-  //       <Tooltip>
-  //         <TooltipTrigger>
-  //           <span className="  inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pointer-events-none opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md h-6 px-2 py-3 text-xs">
-  //             Show
-  //           </span>
-  //         </TooltipTrigger>
-  //         <TooltipContent>No services were preformed.</TooltipContent>
-  //       </Tooltip>
-  //     </TooltipProvider>
-  //   );
+  if (!service.serviceFees.length)
+    return (
+      <TooltipProvider delayDuration={500}>
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="  inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pointer-events-none opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md h-6 px-2 py-3 text-xs">
+              Show
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>No services were preformed.</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
 
   return (
     <>
@@ -259,7 +264,7 @@ function ServiceFeesDialog({ service }: { service: Service }) {
               />
             </div>
 
-            <div className="flex items-center  justify-end  space-x-2   w-[48%] sm:w-[32%] ">
+            <div className="flex items-center   justify-end space-x-2    flex-1 ">
               <Switch
                 id="airplane-mode"
                 checked={hasReturnedValue}
@@ -283,12 +288,13 @@ function ServiceFeesDialog({ service }: { service: Service }) {
 
           <div className=" space-y-4    sm:flex-1  sm:px-2   sm:overflow-y-auto">
             <div className=" flex items-center justify-between">
-              <h2 className=" font-semibold text-xl  whitespace-nowrap">
-                {servicesArr.length} Service fees.
+              <h2 className=" font-semibold text-xl   whitespace-nowrap">
+                <span className=" text-primary"> {servicesArr.length}</span>{" "}
+                Service fees.
               </h2>
               <div className=" text-xs   justify-end flex items-center gap-y-1 gap-x-3 flex-wrap text-muted-foreground  ">
                 <div>
-                  Car: <span>{service.car.plateNumber}</span>
+                  Car plate: <span>{service.car.plateNumber}</span>
                 </div>
                 <div>
                   Date: <span>{service.date}</span>
@@ -303,7 +309,7 @@ function ServiceFeesDialog({ service }: { service: Service }) {
                 >
                   <div
                     // href={`/serviceFees/${serviceFee.serviceFeeId}`}
-                    className="flex text-sm  h-fit flex-wrap  font-semibold !text-green-400  !justify-start  items-center  max-w-full    gap-x-6 gap-y-3"
+                    className="flex text-sm  h-fit flex-wrap  font-semibold !text-primary  !justify-start  items-center  max-w-full    gap-x-6 gap-y-3"
                   >
                     <div className=" ">
                       Price:{" "}
@@ -317,6 +323,16 @@ function ServiceFeesDialog({ service }: { service: Service }) {
                       <span className="text-xs text-muted-foreground">{` ${formatCurrency(
                         serviceFee.discount
                       )}`}</span>
+                    </div>
+
+                    <div>
+                      {" "}
+                      Category:{" "}
+                      <span className="text-xs text-muted-foreground">{` ${
+                        categories?.find(
+                          (category) => category.id === serviceFee.categoryId
+                        )?.name || "Something went wrong!"
+                      }`}</span>
                     </div>
 
                     <div>
@@ -366,7 +382,11 @@ function ServiceFeesDialog({ service }: { service: Service }) {
                 </div>
               ))
             ) : (
-              <p className=" text-center  py-3">No service Fees.</p>
+              <div className="  flex items-center justify-center gap-2   py-3">
+                {" "}
+                <HandPlatter size={30} className=" text-primary" /> No service
+                Fees.
+              </div>
             )}
           </div>
           {/* </main> */}
@@ -376,11 +396,11 @@ function ServiceFeesDialog({ service }: { service: Service }) {
                 Close
               </Button>
             </DialogClose>
-            <div className=" flex gap-x-10 gap-y-2 flex-wrap">
+            <div className="   flex text-xs gap-x-5 gap-y-2 flex-wrap">
               <div>
-                Total:{" "}
+                Total price before discount:{" "}
                 <span className=" text-xs  text-muted-foreground">
-                  {formatCurrency(totals.totalPrice)}
+                  {formatCurrency(totals.totalPriceBeforeDiscount)}
                 </span>
               </div>
 
@@ -388,6 +408,13 @@ function ServiceFeesDialog({ service }: { service: Service }) {
                 Total discount:{" "}
                 <span className=" text-xs  text-muted-foreground">
                   {formatCurrency(totals.totalDiscount)}
+                </span>
+              </div>
+
+              <div>
+                Net:{" "}
+                <span className=" text-xs  text-muted-foreground">
+                  {formatCurrency(totals.totalPrice)}
                 </span>
               </div>
             </div>

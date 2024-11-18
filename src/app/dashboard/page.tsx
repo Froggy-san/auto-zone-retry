@@ -39,7 +39,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const pageKey = dateFrom + dateTo + clientId + carId + minPrice + maxPrice;
   return (
     <main className=" relative">
-      <h2 className="  font-semibold text-4xl">INVENTORY MANAGEMENT.</h2>
+      <h2 className="  font-semibold text-4xl">SALES OVERVIEW.</h2>
       <section className=" sm:pl-4">
         {/* <SearchDialog
           currPage={pageNumber}

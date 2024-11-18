@@ -1,22 +1,28 @@
 import React from "react";
 
-import { getClientsAction } from "@lib/actions/clientActions";
+import {
+  getClientsAction,
+  getClientsDataAction,
+} from "@lib/actions/clientActions";
 
 import { getProductsBoughtAction } from "@lib/actions/productBoughtActions";
 import { getRestockingBillsAction } from "@lib/actions/restockingBillActions";
 import ServiceTable from "./service-table";
 import { getServicesAction } from "@lib/actions/serviceActions";
 import { getServiceStatusAction } from "@lib/actions/serviceStatusAction";
+import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
+import { getCarsAction } from "@lib/actions/carsAction";
+import SearchDialog from "./search-dialog";
 
 interface Props {
   pageNumber: string;
-  dateFrom?: string;
-  dateTo?: string;
-  clientId?: string;
-  carId?: string;
-  serviceStatusId?: string;
-  minPrice?: string;
-  maxPrice?: string;
+  dateFrom: string;
+  dateTo: string;
+  clientId: string;
+  carId: string;
+  serviceStatusId: string;
+  minPrice: string;
+  maxPrice: string;
 }
 const ServiceList = async ({
   pageNumber,
@@ -39,16 +45,46 @@ const ServiceList = async ({
     maxPrice,
   });
 
-  const { data: status, error: statusError } = await getServiceStatusAction();
-  if (error) return <p>{error}</p>;
+  const [statusData, categoriesData, clientsData, carsData] = await Promise.all(
+    [
+      getServiceStatusAction(),
+      getAllCategoriesAction(),
+      getClientsDataAction(),
+      getCarsAction({}),
+    ]
+  );
+  const { data: status, error: statusError } = statusData;
+  const { data: categories, error: categoriesError } = categoriesData;
+  const { data: clients, error: clientsError } = clientsData;
+  const { data: cars, error: carsError } = carsData;
 
   return (
     <div>
-      <ServiceTable
-        currPage={pageNumber}
-        services={data || []}
+      <SearchDialog
+        cars={cars}
+        clients={clients || []}
         status={status}
+        carId={carId}
+        clientId={clientId}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+        serviceStatusId={serviceStatusId}
+        maxPrice={maxPrice}
+        minPrice={minPrice}
+        currPage={pageNumber}
       />
+      {!error ? (
+        <ServiceTable
+          cars={cars}
+          clients={clients || []}
+          categories={categories}
+          currPage={pageNumber}
+          services={data || []}
+          status={status}
+        />
+      ) : (
+        <p>{error}</p>
+      )}
     </div>
   );
 };

@@ -41,6 +41,11 @@ import {
 } from "@lib/actions/product-sold-actions";
 import { ProductsComboBox } from "@components/proudcts-combo-box";
 
+export const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
+    value
+  );
+
 interface ProById extends ProductSold {
   id: number;
 }
@@ -143,7 +148,7 @@ const EditSoldForm = ({
 
   return (
     <DialogComponent open={open} onOpenChange={handleClose}>
-      <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
+      <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14 pb-0 sm:pb-0">
         <DialogComponent.Header>
           <DialogComponent.Title>
             {addSoldId
@@ -156,7 +161,7 @@ const EditSoldForm = ({
         </DialogComponent.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
-            <div className=" flex    items-center gap-3">
+            <div className=" flex    items-center gap-1 xs:gap-3">
               <FormField
                 disabled={isLoading}
                 control={form.control}
@@ -308,7 +313,28 @@ const EditSoldForm = ({
                 )}
               />
             )}
-            <DialogComponent.Footer>
+
+            <div className="w-[300px]">
+              <h3 className=" text-sm">Summary:</h3>
+              <div className=" py-2  border-b border-t space-y-2 text-xs text-muted-foreground">
+                <div>
+                  Amount:{" "}
+                  <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-dashboard-indigo ">
+                    {count}
+                  </span>
+                </div>
+                <div>Price per unit: {formatCurrency(pricePerUnit)}</div>
+                <div>
+                  Total price before discount:{" "}
+                  {formatCurrency(pricePerUnit * count)}
+                </div>
+                <div>Total discount: {formatCurrency(discount)}</div>
+                <div className=" border-t pt-1">
+                  Net: {formatCurrency(pricePerUnit * count - discount)}
+                </div>
+              </div>
+            </div>
+            <DialogComponent.Footer className="  sm:pb-14 pb-5 pt-4 !mt-4 sticky  bg-background bottom-0 z-50 w-full">
               <Button
                 onClick={handleClose}
                 disabled={isLoading}

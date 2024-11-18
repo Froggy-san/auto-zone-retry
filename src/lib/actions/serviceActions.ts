@@ -96,11 +96,11 @@ export async function createServiceAction(service: CreateService) {
 
 interface EditProps {
   id: number;
-  date: string;
-  clientId: number;
-  carId: number;
-  serviceStatusId: number;
-  note: string;
+  date?: string;
+  clientId?: number;
+  carId?: number;
+  serviceStatusId?: number;
+  note?: string;
 }
 
 export async function editServiceAction(serivceToEdit: EditProps) {

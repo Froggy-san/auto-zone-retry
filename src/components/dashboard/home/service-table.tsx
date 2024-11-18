@@ -11,6 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  CarItem,
+  Category,
   ClientWithPhoneNumbers,
   PhoneNumber,
   ProductBoughtData,
@@ -98,16 +100,23 @@ import {
   deleteServiceAction,
   editServiceAction,
 } from "@lib/actions/serviceActions";
+import EditServiceForm from "./edit-service-form";
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
     value
   );
 
 const ServiceTable = ({
+  categories,
   services,
   currPage,
+  cars,
+  clients,
   status,
 }: {
+  categories: Category[];
+  cars: CarItem[];
+  clients: ClientWithPhoneNumbers[];
   status: ServiceStatus[];
   currPage: string;
   services: Service[];
@@ -145,16 +154,16 @@ const ServiceTable = ({
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className=" min-w-[20px]">Id</TableHead>
-          <TableHead>Dates</TableHead>
-          <TableHead>Client</TableHead>
-          <TableHead>Car</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Fees</TableHead>
-          <TableHead className=" whitespace-nowrap">Products sold</TableHead>
+          <TableHead className=" min-w-[20px]">ID</TableHead>
+          <TableHead>DATE</TableHead>
+          <TableHead>CLIENT</TableHead>
+          <TableHead>CAR</TableHead>
+          <TableHead>STATUS</TableHead>
+          <TableHead>FEES</TableHead>
+          <TableHead className=" whitespace-nowrap">SOLD PRODUCTS</TableHead>
           {/* <TableHead className=""></TableHead> */}
           <TableHead className="text-right" colSpan={2}>
-            Total price
+            TOTAL PRICE
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -162,8 +171,11 @@ const ServiceTable = ({
         {services && services.length
           ? services.map((service, i) => (
               <Row
+                categories={categories}
                 status={status}
                 service={service}
+                cars={cars}
+                clients={clients}
                 key={i}
                 currPage={currPage}
                 currPageSize={currPageSize}
@@ -196,11 +208,17 @@ const ServiceTable = ({
 };
 
 function Row({
+  categories,
   status,
+  clients,
+  cars,
   service,
   currPage,
   currPageSize,
 }: {
+  categories: Category[];
+  clients: ClientWithPhoneNumbers[];
+  cars: CarItem[];
   status: ServiceStatus[];
   currPage: string;
   service: Service;
@@ -221,7 +239,7 @@ function Row({
       >
         <TableCell className="font-medium">{service.id}</TableCell>
 
-        <TableCell>{service.date}</TableCell>
+        <TableCell className=" whitespace-nowrap">{service.date}</TableCell>
 
         <TableCell>
           <ClientDialog service={service} />
@@ -236,7 +254,7 @@ function Row({
         </TableCell>
 
         <TableCell>
-          <ServiceFeesDialog service={service} />
+          <ServiceFeesDialog categories={categories} service={service} />
         </TableCell>
 
         <TableCell className=" min-w-[100px]">
@@ -249,6 +267,8 @@ function Row({
 
         <TableCell className=" w-[80px] ">
           <TableActions
+            cars={cars}
+            clients={clients}
             status={status}
             service={service}
             currPage={currPage}
@@ -292,14 +312,19 @@ function TableActions({
   service,
   currPageSize,
   currPage,
+  cars,
+  clients,
 }: {
+  cars: CarItem[];
+  clients: ClientWithPhoneNumbers[];
   status: ServiceStatus[];
   currPage: string;
   service: Service;
   currPageSize: number;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [open, setOpen] = useState<"delete" | "edit" | "">("");
+  // const [open, setOpen] = useState<"delete" | "edit" | "">("");
+  const [open, setOpen] = useState(false);
   // const [chosenStatus, setChosenStatus] = useState<number>(service.status.id);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -312,16 +337,12 @@ function TableActions({
     setIsLoading(true);
     try {
       await editServiceAction({
-        date: service.date,
-        clientId: service.client.id,
-        carId: service.car.id,
         serviceStatusId: id,
-        note: service.note,
         id: service.id,
       });
 
       setIsLoading(false);
-      handleClose();
+      // handleClose();
       toast({
         title: `Client deleted!`,
         description: (
@@ -342,9 +363,9 @@ function TableActions({
   // useEffect(() => {
   //   handleChangeStatus();
   // }, [chosenStatus]);
-  function handleClose() {
-    setOpen("");
-  }
+  // function handleClose() {
+  //   setOpen("");
+  // }
 
   if (isLoading)
     return (
@@ -371,10 +392,10 @@ function TableActions({
           <DropdownMenuItem
             className=" gap-2"
             onClick={() => {
-              setOpen("edit");
+              setOpen(true);
             }}
           >
-            <ReceiptText className=" w-4 h-4" /> Edit receipt
+            <ReceiptText className=" w-4 h-4" /> Edit service receipt
           </DropdownMenuItem>
           <DropdownMenuItem
             className=" gap-2"
@@ -438,8 +459,17 @@ function TableActions({
         open={open === "edit"}
         handleClose={handleClose}
         client={client}
-      /> */}
+        /> */}
 
+      <EditServiceForm
+        cars={cars}
+        clients={clients}
+        open={open}
+        setIsLoading={setIsLoading}
+        setOpen={setOpen}
+        status={status}
+        service={service}
+      />
       {/* <EditReceipt
         open={open === "edit"}
         handleClose={handleClose}
@@ -448,7 +478,7 @@ function TableActions({
         setIsDeleting={setIsLoading}
       /> */}
 
-      <DeleteRestockingDialog
+      {/* <DeleteRestockingDialog
         currPage={currPage}
         pageSize={currPageSize}
         service={service}
@@ -456,7 +486,7 @@ function TableActions({
         setIsDeleting={setIsLoading}
         open={open === "delete"}
         handleClose={handleClose}
-      />
+      /> */}
     </div>
   );
 }

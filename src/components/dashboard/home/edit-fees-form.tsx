@@ -40,6 +40,11 @@ import {
   createServiceFeeAction,
   editServiceFeeAction,
 } from "@lib/actions/serviceFeeAction";
+
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
+    value
+  );
 const EditFeesForm = ({
   open,
   feesToEdit,
@@ -249,30 +254,38 @@ const EditFeesForm = ({
                 </FormItem>
               )}
             />
+            <div className=" flex   flex-wrap-reverse items-center   gap-y-4 gap-x-4 justify-between">
+              <div className=" text-xs text-muted-foreground">
+                Net: {formatCurrency(price - discount)}
+              </div>
 
-            {!addFeeId && (
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="isReturned"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className="flex  justify-end items-center space-x-2">
-                        <Switch
-                          id="airplane-mode"
-                          checked={field.value}
-                          onClick={() => field.onChange(!field.value)}
-                        />
-                        <Label htmlFor="airplane-mode">is it returned?</Label>
-                      </div>
-                    </FormControl>
+              {!addFeeId ? (
+                <FormField
+                  disabled={isLoading}
+                  control={form.control}
+                  name="isReturned"
+                  render={({ field }) => (
+                    <FormItem className="">
+                      <FormControl>
+                        <div className="flex  justify-end items-center space-x-2">
+                          <Switch
+                            id="airplane-mode"
+                            checked={field.value}
+                            onClick={() => field.onChange(!field.value)}
+                          />
+                          <Label htmlFor="airplane-mode">is it returned?</Label>
+                        </div>
+                      </FormControl>
 
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ) : (
+                <div />
+              )}
+            </div>
+
             <DialogComponent.Footer>
               <Button
                 onClick={handleClose}

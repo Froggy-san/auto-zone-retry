@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@components/ui/button";
+import { logoutUser } from "@lib/actions/authActions";
 import { cn } from "@lib/utils";
 import { motion } from "framer-motion";
 import {
@@ -17,6 +18,7 @@ import {
   SlidersVertical,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 
 <ArrowLeftToLine />;
@@ -60,6 +62,8 @@ const SUB_LINKS = [
 const SideBar = () => {
   const [collapse, setCollapse] = useState(true);
   const [lock, setLock] = useState(false);
+  const pathname = usePathname();
+
   return (
     <motion.aside
       onMouseOver={() => {
@@ -109,9 +113,13 @@ const SideBar = () => {
           <Button
             key={i}
             variant="ghost"
-            className={cn(" w-full justify-start gap-3", {
-              "w-fit": collapse,
-            })}
+            className={cn(
+              " w-full justify-start gap-3",
+              {
+                "w-fit": collapse,
+              },
+              { "bg-accent": pathname === link.herf }
+            )}
             asChild
           >
             <Link href={link.herf}>
@@ -130,6 +138,7 @@ const SideBar = () => {
         ))}
       </div>
       <Button
+        onClick={async () => await logoutUser()}
         variant="ghost"
         className={cn(" w-full justify-start gap-3", {
           "w-fit": collapse,
