@@ -7,6 +7,7 @@ import { formatCurrency } from "@lib/helper";
 import { ProdcutAction } from "./product-actions";
 import Link from "next/link";
 import { STATIC_IMAGES } from "@lib/constants";
+import { ImageOff } from "lucide-react";
 
 const ProductItem = async ({
   product,
@@ -23,7 +24,7 @@ const ProductItem = async ({
 
   const viewedImages = data?.length
     ? data.map((image: ProductImage) => image.imageUrl)
-    : STATIC_IMAGES;
+    : [];
 
   return (
     <li className={`${!product.isAvailable && "opacity-50 "}`}>
@@ -34,11 +35,19 @@ const ProductItem = async ({
         {error ? (
           <h2>{error}</h2>
         ) : (
-          <FullImagesGallery
-            imageUrls={viewedImages}
-            productId={product.id}
-            className="h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden"
-          />
+          <>
+            {viewedImages.length ? (
+              <FullImagesGallery
+                imageUrls={viewedImages}
+                productId={product.id}
+                className="h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden"
+              />
+            ) : (
+              <div className=" h-[250px] 3xl:h-[330px] 4xl:h-[400px]  flex items-center justify-center  bg-foreground/10 rounded-t-lg">
+                <ImageOff className=" w-20 h-20" />
+              </div>
+            )}
+          </>
         )}
         {/* {product.category} */}
         <div className="    flex-1  space-y-1  flex flex-col ">

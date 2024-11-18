@@ -8,6 +8,7 @@ import { ProductImage } from "@lib/types";
 import Link from "next/link";
 import React from "react";
 import { getCurrentUser } from "@lib/actions/authActions";
+import { ImageOff } from "lucide-react";
 
 interface Params {
   productId: string;
@@ -46,10 +47,16 @@ const ProductView = async ({ params }: { params: Params }) => {
 
   return (
     <div>
-      <FullImagesGallery
-        images={imageUrls.length ? imageUrls : STATIC_IMAGES}
-        productId={productData.productId}
-      />
+      {imageUrls.length ? (
+        <FullImagesGallery
+          images={imageUrls}
+          productId={productData.productId}
+        />
+      ) : (
+        <div className=" h-full flex items-center justify-center  bg-foreground/10  font-semibold text-xl py-5 gap-3">
+          <ImageOff className=" w-10 h-10" /> No images.
+        </div>
+      )}
       <div className=" text-xs  text-muted-foreground my-4 text-right px-3">
         {productData.stock ? (
           <i>
