@@ -43,15 +43,20 @@ export async function createCarModelAction(carModel: CreateCarModel) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the car model.");
-    throw new Error("Something went wrong!");
+    return {
+      data: null,
+      error: "Something went wrong while creating the car model.",
+    };
   }
 
   // const data = await response.json();
   // return data;
   revalidateTag("carModels");
+
+  return { data: null, error: "" };
 }
 
 export async function editCarModelAction({
@@ -73,15 +78,20 @@ export async function editCarModelAction({
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the car model.");
-    throw new Error("Something went wrong!");
+    return {
+      data: null,
+      error: "Something went wrong while creating the car model.",
+    };
   }
 
   // const data = await response.json();
   // return data;
   revalidateTag("carModels");
+
+  return { data: null, error: "" };
 }
 
 export async function deleteCarModelAction(id: string) {
@@ -96,15 +106,20 @@ export async function deleteCarModelAction(id: string) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the car model.");
-    throw new Error("Something went wrong!");
+    return {
+      data: null,
+      error: "Something went wrong while creating the car model.",
+    };
   }
 
   // const data = await response.json();
   // return data;
   revalidateTag("carModels");
+
+  return { data: null, error: "" };
 }
 
 export async function getCarModelsCountAction() {

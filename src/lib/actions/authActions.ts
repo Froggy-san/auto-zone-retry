@@ -16,7 +16,7 @@ export async function loginUser(loginData: z.infer<typeof LoginFormSchema>) {
     body: JSON.stringify(loginData),
   });
 
-  if (!response.ok) throw new Error("Invalid login credentials");
+  if (!response.ok) return { data: null, error: "Invalid login credentials." };
 
   const token = await response.json();
   console.log(token, "TTOEKN");
@@ -65,9 +65,10 @@ export async function signUp({
   token,
 }: signUpProps) {
   if (!token)
-    throw new Error(
-      "You are not authroized to do this action, Please login first."
-    );
+    return {
+      data: null,
+      error: "You are not authroized to do this action, Please login first.",
+    };
   const res = await fetch(`${process.env.API_URL}/api/Account/register`, {
     method: "POST",
     headers: {
@@ -77,7 +78,11 @@ export async function signUp({
     body: JSON.stringify({ email, username, password }),
   });
 
-  if (!res.ok) throw new Error(`Something went wrong with the signup process.`);
+  if (!res.ok)
+    return {
+      data: null,
+      error: `Something went wrong with the signup process.`,
+    };
 
   // const data = await res.json();
   redirect("/login");
@@ -98,7 +103,10 @@ export async function logoutUser() {
   });
 
   if (!response.ok)
-    throw new Error("something went wrong with the logout process");
+    return {
+      data: null,
+      error: "something went wrong with the logout process",
+    };
   getCookies.delete("auto-zone-token");
 
   redirect("/login");

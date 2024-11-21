@@ -189,10 +189,13 @@ export async function createClientAction({
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
 
-    throw new Error("Had truble creating a product.");
+    return {
+      data: null,
+      error: "Something went wrong while creating the client.",
+    };
   }
   const { clientId } = await response.json();
 
@@ -203,6 +206,8 @@ export async function createClientAction({
     await Promise.all(upload);
   }
   revalidateTag("clients");
+
+  return { data: null, error: "" };
 }
 
 export async function editClientAction({
@@ -233,10 +238,13 @@ export async function editClientAction({
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
 
-    throw new Error("Had truble creating a product.");
+    return {
+      data: null,
+      error: "Something went wrong while creating the client.",
+    };
   }
 
   // Adding new phone numbers
@@ -268,6 +276,8 @@ export async function editClientAction({
 
   revalidateTag("clients");
   // revalidatePath("/dashboard/customers");
+
+  return { data: null, error: "" };
 }
 
 export async function deleteClientByIdAction(id: number) {
@@ -287,15 +297,20 @@ export async function deleteClientByIdAction(id: number) {
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error(`Failed to delete a product with the id of ${id} `);
+    return {
+      data: null,
+      error: "Something went wrong while deleting the client.",
+    };
   }
   // const data = await response.json();
 
   // return data;
   // revalidatePath("/products");
   revalidateTag("clients");
+
+  return { data: null, error: "" };
 }
 
 interface GetClientsCountActionProps {
@@ -400,13 +415,18 @@ export async function createProductImageAction(formData: FormData) {
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error("Had truble creating a product.");
+    return {
+      data: null,
+      error: "Something went wrong while creating the product.",
+    };
   }
 
   // const data = await response.json();
   // return data;
+
+  return { data: null, error: "" };
 }
 
 export async function deleteProductsImageAction(imageId: number) {
@@ -430,16 +450,21 @@ export async function deleteProductsImageAction(imageId: number) {
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while grabbing the products.");
-    throw new Error("Something went wrong while deleting product images.");
+    return {
+      data: null,
+      error: "Something went wrong while grabbing the products.",
+    };
   }
 
   // const data = await response.json();
 
   // console.log(data, "DATA");
   // return { data, error: "" };
+
+  return { data: null, error: "" };
 }
 
 /// WTF IS THIS ?

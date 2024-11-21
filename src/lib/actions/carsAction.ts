@@ -95,7 +95,10 @@ export async function createCarAction({
 
   if (!response.ok) {
     console.log("Something went wrong while creating the car.");
-    throw new Error("Something went wrong!");
+    return {
+      data: null,
+      error: "Something went wrong while creating the car.",
+    };
   }
 
   const { carId } = await response.json();
@@ -112,7 +115,7 @@ export async function createCarAction({
 
   revalidateTag("cars");
   // revalidateTag("carCount");
-  return carId;
+  return { data: carId, error: "" };
 }
 
 export async function getCarByIdAction(id: string) {
@@ -181,10 +184,13 @@ export async function editCarAction({
     });
     if (!response.ok) {
       if (response.status === 409) {
-        throw new Error((await response.json()).message);
+        return { data: null, error: (await response.json()).message };
       }
       console.log("Something went wrong while creating the car.");
-      throw new Error("Something went wrong!");
+      return {
+        data: null,
+        error: "Something went wrong while creating the car.",
+      };
     }
   }
 
@@ -208,6 +214,8 @@ export async function editCarAction({
 
   revalidateTag("cars");
   revalidatePath(`/grage/${id}`);
+
+  return { data: null, error: "" };
 }
 
 export async function deleteCarAction(id: string) {
@@ -222,14 +230,19 @@ export async function deleteCarAction(id: string) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while deleting the car.");
-    throw new Error("Something went wrong!");
+    return {
+      data: null,
+      error: "Something went wrong while deleting the car.",
+    };
   }
 
   revalidateTag("cars");
   // revalidateTag("carCount");
+
+  return { data: null, error: "" };
 }
 interface GragePaginationProps {
   color?: string;
@@ -333,10 +346,15 @@ export async function createCarImageAction(formData: FormData) {
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error("Had truble creating a product.");
+    return {
+      data: null,
+      error: "Something went wrong while creating the image.",
+    };
   }
+
+  return { data: null, error: "" };
 }
 
 export async function deleteCarImageAction(imageId: number) {
@@ -359,11 +377,16 @@ export async function deleteCarImageAction(imageId: number) {
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while grabbing the products.");
-    throw new Error("Something went wrong while deleting product images.");
+    return {
+      data: null,
+      error: "Something went wrong while grabbing the products.",
+    };
   }
+
+  return { data: null, error: "" };
 }
 
 /// WTF IS THIS ?

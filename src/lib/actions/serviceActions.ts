@@ -89,10 +89,10 @@ export async function createServiceAction(service: CreateService) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the a restocking bill.");
-    throw new Error("Something went wrong while create restocking bill");
+    return { data: null, error: "Something went wrong!" };
   }
 
   //   revalidatePath("/dashboard/insert-data");
@@ -100,6 +100,8 @@ export async function createServiceAction(service: CreateService) {
 
   //   const data = await response.json();
   //   return data;
+
+  return { data: null, error: "" };
 }
 
 interface EditProps {
@@ -127,15 +129,17 @@ export async function editServiceAction(serivceToEdit: EditProps) {
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the a restocking bill.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   revalidateTag("service");
   // const data = await response.json();
   // return data;
+
+  return { data: null, error: "" };
 }
 
 export async function deleteServiceAction(id: string) {
@@ -150,12 +154,14 @@ export async function deleteServiceAction(id: string) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while deleting the a restocking bill.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
   revalidateTag("services");
+
+  return { data: null, error: "" };
 }
 
 export async function getServicesCountAction({

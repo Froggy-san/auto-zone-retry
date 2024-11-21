@@ -85,17 +85,17 @@ export async function createRestockingBillAction(shopName: string) {
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the a restocking bill.");
-    throw new Error("Something went wrong while create restocking bill");
+    return { data: null, error: "Something went wrong!" };
   }
 
   //   revalidatePath("/dashboard/insert-data");
   revalidateTag("restockingBills");
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 interface EditProps {
@@ -122,15 +122,17 @@ export async function editRestockingBillAction({
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the a restocking bill.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   revalidateTag("restockingBills");
   // const data = await response.json();
   // return data;
+
+  return { data: null, error: "" };
 }
 
 export async function deleteRestockingBillAction(id: string) {
@@ -148,14 +150,16 @@ export async function deleteRestockingBillAction(id: string) {
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while deleting the a restocking bill.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
   revalidateTag("restockingBills");
   // const data = await response.json();
   // return data;
+
+  return { data: null, error: "" };
 }
 
 export async function getProductsRestockingBillsCountAction({
