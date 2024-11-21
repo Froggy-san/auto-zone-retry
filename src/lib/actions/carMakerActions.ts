@@ -1,8 +1,8 @@
 "use server";
-
 import { getToken } from "@lib/helper";
 import { CreateCarMaker } from "@lib/types";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function getAllCarMakersAction() {
   const token = getToken();
@@ -30,7 +30,7 @@ export async function getAllCarMakersAction() {
 
 export async function createCarMakerAction(formData: FormData) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
 
   console.log(formData, "formData");
   const response = await fetch(`${process.env.API_URL}/api/carmakers`, {
@@ -41,6 +41,9 @@ export async function createCarMakerAction(formData: FormData) {
     body: formData,
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the car maker.");
     throw new Error("Something went wrong!");
   }
@@ -58,7 +61,7 @@ export async function editCarMakerAction({
   id: string;
 }) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmakers/${id}`, {
     method: "PUT",
     headers: {
@@ -68,6 +71,9 @@ export async function editCarMakerAction({
     body: JSON.stringify(carMaker),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the car maker.");
     throw new Error("Something went wrong!");
   }
@@ -78,7 +84,7 @@ export async function editCarMakerAction({
 
 export async function deleteCarMakerAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmakers/${id}`, {
     method: "PUT",
     headers: {
@@ -87,6 +93,9 @@ export async function deleteCarMakerAction(id: string) {
     },
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the car maker.");
     throw new Error("Something went wrong!");
   }

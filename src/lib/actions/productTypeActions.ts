@@ -1,5 +1,6 @@
 "use server";
 import { getToken } from "@lib/helper";
+import { redirect } from "next/navigation";
 export async function getAllProductTypesAction() {
   // const token = getToken();
 
@@ -28,7 +29,7 @@ export async function getAllProductTypesAction() {
 
 export async function createProductTypeAction(productType: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/producttypes`, {
     method: "POST",
     headers: {
@@ -38,6 +39,9 @@ export async function createProductTypeAction(productType: string) {
     body: JSON.stringify({ name: productType }),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the product type.");
     throw new Error("Something went wrong!");
   }
@@ -54,7 +58,7 @@ export async function editProductTypeAction({
   id: string;
 }) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/producttypes/${id}`,
     {
@@ -67,6 +71,9 @@ export async function editProductTypeAction({
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the product type.");
     throw new Error("Something went wrong!");
   }
@@ -77,7 +84,7 @@ export async function editProductTypeAction({
 
 export async function deleteProductTypeAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/producttypes/${id}`,
     {
@@ -89,6 +96,9 @@ export async function deleteProductTypeAction(id: string) {
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while deleting the ProductType.");
     throw new Error("Something went wrong!");
   }

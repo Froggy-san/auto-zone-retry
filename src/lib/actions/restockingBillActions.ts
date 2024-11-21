@@ -2,7 +2,9 @@
 
 import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
+import { red } from "@mui/material/colors";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
 interface GetRestockingProps {
   pageNumber?: string;
@@ -69,7 +71,7 @@ export async function getRestockingBillsAction({
 
 export async function createRestockingBillAction(shopName: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsRestockingBills`,
     {
@@ -82,6 +84,9 @@ export async function createRestockingBillAction(shopName: string) {
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the a restocking bill.");
     throw new Error("Something went wrong while create restocking bill");
   }
@@ -103,7 +108,7 @@ export async function editRestockingBillAction({
   id,
 }: EditProps) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsRestockingBills/${id}`,
     {
@@ -116,6 +121,9 @@ export async function editRestockingBillAction({
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the a restocking bill.");
     throw new Error("Something went wrong!");
   }
@@ -127,7 +135,7 @@ export async function editRestockingBillAction({
 
 export async function deleteRestockingBillAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsRestockingBills/${id}`,
     {
@@ -139,6 +147,9 @@ export async function deleteRestockingBillAction(id: string) {
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while deleting the a restocking bill.");
     throw new Error("Something went wrong!");
   }
