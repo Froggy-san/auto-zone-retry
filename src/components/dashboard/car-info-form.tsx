@@ -61,7 +61,17 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
     defaultValues,
   });
 
+  const { carMakerId, carModelId, carGenerationId } = form.watch();
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
+
+  const modelArr = carMakerId
+    ? carModels.filter((model) => model.carMakerId === carMakerId)
+    : carModels;
+
+  const generationsArr = carModelId
+    ? carGenerations.filter((gen) => gen.carModelId === carModelId)
+    : carGenerations;
+
   const handleClose = useCallback(() => {
     setOpen(false);
     form.reset();
@@ -74,17 +84,18 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
       if (isEqual) throw new Error("You haven't changed anything.");
       await createCarInfoAction(carInfo);
       form.reset();
+      setOpen(false);
       toast({
         title: "Success!.",
         description: (
-          <SuccessToastDescription message="A new car model has been create." />
+          <SuccessToastDescription message="A new car information has been create." />
         ),
       });
     } catch (error: any) {
       console.log(error);
       toast({
         variant: "destructive",
-        title: "Welcome back.",
+        title: "Something went wrong while creating a new car information.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }
@@ -115,7 +126,10 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
                     <FormControl>
                       <MakerCombobox
                         value={field.value}
-                        setValue={field.onChange}
+                        setValue={(id) => {
+                          field.onChange(id);
+                          form.setValue("carModelId", 0);
+                        }}
                         options={carMakers}
                       />
                     </FormControl>
@@ -136,9 +150,13 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
                     <FormLabel>Car models</FormLabel>
                     <FormControl>
                       <ModelCombobox
+                        disabled={isLoading || !carMakerId}
                         value={field.value}
-                        setValue={field.onChange}
-                        options={carModels}
+                        setValue={(id) => {
+                          field.onChange(id);
+                          form.setValue("carGenerationId", 0);
+                        }}
+                        options={modelArr}
                       />
                     </FormControl>
                     <FormDescription>
@@ -150,7 +168,6 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
               />
             </div>
             <FormField
-              disabled={isLoading}
               control={form.control}
               name="carGenerationId"
               render={({ field }) => (
@@ -158,9 +175,10 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
                   <FormLabel>Car generation</FormLabel>
                   <FormControl>
                     <GenerationComboBox
+                      disabled={isLoading || !carModelId}
                       value={field.value}
                       setValue={field.onChange}
-                      options={carGenerations}
+                      options={generationsArr}
                     />
                   </FormControl>
                   <FormDescription>Enter car generation.</FormDescription>

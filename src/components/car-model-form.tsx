@@ -64,7 +64,7 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
       await createCarModelAction(carModel);
-
+      handleClose();
       toast({
         title: "Success!.",
         description: (

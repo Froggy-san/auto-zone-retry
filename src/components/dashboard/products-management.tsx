@@ -26,12 +26,11 @@ const ProductManagement = async ({
   ]);
 
   const { data: categoriesData, error: categoriesError } = categories;
-  const { data: carInfosData, error: carInfosError } = carInfos;
+  // const { data: carInfosData, error: carInfosError } = carInfos;
   const { data: productBrandsData, error: productBrandsError } = productBrands;
   const { data: brandTypesData, error: brandTypesError } = brandTypes;
 
-  const isError =
-    categoriesError || carInfosError || productBrandsError || brandTypesError;
+  const isError = categoriesError || productBrandsError || brandTypesError;
 
   if (isError)
     return <p>Something went wrong while trying to fetch some data!.</p>;
@@ -54,7 +53,7 @@ const ProductManagement = async ({
           useParams={useParams}
           productToEdit={productToEdit}
           categories={categoriesData}
-          carinfos={carInfosData}
+          carinfos={[]}
           productBrand={productBrandsData}
           productTypes={brandTypesData}
         />

@@ -20,38 +20,17 @@ import {
 } from "@/components/ui/popover";
 import { CarModelProps } from "@lib/types";
 
-// const frameworks = [
-//   {
-//     value: "next.js",
-//     label: "Next.js",
-//   },
-//   {
-//     value: "sveltekit",
-//     label: "SvelteKit",
-//   },
-//   {
-//     value: "nuxt.js",
-//     label: "Nuxt.js",
-//   },
-//   {
-//     value: "remix",
-//     label: "Remix",
-//   },
-//   {
-//     value: "astro",
-//     label: "Astro",
-//   },
-// ];
-
 interface CarModelComboBoxProps {
   setValue: (carModel: number) => void;
   value: number;
+  disabled?: boolean;
   options: CarModelProps[];
 }
 
 export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
   setValue,
   value,
+  disabled,
   options,
 }) => {
   const [open, setOpen] = React.useState(false);
@@ -63,6 +42,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          disabled={disabled}
           variant="outline"
           role="CarModelComboBox"
           aria-expanded={open}
@@ -70,8 +50,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
         >
           {selectedItem ? (
             <p className=" text-wrap break-all text-left">
-              Model name: {selectedItem.name} Car maker:{" "}
-              {selectedItem.carMaker ? selectedItem.carMaker : "None"}{" "}
+              Model name: {selectedItem.name}
             </p>
           ) : (
             "Select option..."
@@ -102,8 +81,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
                     )}
                   />
                   <span className=" break-all flex-1">
-                    Model name: {option.name} Car maker:{" "}
-                    {option.carMaker ? option.carMaker : "None"}
+                    Model name: {option.name}
                   </span>{" "}
                 </CommandItem>
               ))}

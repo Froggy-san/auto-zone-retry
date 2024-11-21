@@ -59,6 +59,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
   productToEdit,
   useParams = false,
 }) => {
+  console.log(categories, "CCATEG");
+  console.log(productTypes, "TYPES");
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -70,7 +72,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [isMainImage, setIsMainImage] = useState<ProductImage | null | number>(
     null
   );
-
+  const [deletedMedia, setDeletedMedia] = useState<ProductImage[]>([]);
   const isMainChange =
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
 
@@ -105,7 +107,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
     setDeletedMedia([]);
   }
 
-  const [deletedMedia, setDeletedMedia] = useState<ProductImage[]>([]);
   function handleDeleteMedia(productImage: ProductImage) {
     setDeletedMedia((arr) => [...arr, productImage]);
   }
@@ -127,7 +128,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     productBrandId: productToEdit?.productBrand.id,
     description: productToEdit?.description,
     listPrice: productToEdit?.listPrice,
-    carinfoId: 1,
+    carinfoId: 1, //! Removed from the back end
     salePrice: productToEdit?.salePrice,
     stock: productToEdit?.stock,
     isAvailable: productToEdit?.isAvailable,
@@ -137,14 +138,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   const defaultValues = {
     name: pro.name || "NAMEEEEEE",
-    categoryId: pro.carinfoId || 1,
-    productTypeId: pro.productTypeId || 1,
-    productBrandId: productToEdit?.productBrand.id || 1,
+    categoryId: pro.categoryId || 0,
+    productTypeId: pro.productTypeId || 0,
+    productBrandId: productToEdit?.productBrand.id || 0,
     description: pro.description || "DESCRIPTION",
-    listPrice: pro.listPrice || 1,
-    carinfoId: 1,
-    salePrice: pro.salePrice || 1,
-    stock: pro.stock || 1,
+    listPrice: pro.listPrice || 0,
+    carinfoId: 0, //! Removed from the back end
+    salePrice: pro.salePrice || 0,
+    stock: pro.stock || 0,
     isAvailable: pro.isAvailable !== undefined ? pro.isAvailable : true,
     images: [],
     isMain: false,
@@ -307,6 +308,194 @@ const ProductForm: React.FC<ProductFormProps> = ({
               )}
             />
 
+            <div className=" flex  flex-col gap-2 sm:flex-row">
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="listPrice"
+                render={({ field }) => (
+                  <FormItem className=" w-full">
+                    <FormLabel>List price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        disabled={isLoading}
+                        value={field.value}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          if (/^\d*$/.test(inputValue)) {
+                            field.onChange(Number(inputValue));
+                          }
+                        }}
+                        placeholder="List price..."
+                        // {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter a description for your product.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="salePrice"
+                render={({ field }) => (
+                  <FormItem className=" w-full">
+                    <FormLabel>Sale price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        disabled={isLoading}
+                        value={field.value}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          if (/^\d*$/.test(inputValue)) {
+                            field.onChange(Number(inputValue));
+                          }
+                        }}
+                        placeholder="Sale price"
+                        // {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter a description for your product.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className=" flex  flex-col gap-2 sm:flex-row">
+              {/* <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="carinfoId"
+                render={({ field }) => (
+                  <FormItem className=" w-full ">
+                    <FormLabel>Car info</FormLabel>
+                    <FormControl>
+         
+                      <CarInfoComboBox
+                        disabled={isLoading}
+                        options={carinfos}
+                        value={field.value}
+                        setValue={field.onChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter a description for your product.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
+
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="stock"
+                render={({ field }) => (
+                  <FormItem className=" w-full">
+                    <FormLabel>Stock available</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        disabled={isLoading}
+                        value={field.value}
+                        onChange={(e) => {
+                          const inputValue = e.target.value;
+                          if (/^\d*$/.test(inputValue)) {
+                            field.onChange(Number(inputValue));
+                          }
+                        }}
+                        placeholder="Stock"
+                        // {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter a description for your product.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                disabled={isLoading || !categories.length}
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                  <FormItem className=" w-full ">
+                    <FormLabel>category</FormLabel>
+                    <FormControl className=" ">
+                      <ComboBox
+                        disabled={isLoading || !categories.length}
+                        options={categories}
+                        value={field.value}
+                        setValue={field.onChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter a description for your product.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className=" flex  flex-col gap-2 sm:flex-row">
+              <FormField
+                disabled={isLoading || !productBrand.length}
+                control={form.control}
+                name="productBrandId"
+                render={({ field }) => (
+                  <FormItem className=" w-full">
+                    <FormLabel>Product brand</FormLabel>
+                    <FormControl>
+                      <ComboBox
+                        disabled={isLoading || !productBrand.length}
+                        options={productBrand}
+                        value={field.value}
+                        setValue={field.onChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter a description for your product.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                disabled={isLoading || !productTypes.length}
+                control={form.control}
+                name="productTypeId"
+                render={({ field }) => (
+                  <FormItem className=" w-full">
+                    <FormLabel>Product type</FormLabel>
+                    <FormControl>
+                      <ComboBox
+                        disabled={isLoading || !productTypes.length}
+                        options={productTypes}
+                        value={field.value}
+                        setValue={field.onChange}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter a description for your product.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               disabled={isLoading}
               control={form.control}
@@ -328,212 +517,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
-
-            <div className=" flex  flex-col gap-2 sm:flex-row">
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="listPrice"
-                render={({ field }) => (
-                  <FormItem className=" w-full">
-                    <FormLabel>List price</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={isLoading}
-                        type="number"
-                        min={0}
-                        placeholder="Listing price"
-                        value={field.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter a description for your product.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="salePrice"
-                render={({ field }) => (
-                  <FormItem className=" w-full">
-                    <FormLabel>Sale price</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        disabled={isLoading}
-                        placeholder="Sale price."
-                        value={field.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter a description for your product.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className=" flex  flex-col gap-2 sm:flex-row items-center">
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="stock"
-                render={({ field }) => (
-                  <FormItem className=" w-full">
-                    <FormLabel>Stock available</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        disabled={isLoading}
-                        placeholder="Stock available"
-                        value={field.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter a description for your product.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="isAvailable"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row h-fit  items-center justify-between rounded-lg border p-3 shadow-sm w-full">
-                    <div className="space-y-0.5 ">
-                      <FormLabel>Availability</FormLabel>
-                      <FormDescription>
-                        Is the product available?.
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        disabled={isLoading}
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        aria-readonly
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className=" flex  flex-col gap-2 sm:flex-row">
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="carinfoId"
-                render={({ field }) => (
-                  <FormItem className=" w-full ">
-                    <FormLabel>Car info</FormLabel>
-                    <FormControl>
-                      {/* <Input
-                        type="number"
-                        value={field.value}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                        placeholder="name"
-                      /> */}
-                      <CarInfoComboBox
-                        disabled={isLoading}
-                        options={carinfos}
-                        value={field.value}
-                        setValue={field.onChange}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter a description for your product.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <FormItem className=" w-full ">
-                    <FormLabel>category</FormLabel>
-                    <FormControl className=" ">
-                      <ComboBox
-                        disabled={isLoading}
-                        options={categories}
-                        value={field.value}
-                        setValue={field.onChange}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter a description for your product.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className=" flex  flex-col gap-2 sm:flex-row">
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="productBrandId"
-                render={({ field }) => (
-                  <FormItem className=" w-full">
-                    <FormLabel>Product brand</FormLabel>
-                    <FormControl>
-                      <ComboBox
-                        disabled={isLoading}
-                        options={productBrand}
-                        value={field.value}
-                        setValue={field.onChange}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter a description for your product.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="productTypeId"
-                render={({ field }) => (
-                  <FormItem className=" w-full">
-                    <FormLabel>Product type</FormLabel>
-                    <FormControl>
-                      <ComboBox
-                        disabled={isLoading}
-                        options={productTypes}
-                        value={field.value}
-                        setValue={field.onChange}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter a description for your product.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             <FormField
               disabled={isLoading}
               control={form.control}
@@ -559,6 +542,30 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     </span>
                   </FormDescription>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              disabled={isLoading}
+              control={form.control}
+              name="isAvailable"
+              render={({ field }) => (
+                <FormItem className="flex flex-row h-fit  items-center justify-between rounded-lg border p-3 shadow-sm w-full">
+                  <div className="space-y-0.5 ">
+                    <FormLabel>Availability</FormLabel>
+                    <FormDescription>
+                      Is the product available?.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      disabled={isLoading}
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      aria-readonly
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

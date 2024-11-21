@@ -14,33 +14,29 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CarModelProps, CarGenerationsSchema } from "@lib/types";
+import { CarModelProps, CarGenerationsSchema, CarMaker } from "@lib/types";
 import { Textarea } from "@components/ui/textarea";
-
 import Spinner from "@components/Spinner";
-
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-
 import { createCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { ModelCombobox } from "@components/model-combobox";
 import useObjectCompare from "@hooks/use-compare-objs";
 import DialogComponent from "@components/dialog-component";
 import { useQueryClient } from "@tanstack/react-query";
+import { MakerCombobox } from "@components/maker-combobox";
 
-const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
+const CarGenerationForm = ({
+  carModels,
+  carMakers,
+}: {
+  carMakers: CarMaker[];
+  carModels: CarModelProps[];
+}) => {
   const [open, setOpen] = useState(false);
+  const [carMaker, setCarMaker] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const defaultValues = {
@@ -48,6 +44,11 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
     notes: "",
     carModelId: 0,
   };
+
+  const carModelsArr =
+    carMaker && carModels.length
+      ? carModels.filter((model) => model.carMakerId === carMaker)
+      : carModels;
   const form = useForm<z.infer<typeof CarGenerationsSchema>>({
     resolver: zodResolver(CarGenerationsSchema),
     defaultValues,
@@ -55,17 +56,17 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
 
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
   const isLoading = form.formState.isSubmitting;
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setOpen(false);
+    setCarMaker(0);
     form.reset();
-  }, [open]);
+  };
   async function onSubmit(carGeneration: z.infer<typeof CarGenerationsSchema>) {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
       await createCarGenerationAction(carGeneration);
       handleClose();
       queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
-
       form.reset();
       toast({
         title: "Success!.",
@@ -74,7 +75,7 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
         ),
       });
     } catch (error: any) {
-      console.log(error);
+      console.error(error);
       toast({
         variant: "destructive",
         title: "Welcome back.",
@@ -97,24 +98,41 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
         </DialogComponent.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
+            <FormField
+              disabled={isLoading}
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className=" w-full mb-auto">
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="name" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Enter the name of the product.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className=" flex flex-col xs:flex-row items-center gap-3">
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem className=" w-full mb-auto">
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="name" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Enter the name of the product.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormItem className=" w-full mb-auto">
+                <FormLabel>Car maker</FormLabel>
+                <FormControl>
+                  <MakerCombobox
+                    setValue={(value) => {
+                      setCarMaker(value);
+                      form.setValue("carModelId", 0);
+                    }}
+                    value={carMaker}
+                    options={carMakers}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Enter the name of the product.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
 
               <FormField
                 disabled={isLoading}
@@ -125,7 +143,8 @@ const CarGenerationForm = ({ carModels }: { carModels: CarModelProps[] }) => {
                     <FormLabel>Car models</FormLabel>
                     <FormControl>
                       <ModelCombobox
-                        options={carModels}
+                        disabled={isLoading || !carMaker}
+                        options={carModelsArr}
                         setValue={field.onChange}
                         value={field.value}
                       />

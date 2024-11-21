@@ -122,7 +122,7 @@ const Page = async ({ params }: { params: Params }) => {
 
               {carInfo && carInfo.carGeneration.notes.length < 300 ? (
                 <div className=" mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
-                  Note:{" "}
+                  <span className=" mb-auto"> Note: </span>
                   <p className=" text-muted-foreground break-all">
                     {carInfo?.carGeneration.notes}
                   </p>

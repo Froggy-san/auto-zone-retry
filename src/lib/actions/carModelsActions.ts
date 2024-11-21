@@ -2,6 +2,7 @@
 
 import { getToken } from "@lib/helper";
 import { CarModel, CreateCarModel } from "@lib/types";
+import { revalidateTag } from "next/cache";
 
 export async function getAllCarModelsAction() {
   const token = getToken();
@@ -13,6 +14,7 @@ export async function getAllCarModelsAction() {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    next: { tags: ["carModels"] },
   });
 
   if (!response.ok) {
@@ -43,8 +45,9 @@ export async function createCarModelAction(carModel: CreateCarModel) {
     throw new Error("Something went wrong!");
   }
 
-  const data = await response.json();
-  return data;
+  // const data = await response.json();
+  // return data;
+  revalidateTag("carModels");
 }
 
 export async function editCarModelAction({
@@ -69,8 +72,9 @@ export async function editCarModelAction({
     throw new Error("Something went wrong!");
   }
 
-  const data = await response.json();
-  return data;
+  // const data = await response.json();
+  // return data;
+  revalidateTag("carModels");
 }
 
 export async function deleteCarModelAction(id: string) {
@@ -88,8 +92,9 @@ export async function deleteCarModelAction(id: string) {
     throw new Error("Something went wrong!");
   }
 
-  const data = await response.json();
-  return data;
+  // const data = await response.json();
+  // return data;
+  revalidateTag("carModels");
 }
 
 export async function getCarModelsCountAction() {

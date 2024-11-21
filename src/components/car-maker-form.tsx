@@ -66,6 +66,7 @@ const CarkMakerForm = () => {
       formData.append("notes", notes);
       formData.append("logo", logo[0]);
       await createCarMakerAction(formData);
+      setIsOpen(false);
       toast({
         title: "Welcome back.",
         description: (

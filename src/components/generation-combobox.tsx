@@ -20,38 +20,17 @@ import {
 } from "@/components/ui/popover";
 import { CarGenerationProps } from "@lib/types";
 
-// const frameworks = [
-//   {
-//     value: "next.js",
-//     label: "Next.js",
-//   },
-//   {
-//     value: "sveltekit",
-//     label: "SvelteKit",
-//   },
-//   {
-//     value: "nuxt.js",
-//     label: "Nuxt.js",
-//   },
-//   {
-//     value: "remix",
-//     label: "Remix",
-//   },
-//   {
-//     value: "astro",
-//     label: "Astro",
-//   },
-// ];
-
 interface CarModelComboBoxProps {
   setValue: (carGeneration: number) => void;
   value: number;
+  disabled?: boolean;
   options: CarGenerationProps[];
 }
 
 export const GenerationComboBox: React.FC<CarModelComboBoxProps> = ({
   setValue,
   value,
+  disabled,
   options,
 }) => {
   const [open, setOpen] = React.useState(false);
@@ -63,13 +42,14 @@ export const GenerationComboBox: React.FC<CarModelComboBoxProps> = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          disabled={disabled}
           variant="outline"
           role="CarModelComboBox"
           aria-expanded={open}
           className=" w-full  h-fit justify-between"
         >
           {selectedItem ? (
-            <p className=" text-wrap text-left ">
+            <p className=" text-wrap break-all text-left ">
               Generation name: {selectedItem.name} / Car Model:{" "}
               {selectedItem.carModel ? selectedItem.carModel : "None"}{" "}
             </p>
@@ -101,10 +81,10 @@ export const GenerationComboBox: React.FC<CarModelComboBoxProps> = ({
                       value === option.id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  <span>
+                  <div className="text-wrap break-all">
                     Generation name: {option.name} Car Model:{" "}
                     {option.carModel ? option.carModel : "None"}
-                  </span>{" "}
+                  </div>{" "}
                 </CommandItem>
               ))}
             </CommandGroup>

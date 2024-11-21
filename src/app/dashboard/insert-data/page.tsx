@@ -1,5 +1,6 @@
 import CarGenerationList from "@components/dashboard/car-generation-list";
-import CarGenerationManagement from "@components/dashboard/car-generation-management";
+import CarGenAndModelManagement from "@components/dashboard/car-generation-management";
+
 import CarInfoManagement from "@components/dashboard/car-info-management";
 import CarMakerManagement from "@components/dashboard/car-makers-managment";
 import CarModelManagement from "@components/dashboard/car-model-management";
@@ -7,7 +8,6 @@ import CategroyForm from "@components/dashboard/category-from";
 import ProductBrandForm from "@components/dashboard/product-brand-form";
 import ProductTypeForm from "@components/dashboard/product-type-form";
 import ProductManagement from "@components/dashboard/products-management";
-import Link from "next/link";
 
 const Page = () => {
   return (
@@ -19,9 +19,9 @@ const Page = () => {
           <ProductTypeForm />
           <ProductBrandForm />
           <CarMakerManagement />
-          <CarModelManagement />
-          <CarGenerationManagement />
-          <CarInfoManagement />
+          {/* <CarModelManagement /> */}
+          <CarGenAndModelManagement />
+          {/* <CarInfoManagement /> */}
           <ProductManagement />
         </div>
 

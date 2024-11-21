@@ -1,7 +1,5 @@
 "use server";
-
 import { getToken } from "@lib/helper";
-
 export async function getAllProductTypesAction() {
   // const token = getToken();
 
