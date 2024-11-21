@@ -40,14 +40,14 @@ export async function createProductTypeAction(productType: string) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the product type.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function editProductTypeAction({
@@ -72,14 +72,14 @@ export async function editProductTypeAction({
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the product type.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function deleteProductTypeAction(id: string) {
@@ -97,14 +97,14 @@ export async function deleteProductTypeAction(id: string) {
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while deleting the ProductType.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function getproducttypesCountAction() {

@@ -93,14 +93,16 @@ export async function createServiceFeeAction(newFee: CreateProps) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the a restocking bill.");
-    throw new Error("Something went wrong while create restocking bill");
+    return { data: null, error: "Something went wrong!" };
   }
 
   //   revalidatePath("/dashboard/insert-data");
   revalidateTag("services");
+
+  return { data: null, error: "" };
 }
 
 export async function getServiceFeesById(id: string) {
@@ -116,7 +118,7 @@ export async function getServiceFeesById(id: string) {
   });
   if (!response.ok) {
     console.log("Something went wrong while deleting the a restocking bill.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   const data = await response.json();
@@ -147,15 +149,17 @@ export async function editServiceFeeAction({
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while editing the service fee.");
-    throw new Error("Something went wrong while editing the service fee.");
+    return { data: null, error: "Something went wrong!" };
   }
 
   revalidateTag("services");
   // const data = await response.json();
   // return data;
+
+  return { data: null, error: "" };
 }
 
 export async function deleteServiceFeeAction(id: string) {
@@ -170,12 +174,14 @@ export async function deleteServiceFeeAction(id: string) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while deleting the a restocking bill.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
   revalidateTag("services");
+
+  return { data: null, error: "" };
 }
 
 export async function getServiceFeesCountAction({

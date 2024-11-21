@@ -148,9 +148,9 @@ export async function createProductAction({
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error("Had truble creating a product.");
+    return { data: null, error: "Had truble creating a product." };
   }
 
   const { prodcutId } = await response.json();
@@ -163,6 +163,8 @@ export async function createProductAction({
     await Promise.all(upload);
   }
   revalidateTag("products");
+
+  return { data: null, error: "" };
 }
 
 export async function editProductAction({
@@ -199,9 +201,9 @@ export async function editProductAction({
     console.log(response);
     if (!response.ok) {
       if (response.status === 409) {
-        throw new Error((await response.json()).message);
+        return { data: null, error: (await response.json()).message };
       }
-      throw new Error("Had truble creating a product.");
+      return { data: null, error: "Had truble creating a product." };
     }
   }
 
@@ -226,6 +228,8 @@ export async function editProductAction({
 
   revalidatePath(`/products/${productToEdit.id}`);
   revalidateTag("products");
+
+  return { data: null, error: "" };
 }
 
 export async function deleteProductsByIdAction(id: number) {
@@ -245,14 +249,16 @@ export async function deleteProductsByIdAction(id: number) {
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error(`Failed to delete a product with the id of ${id} `);
+    return { data: null, error: "Had truble creating a product." };
   }
   // const data = await response.json();
 
   // return data;
   revalidatePath("/products");
+
+  return { data: null, error: "" };
 }
 
 interface GetProdcutsCountActionProps {
@@ -364,10 +370,12 @@ export async function createProductImageAction(formData: FormData) {
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error("Had truble creating a product.");
+    return { data: null, error: "Had truble creating a product." };
   }
+
+  return { data: null, error: "" };
 }
 
 export async function deleteProductsImageAction(imageId: number) {
@@ -390,11 +398,16 @@ export async function deleteProductsImageAction(imageId: number) {
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while grabbing the products.");
-    throw new Error("Something went wrong while deleting product images.");
+    return {
+      data: null,
+      error: "Something went wrong while grabbing the products.",
+    };
   }
+
+  return { data: null, error: "" };
 }
 
 /// WTF IS THIS ?

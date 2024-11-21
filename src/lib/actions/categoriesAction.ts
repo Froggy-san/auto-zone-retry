@@ -42,16 +42,19 @@ export async function createCategoryAction(category: string) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
 
     console.log("Something went wrong while creating the category.");
-    throw new Error("Something went wrong!");
+    return {
+      data: null,
+      error: "Something went wrong while creating the category.",
+    };
   }
   revalidatePath("/dashboard/insert-data");
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function editCategoryAction({
@@ -73,14 +76,17 @@ export async function editCategoryAction({
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the category.");
-    throw new Error("Something went wrong!");
+    return {
+      data: null,
+      error: "Something went wrong while creating the category.",
+    };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function deleteCarAction(id: string) {
@@ -95,14 +101,17 @@ export async function deleteCarAction(id: string) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while deleting the category.");
-    throw new Error("Something went wrong!");
+    return {
+      data: null,
+      error: "Something went wrong while deleting the category.",
+    };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function getCategoriesCountAction() {

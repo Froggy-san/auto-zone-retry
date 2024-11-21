@@ -42,14 +42,14 @@ export async function createProductBrandAction(productBrand: string) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the product brand.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function editProductBrandAction({
@@ -74,14 +74,14 @@ export async function editProductBrandAction({
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the product brand.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function deleteProductBrandAction(id: string) {
@@ -99,14 +99,14 @@ export async function deleteProductBrandAction(id: string) {
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while deleting the ProductBrand.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function getProductBrandsCountAction() {

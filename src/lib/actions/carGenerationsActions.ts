@@ -55,14 +55,14 @@ export async function createCarGenerationAction(generations: CarGeneration) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the car generation.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function editCarGenerationAction({
@@ -87,14 +87,16 @@ export async function editCarGenerationAction({
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the car generation.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   // const data = await response.json();
   // return data;
+
+  return { data: null, error: "" };
 }
 
 export async function deleteCarGenerationAction(id: number) {
@@ -112,14 +114,16 @@ export async function deleteCarGenerationAction(id: number) {
   );
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the car generation.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   // const data = await response.json();
   // return data;
+
+  return { data: null, error: "" };
 }
 
 export async function getCarGenerationCountAction() {

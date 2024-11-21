@@ -31,7 +31,6 @@ export async function getAllCarMakersAction() {
 export async function createCarMakerAction(formData: FormData) {
   const token = getToken();
   if (!token) return redirect("/login");
-  const res = { success: false, data: "" };
 
   const response = await fetch(`${process.env.API_URL}/api/carmakers`, {
     method: "POST",
@@ -41,19 +40,19 @@ export async function createCarMakerAction(formData: FormData) {
     body: formData,
   });
   if (!response.ok) {
-    res.success = false;
     if (response.status === 409) {
-      res.data = (await response.json()).message;
-    } else res.data = "Something went wrong with createing a new car maker";
+      return { data: null, error: (await response.json()).message };
+    }
     // console.log("Something went wrong while creating the car maker.");
-    return res;
+    return {
+      data: null,
+      error: "Something went wrong while creating the car maker.",
+    };
   }
 
   revalidatePath("/dashboard/insert-data");
   const data = await response.json();
-  res.success = true;
-  res.data = data;
-  return res;
+  return { data, error: "" };
 }
 
 export async function editCarMakerAction({
@@ -75,14 +74,14 @@ export async function editCarMakerAction({
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the car maker.");
     throw new Error("Something went wrong!");
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function deleteCarMakerAction(id: string) {
@@ -97,14 +96,14 @@ export async function deleteCarMakerAction(id: string) {
   });
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while creating the car maker.");
-    throw new Error("Something went wrong!");
+    return { data: null, error: "Something went wrong!" };
   }
 
   const data = await response.json();
-  return data;
+  return { data, error: "" };
 }
 
 export async function getCarMakerCountAction() {

@@ -176,14 +176,19 @@ export async function createProductBoughtBulkAction({
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error("Had truble creating a product.");
+    return {
+      data: null,
+      error: "Something went wrong while creating a product.",
+    };
   }
 
   //   const { prodcutId } = await response.json();
 
   revalidateTag("productBought");
+
+  return { data: null, error: "" };
 }
 
 interface EditProps {
@@ -223,13 +228,18 @@ export async function editProductBoughtAction({
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error("Had truble creating a product.");
+    return {
+      data: null,
+      error: "Something went wrong while editing a product.",
+    };
   }
 
   revalidateTag("productBought");
   revalidateTag("restockingBills");
+
+  return { data: null, error: "" };
 }
 
 export async function deleteProductsBoughtByIdAction(id: number) {
@@ -253,16 +263,19 @@ export async function deleteProductsBoughtByIdAction(id: number) {
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error(
-      `Failed to delete a product from the inventory with the id of ${id} `
-    );
+    return {
+      data: null,
+      error: `Failed to delete a product from the inventory with the id of ${id}`,
+    };
   }
   // const data = await response.json();
 
   // return data;
   revalidatePath("/restockingBills");
+
+  return { data: null, error: "" };
 }
 
 interface GetProdcutsCountActionProps {
@@ -374,10 +387,15 @@ export async function createProductImageAction(formData: FormData) {
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error("Had truble creating a product.");
+    return {
+      data: null,
+      error: "Something went wrong while creating a product.",
+    };
   }
+
+  return { data: null, error: "" };
 }
 
 export async function deleteProductsImageAction(imageId: number) {
@@ -400,11 +418,16 @@ export async function deleteProductsImageAction(imageId: number) {
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
     console.log("Something went wrong while grabbing the products.");
-    throw new Error("Something went wrong while deleting product images.");
+    return {
+      data: null,
+      error: "Something went wrong while grabbing the products.",
+    };
   }
+
+  return { data: null, error: "" };
 }
 
 /// WTF IS THIS ?
@@ -456,12 +479,17 @@ export async function setProductImageAsMain(id: number) {
   }).then(async (response) => {
     if (!response.ok) {
       if (response.status === 409) {
-        throw new Error((await response.json()).message);
+        return { data: null, error: (await response.json()).message };
       }
 
-      throw new Error("an error has occured");
+      return {
+        data: null,
+        error: "Something went wrong while grabbing the products.",
+      };
     }
   });
+
+  return { data: null, error: "" };
 }
 
 export async function deleteProductsImageMainAction(id: number) {

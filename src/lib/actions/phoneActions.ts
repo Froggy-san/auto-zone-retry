@@ -114,12 +114,14 @@ export async function createPhoneNumAction(data: {
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error("Had truble creating a phone number.");
+    return { data: null, error: "Had truble creating a phone number." };
   }
 
   revalidateTag("phoneNumbers");
+
+  return { data: null, error: "" };
 }
 
 export async function editPhoneNumAction({
@@ -146,10 +148,12 @@ export async function editPhoneNumAction({
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error("Had truble creating a phone number.");
+    return { data: null, error: "Had truble creating a phone number." };
   }
+
+  return { data: null, error: "" };
 }
 
 export async function deletePhoneNumByIdAction(id: number) {
@@ -169,14 +173,16 @@ export async function deletePhoneNumByIdAction(id: number) {
 
   if (!response.ok) {
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
+      return { data: null, error: (await response.json()).message };
     }
-    throw new Error(`Failed to delete a product with the id of ${id} `);
+    return { data: null, error: "Had truble deleting a phone number." };
   }
   // const data = await response.json();
 
   // return data;
   revalidateTag("phoneNumbers");
+
+  return { data: null, error: "" };
 }
 
 export async function getPhonesCountAction({
