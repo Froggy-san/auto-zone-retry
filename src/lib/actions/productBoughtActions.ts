@@ -138,7 +138,6 @@ export async function createProductBoughtBulkAction({
   data: z.infer<typeof ProductBoughtSchema>[];
   shopName: string;
 }) {
-  //   console.log(data, ">>>>>>>>>>");
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
@@ -146,8 +145,8 @@ export async function createProductBoughtBulkAction({
 
   let shopNameId: number | null = null;
   if (!reStockingBillId) {
-    const shopData = await createRestockingBillAction(shopName);
-    shopNameId = shopData.id;
+    const res = await createRestockingBillAction(shopName);
+    shopNameId = res.data.id;
   }
 
   const productsBoughtArr = data.map((product) => {
@@ -158,8 +157,6 @@ export async function createProductBoughtBulkAction({
         : shopNameId,
     };
   });
-
-  console.log(productsBoughtArr, "ERRORRRRRR ????");
 
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsBought/bulk`,

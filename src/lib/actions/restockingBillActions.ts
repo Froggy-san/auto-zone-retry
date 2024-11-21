@@ -92,9 +92,10 @@ export async function createRestockingBillAction(shopName: string) {
   }
 
   //   revalidatePath("/dashboard/insert-data");
-  revalidateTag("restockingBills");
 
   const data = await response.json();
+  revalidateTag("restockingBills");
+
   return { data, error: "" };
 }
 

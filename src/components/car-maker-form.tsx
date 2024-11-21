@@ -66,7 +66,7 @@ const CarkMakerForm = () => {
       formData.append("notes", notes);
       formData.append("logo", logo[0]);
       const res = await createCarMakerAction(formData);
-      if (!res.success) throw new Error(res.data);
+      if (res.error) throw new Error(res.error);
       toast({
         title: "Success",
         description: (
