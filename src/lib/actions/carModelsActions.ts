@@ -2,6 +2,7 @@
 
 import { getToken } from "@lib/helper";
 import { CarModel, CreateCarModel } from "@lib/types";
+import { redirect } from "next/navigation";
 
 export async function getAllCarModelsAction() {
   const token = getToken();
@@ -29,7 +30,7 @@ export async function getAllCarModelsAction() {
 
 export async function createCarModelAction(carModel: CreateCarModel) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmodels`, {
     method: "POST",
     headers: {
@@ -39,6 +40,9 @@ export async function createCarModelAction(carModel: CreateCarModel) {
     body: JSON.stringify(carModel),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the car model.");
     throw new Error("Something went wrong!");
   }
@@ -55,7 +59,7 @@ export async function editCarModelAction({
   id: string;
 }) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmodels/${id}`, {
     method: "PUT",
     headers: {
@@ -65,6 +69,9 @@ export async function editCarModelAction({
     body: JSON.stringify(carModel),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the car model.");
     throw new Error("Something went wrong!");
   }
@@ -75,7 +82,7 @@ export async function editCarModelAction({
 
 export async function deleteCarModelAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmodels/${id}`, {
     method: "PUT",
     headers: {
@@ -84,6 +91,9 @@ export async function deleteCarModelAction(id: string) {
     },
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the car model.");
     throw new Error("Something went wrong!");
   }

@@ -4,6 +4,7 @@ import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
 import { CreateService } from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
 interface GetRestockingProps {
   pageNumber?: string;
@@ -77,7 +78,7 @@ export async function getServicesAction({
 
 export async function createServiceAction(service: CreateService) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/Services`, {
     method: "POST",
     headers: {
@@ -87,6 +88,9 @@ export async function createServiceAction(service: CreateService) {
     body: JSON.stringify(service),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the a restocking bill.");
     throw new Error("Something went wrong while create restocking bill");
   }
@@ -109,7 +113,7 @@ interface EditProps {
 
 export async function editServiceAction(serivceToEdit: EditProps) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/Services/${serivceToEdit.id}`,
     {
@@ -122,6 +126,9 @@ export async function editServiceAction(serivceToEdit: EditProps) {
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the a restocking bill.");
     throw new Error("Something went wrong!");
   }
@@ -133,7 +140,7 @@ export async function editServiceAction(serivceToEdit: EditProps) {
 
 export async function deleteServiceAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/Services/${id}`, {
     method: "DELETE",
     headers: {
@@ -142,6 +149,9 @@ export async function deleteServiceAction(id: string) {
     },
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while deleting the a restocking bill.");
     throw new Error("Something went wrong!");
   }

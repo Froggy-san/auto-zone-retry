@@ -6,6 +6,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getClienttByIdAction } from "./clientActions";
 import { PAGE_SIZE } from "@lib/constants";
+import { red } from "@mui/material/colors";
 
 interface GetCarsProps {
   color?: string;
@@ -81,7 +82,7 @@ export async function createCarAction({
   images: FormData[];
 }) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/cars`, {
     method: "POST",
     headers: {
@@ -158,7 +159,7 @@ export async function editCarAction({
   const { plateNumber, motorNumber, chassisNumber, carInfoId, notes, color } =
     car;
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
 
   if (!isEqual) {
     const response = await fetch(`${process.env.API_URL}/api/cars/${id}`, {
@@ -177,6 +178,9 @@ export async function editCarAction({
       }),
     });
     if (!response.ok) {
+      if (response.status === 409) {
+        throw new Error((await response.json()).message);
+      }
       console.log("Something went wrong while creating the car.");
       throw new Error("Something went wrong!");
     }
@@ -206,7 +210,7 @@ export async function editCarAction({
 
 export async function deleteCarAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/cars/${id}`, {
     method: "DELETE",
     headers: {
@@ -215,6 +219,9 @@ export async function deleteCarAction(id: string) {
     },
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while deleting the car.");
     throw new Error("Something went wrong!");
   }
@@ -322,8 +329,12 @@ export async function createCarImageAction(formData: FormData) {
     body: formData,
   });
 
-  console.log(response);
-  if (!response.ok) throw new Error("Had truble creating a product.");
+  if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
+    throw new Error("Had truble creating a product.");
+  }
 }
 
 export async function deleteCarImageAction(imageId: number) {
@@ -331,7 +342,7 @@ export async function deleteCarImageAction(imageId: number) {
 
   const token = getToken();
 
-  if (!token) throw new Error("You are not authorized to do this action.");
+  if (!token) return redirect("/login");
 
   const response = await fetch(
     `${process.env.API_URL}/api/CarImages/${imageId}`,
@@ -345,6 +356,9 @@ export async function deleteCarImageAction(imageId: number) {
   );
 
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while grabbing the products.");
     throw new Error("Something went wrong while deleting product images.");
   }

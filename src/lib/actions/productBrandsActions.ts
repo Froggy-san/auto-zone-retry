@@ -1,6 +1,7 @@
 "use server";
 
 import { getToken } from "@lib/helper";
+import { redirect } from "next/navigation";
 
 export async function getAllProductBrandsAction() {
   // const token = getToken();
@@ -30,7 +31,7 @@ export async function getAllProductBrandsAction() {
 
 export async function createProductBrandAction(productBrand: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/productbrands`, {
     method: "POST",
     headers: {
@@ -40,6 +41,9 @@ export async function createProductBrandAction(productBrand: string) {
     body: JSON.stringify({ name: productBrand }),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the product brand.");
     throw new Error("Something went wrong!");
   }
@@ -56,7 +60,7 @@ export async function editProductBrandAction({
   id: string;
 }) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/productbrands/${id}`,
     {
@@ -69,6 +73,9 @@ export async function editProductBrandAction({
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the product brand.");
     throw new Error("Something went wrong!");
   }
@@ -79,7 +86,7 @@ export async function editProductBrandAction({
 
 export async function deleteProductBrandAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/productbrands/${id}`,
     {
@@ -91,6 +98,9 @@ export async function deleteProductBrandAction(id: string) {
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while deleting the ProductBrand.");
     throw new Error("Something went wrong!");
   }
