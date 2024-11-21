@@ -59,15 +59,7 @@ export async function getProductsAction({
     // },
     next: {
       // revalidate: 3600,
-      tags: [
-        "products",
-        // `${pageNumber}`,
-        // `${name}`,
-        // `${categoryId}`,
-        // `${productTypeId}`,
-        // `${productBrandId}`,
-        // `${isAvailable}`,
-      ],
+      tags: ["products"],
     },
   });
 

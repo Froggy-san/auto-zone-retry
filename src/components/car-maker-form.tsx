@@ -65,19 +65,19 @@ const CarkMakerForm = () => {
       formData.append("name", name);
       formData.append("notes", notes);
       formData.append("logo", logo[0]);
-      await createCarMakerAction(formData);
-      setIsOpen(false);
+      const res = await createCarMakerAction(formData);
+      if (!res.success) throw new Error(res.data);
       toast({
-        title: "Welcome back.",
+        title: "Success",
         description: (
-          <SuccessToastDescription message="Product as been created." />
+          <SuccessToastDescription message="Car maker has been created." />
         ),
       });
     } catch (error: any) {
-      console.log(error);
+      console.log(error.message);
       toast({
         variant: "destructive",
-        title: "Welcome back.",
+        title: "Error",
         description: <ErorrToastDescription error={error.message} />,
       });
     }

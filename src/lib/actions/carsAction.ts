@@ -81,7 +81,9 @@ export async function createCarAction({
   images: FormData[];
 }) {
   const token = getToken();
+
   if (!token) return redirect("/login");
+
   const response = await fetch(`${process.env.API_URL}/api/cars`, {
     method: "POST",
     headers: {
@@ -90,6 +92,7 @@ export async function createCarAction({
     },
     body: JSON.stringify(car),
   });
+
   if (!response.ok) {
     console.log("Something went wrong while creating the car.");
     throw new Error("Something went wrong!");

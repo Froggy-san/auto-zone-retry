@@ -151,7 +151,6 @@ const CarForm = ({
         ? images.map((image) => {
             const formData = new FormData();
             formData.append("image", image);
-            // formData.append("productId", String(prodcutId));
             formData.append("isMain", "false");
             return formData;
           })

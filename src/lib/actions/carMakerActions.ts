@@ -29,9 +29,9 @@ export async function getAllCarMakersAction() {
 }
 
 export async function createCarMakerAction(formData: FormData) {
-  const name = "SSSASAASAA";
   const token = getToken();
   if (!token) return redirect("/login");
+  const res = { success: false, data: "" };
 
   const response = await fetch(`${process.env.API_URL}/api/carmakers`, {
     method: "POST",
@@ -41,16 +41,19 @@ export async function createCarMakerAction(formData: FormData) {
     body: formData,
   });
   if (!response.ok) {
+    res.success = false;
     if (response.status === 409) {
-      throw new Error((await response.json()).message);
-    }
-    console.log("Something went wrong while creating the car maker.");
-    throw new Error("Something went wrong!");
+      res.data = (await response.json()).message;
+    } else res.data = "Something went wrong with createing a new car maker";
+    // console.log("Something went wrong while creating the car maker.");
+    return res;
   }
 
   revalidatePath("/dashboard/insert-data");
   const data = await response.json();
-  return data;
+  res.success = true;
+  res.data = data;
+  return res;
 }
 
 export async function editCarMakerAction({
