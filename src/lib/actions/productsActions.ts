@@ -249,9 +249,7 @@ export async function deleteProductsByIdAction(id: number) {
     }
     throw new Error(`Failed to delete a product with the id of ${id} `);
   }
-  // const data = await response.json();
 
-  // return data;
   revalidatePath("/products");
 }
 
@@ -370,6 +368,34 @@ export async function createProductImageAction(formData: FormData) {
   }
 }
 
+export async function createMultipleProImages(formData: FormData, id: number) {
+  const cookie = cookies();
+  const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
+
+  if (!token) return redirect("/login");
+
+  const response = await fetch(
+    `${process.env.API_URL}/api/ProductImages/AddMulty/${id}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    const errorMessage =
+      response.status === 409
+        ? (await response.json()).message
+        : "Something went wrong while uploading images.";
+    return { data: null, error: errorMessage };
+  }
+
+  return { data: null, error: "" };
+}
+
 export async function deleteProductsImageAction(imageId: number) {
   //Product?PageNumber=1&PageSize=10
 
@@ -396,8 +422,6 @@ export async function deleteProductsImageAction(imageId: number) {
     throw new Error("Something went wrong while deleting product images.");
   }
 }
-
-/// WTF IS THIS ?
 
 export async function getProductsImagesMainAction(id: number) {
   //Product?PageNumber=1&PageSize=10
