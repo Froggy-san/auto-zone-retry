@@ -29,10 +29,10 @@ export async function getAllCarMakersAction() {
 }
 
 export async function createCarMakerAction(formData: FormData) {
+  const name = "SSSASAASAA";
   const token = getToken();
   if (!token) return redirect("/login");
 
-  console.log(formData, "formData");
   const response = await fetch(`${process.env.API_URL}/api/carmakers`, {
     method: "POST",
     headers: {
