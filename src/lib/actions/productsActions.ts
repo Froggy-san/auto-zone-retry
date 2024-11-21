@@ -160,7 +160,12 @@ export async function createProductAction({
   });
 
   console.log(response);
-  if (!response.ok) throw new Error("Had truble creating a product.");
+  if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
+    throw new Error("Had truble creating a product.");
+  }
 
   const { prodcutId } = await response.json();
 
@@ -206,7 +211,12 @@ export async function editProductAction({
     );
 
     console.log(response);
-    if (!response.ok) throw new Error("Had truble creating a product.");
+    if (!response.ok) {
+      if (response.status === 409) {
+        throw new Error((await response.json()).message);
+      }
+      throw new Error("Had truble creating a product.");
+    }
   }
 
   if (imagesToUpload.length) {
@@ -237,7 +247,7 @@ export async function deleteProductsByIdAction(id: number) {
 
   const token = getToken();
 
-  if (!token) throw new Error("You are not authorized to make this action.");
+  if (!token) return redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Product/${id}`, {
     method: "DELETE",
@@ -247,8 +257,12 @@ export async function deleteProductsByIdAction(id: number) {
     },
   });
 
-  if (!response.ok)
+  if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     throw new Error(`Failed to delete a product with the id of ${id} `);
+  }
   // const data = await response.json();
 
   // return data;
@@ -362,7 +376,12 @@ export async function createProductImageAction(formData: FormData) {
   });
 
   console.log(response);
-  if (!response.ok) throw new Error("Had truble creating a product.");
+  if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
+    throw new Error("Had truble creating a product.");
+  }
 }
 
 export async function deleteProductsImageAction(imageId: number) {
@@ -370,7 +389,7 @@ export async function deleteProductsImageAction(imageId: number) {
 
   const token = getToken();
 
-  if (!token) throw new Error("You are not authorized to do this action.");
+  if (!token) return redirect("/login");
 
   const response = await fetch(
     `${process.env.API_URL}/api/ProductImages/${imageId}`,
@@ -384,6 +403,9 @@ export async function deleteProductsImageAction(imageId: number) {
   );
 
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while grabbing the products.");
     throw new Error("Something went wrong while deleting product images.");
   }
@@ -427,8 +449,7 @@ export async function getProductsImagesMainAction(id: number) {
 export async function setProductImageAsMain(id: number) {
   const token = getToken();
 
-  if (!token)
-    return { data: null, error: "You are not authorized to make this action." };
+  if (!token) return redirect("/login");
 
   await fetch(`${process.env.API_URL}/api/ProductImages/${id}`, {
     method: "PUT",

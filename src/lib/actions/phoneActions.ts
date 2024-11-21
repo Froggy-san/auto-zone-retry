@@ -2,6 +2,7 @@
 
 import { AUTH_TOEKN_NAME, PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
+import { red } from "@mui/material/colors";
 
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
@@ -69,8 +70,7 @@ export async function getPhonesAction({
 export async function getProductByIdAction(id: number) {
   const token = getToken();
 
-  if (!token)
-    return { data: null, error: "You are not authorized to make this action." };
+  if (!token) return redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Phones/${id}`, {
     method: "GET",
@@ -112,7 +112,12 @@ export async function createPhoneNumAction(data: {
   });
 
   console.log(response);
-  if (!response.ok) throw new Error("Had truble creating a phone number.");
+  if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
+    throw new Error("Had truble creating a phone number.");
+  }
 
   revalidateTag("phoneNumbers");
 }
@@ -139,7 +144,12 @@ export async function editPhoneNumAction({
   });
 
   console.log(response);
-  if (!response.ok) throw new Error("Had truble creating a phone number.");
+  if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
+    throw new Error("Had truble creating a phone number.");
+  }
 }
 
 export async function deletePhoneNumByIdAction(id: number) {
@@ -147,7 +157,7 @@ export async function deletePhoneNumByIdAction(id: number) {
 
   const token = getToken();
 
-  if (!token) throw new Error("You are not authorized to make this action.");
+  if (!token) return redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Phones/${id}`, {
     method: "DELETE",
@@ -157,8 +167,12 @@ export async function deletePhoneNumByIdAction(id: number) {
     },
   });
 
-  if (!response.ok)
+  if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     throw new Error(`Failed to delete a product with the id of ${id} `);
+  }
   // const data = await response.json();
 
   // return data;
