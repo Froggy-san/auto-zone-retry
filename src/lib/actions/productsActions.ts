@@ -92,13 +92,7 @@ export async function getProductByIdAction(id: string) {
   // if (!token)
   //   return { data: null, error: "You are not authorized to make this action." };
 
-  const response = await fetch(`${process.env.API_URL}/api/Product/${id}`, {
-    method: "GET",
-    // headers: {
-    //   Authorization: `Bearer ${token}`,
-    //   // "Content-type": "application/json",
-    // },
-  });
+  const response = await fetch(`${process.env.API_URL}/api/Product/${id}`);
 
   if (!response.ok) {
     console.log("Something went wrong while grabbing the products.");

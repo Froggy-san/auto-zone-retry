@@ -3,7 +3,6 @@ import ProdcutViewDetials from "@components/products/product-view-detials";
 import FullImagesGallery from "@components/full-images-gallery";
 import { Button } from "@components/ui/button";
 import { getProductByIdAction } from "@lib/actions/productsActions";
-import { STATIC_IMAGES } from "@lib/constants";
 import { ProductImage } from "@lib/types";
 import Link from "next/link";
 import React from "react";
@@ -33,7 +32,7 @@ const ProductView = async ({ params }: { params: Params }) => {
     (image: ProductImage) => image.imageUrl
   );
 
-  console.log(imageUrls, "WWWW");
+
   if (!productData)
     return (
       <p>

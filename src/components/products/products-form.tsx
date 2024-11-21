@@ -155,6 +155,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
     resolver: zodResolver(ProductsSchema),
     defaultValues: defaultValues,
   });
+  const { images } = form.watch();
+
+  useEffect(() => {
+    if (!productToEdit && images.length) {
+      setIsMainImage(0);
+    }
+  }, [images]);
 
   // checking if the user changet the forms data in order to enable the user to change it. if not we check if they deleted any images as shown below in the (disabled variable).
   const isEqual = useObjectCompare(defaultValues, form.getValues());

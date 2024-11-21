@@ -88,10 +88,8 @@ export function MultiFileUploader({
                 disabled={disabled}
                 type="button"
                 onClick={() => {
-                  // e.stopPropagation();
                   if (isMainImage === media) setIsMainImage(null);
                   handleDeleteMedia(media);
-                  // handleDeleteSelectedImages(file);
                 }}
                 aria-label={`the remove button for the image number ${
                   i + 1

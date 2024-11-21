@@ -19,7 +19,7 @@ const ProdcutViewDetials = ({
   user: User | null;
   product: ProductById;
 }) => {
-  const productCarInfo = product.carInfos.length ? product.carInfos[0] : null;
+  // const productCarInfo = product.carInfos.length ? product.carInfos[0] : null;
 
   return (
     <main className=" my-10">
@@ -59,7 +59,7 @@ const ProdcutViewDetials = ({
 
         <div className=" space-y-14">
           <h2 className=" text-xl font-semibold">Product information</h2>
-          <div className=" grid  gap-5 grid-cols-1 md:grid-cols-2">
+          {/* <div className=" grid  gap-5 grid-cols-1 md:grid-cols-2">
             <Card className="  p-5  text-sm relative space-y-1">
               <div className=" w-14 h-14 rounded-full    bg-dashboard-orange  text-dashboard-text-orange  flex items-center justify-center mb-3">
                 <PiPackageFill size={30} />
@@ -171,7 +171,7 @@ const ProdcutViewDetials = ({
                 />
               )}
             </Card>
-          </div>
+          </div> */}
           {/* ---- */}
           <div>
             <h2 className=" text-xl font-semibold">Description</h2>
