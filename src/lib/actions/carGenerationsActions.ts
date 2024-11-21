@@ -2,6 +2,7 @@
 
 import { getToken } from "@lib/helper";
 import { CarGeneration } from "@lib/types";
+import { redirect } from "next/navigation";
 
 export async function getAllCarGenerationsAction(page?: number) {
   const token = getToken();
@@ -43,7 +44,7 @@ export async function getAllCarGenerationsAction(page?: number) {
 
 export async function createCarGenerationAction(generations: CarGeneration) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/cargenerations`, {
     method: "POST",
     headers: {
@@ -53,6 +54,9 @@ export async function createCarGenerationAction(generations: CarGeneration) {
     body: JSON.stringify(generations),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the car generation.");
     throw new Error("Something went wrong!");
   }
@@ -69,7 +73,7 @@ export async function editCarGenerationAction({
   id: number;
 }) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/cargenerations/${id}`,
     {
@@ -82,6 +86,9 @@ export async function editCarGenerationAction({
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the car generation.");
     throw new Error("Something went wrong!");
   }
@@ -92,7 +99,7 @@ export async function editCarGenerationAction({
 
 export async function deleteCarGenerationAction(id: number) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/CarGenerations/${id}`,
     {
@@ -104,6 +111,9 @@ export async function deleteCarGenerationAction(id: number) {
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the car generation.");
     throw new Error("Something went wrong!");
   }

@@ -74,7 +74,8 @@ export async function getServiceFeesAction({
 
 export async function createProductToSellAction(productToSell: ProductSold) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
+
   const response = await fetch(`${process.env.API_URL}/api/ProductsToSell`, {
     method: "POST",
     headers: {
@@ -84,6 +85,9 @@ export async function createProductToSellAction(productToSell: ProductSold) {
     body: JSON.stringify(productToSell),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the a restocking bill.");
     throw new Error("Something went wrong while create restocking bill");
   }
@@ -136,7 +140,7 @@ export async function editProductToSellAction({
 }) {
   const token = getToken();
   if (!token) {
-    redirect("/login");
+    return redirect("/login");
     // throw new Error("You are not Authorized to make this action.");
   }
   const response = await fetch(
@@ -151,6 +155,9 @@ export async function editProductToSellAction({
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while editing the service fee.");
     throw new Error("Something went wrong while editing the service fee.");
   }
@@ -162,7 +169,8 @@ export async function editProductToSellAction({
 
 export async function deleteProductToSellAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
+
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsToSell/${id}`,
     {
@@ -174,6 +182,9 @@ export async function deleteProductToSellAction(id: string) {
     }
   );
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while deleting the a restocking bill.");
     throw new Error("Something went wrong!");
   }

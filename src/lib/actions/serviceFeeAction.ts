@@ -82,7 +82,7 @@ interface CreateProps {
 
 export async function createServiceFeeAction(newFee: CreateProps) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/ServicesFee`, {
     method: "POST",
     headers: {
@@ -92,6 +92,9 @@ export async function createServiceFeeAction(newFee: CreateProps) {
     body: JSON.stringify(newFee),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the a restocking bill.");
     throw new Error("Something went wrong while create restocking bill");
   }
@@ -130,7 +133,8 @@ export async function editServiceFeeAction({
 }) {
   const token = getToken();
   if (!token) {
-    redirect("/login");
+    return redirect("/login");
+
     // throw new Error("You are not Authorized to make this action.");
   }
   const response = await fetch(`${process.env.API_URL}/api/ServicesFee/${id}`, {
@@ -142,6 +146,9 @@ export async function editServiceFeeAction({
     body: JSON.stringify(serviceFee),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while editing the service fee.");
     throw new Error("Something went wrong while editing the service fee.");
   }
@@ -153,7 +160,7 @@ export async function editServiceFeeAction({
 
 export async function deleteServiceFeeAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/ServicesFee/${id}`, {
     method: "DELETE",
     headers: {
@@ -162,6 +169,9 @@ export async function deleteServiceFeeAction(id: string) {
     },
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while deleting the a restocking bill.");
     throw new Error("Something went wrong!");
   }

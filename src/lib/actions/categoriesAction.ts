@@ -2,6 +2,7 @@
 
 import { getToken } from "@lib/helper";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function getAllCategoriesAction() {
   // await new Promise((res) => setTimeout(res, 9000));
@@ -30,7 +31,7 @@ export async function getAllCategoriesAction() {
 
 export async function createCategoryAction(category: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/categories`, {
     method: "POST",
     headers: {
@@ -40,6 +41,10 @@ export async function createCategoryAction(category: string) {
     body: JSON.stringify({ name: category }),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
+
     console.log("Something went wrong while creating the category.");
     throw new Error("Something went wrong!");
   }
@@ -57,7 +62,7 @@ export async function editCategoryAction({
   id: string;
 }) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/categories/${id}`, {
     method: "PUT",
     headers: {
@@ -67,6 +72,9 @@ export async function editCategoryAction({
     body: JSON.stringify(category),
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while creating the category.");
     throw new Error("Something went wrong!");
   }
@@ -77,7 +85,7 @@ export async function editCategoryAction({
 
 export async function deleteCarAction(id: string) {
   const token = getToken();
-  if (!token) throw new Error("You are not Authorized to make this action.");
+  if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/categories/${id}`, {
     method: "PUT",
     headers: {
@@ -86,6 +94,9 @@ export async function deleteCarAction(id: string) {
     },
   });
   if (!response.ok) {
+    if (response.status === 409) {
+      throw new Error((await response.json()).message);
+    }
     console.log("Something went wrong while deleting the category.");
     throw new Error("Something went wrong!");
   }
