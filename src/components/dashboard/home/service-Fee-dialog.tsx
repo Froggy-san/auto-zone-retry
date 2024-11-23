@@ -468,14 +468,20 @@ function DeleteFee({
             onClick={async () => {
               setIsDeleting(true);
               try {
-                if (fee) await deleteServiceFeeAction(String(fee.id));
+                if (fee) {
+                  const { error } = await deleteServiceFeeAction(
+                    String(fee.id)
+                  );
+
+                  if (error) throw new Error(error);
+                }
                 setIsDeleting(false);
                 handleClose();
                 toast({
-                  title: `Client deleted!`,
+                  title: `Service deleted!`,
                   description: (
                     <SuccessToastDescription
-                      message={`''s data has been deleted`}
+                      message={`Service fee has been deleted.`}
                     />
                   ),
                 });
@@ -484,7 +490,7 @@ function DeleteFee({
 
                 toast({
                   variant: "destructive",
-                  title: "Faild to delete client's data",
+                  title: "Faild to delete service fee data.",
                   description: <ErorrToastDescription error={error.message} />,
                 });
               }

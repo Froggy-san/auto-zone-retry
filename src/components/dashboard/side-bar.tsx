@@ -37,16 +37,16 @@ const SUB_LINKS = [
     title: "Inventory",
     herf: "/dashboard/inventory",
   },
-  {
-    icon: <SlidersVertical size={ICON_SIZE} />,
-    title: "Settings",
-    herf: "/dashboard/settings",
-  },
-  {
-    icon: <Car size={ICON_SIZE} />,
-    title: "Garage",
-    herf: "/dashboard/cars",
-  },
+  // {
+  //   icon: <SlidersVertical size={ICON_SIZE} />,
+  //   title: "Settings",
+  //   herf: "/dashboard/settings",
+  // },
+  // {
+  //   icon: <Car size={ICON_SIZE} />,
+  //   title: "Garage",
+  //   herf: "/dashboard/cars",
+  // },
   {
     icon: <PersonStanding size={ICON_SIZE} />,
     title: "Customers",

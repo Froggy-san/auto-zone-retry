@@ -6,6 +6,7 @@ import React from "react";
 import { getAllCarsInfoAction } from "@lib/actions/carInfoActions";
 import { getClientsDataAction } from "@lib/actions/clientActions";
 import GrageFilter from "./grage-fiter";
+import { CarGenerationProps, ClientWithPhoneNumbers } from "@lib/types";
 interface CarsListProps {
   color: string;
   plateNumber: string;
@@ -13,23 +14,29 @@ interface CarsListProps {
   motorNumber: string;
   clientId: string;
   carInfoId: string;
+  carGenerations: CarGenerationProps[] | null;
+  clients: ClientWithPhoneNumbers[] | null;
   pageNumber: string;
 }
-const GrageFilterbar: React.FC<CarsListProps> = async ({ ...props }) => {
-  const [carInfoData, clientsData] = await Promise.all([
-    getAllCarsInfoAction(),
-    getClientsDataAction(),
-  ]);
+const GrageFilterbar: React.FC<CarsListProps> = async ({
+  clients,
+  carGenerations,
+  ...props
+}) => {
+  // const [carInfoData, clientsData] = await Promise.all([
+  //   getAllCarsInfoAction(),
+  //   getClientsDataAction(),
+  // ]);
 
-  const { data: carInfo, error: categoriesError } = carInfoData;
-  const { data: clients, error: productBrandsError } = clientsData;
+  // const { data: carInfo, error: categoriesError } = carInfoData;
+  // const { data: clients, error: productBrandsError } = clientsData;
 
   // if (categoriesError || brandTypesError || productBrandsError) return null;
   return (
     <aside className={`sm:w-[200px]  sm:p-2 sm:border-t sm:border-r `}>
       <GrageFilter
         clietns={clients || []}
-        carInfos={carInfo || []}
+        carGeneration={carGenerations || []}
         {...props}
       />
     </aside>

@@ -85,13 +85,9 @@ const ServicesForm = ({
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const edit = searchParam.get("edit") ?? "";
-
   const [isOpen, setIsOpen] = useState(false);
   const [currTab, setCurrTab] = useState("item-1");
   const { toast } = useToast();
-
-  // const isEditing = edit ? true : false || isOpen;
 
   const defaultValues = {
     clientId: (client && client.id) || 0,
@@ -125,8 +121,6 @@ const ServicesForm = ({
     append: appendProduct,
     remove: removeProduct,
   } = useFieldArray({ name: "productsToSell", control: form.control });
-
-  console.log(form.formState.errors, "ERRORS");
 
   const errors = form.formState.errors;
   // checking if the user changet the forms data in order to enable the user to change it. if not we check if they deleted any images as shown below in the (disabled variable).
@@ -205,10 +199,9 @@ const ServicesForm = ({
   }
 
   async function onSubmit(data: CreateService) {
-    console.log(data, "DDDD");
     try {
-      await createServiceAction(data);
-
+      const { error } = await createServiceAction(data);
+      if (error) throw new Error(error);
       toast({
         title: carToEdit ? "Success" : "A new car has been created",
         description: (
@@ -223,8 +216,7 @@ const ServicesForm = ({
       });
       handleClose();
     } catch (error: any) {
-      console.log(error);
-      // form.reset();
+      console.error(error);
       toast({
         variant: "destructive",
         title: "Faild to create a new car.",

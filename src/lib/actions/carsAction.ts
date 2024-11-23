@@ -70,7 +70,7 @@ interface CarCreatedProps {
   motorNumber: string;
   notes: string;
   clientId: number;
-  carInfoId: number;
+  carGenerationId: number;
 }
 
 export async function createCarAction({
@@ -101,11 +101,13 @@ export async function createCarAction({
     };
   }
 
-  const { carId } = await response.json();
+  const { id } = await response.json();
+
+  console.log(id, "CAR IDDD");
 
   if (images.length) {
     const upload = images.map((image) => {
-      image.append("carId", carId);
+      image.append("carId", id);
 
       return createCarImageAction(image);
     });
@@ -115,7 +117,7 @@ export async function createCarAction({
 
   revalidateTag("cars");
   // revalidateTag("carCount");
-  return { data: carId, error: "" };
+  return { data: id, error: "" };
 }
 
 export async function getCarByIdAction(id: string) {
@@ -124,26 +126,26 @@ export async function getCarByIdAction(id: string) {
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
 
-  const response = await fetch(`${process.env.API_URL}/api/Cars/${id}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      // "Content-type": "application/json",
-    },
-  });
+  // const response = await fetch(`${process.env.API_URL}/api/Cars/${id}`, {
+  //   method: "GET",
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //     // "Content-type": "application/json",
+  //   },
+  // });
 
-  if (!response.ok) {
-    console.log("Something went wrong while grabbing the car.");
+  // if (!response.ok) {
+  //   console.log("Something went wrong while grabbing the car.");
 
-    return {
-      data: null,
-      error: "Something went wrong while grabbing the car.",
-    };
-  }
+  //   return {
+  //     data: null,
+  //     error: "Something went wrong while grabbing the car.",
+  //   };
+  // }
 
-  const car = (await response.json()) as CarItem;
+  // const car = (await response.json()) as CarItem;
 
-  const { data, error } = await getClienttByIdAction(car.clientId);
+  const { data, error } = await getClienttByIdAction(Number(id));
 
   return { data, error: "" };
 }
@@ -161,8 +163,14 @@ export async function editCarAction({
   imagesToDelete: CarImage[];
   isEqual: boolean;
 }) {
-  const { plateNumber, motorNumber, chassisNumber, carInfoId, notes, color } =
-    car;
+  const {
+    plateNumber,
+    motorNumber,
+    chassisNumber,
+    carGenerationId,
+    notes,
+    color,
+  } = car;
   const token = getToken();
   if (!token) return redirect("/login");
 
@@ -177,7 +185,7 @@ export async function editCarAction({
         plateNumber,
         motorNumber,
         chassisNumber,
-        carInfoId,
+        carGenerationId,
         notes,
         color,
       }),
@@ -345,16 +353,9 @@ export async function createCarImageAction(formData: FormData) {
   });
 
   if (!response.ok) {
-    if (response.status === 409) {
-      return { data: null, error: (await response.json()).message };
-    }
-    return {
-      data: null,
-      error: "Something went wrong while creating the image.",
-    };
+    console.log("Had truble creating a product.");
+    throw new Error("Had truble creating a product.");
   }
-
-  return { data: null, error: "" };
 }
 
 export async function deleteCarImageAction(imageId: number) {

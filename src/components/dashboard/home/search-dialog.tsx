@@ -222,14 +222,19 @@ const SearchDialog = ({
         </DialogComponent.Header>
         <form action={handleSub}>
           <div className=" flex flex-wrap   justify-between gap-2 gap-y-3">
-            <ServiceStatusCombobox
-              value={statusId}
-              setValue={setStatusId}
-              options={status}
-              className="w-full   sm:w-[48%]"
-            />
+            <div className=" space-y-2 mb-auto w-full   sm:w-[48%]">
+              <ServiceStatusCombobox
+                value={statusId}
+                setValue={setStatusId}
+                options={status}
+                className=" w-full"
+              />
+              <p className=" text-xs text-muted-foreground">
+                Search by service status.
+              </p>
+            </div>
 
-            <div className={cn("grid gap-2 w-full   sm:w-[48%]")}>
+            <div className={cn("grid  w-full   space-y-2  sm:w-[48%]")}>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -267,14 +272,23 @@ const SearchDialog = ({
                   />
                 </PopoverContent>
               </Popover>
+              <p className=" text-xs text-muted-foreground">Search by Date.</p>
             </div>
+            <div className="space-y-2 w-full">
+              <CarsComboBox value={car} setValue={setCar} options={cars} />
+              <p className=" text-xs text-muted-foreground">Search by car.</p>
+            </div>
+            <div className="space-y-2 w-full">
+              <ClientsComboBox
+                value={client}
+                setValue={setClient}
+                options={clients}
+              />
 
-            <CarsComboBox value={car} setValue={setCar} options={cars} />
-            <ClientsComboBox
-              value={client}
-              setValue={setClient}
-              options={clients}
-            />
+              <p className=" text-xs text-muted-foreground">
+                Search by clients.
+              </p>
+            </div>
 
             <div className=" space-y-2 w-full sm:w-[48%]">
               <Input

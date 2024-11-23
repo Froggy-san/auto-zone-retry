@@ -21,26 +21,48 @@ import { BsFillPersonLinesFill } from "react-icons/bs";
 import { Button } from "@components/ui/button";
 import Link from "next/link";
 import ServiceManagement from "@components/grage/add-service";
+import { getAllCarGenerationsAction } from "@lib/actions/carGenerationsActions";
+import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 
 interface Params {
   carId: string;
+  car: string;
+}
+interface searchParams {
+  car?: string;
 }
 
-const Page = async ({ params }: { params: Params }) => {
-  const { data, error } = await getCarByIdAction(params.carId);
+const Page = async ({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: searchParams;
+}) => {
+  // const { data, error } = await getCarByIdAction(params.carId);
+  const carId = searchParams.car || "";
 
-  console.log(data, "CAR BY ID");
+  const [carData, carGeneration, carMakers] = await Promise.all([
+    getCarByIdAction(params.carId),
+    getAllCarGenerationsAction(),
+    getAllCarMakersAction(),
+  ]);
+
+  const { data, error } = carData;
+  const { data: carGenerationData, error: carGenerationError } = carGeneration;
+  const { data: carMakersData, error: carMakersError } = carMakers;
   if (error) return <p>{error}</p>;
   if (!data) return <p>Couldn&apos;t find a car with that id {params.carId}</p>;
 
-  const car = data.cars.find((car) => car.id === Number(params.carId));
+  const carGenerations = carGenerationData?.carGenerationsData;
+  const car = data.cars.find((car) => car.id === Number(carId)); // Client's information with client's cars.
   const images = car?.carImages.map((image) => image.imagePath);
   const carInfo = car?.carInfo;
   const clinetPhones = data.phones;
   const client = {
     name: data.name,
     email: data.email,
-    id: car?.clientId,
+    id: data?.id,
     phones: clinetPhones,
   };
 
@@ -237,6 +259,8 @@ const Page = async ({ params }: { params: Params }) => {
             <CarManagement
               useParams
               carToEdit={car}
+              carGenerations={carGenerations}
+              carMakers={carMakersData}
               className=" sm:flex-col   sm:items-stretch lg:flex-row lg:items-center"
             />
             <DeleteCar

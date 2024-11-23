@@ -69,7 +69,7 @@ export const CarsComboBox: React.FC<Props> = ({
               </div>
             </div>
           ) : (
-            "Select client..."
+            "Select car..."
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

@@ -11,6 +11,7 @@ import React from "react";
 import { PiPackageFill } from "react-icons/pi";
 import { TbBoxModel2 } from "react-icons/tb";
 import { VscTypeHierarchySuper } from "react-icons/vsc";
+import { MdCategory } from "react-icons/md";
 
 const ProdcutViewDetials = ({
   product,
@@ -59,33 +60,53 @@ const ProdcutViewDetials = ({
 
         <div className=" space-y-14">
           <h2 className=" text-xl font-semibold">Product information</h2>
-          {/* <div className=" grid  gap-5 grid-cols-1 md:grid-cols-2">
-            <Card className="  p-5  text-sm relative space-y-1">
-              <div className=" w-14 h-14 rounded-full    bg-dashboard-orange  text-dashboard-text-orange  flex items-center justify-center mb-3">
-                <PiPackageFill size={30} />
+          <div className=" grid  gap-3 grid-cols-1 sm:grid-cols-2  md:grid-cols-3 ">
+            <Card className=" p-5 h-fit">
+              <div className=" flex items-center gap-2">
+                <div className=" w-14 h-14 rounded-full    bg-dashboard-orange  text-dashboard-text-orange  flex items-center justify-center mb-3">
+                  <MdCategory size={30} />
+                </div>
+                <h2 className=" text-2xl font-semibold  text-dashboard-text-orange">
+                  {" "}
+                  Category
+                </h2>
               </div>
-
-              <div>
-                Category:{" "}
-                <span className=" text-muted-foreground">
-                  {product.category.name}
-                </span>
-              </div>
-              <div>
-                Brand:{" "}
-                <span className=" text-muted-foreground">
-                  {product.productBrand.name}
-                </span>
-              </div>
-              <div>
-                Type:{" "}
-                <span className=" text-muted-foreground">
-                  {product.productType.name}
-                </span>
-              </div>
+              <p className="   decoration-clone  break-all">
+                &bull; {product.category.name}
+              </p>
             </Card>
 
-            <Card className="  p-5  text-sm relative">
+            <Card className=" p-5 h-fit">
+              <div className=" flex items-center gap-2">
+                <div className=" w-14 h-14 rounded-full    bg-dashboard-indigo  text-dashboard-text-indigo  flex items-center justify-center mb-3">
+                  <VscTypeHierarchySuper size={30} />
+                </div>
+                <h2 className=" text-2xl font-semibold  text-dashboard-text-indigo">
+                  {" "}
+                  Type
+                </h2>
+              </div>
+              <p className="   decoration-clone  break-all">
+                &bull; {product.productType.name}
+              </p>
+            </Card>
+
+            <Card className=" p-5 h-fit">
+              <div className=" flex items-center gap-2">
+                <div className=" w-14 h-14 rounded-full    bg-dashboard-green  text-dashboard-text-green  flex items-center justify-center mb-3">
+                  <TbBoxModel2 size={30} />
+                </div>
+                <h2 className=" text-2xl font-semibold  text-dashboard-text-green">
+                  {" "}
+                  Brand
+                </h2>
+              </div>
+              <p className="   decoration-clone  break-all">
+                &bull; {product.productType.name}
+              </p>
+            </Card>
+
+            {/* <Card className="  p-5  text-sm relative">
               <div className=" w-14 h-14 rounded-full  bg-dashboard-green text-dashboard-text-green  flex items-center justify-center mb-3">
                 <VscTypeHierarchySuper size={30} />
               </div>
@@ -112,9 +133,9 @@ const ProdcutViewDetials = ({
                   className=" absolute right-5 top-7"
                 />
               )}
-            </Card>
+            </Card> */}
 
-            <Card className="  p-5  text-sm relative">
+            {/* <Card className="  p-5  text-sm relative">
               <div className=" w-14 h-14 rounded-full   bg-dashboard-blue text-dashboard-text-blue  flex items-center justify-center mb-3">
                 <Blend size={30} />
               </div>
@@ -142,36 +163,8 @@ const ProdcutViewDetials = ({
                 content={<p>{productCarInfo?.carMaker.notes}</p>}
                 className=" absolute right-5 top-7"
               />
-            </Card>
-
-            <Card className="  p-5  text-sm relative">
-              <div className=" w-14 h-14 rounded-full   bg-dashboard-indigo text-dashboard-text-indigo  flex items-center justify-center mb-3">
-                <TbBoxModel2 size={30} />
-              </div>
-
-              <div>
-                Model:{" "}
-                <span className=" text-muted-foreground break-all">
-                  {productCarInfo?.carModel.name}
-                </span>
-              </div>
-
-              {productCarInfo && productCarInfo.carModel.notes.length < 300 ? (
-                <div className=" mt-3 flex  flex-col sm:flex-row sm:items-center gap-2">
-                  Note:{" "}
-                  <p className=" text-muted-foreground break-all">
-                    {productCarInfo?.carModel.notes}
-                  </p>
-                </div>
-              ) : (
-                <NoteDialog
-                  title="Car model note."
-                  content={<p>{productCarInfo?.carModel.notes}</p>}
-                  className=" absolute right-5 top-7"
-                />
-              )}
-            </Card>
-          </div> */}
+            </Card> */}
+          </div>
           {/* ---- */}
           <div>
             <h2 className=" text-xl font-semibold">Description</h2>

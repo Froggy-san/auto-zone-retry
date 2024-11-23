@@ -20,6 +20,9 @@ const ProductView = async ({ params }: { params: Params }) => {
   ]);
 
   const { data: productData, error } = product;
+
+  console.log(productData, "{{{A{A{A{AS{s");
+
   // const { data: images, error: productImagesError } = productImages;
   // const { data: productData, error: producError } = product;
 
@@ -31,7 +34,6 @@ const ProductView = async ({ params }: { params: Params }) => {
   const imageUrls = productData?.productImages?.map(
     (image: ProductImage) => image.imageUrl
   );
-
 
   if (!productData)
     return (

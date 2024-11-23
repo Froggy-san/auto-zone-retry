@@ -66,7 +66,8 @@ const DeleteProductDialog = ({
   async function handleDelete() {
     try {
       setIsLoading?.(true);
-      await deleteProductsByIdAction(productId as number);
+      const { error } = await deleteProductsByIdAction(productId as number);
+      if (error) throw new Error(error);
       setOpen(false);
       checkIfLastItem();
       queryClient.invalidateQueries(["productCount"]);

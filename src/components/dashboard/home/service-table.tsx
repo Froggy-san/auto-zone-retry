@@ -44,6 +44,7 @@ import {
 } from "@/components/ui/dialog";
 
 import {
+  ArrowDownToLine,
   Check,
   CircleUser,
   Ellipsis,
@@ -54,6 +55,7 @@ import {
   Pencil,
   ReceiptText,
   Replace,
+  Trash2,
   UserRoundMinus,
 } from "lucide-react";
 import { useToast } from "@hooks/use-toast";
@@ -99,6 +101,7 @@ import ClientDialog from "./client-dialog";
 import {
   deleteServiceAction,
   editServiceAction,
+  serviceDownloadPdf,
 } from "@lib/actions/serviceActions";
 import EditServiceForm from "./edit-service-form";
 const formatCurrency = (value: number) =>
@@ -323,8 +326,8 @@ function TableActions({
   currPageSize: number;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  // const [open, setOpen] = useState<"delete" | "edit" | "">("");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<"delete" | "edit" | "">("");
+  // const [open, setOpen] = useState(false);
   // const [chosenStatus, setChosenStatus] = useState<number>(service.status.id);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -355,6 +358,52 @@ function TableActions({
       toast({
         variant: "destructive",
         title: "Faild to delete client's data",
+        description: <ErorrToastDescription error={error.message} />,
+      });
+    }
+  };
+
+  const handlePdf = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/pdf?id=${service.id}`);
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error(error.error);
+        setIsLoading(false);
+        toast({
+          variant: "destructive",
+          title: "Failed to download.",
+          description: <ErorrToastDescription error={error.error} />,
+        });
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `service_receipt_${service.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      setIsLoading(false);
+      toast({
+        title: `Client deleted!`,
+        description: (
+          <SuccessToastDescription
+            message={`Service receipt downloaded as PDF successfully.`}
+          />
+        ),
+      });
+    } catch (error: any) {
+      console.error(error);
+      setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Failed to download.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }
@@ -392,11 +441,12 @@ function TableActions({
           <DropdownMenuItem
             className=" gap-2"
             onClick={() => {
-              setOpen(true);
+              setOpen("edit");
             }}
           >
             <ReceiptText className=" w-4 h-4" /> Edit service receipt
           </DropdownMenuItem>
+
           <DropdownMenuItem
             className=" gap-2"
             onClick={() => {
@@ -453,6 +503,25 @@ function TableActions({
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
+          {/* <DropdownMenuSeparator /> */}
+          <DropdownMenuItem
+            className=" gap-2  "
+            onClick={async () => {
+              await handlePdf();
+            }}
+          >
+            <ArrowDownToLine className=" w-4 h-4" />
+            Download as PDF
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className=" gap-2  !text-red-900  dark:!text-red-300 hover:!bg-destructive/70"
+            onClick={() => {
+              setOpen("delete");
+            }}
+          >
+            <Trash2 className=" w-4 h-4" />
+            Delete service receipt
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       {/* <ClientForm
@@ -464,12 +533,23 @@ function TableActions({
       <EditServiceForm
         cars={cars}
         clients={clients}
-        open={open}
+        open={open === "edit"}
         setIsLoading={setIsLoading}
         setOpen={setOpen}
         status={status}
         service={service}
       />
+
+      <DeleteService
+        currPage={currPage}
+        pageSize={currPageSize}
+        service={service}
+        isDeleting={isLoading}
+        setIsDeleting={setIsLoading}
+        open={open === "delete"}
+        handleClose={() => setOpen("")}
+      />
+
       {/* <EditReceipt
         open={open === "edit"}
         handleClose={handleClose}
@@ -477,196 +557,11 @@ function TableActions({
         isDeleting={isLoading}
         setIsDeleting={setIsLoading}
       /> */}
-
-      {/* <DeleteRestockingDialog
-        currPage={currPage}
-        pageSize={currPageSize}
-        service={service}
-        isDeleting={isLoading}
-        setIsDeleting={setIsLoading}
-        open={open === "delete"}
-        handleClose={handleClose}
-      /> */}
     </div>
   );
 }
 
-// function EditReceipt({
-//   open,
-//   handleClose,
-//   isDeleting,
-//   setIsDeleting,
-//   service,
-// }: {
-//   open: boolean;
-//   isDeleting: boolean;
-//   setIsDeleting: React.Dispatch<SetStateAction<boolean>>;
-//   handleClose: () => void;
-//   service: Service;
-// }) {
-//   const { toast } = useToast();
-
-//   const billDate = new Date(service.dateOfOrder);
-//   const [shopName, setShopName] = useState(service.shopName);
-//   const [dateOfOrder, setSetDateOfOrder] = useState<Date | undefined>(billDate);
-//   const [errors, setErrors] = useState({
-//     shopNameError: "",
-//     dateOfOrderError: "",
-//   });
-//   const stripTime = (date: Date) => {
-//     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-//   };
-
-//   const hasNotChange =
-//     isEqual(stripTime(billDate), stripTime(dateOfOrder || new Date())) &&
-//     restockingBill.shopName === shopName;
-//   const disabled =
-//     hasNotChange ||
-//     errors.dateOfOrderError.trim() !== "" ||
-//     errors.shopNameError.trim() !== "" ||
-//     isDeleting;
-
-//   const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
-//     e.preventDefault();
-//     try {
-//       console.log("Setting isDeleting to true...");
-//       setIsDeleting(true);
-
-//       await editRestockingBillAction({
-//         restockingToEdit: {
-//           shopName: shopName,
-//           dateOfOrder: dateOfOrder ? format(dateOfOrder, "yyyy-MM-dd") : "",
-//         },
-//         id: restockingBill.id.toString(),
-//       });
-
-//       setIsDeleting(false);
-//       handleClose();
-//       toast({
-//         title: `Client deleted!`,
-//         description: (
-//           <SuccessToastDescription
-//             message={`'s data has been deleted`}
-//           />
-//         ),
-//       });
-//     } catch (error: any) {
-//       console.log(error);
-//       setIsDeleting(false);
-//       toast({
-//         variant: "destructive",
-//         title: "Faild to delete client's data",
-//         description: <ErorrToastDescription error={error.message} />,
-//       });
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (!dateOfOrder) {
-//       setErrors((err) => ({ ...err, dateOfOrderError: "Date is required" }));
-//     } else {
-//       setErrors((err) => ({ ...err, dateOfOrderError: "" }));
-//     }
-//   }, [dateOfOrder]);
-//   useEffect(() => {
-//     const body = document.querySelector("body");
-//     setSetDateOfOrder(new Date(restockingBill.dateOfOrder));
-//     setShopName(restockingBill.shopName);
-//     if (body) {
-//       body.style.pointerEvents = "auto";
-//     }
-//     return () => {
-//       if (body) body.style.pointerEvents = "auto";
-//     };
-//   }, [open]);
-
-//   return (
-//     <Dialog open={open} onOpenChange={handleClose}>
-//       <DialogContent className="sm:max-w-[425px] border-none">
-//         <DialogHeader>
-//           <DialogTitle>Edit receipt.</DialogTitle>
-//           <DialogDescription>Edit receipt&apos;s data.</DialogDescription>
-//         </DialogHeader>
-//         <form onSubmit={handleEdit} className="  space-y-5 ">
-//           <div className="   space-y-2">
-//             <Label className={`${errors.shopNameError && "text-destructive"}`}>
-//               Shop name
-//             </Label>
-//             <Input
-//               value={shopName}
-//               onChange={(e) => {
-//                 const value = e.target.value;
-//                 setShopName(value);
-//                 if (value.trim().length < 3) {
-//                   setErrors((err) => ({
-//                     ...err,
-//                     shopNameError: "Shop name has to be longer.",
-//                   }));
-//                 } else {
-//                   setErrors((err) => ({ ...err, shopNameError: "" }));
-//                 }
-//               }}
-//             />
-//             {errors.shopNameError && (
-//               <p className=" text-destructive">{errors.shopNameError}</p>
-//             )}
-//           </div>
-
-//           <div className="   space-y-2">
-//             <Label
-//               className={`${errors.dateOfOrderError && "text-destructive"}`}
-//             >
-//               Date of order
-//             </Label>
-//             <Popover>
-//               <PopoverTrigger asChild>
-//                 <Button
-//                   type="button"
-//                   variant={"outline"}
-//                   className={cn(
-//                     " w-full justify-start text-left gap-4 items-center font-normal",
-//                     !dateOfOrder && "text-muted-foreground"
-//                   )}
-//                 >
-//                   <CalendarIcon />
-//                   {dateOfOrder ? (
-//                     format(dateOfOrder, "PPP")
-//                   ) : (
-//                     <span>Pick a date</span>
-//                   )}
-//                 </Button>
-//               </PopoverTrigger>
-//               <PopoverContent className="w-auto p-0" align="start">
-//                 <Calendar
-//                   mode="single"
-//                   selected={dateOfOrder}
-//                   onSelect={setSetDateOfOrder}
-//                   initialFocus
-//                 />
-//               </PopoverContent>
-//             </Popover>
-//             {errors.dateOfOrderError && (
-//               <p className=" text-destructive">{errors.dateOfOrderError}</p>
-//             )}
-//           </div>
-
-//           <div className="  flex  flex-col-reverse    gap-2 ">
-//             <DialogClose asChild>
-//               <Button size="sm" variant="secondary" type="button">
-//                 Cancel
-//               </Button>
-//             </DialogClose>
-//             <Button disabled={disabled} size="sm" type="submit">
-//               {isDeleting ? <Spinner className=" h-full" /> : "Confrim"}
-//             </Button>
-//           </div>
-//         </form>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
-function DeleteRestockingDialog({
+function DeleteService({
   currPage,
   pageSize,
   open,
@@ -692,11 +587,13 @@ function DeleteRestockingDialog({
     const params = new URLSearchParams(searchParam);
     if (pageSize === 1) {
       if (Number(currPage) === 1 && pageSize === 1) {
-        params.delete("dateOfOrderTo");
-        params.delete("dateOfOrderFrom");
-        params.delete("minTotalPrice");
-        params.delete("maxTotalPrice");
-        params.delete("shopName");
+        params.delete("dateFrom");
+        params.delete("dateTo");
+        params.delete("clientId");
+        params.delete("carId");
+        params.delete("serviceStatusId");
+        params.delete("minPrice");
+        params.delete("maxPrice");
       }
       if (Number(currPage) > 1) {
         params.set("page", String(Number(currPage) - 1));
@@ -739,19 +636,15 @@ function DeleteRestockingDialog({
             onClick={async () => {
               setIsDeleting(true);
               try {
-                await editServiceAction({
-                  date: service.date,
-                  clientId: service.client.id,
-                  carId: service.car.id,
-                  serviceStatusId: 4,
-                  note: service.note,
-                  id: service.id,
-                });
+                const { error } = await deleteServiceAction(
+                  service.id.toString()
+                );
+                if (error) throw new Error(error);
                 checkIfLastItem();
                 setIsDeleting(false);
                 handleClose();
                 toast({
-                  title: `Client deleted!`,
+                  title: `Serivce deleted!`,
                   description: (
                     <SuccessToastDescription
                       message={`''s data has been deleted`}
@@ -763,7 +656,7 @@ function DeleteRestockingDialog({
                 setIsDeleting(false);
                 toast({
                   variant: "destructive",
-                  title: "Faild to delete client's data",
+                  title: "Faild to delete Service data",
                   description: <ErorrToastDescription error={error.message} />,
                 });
               }

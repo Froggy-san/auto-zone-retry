@@ -6,6 +6,10 @@ import Header from "@components/home/header";
 import IntersectionProvidor from "@components/products/intersection-providor";
 import ProductsFilterBar from "@components/products/products-filter-bar";
 import Spinner from "@components/Spinner";
+import { getAllCarGenerationsAction } from "@lib/actions/carGenerationsActions";
+import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
+import { getAllCarModelsAction } from "@lib/actions/carModelsActions";
+import { getClientsDataAction } from "@lib/actions/clientActions";
 import React, { Suspense } from "react";
 interface SearchParams {
   page?: string;
@@ -16,7 +20,7 @@ interface SearchParams {
   clientId?: string;
   carInfoId?: string;
 }
-const Page = ({ searchParams }: { searchParams: SearchParams }) => {
+const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   const pageNumber = searchParams.page ?? "1";
   const color = searchParams.color ?? "";
   const plateNumber = searchParams.plateNumber ?? "";
@@ -34,6 +38,19 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
     carInfoId;
   const paginationKey =
     color + plateNumber + chassisNumber + motorNumber + clientId + carInfoId;
+
+  const [carGenerations, clients, carMakers] = await Promise.all([
+    getAllCarGenerationsAction(),
+    getClientsDataAction(),
+    getAllCarMakersAction(),
+    // getAllCarModelsAction(),
+  ]);
+
+  const { data: clientsData, error: clientsDataError } = clients;
+  const { data: carGenerationsData, error: carGenerationError } =
+    carGenerations;
+  const { data: carMakersData, error: carMakerError } = carMakers;
+  // const { data: carModelsData, error: carModelsError } = carModels;
   return (
     <main
       data-vaul-drawer-wrapper
@@ -43,6 +60,8 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
       <IntersectionProvidor>
         <div className=" flex   flex-1  w-full">
           <GrageFilterbar
+            carGenerations={carGenerationsData?.carGenerationsData}
+            clients={clientsData}
             color={color}
             chassisNumber={chassisNumber}
             motorNumber={motorNumber}
@@ -77,7 +96,11 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
             />
 
             <div className=" my-10 px-2">
-              <CarManagement />
+              <CarManagement
+                carMakers={carMakersData}
+                carGenerations={carGenerationsData?.carGenerationsData}
+                clients={clientsData}
+              />
             </div>
             {/* <ProductPagenation
               name={name}

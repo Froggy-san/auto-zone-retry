@@ -50,8 +50,6 @@ export async function getServicesAction({
 
   if (maxPrice) query = query + `&maxPrice=${maxPrice}`;
 
-  // console.log(query, "QQQQQQQ");
-
   const response = await fetch(query, {
     method: "GET",
     headers: {
@@ -95,11 +93,7 @@ export async function createServiceAction(service: CreateService) {
     return { data: null, error: "Something went wrong!" };
   }
 
-  //   revalidatePath("/dashboard/insert-data");
   revalidateTag("services");
-
-  //   const data = await response.json();
-  //   return data;
 
   return { data: null, error: "" };
 }
@@ -219,4 +213,35 @@ export async function getServicesCountAction({
 
   const data = await response.json();
   return { data, error: "" };
+}
+
+export async function serviceDownloadPdf(id: number) {
+  const token = getToken();
+
+  if (!token)
+    return { data: null, error: "You are not authorized to make this action." };
+
+  const res = await fetch(`${process.env.API_URL}/api/Services/pdf/${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    const errorMessage =
+      res.status === 409
+        ? (await res.json()).message
+        : "Faild to download service receipt as a PDF";
+
+    return { data: null, error: errorMessage };
+  }
+
+  const data = await res.body?.getReader().read();
+  // const blob = await res.blob();
+  // console.log(blob, "PDFFFF");
+  const pdf = data ? JSON.stringify([data.value]) : null;
+
+  // console.log(pdf, "AAAAWWWWWWWWW ");
+  return { data: pdf, error: null };
 }

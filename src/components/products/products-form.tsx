@@ -90,6 +90,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   }
 
   function handleClose() {
+    if (isLoading && productToEdit) return;
     if (useParams) {
       const params = new URLSearchParams(searchParam);
       params.delete("edit");
@@ -220,14 +221,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
           isAvailable,
         };
         // Edit the product.
-        await editProductAction({
+        const { error } = await editProductAction({
           productToEdit: productToEditData,
           imagesToUpload,
           imagesToDelete: deletedMedia,
           isMain: isMainEdited ? isMainImage : null,
           isEqual,
         });
-
+        if (error) throw new Error(error);
         handleClose();
         setDeletedMedia([]);
       } else {
@@ -246,7 +247,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             })
           : [];
 
-        await createProductAction({
+        const { error } = await createProductAction({
           name,
           categoryId,
           productTypeId,
@@ -260,17 +261,20 @@ const ProductForm: React.FC<ProductFormProps> = ({
           images: imagesToUpload,
         });
 
+        if (error) throw new Error(error);
         handleClose();
       }
 
       toast({
-        title: `${
-          productToEdit
-            ? "Product has been updated"
-            : "Product has been created."
-        }`,
+        title: `Done`,
         description: (
-          <SuccessToastDescription message="Product as been created." />
+          <SuccessToastDescription
+            message={`${
+              productToEdit
+                ? "Product has been updated"
+                : "Product has been created."
+            }`}
+          />
         ),
       });
     } catch (error: any) {

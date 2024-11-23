@@ -86,7 +86,7 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
               <StatusBadge status={selected.name} className=" py-[.1rem]" />
             </div>
           ) : (
-            "Select option..."
+            "Select status..."
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

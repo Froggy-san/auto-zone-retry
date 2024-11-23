@@ -20,7 +20,7 @@ const CarItem = ({
   return (
     <Card className="   border    min-h-[250px]">
       <Link
-        href={`/grage/${car.id}`}
+        href={`/grage/${car.clientId}?car=${car.id}`}
         className="  flex  flex-col  md:flex-row h-full w-full relative "
       >
         <div className="  min-h-[250px] lg:min-h-[300px]  md:min-w-[270px] flex-1">

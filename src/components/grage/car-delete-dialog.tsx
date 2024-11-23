@@ -34,6 +34,7 @@ const CarDeleteDialog = ({
 }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
   useEffect(() => {
     return () => {
       const body = document.querySelector("body");
@@ -44,7 +45,8 @@ const CarDeleteDialog = ({
   async function handleDelete() {
     try {
       setIsLoading?.(true);
-      await deleteCarAction(carId?.toString());
+      const { error } = await deleteCarAction(carId?.toString());
+      if (error) throw new Error(error);
       checkIfLastItem();
       queryClient.invalidateQueries({ queryKey: ["carCount"] });
       setOpen(false);

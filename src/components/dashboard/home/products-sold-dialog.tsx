@@ -31,6 +31,7 @@ import SuccessToastDescription, {
 import { deleteProductToSellAction } from "@lib/actions/product-sold-actions";
 import { useToast } from "@hooks/use-toast";
 import Spinner from "@components/Spinner";
+import { DEFAULT_CAR_LOGO, DEFAULT_PRODUCT_PIC } from "@lib/constants";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
@@ -368,8 +369,9 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
               productsArr.map((product, i) => {
                 const productImages = product.product.productImages;
                 const image =
-                  productImages.find((image) => image.isMain)?.imageUrl ||
-                  product.product.productImages[0].imageUrl;
+                  productImages.length &&
+                  (productImages.find((image) => image.isMain)?.imageUrl ||
+                    product.product.productImages[0].imageUrl);
 
                 return (
                   <div
@@ -379,7 +381,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
                     <LinkPreview
                       url={`/products/${product.product.id}`}
                       isStatic
-                      imageSrc={image}
+                      imageSrc={image || DEFAULT_PRODUCT_PIC}
                     >
                       <div
                         //   href={`/products/${product.product.id}`}
@@ -494,7 +496,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
         </DialogContent>
       </Dialog>
 
-      <DeleteFee
+      <DeleteProSold
         deleteOpen={deleteOpen ? true : false}
         proSold={deleteOpen}
         handleClose={() => {
@@ -506,7 +508,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
   );
 };
 
-function DeleteFee({
+function DeleteProSold({
   deleteOpen,
   proSold,
   handleClose,
@@ -541,8 +543,12 @@ function DeleteFee({
             onClick={async () => {
               setIsDeleting(true);
               try {
-                if (proSold)
-                  await deleteProductToSellAction(String(proSold.id));
+                if (proSold) {
+                  const { error } = await deleteProductToSellAction(
+                    String(proSold.id)
+                  );
+                  if (error) throw new Error(error);
+                }
                 setIsDeleting(false);
                 handleClose();
                 toast({

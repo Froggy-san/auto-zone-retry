@@ -145,7 +145,6 @@ export async function createProductAction({
     }),
   });
 
-  console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };

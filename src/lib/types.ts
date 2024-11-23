@@ -115,7 +115,7 @@ export const CarSchema = z.object({
     .max(55, { message: "Motor number is too long." }),
   notes: z.string(),
   clientId: z.number().default(0),
-  carInfoId: z.number().default(0),
+  carGenerationId: z.number().default(0),
 });
 
 export const CreateCarMakerScehma = z.object({
@@ -201,8 +201,9 @@ export const CreateCarSchema = z.object({
   motorNumber: z.string(),
   notes: z.string(),
   clientId: z.number().min(1, { message: "Every car must have an owner" }),
-  carInfoId: z.number(),
-
+  carGenerationId: z
+    .number()
+    .min(1, { message: "Every car must have car generation" }),
   images: z.array(z.custom<FilesWithPreview>()).max(9, {
     message: "You can only upload up to 9 images at a time.",
   }),

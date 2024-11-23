@@ -2,6 +2,7 @@
 import { ComboBox } from "@components/combo-box";
 
 import {
+  CarGenerationProps,
   CarInfoProps,
   Category,
   ClientWithPhoneNumbers,
@@ -37,7 +38,7 @@ interface CarsListProps {
   clientId: string;
   carInfoId: string;
   pageNumber: string;
-  carInfos: CarInfoProps[];
+  carGeneration: CarGenerationProps[];
   clietns: ClientWithPhoneNumbers[];
 }
 
@@ -49,7 +50,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
   clientId,
   carInfoId,
   clietns,
-  carInfos,
+  carGeneration,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [plateNumberValue, setPlateNumberValue] = useState(plateNumber);
@@ -128,10 +129,10 @@ const GrageFilter: React.FC<CarsListProps> = ({
           </div>
 
           <div className=" space-y-2">
-            <label>Car information</label>
-            <CarInfoComboBox
+            <label>Car generation</label>
+            <ComboBox
               value={chosenCarInfo}
-              options={carInfos}
+              options={carGeneration}
               setValue={setChosenCarInfo}
             />
           </div>
@@ -214,9 +215,9 @@ const GrageFilter: React.FC<CarsListProps> = ({
 
                   <div className=" space-y-2">
                     <label>Car information</label>
-                    <CarInfoComboBox
+                    <ComboBox
                       value={chosenCarInfo}
-                      options={carInfos}
+                      options={carGeneration}
                       setValue={setChosenCarInfo}
                     />
                   </div>

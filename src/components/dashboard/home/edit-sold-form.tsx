@@ -118,14 +118,16 @@ const EditSoldForm = ({
       if (isEqual) throw new Error("You haven't changed anything.");
 
       if (addSoldId) {
-        await createProductToSellAction(addSoldProduct);
+        const { error } = await createProductToSellAction(addSoldProduct);
+        throw new Error(error);
       }
 
       if (proSold) {
-        await editProductToSellAction({
+        const { error } = await editProductToSellAction({
           productToSell: editData,
           id: proSold.id,
         });
+        if (error) throw new Error(error);
       }
       handleClose();
       toast({

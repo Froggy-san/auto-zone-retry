@@ -18,9 +18,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useObjectCompare from "@hooks/use-compare-objs";
 import { useToast } from "@hooks/use-toast";
 import {
+  CarGeneration,
+  CarGenerationProps,
   CarImage,
   CarInfoProps,
   CarItem,
+  CarMaker,
+  CarModelProps,
   ClientWithPhoneNumbers,
   CreateCar,
   CreateCarSchema,
@@ -30,25 +34,28 @@ import { useForm } from "react-hook-form";
 import { RotateCcw } from "lucide-react";
 import Spinner from "@components/Spinner";
 import { Textarea } from "@components/ui/textarea";
-
-import { CarInfoComboBox } from "../dashboard/car-info-combobox";
 import { ClientsComboBox } from "@components/clients-combobox";
 import { createCarAction, editCarAction } from "@lib/actions/carsAction";
 import { GrageFileUploader } from "./grage-files-uploader";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { ComboBox } from "@components/combo-box";
+import { MakerCombobox } from "@components/maker-combobox";
+import { ModelCombobox } from "@components/model-combobox";
 
 const CarForm = ({
   useParams,
   carToEdit,
-  carinfos,
+  carGenerations,
   clients,
+  carMakers,
   open,
   handleClose: handleCloseExternal,
 }: {
   useParams?: boolean;
   carToEdit?: CarItem;
-  carinfos: CarInfoProps[];
+  carGenerations: CarGenerationProps[];
+  carMakers: CarMaker[];
   clients: ClientWithPhoneNumbers[];
   open?: boolean;
   handleClose?: () => void;
@@ -58,9 +65,10 @@ const CarForm = ({
   const pathname = usePathname();
   const edit = searchParam.get("edit") ?? "";
   const queryClient = useQueryClient();
-
   const [isOpen, setIsOpen] = useState(false);
   const [deletedMedia, setDeletedMedia] = useState<CarImage[]>([]);
+  const [carMakerId, setCarMakerId] = useState(0);
+  const [carModelId, setCarModelId] = useState(0);
 
   const mediaUrls = useMemo(() => {
     const deletedIds = deletedMedia.map((del) => del.id);
@@ -77,13 +85,13 @@ const CarForm = ({
   const isEditing = edit ? true : false || isOpen;
 
   const defaultValues = {
-    color: carToEdit?.color || "strinsasdg",
+    color: carToEdit?.color || "#c8c814",
     plateNumber: carToEdit?.plateNumber || "strasding",
     chassisNumber: carToEdit?.chassisNumber || "striasdasdng",
     motorNumber: carToEdit?.motorNumber || "strsdsding",
     notes: carToEdit?.notes || "striasdsdng",
     clientId: carToEdit?.clientId || 0,
-    carInfoId: carToEdit?.carInfo.id || 0,
+    carGenerationId: carToEdit?.carInfo.id || 0,
     images: [],
   };
   const form = useForm<CreateCar>({
@@ -97,7 +105,16 @@ const CarForm = ({
   const disabled = isEqual && !deletedMedia.length;
 
   const isLoading = form.formState.isSubmitting;
+  const models: CarModelProps[] = (
+    carMakerId && carMakers.length
+      ? carMakers.find((maker) => maker.id === carMakerId)?.carModels
+      : []
+  ) as CarModelProps[];
 
+  const generations =
+    carModelId && carGenerations.length
+      ? carGenerations.filter((gen) => gen.carModelId === carModelId)
+      : [];
   const params = new URLSearchParams(searchParam);
   function handleOpen(filter: string) {
     if (useParams) {
@@ -125,24 +142,13 @@ const CarForm = ({
     setDeletedMedia((arr) => [...arr, carImage]);
   }
 
-  //   useEffect(() => {
-  //     const body = document.querySelector("body");
-  //     form.reset(defaultValues);
-  //     if (body) {
-  //       body.style.pointerEvents = "auto";
-  //     }
-  //     return () => {
-  //       if (body) body.style.pointerEvents = "auto";
-  //     };
-  //   }, [isItOpen]);
-
   async function onSubmit({
     color,
     plateNumber,
     chassisNumber,
     motorNumber,
     clientId,
-    carInfoId,
+    carGenerationId,
     notes,
     images,
   }: CreateCar) {
@@ -160,23 +166,30 @@ const CarForm = ({
         plateNumber,
         motorNumber,
         clientId,
-        carInfoId,
+        carGenerationId,
         notes,
         chassisNumber,
       };
       if (carToEdit) {
-        await editCarAction({
+        const { error } = await editCarAction({
           car,
           imagesToDelete: deletedMedia,
           imagesToUpload,
           isEqual,
           id: carToEdit.id.toString(),
         });
-      } else {
-        await createCarAction({ car, images: imagesToUpload });
 
+        if (error) throw new Error(error);
+      } else {
+        const { error } = await createCarAction({
+          car,
+          images: imagesToUpload,
+        });
+
+        if (error) throw new Error(error);
         queryClient.invalidateQueries({ queryKey: ["carCount"] });
       }
+      handleClose();
 
       toast({
         title: carToEdit ? "Success" : "A new car has been created",
@@ -190,10 +203,8 @@ const CarForm = ({
           />
         ),
       });
-      handleClose();
     } catch (error: any) {
-      console.log(error);
-      // form.reset();
+      console.error(error);
       toast({
         variant: "destructive",
         title: "Faild to create a new car.",
@@ -231,18 +242,6 @@ const CarForm = ({
                   <FormItem className=" w-full  mb-auto">
                     <FormLabel>Color</FormLabel>
                     <FormControl>
-                      {/* <Input
-                          type="text"
-                          disabled={isLoading}
-                          placeholder="Client's name..."
-                          {...field}
-                          className=" flex-1"
-                        />
-
-                        <div
-                          className={` border w-10 h-10  rounded-lg `}
-                          style={{ backgroundColor: `${field.value}` }}
-                        /> */}
                       <input
                         type="color"
                         disabled={isLoading}
@@ -328,6 +327,65 @@ const CarForm = ({
             </div>
 
             <div className=" flex flex-col sm:flex-row  gap-2 space-y-4 sm:space-y-0">
+              <FormItem className=" w-full mb-auto">
+                <FormLabel>Car maker</FormLabel>
+                <FormControl>
+                  <MakerCombobox
+                    value={carMakerId}
+                    setValue={setCarMakerId}
+                    options={carMakers}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Enter which client does this car belongs to.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+
+              <FormItem className=" w-full mb-auto">
+                <FormLabel>Car maker</FormLabel>
+                <FormControl>
+                  <ModelCombobox
+                    disabled={isLoading || !carMakerId}
+                    value={carModelId}
+                    setValue={(value) => {
+                      setCarModelId(value);
+                      form.setValue("carGenerationId", 0);
+                    }}
+                    options={models}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Enter which client does this car belongs to.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            </div>
+
+            <div className=" flex flex-col sm:flex-row  gap-2 space-y-4 sm:space-y-0">
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="carGenerationId"
+                render={({ field }) => (
+                  <FormItem className=" w-full mb-auto">
+                    <FormLabel>Car generation</FormLabel>
+                    <FormControl>
+                      <ComboBox
+                        disabled={isLoading || !carModelId}
+                        options={generations}
+                        setValue={field.onChange}
+                        value={field.value}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter car&apos;s generation.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {!carToEdit && (
                 <FormField
                   disabled={isLoading}
@@ -351,28 +409,6 @@ const CarForm = ({
                   )}
                 />
               )}
-
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="carInfoId"
-                render={({ field }) => (
-                  <FormItem className=" w-full mb-auto">
-                    <FormLabel>Car information</FormLabel>
-                    <FormControl>
-                      <CarInfoComboBox
-                        options={carinfos}
-                        setValue={field.onChange}
-                        value={field.value}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter car&apos;s information.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             <FormField

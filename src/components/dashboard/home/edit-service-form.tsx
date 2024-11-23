@@ -19,9 +19,6 @@ import {
   ClientWithPhoneNumbers,
   EditService,
   EditServiceSchema,
-  ProductSold,
-  ProductSoldSchema,
-  ProductWithCategory,
   Service,
   ServiceStatus,
 } from "@lib/types";
@@ -36,19 +33,15 @@ import SuccessToastDescription, {
 import useObjectCompare from "@hooks/use-compare-objs";
 import DialogComponent from "@components/dialog-component";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { format } from "date-fns";
 import { CalendarIcon, ReceiptText } from "lucide-react";
-
 import { cn } from "@/lib/utils";
-
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@components/ui/input";
 import { Textarea } from "@components/ui/textarea";
 import { ServiceStatusCombobox } from "@components/service-status-combobox";
 import { editServiceAction } from "@lib/actions/serviceActions";
@@ -67,7 +60,7 @@ const EditServiceForm = ({
   clients: ClientWithPhoneNumbers[];
   cars: CarItem[];
   open: boolean;
-  setOpen: React.Dispatch<SetStateAction<boolean>>;
+  setOpen: React.Dispatch<SetStateAction<"edit" | "delete" | "">>;
   setIsLoading: React.Dispatch<SetStateAction<boolean>>;
   service: Service;
   status: ServiceStatus[];
@@ -115,8 +108,9 @@ const EditServiceForm = ({
       if (isEqual) throw new Error("You haven't changed anything.");
       setIsLoading(true);
 
-      await editServiceAction(editedData);
-      setOpen(false);
+     const {error} = await editServiceAction(editedData);
+     if(error) throw new Error(error)
+      setOpen("");
       toast({
         title: "Success!.",
         description: (
@@ -136,7 +130,10 @@ const EditServiceForm = ({
     }
   }
   return (
-    <DialogComponent open={open} onOpenChange={setOpen}>
+    <DialogComponent
+      open={open}
+      onOpenChange={() => setOpen((open) => (open === "edit" ? "" : "edit"))}
+    >
       <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogComponent.Header>
           <DialogComponent.Title>
@@ -275,7 +272,7 @@ const EditServiceForm = ({
 
             <DialogComponent.Footer>
               <Button
-                onClick={() => setOpen(false)}
+                onClick={() => setOpen("")}
                 disabled={isLoading}
                 type="reset"
                 variant="secondary"

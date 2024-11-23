@@ -2,28 +2,41 @@ import { getAllCarsInfoAction } from "@lib/actions/carInfoActions";
 import { getClientsDataAction } from "@lib/actions/clientActions";
 import React from "react";
 import CarForm from "./car-form";
-import { CarItem } from "@lib/types";
+import {
+  CarGeneration,
+  CarGenerationProps,
+  CarItem,
+  CarMaker,
+  CarModelProps,
+  ClientWithPhoneNumbers,
+} from "@lib/types";
 import { cn } from "@lib/utils";
 
 const CarManagement = async ({
   carToEdit,
   useParams,
   className,
+  clients,
+  carGenerations,
+  carMakers,
 }: {
   useParams?: boolean;
   carToEdit?: CarItem;
   className?: string;
+  carMakers: CarMaker[] | null;
+  carGenerations: CarGenerationProps[] | null;
+  clients?: ClientWithPhoneNumbers[] | null;
 }) => {
-  const [carInfos, clients] = await Promise.all([
-    getAllCarsInfoAction(),
-    getClientsDataAction(),
-  ]);
+  // const [carInfos, clients] = await Promise.all([
+  //   getAllCarsInfoAction(),
+  //   getClientsDataAction(),
+  // ]);
 
-  const { data: clientsData, error: clientsDataError } = clients;
-  const { data: carInfosData, error: carInfosError } = carInfos;
+  // const { data: clientsData, error: clientsDataError } = clients;
+  // const { data: carInfosData, error: carInfosError } = carInfos;
 
-  if (clientsDataError || carInfosError)
-    return <p>{clientsDataError || carInfosError}</p>;
+  // if (clientsDataError || carInfosError)
+  //   return <p>{clientsDataError || carInfosError}</p>;
   return (
     <div
       className={cn(
@@ -41,8 +54,9 @@ const CarManagement = async ({
         <CarForm
           useParams={useParams}
           carToEdit={carToEdit}
-          clients={clientsData || []}
-          carinfos={carInfosData}
+          carMakers={carMakers || []}
+          clients={clients || []}
+          carGenerations={carGenerations || []}
         />
       </div>
     </div>
