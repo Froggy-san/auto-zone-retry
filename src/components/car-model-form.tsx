@@ -24,14 +24,6 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 import { createCarModelAction } from "@lib/actions/carModelsActions";
 import { MakerCombobox } from "./maker-combobox";
@@ -62,10 +54,12 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
 
   async function onSubmit(carModel: z.infer<typeof CreateCarModelSchema>) {
     try {
-      if (isEqual) throw new Error("You haven't changed anything.");
-      await createCarModelAction(carModel);
+      if (isEqual) throw new Error("Data hasn't changed.");
+    const {error} =  await createCarModelAction(carModel);
+    if(error) throw new Error(error)
       handleClose();
       toast({
+        className: "bg-green-700",
         title: "Success!.",
         description: (
           <SuccessToastDescription message="A new car model has been create." />

@@ -64,21 +64,23 @@ const CarGenerationForm = ({
   async function onSubmit(carGeneration: z.infer<typeof CarGenerationsSchema>) {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
-      await createCarGenerationAction(carGeneration);
+    const {error}  = await createCarGenerationAction(carGeneration);
+    if(error) throw new Error(error)
       handleClose();
       queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
       form.reset();
       toast({
+        className: "bg-green-700",
         title: "Success!.",
         description: (
-          <SuccessToastDescription message="A new car model has been create." />
+          <SuccessToastDescription message="A new car generation has been created." />
         ),
       });
     } catch (error: any) {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Welcome back.",
+        title: "Had truble creating a new car generation.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }

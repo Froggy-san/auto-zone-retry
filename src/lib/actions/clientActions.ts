@@ -17,6 +17,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import {
   createPhoneNumAction,
+  createPhoneNumsBulkAction,
   deletePhoneNumByIdAction,
   editPhoneNumAction,
   getPhonesAction,
@@ -191,10 +192,37 @@ export async function createClientAction({
   const { clientId } = await response.json();
 
   if (phones.length) {
-    const upload = phones.map((phone) =>
-      createPhoneNumAction({ number: phone.number, clientId })
-    );
-    await Promise.all(upload);
+    // const upload = phones.map((phone) =>
+    //   createPhoneNumAction({ number: phone.number, clientId })
+    // );
+    // try {
+    //   await Promise.all(upload);
+    // } catch (error: any) {
+    //   if (error) return { data: null, error: error?.message };
+    // }
+
+    // Add the clientId to each phone number.
+
+    const upload = phones.map((phone) => {
+      return { number: phone.number, clientId };
+    });
+
+    // Sent the phone numbers array to the back-end.
+
+    const { error } = await createPhoneNumsBulkAction(upload);
+    // In case of an error, delete the client we created above.
+
+    if (error) {
+      const { error: deleteError } = await deleteClientByIdAction(
+        clientId,
+        false
+      );
+
+      return {
+        data: null,
+        error: `${error} ${deleteError && `& ${deleteError} `}`,
+      };
+    }
   }
   revalidateTag("clients");
 
@@ -240,10 +268,11 @@ export async function editClientAction({
 
   // Adding new phone numbers
   if (phonesToAdd.length) {
-    const upload = phonesToAdd.map((phone) =>
-      createPhoneNumAction({ number: phone.number, clientId: id })
-    );
-    await Promise.all(upload);
+    const upload = phonesToAdd.map((phone) => {
+      return { number: phone.number, clientId: id };
+    });
+    const { error } = await createPhoneNumsBulkAction(upload);
+    if (error) return { data: null, error: error };
   }
 
   // Handling the editing of phone numbers
@@ -252,7 +281,11 @@ export async function editClientAction({
       editPhoneNumAction({ id: phone.id, number: phone.number })
     );
 
-    await Promise.all(editPhones);
+    try {
+      await Promise.all(editPhones);
+    } catch (error: any) {
+      return { data: null, error: error };
+    }
   }
 
   // Handling the deleting of phone numbers.
@@ -271,7 +304,7 @@ export async function editClientAction({
   return { data: null, error: "" };
 }
 
-export async function deleteClientByIdAction(id: number) {
+export async function deleteClientByIdAction(id: number, revalidate = true) {
   //Product?PageNumber=1&PageSize=10
 
   const token = getToken();
@@ -299,7 +332,7 @@ export async function deleteClientByIdAction(id: number) {
 
   // return data;
   // revalidatePath("/products");
-  revalidateTag("clients");
+  if (revalidate) revalidateTag("clients");
 
   return { data: null, error: "" };
 }

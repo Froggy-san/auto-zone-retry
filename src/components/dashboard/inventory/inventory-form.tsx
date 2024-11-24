@@ -57,7 +57,6 @@ const InventoryForm = ({
   products,
   restockings,
   open,
-  client,
   handleClose: handleCloseExternal,
   proBoughtToEdit,
 }: {
@@ -167,7 +166,7 @@ const InventoryForm = ({
       const pro = productBought[0];
 
       if (proBoughtToEdit) {
-        await editProductBoughtAction({
+        const { error } = await editProductBoughtAction({
           pricePerUnit: pro.pricePerUnit,
           discount: pro.discount,
           count: pro.count,
@@ -175,31 +174,38 @@ const InventoryForm = ({
           note: pro.note,
           id: proBoughtToEdit.id,
         });
+        if (error) throw new Error(error);
       } else {
-        await createProductBoughtBulkAction({
+        const { error } = await createProductBoughtBulkAction({
           shopName,
           data: productBought,
           reStockingBillId: reStockingBillId ? Number(reStockingBillId) : null,
         });
+        if (error) throw new Error(error);
       }
 
       handleClose();
-      //   setDeletedPhones([]);
+
       toast({
-        title: client
-          ? `${client.name}'s data has been changed`
-          : "New client.",
+        className: "bg-green-700",
+        title: proBoughtToEdit ? "Inventory updated" : "Success.",
         description: (
-          <SuccessToastDescription message="A new client has been created." />
+          <SuccessToastDescription
+            message={
+              proBoughtToEdit
+                ? "Inventory receipt has been updated."
+                : "A new inventory receipt created."
+            }
+          />
         ),
       });
-      //   handleClose();
     } catch (error: any) {
-      console.log(error);
-      //   form.reset();
+      console.error(error);
       toast({
         variant: "destructive",
-        title: "Faild to create a new client.",
+        title: proBoughtToEdit
+          ? "Faild to update inventory's data"
+          : "Faild to create a new inventory.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }
@@ -399,9 +405,9 @@ const InventoryForm = ({
 
                       <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>Security emails</FormLabel>
+                          <FormLabel>Returned</FormLabel>
                           <FormDescription>
-                            Receive emails about your account security.
+                            Has this product been returned?
                           </FormDescription>
                         </div>
 

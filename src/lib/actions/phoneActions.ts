@@ -114,8 +114,44 @@ export async function createPhoneNumAction(data: {
   console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
+      throw new Error((await response.json()).message);
+      // return { data: null, error: (await response.json()).message };
+    }
+    throw new Error("Had truble creating a phone number.");
+    // return { data: null, error: "Had truble creating a phone number." };
+  }
+
+  revalidateTag("phoneNumbers");
+
+  return { data: null, error: "" };
+}
+
+export async function createPhoneNumsBulkAction(
+  data: {
+    number: string;
+    clientId: number;
+  }[]
+) {
+  const cookie = cookies();
+  const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
+
+  if (!token) return redirect("/login");
+
+  const response = await fetch(`${process.env.API_URL}/api/Phones/bulk`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  console.log(response);
+  if (!response.ok) {
+    if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
+
     return { data: null, error: "Had truble creating a phone number." };
   }
 
@@ -145,12 +181,11 @@ export async function editPhoneNumAction({
     body: JSON.stringify({ number }),
   });
 
-  console.log(response, "WWWWWWWWWWWWWWW");
   if (!response.ok) {
     if (response.status === 409) {
-      return { data: null, error: (await response.json()).message };
+      throw new Error((await response.json()).message);
     }
-    return { data: null, error: "Had truble creating a phone number." };
+    throw new Error("Had truble creating a phone number.");
   }
 
   return { data: null, error: "" };

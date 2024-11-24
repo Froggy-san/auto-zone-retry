@@ -70,8 +70,8 @@ const ClientForm = ({
     : [];
 
   const defaultValues = {
-    name: client?.name || "adasas",
-    email: client?.email || "froggy@adasd.com",
+    name: client?.name || "",
+    email: client?.email || "",
     phones: clientsPhone,
   };
   const form = useForm<z.infer<typeof CreateClientSchema>>({
@@ -132,13 +132,21 @@ const ClientForm = ({
       handleClose();
       setDeletedPhones([]);
       toast({
+        className: "bg-green-700",
         title: client
           ? `${client.name}'s data has been changed`
           : "New client.",
         description: (
-          <SuccessToastDescription message="A new client has been created." />
+          <SuccessToastDescription
+            message={
+              client
+                ? `'${client.name}' data has been updated.`
+                : "A new client has been created."
+            }
+          />
         ),
       });
+
       // handleClose();
     } catch (error: any) {
       console.log(error);

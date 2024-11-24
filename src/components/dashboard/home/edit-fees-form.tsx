@@ -130,6 +130,7 @@ const EditFeesForm = ({
       }
       handleClose();
       toast({
+        className: "bg-green-700",
         title: "Success!.",
         description: (
           <SuccessToastDescription message="Service fee data has been updated." />

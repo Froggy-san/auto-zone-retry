@@ -68,11 +68,13 @@ const CarkMakerForm = () => {
       const res = await createCarMakerAction(formData);
       if (res.error) throw new Error(res.error);
       toast({
+        className: "bg-green-700",
         title: "Success",
         description: (
           <SuccessToastDescription message="Car maker has been created." />
         ),
       });
+      setIsOpen(false);
     } catch (error: any) {
       console.log(error.message);
       toast({

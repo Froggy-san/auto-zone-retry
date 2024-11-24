@@ -87,14 +87,6 @@ const ClientsTable = ({
                   {" "}
                   <div className=" flex items-center gap-2 justify-end">
                     <ShowCars client={client} />
-
-                    {/* <Button
-                      size="sm"
-                      className="   h-6 px-2 py-3 text-xs"
-                      variant="outline"
-                    >
-                      Show
-                    </Button> */}
                     <ClientsTableActions
                       currPage={currPage}
                       client={client}
@@ -348,6 +340,7 @@ function DeleteClientDialog({
                 setIsDeleting(false);
                 handleClose();
                 toast({
+                  className: "bg-green-700",
                   title: `Client deleted!`,
                   description: (
                     <SuccessToastDescription
