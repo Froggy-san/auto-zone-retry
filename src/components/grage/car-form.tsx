@@ -18,10 +18,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useObjectCompare from "@hooks/use-compare-objs";
 import { useToast } from "@hooks/use-toast";
 import {
-  CarGeneration,
   CarGenerationProps,
   CarImage,
-  CarInfoProps,
   CarItem,
   CarMaker,
   CarModelProps,
@@ -67,8 +65,12 @@ const CarForm = ({
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [deletedMedia, setDeletedMedia] = useState<CarImage[]>([]);
-  const [carMakerId, setCarMakerId] = useState(0);
-  const [carModelId, setCarModelId] = useState(0);
+  const [carMakerId, setCarMakerId] = useState(
+    carToEdit?.carInfo.carMaker.id || 0
+  );
+  const [carModelId, setCarModelId] = useState(
+    carToEdit?.carInfo.carModel.id || 0
+  );
 
   const mediaUrls = useMemo(() => {
     const deletedIds = deletedMedia.map((del) => del.id);
@@ -83,15 +85,15 @@ const CarForm = ({
   const { toast } = useToast();
 
   const isEditing = edit ? true : false || isOpen;
-
+  console.log(carToEdit?.carInfo.carGeneration.id, "WWWW");
   const defaultValues = {
-    color: carToEdit?.color || "#c8c814",
-    plateNumber: carToEdit?.plateNumber || "strasding",
-    chassisNumber: carToEdit?.chassisNumber || "striasdasdng",
-    motorNumber: carToEdit?.motorNumber || "strsdsding",
-    notes: carToEdit?.notes || "striasdsdng",
+    color: carToEdit?.color || "#d9c814",
+    plateNumber: carToEdit?.plateNumber || "",
+    chassisNumber: carToEdit?.chassisNumber || "",
+    motorNumber: carToEdit?.motorNumber || "",
+    notes: carToEdit?.notes || "",
     clientId: carToEdit?.clientId || 0,
-    carGenerationId: carToEdit?.carInfo.id || 0,
+    carGenerationId: carToEdit?.carInfo.carGeneration.id || 0,
     images: [],
   };
   const form = useForm<CreateCar>({
@@ -125,6 +127,13 @@ const CarForm = ({
     }
   }
 
+  function handleReset() {
+    form.reset(defaultValues);
+    setCarMakerId(carToEdit?.carInfo.carMaker.id || 0);
+    setCarModelId(carToEdit?.carInfo.carModel.id || 0);
+    setDeletedMedia([]);
+  }
+
   function handleClose() {
     if (useParams) {
       const params = new URLSearchParams(searchParam);
@@ -134,8 +143,7 @@ const CarForm = ({
       setIsOpen(false);
     }
     if (isLoading) return;
-    form.reset(defaultValues);
-    setDeletedMedia([]);
+    handleReset();
   }
 
   function handleDeleteMedia(carImage: CarImage) {
@@ -245,7 +253,7 @@ const CarForm = ({
                       <input
                         type="color"
                         disabled={isLoading}
-                        placeholder="Client's name..."
+                        placeholder="Car color"
                         {...field}
                         className="  w-full h-9 rounded-md border"
                       />
@@ -268,7 +276,7 @@ const CarForm = ({
                       <Input
                         type="text"
                         disabled={isLoading}
-                        placeholder="Client's email..."
+                        placeholder="Plate number..."
                         {...field}
                       />
                     </FormControl>
@@ -292,7 +300,7 @@ const CarForm = ({
                     <FormControl>
                       <Input
                         disabled={isLoading}
-                        placeholder="Client's name..."
+                        placeholder="Chassis Number..."
                         {...field}
                       />
                     </FormControl>
@@ -315,7 +323,7 @@ const CarForm = ({
                       <Input
                         type="text"
                         disabled={isLoading}
-                        placeholder="Client's email..."
+                        placeholder="Motor number"
                         {...field}
                       />
                     </FormControl>
@@ -331,19 +339,22 @@ const CarForm = ({
                 <FormLabel>Car maker</FormLabel>
                 <FormControl>
                   <MakerCombobox
+                    disabled={isLoading}
                     value={carMakerId}
-                    setValue={setCarMakerId}
+                    setValue={(value) => {
+                      setCarMakerId(value);
+                      setCarModelId(0);
+                      form.setValue("carGenerationId", 0);
+                    }}
                     options={carMakers}
                   />
                 </FormControl>
-                <FormDescription>
-                  Enter which client does this car belongs to.
-                </FormDescription>
+                <FormDescription>Enter car maker.</FormDescription>
                 <FormMessage />
               </FormItem>
 
               <FormItem className=" w-full mb-auto">
-                <FormLabel>Car maker</FormLabel>
+                <FormLabel>Car model</FormLabel>
                 <FormControl>
                   <ModelCombobox
                     disabled={isLoading || !carMakerId}
@@ -355,9 +366,7 @@ const CarForm = ({
                     options={models}
                   />
                 </FormControl>
-                <FormDescription>
-                  Enter which client does this car belongs to.
-                </FormDescription>
+                <FormDescription>Enter car model.</FormDescription>
                 <FormMessage />
               </FormItem>
             </div>
@@ -378,9 +387,7 @@ const CarForm = ({
                         value={field.value}
                       />
                     </FormControl>
-                    <FormDescription>
-                      Enter car&apos;s generation.
-                    </FormDescription>
+                    <FormDescription>Enter car generation.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -396,6 +403,7 @@ const CarForm = ({
                       <FormLabel>Client</FormLabel>
                       <FormControl>
                         <ClientsComboBox
+                          disabled={isLoading}
                           value={field.value}
                           setValue={field.onChange}
                           options={clients}
@@ -459,7 +467,7 @@ const CarForm = ({
 
             <div className=" relative flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
               <Button
-                onClick={() => form.reset()}
+                onClick={handleReset}
                 type="button"
                 className=" p-0 h-6 w-6  hidden sm:block  absolute left-5 bottom-0"
                 variant="outline"

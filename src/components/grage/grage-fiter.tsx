@@ -1,34 +1,20 @@
 "use client";
 import { ComboBox } from "@components/combo-box";
 
-import {
-  CarGenerationProps,
-  CarInfoProps,
-  Category,
-  ClientWithPhoneNumbers,
-  ProductBrand,
-  ProductType,
-} from "@lib/types";
+import { CarGenerationProps, ClientWithPhoneNumbers } from "@lib/types";
 import { Filter } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
-
-import { Switch } from "@components/ui/switch";
 import { Button } from "@/components/ui/button";
-
 import { useMediaQuery } from "@mui/material";
-
 import { cn } from "@lib/utils";
 import { useIntersectionProvidor } from "@components/products/intersection-providor";
 import { ClientsComboBox } from "@components/clients-combobox";
-import { CarInfoComboBox } from "@components/dashboard/car-info-combobox";
 import { Input } from "@components/ui/input";
 import {
   DrawerProvidor,
-  DrawerTrigger,
   DrawerContent,
   DrawerOverlay,
-  DrawerClose,
 } from "@components/DrawerComponent";
 interface CarsListProps {
   color: string;
@@ -36,7 +22,7 @@ interface CarsListProps {
   chassisNumber: string;
   motorNumber: string;
   clientId: string;
-  carInfoId: string;
+  carGenerationId: string;
   pageNumber: string;
   carGeneration: CarGenerationProps[];
   clietns: ClientWithPhoneNumbers[];
@@ -48,7 +34,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
   chassisNumber,
   motorNumber,
   clientId,
-  carInfoId,
+  carGenerationId,
   clietns,
   carGeneration,
 }) => {
@@ -57,7 +43,9 @@ const GrageFilter: React.FC<CarsListProps> = ({
   const [motorValue, setMotorValue] = useState(motorNumber);
   const [chassieValue, setChassieValue] = useState(chassisNumber);
   const [chosenClient, setChosenClient] = useState(Number(clientId) || 0);
-  const [chosenCarInfo, setChosenCarInfo] = useState(Number(carInfoId) || 0);
+  const [chosenCarGenerationId, setCarGenerationId] = useState(
+    Number(carGenerationId) || 0
+  );
   const { inView } = useIntersectionProvidor();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -86,10 +74,10 @@ const GrageFilter: React.FC<CarsListProps> = ({
       params.set("chassisNumber", chassieValue);
     }
 
-    if (!chosenCarInfo) {
-      params.delete("carInfoId");
+    if (!chosenCarGenerationId) {
+      params.delete("carGenerationId");
     } else {
-      params.set("carInfoId", String(chosenCarInfo));
+      params.set("carGenerationId", String(chosenCarGenerationId));
     }
 
     if (!chosenClient) {
@@ -131,9 +119,9 @@ const GrageFilter: React.FC<CarsListProps> = ({
           <div className=" space-y-2">
             <label>Car generation</label>
             <ComboBox
-              value={chosenCarInfo}
+              value={chosenCarGenerationId}
               options={carGeneration}
-              setValue={setChosenCarInfo}
+              setValue={setCarGenerationId}
             />
           </div>
 
@@ -210,15 +198,6 @@ const GrageFilter: React.FC<CarsListProps> = ({
                       value={chosenClient}
                       options={clietns}
                       setValue={setChosenClient}
-                    />
-                  </div>
-
-                  <div className=" space-y-2">
-                    <label>Car information</label>
-                    <ComboBox
-                      value={chosenCarInfo}
-                      options={carGeneration}
-                      setValue={setChosenCarInfo}
                     />
                   </div>
 

@@ -13,7 +13,7 @@ interface CarsListProps {
   chassisNumber: string;
   motorNumber: string;
   clientId: string;
-  carInfoId: string;
+  carGenerationId: string;
   carGenerations: CarGenerationProps[] | null;
   clients: ClientWithPhoneNumbers[] | null;
   pageNumber: string;

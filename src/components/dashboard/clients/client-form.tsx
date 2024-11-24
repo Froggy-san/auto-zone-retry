@@ -21,7 +21,7 @@ import {
   CreateClientSchema,
   PhoneNumber,
 } from "@lib/types";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 import Spinner from "@components/Spinner";
 import { useToast } from "@hooks/use-toast";
@@ -89,7 +89,6 @@ const ClientForm = ({
   });
 
   function handleClose() {
-    // form.reset();
     handleCloseExternal?.();
     setIsOpen(false);
   }
@@ -119,14 +118,16 @@ const ClientForm = ({
         ) as PhoneNumber[];
         const clientToEdit = { name, email, id: client.id } as Client;
 
-        await editClientAction({
+        const { error } = await editClientAction({
           clientToEdit,
           phonesToAdd,
           phonesToDelete: deletedPhones,
           phonesToEdit,
         });
+        if (error) throw new Error(error);
       } else {
-        await createClientAction({ name, email, phones });
+        const { error } = await createClientAction({ name, email, phones });
+        if (error) throw new Error(error);
       }
       handleClose();
       setDeletedPhones([]);
@@ -141,7 +142,7 @@ const ClientForm = ({
       // handleClose();
     } catch (error: any) {
       console.log(error);
-      form.reset();
+      // form.reset();
       toast({
         variant: "destructive",
         title: "Faild to create a new client.",

@@ -38,7 +38,7 @@ export async function getCarsAction({
   if (plateNumber) query = query + `&PlateNumber=${plateNumber}`;
   if (chassisNumber) query = query + `&ChassisNumber=${chassisNumber}`;
   if (motorNumber) query = query + `&MotorNumber=${motorNumber}`;
-  if (carInfoId) query = query + `&CarInfoId=${carInfoId}`;
+  if (carInfoId) query = query + `&carGenerationId=${carInfoId}`;
   if (clientId) query = query + `&clientId=${clientId}`;
 
   const response = await fetch(query, {

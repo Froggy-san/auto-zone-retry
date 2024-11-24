@@ -60,16 +60,7 @@ export async function getClientsAction({
       // "Content-type": "application/json",
     },
     next: {
-      // revalidate: 3600,
-      tags: [
-        "clients",
-        // `${pageNumber}`,
-        // `${name}`,
-        // `${categoryId}`,
-        // `${productTypeId}`,
-        // `${productBrandId}`,
-        // `${isAvailable}`,
-      ],
+      tags: ["clients"],
     },
   });
 

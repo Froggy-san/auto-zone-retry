@@ -24,12 +24,14 @@ interface CarModelComboBoxProps {
   setValue: (carMaker: number) => void;
   value: number;
   options: CarMaker[];
+  disabled?: boolean;
 }
 
 export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
   setValue,
   value,
   options,
+  disabled,
 }) => {
   const [open, setOpen] = React.useState(false);
   // const [value, setValue] = React.useState(0);
@@ -40,6 +42,7 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          disabled={disabled}
           variant="outline"
           role="CarModelComboBox"
           aria-expanded={open}
@@ -66,8 +69,8 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="    p-0">
-        <Command className="">
+      <PopoverContent className="      p-0">
+        <Command className=" max-h-[30vh] sm:max-h-[500px]">
           <CommandInput placeholder="Search option..." />
           <CommandList>
             <CommandEmpty>No option found.</CommandEmpty>

@@ -18,7 +18,7 @@ interface GragePaginationProps {
   chassisNumber: string;
   motorNumber: string;
   clientId: string;
-  carInfoId: string;
+  carGenerationId: string;
 }
 const GragePagination: React.FC<GragePaginationProps> = ({
   color,
@@ -26,7 +26,7 @@ const GragePagination: React.FC<GragePaginationProps> = ({
   chassisNumber,
   motorNumber,
   clientId,
-  carInfoId,
+  carGenerationId,
 }) => {
   const { ref } = useIntersectionProvidor();
 
@@ -40,11 +40,8 @@ const GragePagination: React.FC<GragePaginationProps> = ({
     chassisNumber,
     motorNumber,
     clientId,
-    carInfoId,
+    carInfoId: carGenerationId,
   });
-  //   const [count, setCount] = React.useState(0);
-  //   const [error, setError] = React.useState("");
-  //   const [isLoading, setIsLoading] = React.useState(false);
 
   const defaultValue = searchParam.get("page") ?? "1";
   const numberOfPages = Math.ceil(count / PAGE_SIZE);
@@ -63,36 +60,6 @@ const GragePagination: React.FC<GragePaginationProps> = ({
       router.push(`${pathname}?${params.toString()}`);
     },
   });
-
-  //   React.useEffect(() => {
-  //     async function getCount() {
-  //       setIsLoading(true);
-  //       const { data: count, error: countError } = await getCarsCountAction({
-  //         color,
-  //         plateNumber,
-  //         motorNumber,
-  //         chassisNumber,
-  //         clientId,
-  //         carInfoId,
-  //       });
-
-  //       if (countError) {
-  //         toast({
-  //           variant: "destructive",
-  //           title: "Something went wrong.",
-  //           description: <ErorrToastDescription error={countError} />,
-  //         });
-  //         setIsLoading(false);
-  //         setError(countError);
-
-  //         return;
-  //       }
-
-  //       setIsLoading(false);
-  //       setCount(count);
-  //     }
-  //     getCount();
-  //   }, [color, plateNumber, chassisNumber, motorNumber, clientId, carInfoId]);
 
   if (isLoading) return <Spinner className=" h-52" />;
   if (error) return <p>{error}</p>;

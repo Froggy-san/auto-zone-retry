@@ -15,8 +15,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -36,12 +34,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import {
-  CircleUser,
-  Ellipsis,
-  LoaderCircle,
-  UserRoundMinus,
-} from "lucide-react";
+import { CircleUser, Ellipsis, UserRoundMinus } from "lucide-react";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
@@ -55,8 +48,6 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
-import useCarCountPerClient from "@lib/queries/useCarCountPerClient";
-import Link from "next/link";
 const ClientsTable = ({
   clients,
   currPage,
@@ -136,7 +127,7 @@ function ClientsTableActions({
     setOpen("");
   }
 
-  if (isLoading) return <Spinner className=" w-10 h-10" size={14} />;
+  if (isLoading) return <Spinner className=" h-6 w-6" size={14} />;
 
   return (
     <>
@@ -188,33 +179,34 @@ function ClientsTableActions({
 function PhoneNumbersDialog({ client }: { client: ClientWithPhoneNumbers }) {
   const [open, setOpen] = useState(false);
 
+  if (!client.phoneNumbers.length)
+    return (
+      <TooltipProvider delayDuration={500}>
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="  inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pointer-events-none opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md h-6 px-2 py-3 text-xs">
+              Show
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            This client doesn&apos;t have a phone number.
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+
   if (client.phoneNumbers.length === 1)
     return <span>{client.phoneNumbers[0].number}</span>;
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {client?.phoneNumbers.length ? (
-        <Button
-          onClick={() => setOpen(true)}
-          size="sm"
-          className="   h-6 px-2 py-3 text-xs"
-          variant="outline"
-        >
-          Show
-        </Button>
-      ) : (
-        <TooltipProvider delayDuration={500}>
-          <Tooltip>
-            <TooltipTrigger>
-              <span className="  inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring pointer-events-none opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground rounded-md h-6 px-2 py-3 text-xs">
-                Show
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              This client doesn&apos;t have a phone number.
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
+      <Button
+        onClick={() => setOpen(true)}
+        size="sm"
+        className="   h-6 px-2 py-3 text-xs"
+        variant="outline"
+      >
+        Show
+      </Button>
 
       <DialogContent className=" border-none">
         <DialogHeader>
@@ -350,7 +342,8 @@ function DeleteClientDialog({
             onClick={async () => {
               setIsDeleting(true);
               try {
-                await deleteClientByIdAction(client.id);
+                const { error } = await deleteClientByIdAction(client.id);
+                if (error) throw new Error(error);
                 checkIfLastItem();
                 setIsDeleting(false);
                 handleClose();
@@ -363,8 +356,8 @@ function DeleteClientDialog({
                   ),
                 });
               } catch (error: any) {
-                console.log(error);
-
+                console.error(error);
+                setIsDeleting(false);
                 toast({
                   variant: "destructive",
                   title: "Faild to delete client's data",

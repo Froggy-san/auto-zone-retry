@@ -48,7 +48,11 @@ export function GrageFileUploader({
     };
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    disabled: disabled,
+    accept: { "image/*": [] },
+  });
 
   return (
     <div

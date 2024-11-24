@@ -59,7 +59,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="    p-0">
-        <Command className="">
+        <Command className=" max-h-[30vh] sm:max-h-[500px]">
           <CommandInput placeholder="Search option..." />
           <CommandList>
             <CommandEmpty>No option found.</CommandEmpty>

@@ -18,7 +18,7 @@ interface SearchParams {
   chassisNumber?: string;
   motorNumber?: string;
   clientId?: string;
-  carInfoId?: string;
+  carGenerationId?: string;
 }
 const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   const pageNumber = searchParams.page ?? "1";
@@ -27,7 +27,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   const chassisNumber = searchParams.chassisNumber ?? "";
   const motorNumber = searchParams.motorNumber ?? "";
   const clientId = searchParams.clientId ?? "";
-  const carInfoId = searchParams.carInfoId ?? "";
+  const carGenerationId = searchParams.carGenerationId ?? "";
   const key =
     pageNumber +
     color +
@@ -35,9 +35,14 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
     chassisNumber +
     motorNumber +
     clientId +
-    carInfoId;
+    carGenerationId;
   const paginationKey =
-    color + plateNumber + chassisNumber + motorNumber + clientId + carInfoId;
+    color +
+    plateNumber +
+    chassisNumber +
+    motorNumber +
+    clientId +
+    carGenerationId;
 
   const [carGenerations, clients, carMakers] = await Promise.all([
     getAllCarGenerationsAction(),
@@ -67,7 +72,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             motorNumber={motorNumber}
             plateNumber={plateNumber}
             clientId={clientId}
-            carInfoId={carInfoId}
+            carGenerationId={carGenerationId}
             pageNumber={pageNumber}
           />
           <section className=" flex-1 ">
@@ -81,7 +86,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
                 motorNumber={motorNumber}
                 chassisNumber={chassisNumber}
                 clientId={clientId}
-                carInfoId={carInfoId}
+                carGenerationId={carGenerationId}
                 color={color}
               />
             </Suspense>
@@ -92,7 +97,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               motorNumber={motorNumber}
               chassisNumber={chassisNumber}
               clientId={clientId}
-              carInfoId={carInfoId}
+              carGenerationId={carGenerationId}
             />
 
             <div className=" my-10 px-2">
