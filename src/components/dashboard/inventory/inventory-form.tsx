@@ -14,18 +14,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Client,
   ClientWithPhoneNumbers,
-  CreateClient,
   CreateProductBought,
   CreateProductBoughtSchema,
-  PhoneNumber,
-  Product,
   ProductBought,
   ProductWithCategory,
   RestockingBill,
 } from "@lib/types";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 
 import Spinner from "@components/Spinner";
 import { useToast } from "@hooks/use-toast";

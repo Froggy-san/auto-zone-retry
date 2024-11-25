@@ -3,17 +3,7 @@ import React, { SetStateAction, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@components/ui/button";
 import { Check, Ellipsis, Menu, MoveRight, Search } from "lucide-react";
-import { Input } from "@components/ui/input";
-import { Card } from "@components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { ClickAwayListener } from "@mui/material";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 

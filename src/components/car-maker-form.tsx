@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CreateCarMakerScehma } from "@lib/types";
+import { CarMaker, CreateCarMakerScehma } from "@lib/types";
 import { Textarea } from "@components/ui/textarea";
 
 import Spinner from "@components/Spinner";
@@ -31,24 +31,54 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FileUploader } from "./file-uploader";
-import { createCarMakerAction } from "@lib/actions/carMakerActions";
+import {
+  createCarMakerAction,
+  editCarMakerAction,
+} from "@lib/actions/carMakerActions";
 import useObjectCompare from "@hooks/use-compare-objs";
+import { useQueryClient } from "@tanstack/react-query";
 
-const CarkMakerForm = () => {
+const CarkMakerForm = ({
+  carMakerToEdit,
+  showOpenButton = true,
+  handleCloseEdit,
+}: {
+  carMakerToEdit?: CarMaker;
+  showOpenButton?: boolean;
+  handleCloseEdit?: () => void;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const open = carMakerToEdit ? true : isOpen;
   const defaultValues = {
-    name: "",
-    notes: "",
+    name: carMakerToEdit?.name || "",
+    notes: carMakerToEdit?.notes || "",
     logo: [],
   };
   const form = useForm<z.infer<typeof CreateCarMakerScehma>>({
     resolver: zodResolver(CreateCarMakerScehma),
     defaultValues,
   });
+
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
+
+  useEffect(() => {
+    const body = document.querySelector("body");
+    form.reset(defaultValues);
+
+    if (body) {
+      body.style.pointerEvents = "auto";
+    }
+    return () => {
+      if (body) body.style.pointerEvents = "auto";
+    };
+  }, [open]);
+
   function handleClose() {
-    form.reset();
+    form.reset(defaultValues);
+    handleCloseEdit?.();
     setIsOpen(false);
   }
 
@@ -61,15 +91,28 @@ const CarkMakerForm = () => {
   }: z.infer<typeof CreateCarMakerScehma>) {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("notes", notes);
-      formData.append("logo", logo[0]);
-      const res = await createCarMakerAction(formData);
-      if (res.error) throw new Error(res.error);
+      if (carMakerToEdit) {
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("notes", notes);
+        if (logo.length) formData.append("logo", logo[0]);
+
+        const res = await editCarMakerAction(formData, carMakerToEdit.id);
+        if (res?.error) throw new Error(res.error);
+        queryClient.invalidateQueries({ queryKey: ["carMakers"] });
+      } else {
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("notes", notes);
+        formData.append("logo", logo[0]);
+        const res = await createCarMakerAction(formData);
+        if (res.error) throw new Error(res.error);
+        queryClient.invalidateQueries({ queryKey: ["carMakers"] });
+      }
+      handleClose();
       toast({
         className: "bg-green-700",
-        title: "Success",
+        title: "Success.",
         description: (
           <SuccessToastDescription message="Car maker has been created." />
         ),
@@ -85,10 +128,12 @@ const CarkMakerForm = () => {
     }
   }
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <Button onClick={() => setIsOpen(true)} size="sm" className=" w-full">
-        Create car maker
-      </Button>
+    <Dialog open={open} onOpenChange={handleClose}>
+      {showOpenButton && (
+        <Button onClick={() => setIsOpen(true)} size="sm" className=" w-full">
+          Create car maker
+        </Button>
+      )}
 
       <DialogContent className=" max-h-[65vh]  sm:max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogHeader>
@@ -145,7 +190,10 @@ const CarkMakerForm = () => {
                 <FormItem>
                   <FormLabel>Logo</FormLabel>
                   <FormControl>
-                    <FileUploader mediaUrl={[]} fieldChange={field.onChange} />
+                    <FileUploader
+                      mediaUrl={carMakerToEdit?.logo ? carMakerToEdit.logo : ""}
+                      fieldChange={field.onChange}
+                    />
                   </FormControl>
                   <FormDescription>Add a maker logo.</FormDescription>
                   <FormMessage />

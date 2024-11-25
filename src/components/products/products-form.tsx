@@ -59,8 +59,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
   productToEdit,
   useParams = false,
 }) => {
-  console.log(categories, "CCATEG");
-  console.log(productTypes, "TYPES");
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -75,9 +73,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [deletedMedia, setDeletedMedia] = useState<ProductImage[]>([]);
   const isMainChange =
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
-
-  // console.log(isMainImage, "AAAAA ");
-  // console.log(isMainChange === isMainImage, "CCCCC");
 
   const params = new URLSearchParams(searchParam);
   function handleOpen(filter: string) {

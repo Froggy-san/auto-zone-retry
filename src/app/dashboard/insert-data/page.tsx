@@ -5,6 +5,7 @@ import CarInfoManagement from "@components/dashboard/car-info-management";
 import CarMakerManagement from "@components/dashboard/car-makers-managment";
 import CarModelManagement from "@components/dashboard/car-model-management";
 import CategroyForm from "@components/dashboard/category-from";
+import InsetAccorion from "@components/dashboard/insert-data/insert-accordion";
 import ProductBrandForm from "@components/dashboard/product-brand-form";
 import ProductTypeForm from "@components/dashboard/product-type-form";
 import ProductManagement from "@components/dashboard/products-management";
@@ -29,7 +30,8 @@ const Page = () => {
           <CategoryList />
         </Suspense> */}
 
-        <CarGenerationList />
+        {/* <CarGenerationList /> */}
+        <InsetAccorion />
       </section>
     </main>
   );

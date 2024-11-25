@@ -5,11 +5,11 @@ import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 
 interface FileUploaderProps {
   fieldChange: (FILES: File[]) => void;
-  mediaUrl?: string[];
+  mediaUrl?: string;
 }
 
 export function FileUploader({ fieldChange, mediaUrl }: FileUploaderProps) {
-  const [viewedImage, setViewedImage] = useState("");
+  const [viewedImage, setViewedImage] = useState(mediaUrl || "");
   console.log(mediaUrl);
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {

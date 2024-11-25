@@ -5,12 +5,15 @@ import { CarModel, CreateCarModel } from "@lib/types";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function getAllCarModelsAction() {
+export async function getAllCarModelsAction(pageNumber?: number) {
   const token = getToken();
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
-  const response = await fetch(`${process.env.API_URL}/api/carmodels`, {
+
+  let query = `${process.env.API_URL}/api/carmodels`;
+  if (pageNumber) query = query + `?PageSize=12&PageNumber=${pageNumber}`;
+  const response = await fetch(query, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -52,8 +55,6 @@ export async function createCarModelAction(carModel: CreateCarModel) {
     };
   }
 
-  // const data = await response.json();
-  // return data;
   revalidateTag("carModels");
 
   return { data: null, error: "" };
@@ -87,18 +88,14 @@ export async function editCarModelAction({
     };
   }
 
-  // const data = await response.json();
-  // return data;
   revalidateTag("carModels");
-
-  return { data: null, error: "" };
 }
 
 export async function deleteCarModelAction(id: string) {
   const token = getToken();
   if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmodels/${id}`, {
-    method: "PUT",
+    method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-type": "application/json",
@@ -118,8 +115,6 @@ export async function deleteCarModelAction(id: string) {
   // const data = await response.json();
   // return data;
   revalidateTag("carModels");
-
-  return { data: null, error: "" };
 }
 
 export async function getCarModelsCountAction() {
