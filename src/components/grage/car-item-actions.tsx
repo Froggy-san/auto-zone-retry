@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Ellipsis,
-  EllipsisIcon,
+  HandPlatter,
   LoaderCircle,
   PackageMinus,
   Pencil,
@@ -18,11 +18,12 @@ import { Button } from "@components/ui/button";
 import { useCallback, useState } from "react";
 import CarDeleteDialog from "./car-delete-dialog";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { CarItem } from "@lib/types";
 export default function CarAction({
   pageSize,
-  carId,
+  car,
 }: {
-  carId: number;
+  car: CarItem;
   pageSize?: number;
 }) {
   const [open, setOpen] = useState(false);
@@ -47,7 +48,7 @@ export default function CarAction({
       }
     }
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [carId, pageSize]);
+  }, [car.id, pageSize]);
 
   if (isLoading)
     return (
@@ -72,7 +73,17 @@ export default function CarAction({
         <DropdownMenuContent>
           <DropdownMenuItem
             onClick={() => {
-              router.push(`/grage/${carId}?edit=open`);
+              router.push(`/grage/${car.clientId}?car=${car.id}&service`);
+            }}
+          >
+            Add service{" "}
+            <DropdownMenuShortcut>
+              <HandPlatter className=" w-4 h-4" />
+            </DropdownMenuShortcut>{" "}
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              router.push(`/grage/${car.clientId}?car=${car.id}&edit=open`);
             }}
           >
             Edit{" "}
@@ -95,7 +106,7 @@ export default function CarAction({
         setIsLoading={setIsLoading}
         open={open}
         setOpen={setOpen}
-        carId={carId}
+        carId={car.id}
       />
     </div>
   );

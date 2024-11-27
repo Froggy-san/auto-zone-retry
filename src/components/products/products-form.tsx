@@ -36,7 +36,6 @@ import SuccessToastDescription, {
 } from "@components/toast-items";
 
 import { ComboBox } from "@components/combo-box";
-import { CarInfoComboBox } from "@components/dashboard/car-info-combobox";
 import { MultiFileUploader } from "./multi-file-uploader";
 import useObjectCompare from "@hooks/use-compare-objs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -44,7 +43,6 @@ import DialogComponent from "@components/dialog-component";
 
 interface ProductFormProps {
   categories: Category[];
-  carinfos: CarInfoProps[];
   productTypes: ProductType[];
   productBrand: ProductBrand[];
   productToEdit?: ProductById;
@@ -53,28 +51,29 @@ interface ProductFormProps {
 
 const ProductForm: React.FC<ProductFormProps> = ({
   categories,
-  carinfos,
   productTypes,
   productBrand,
   productToEdit,
   useParams = false,
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMainImage, setIsMainImage] = useState<ProductImage | null | number>(
+    null
+  );
+
+  const [deletedMedia, setDeletedMedia] = useState<ProductImage[]>([]);
+
+  const { toast } = useToast();
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const edit = searchParam.get("edit") ?? "";
-  const [isOpen, setIsOpen] = useState(false);
-  const { toast } = useToast();
-  const isEditing = edit ? true : false || isOpen;
 
-  const [isMainImage, setIsMainImage] = useState<ProductImage | null | number>(
-    null
-  );
-  const [deletedMedia, setDeletedMedia] = useState<ProductImage[]>([]);
+  const isEditing = edit ? true : false || isOpen;
   const isMainChange =
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
-
   const params = new URLSearchParams(searchParam);
+
   function handleOpen(filter: string) {
     if (useParams) {
       params.set("edit", filter);

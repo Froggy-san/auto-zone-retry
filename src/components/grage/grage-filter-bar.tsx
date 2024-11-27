@@ -6,7 +6,13 @@ import React from "react";
 import { getAllCarsInfoAction } from "@lib/actions/carInfoActions";
 import { getClientsDataAction } from "@lib/actions/clientActions";
 import GrageFilter from "./grage-fiter";
-import { CarGenerationProps, ClientWithPhoneNumbers } from "@lib/types";
+import {
+  CarGenerationProps,
+  CarMaker,
+  CarModelProps,
+  ClientWithPhoneNumbers,
+} from "@lib/types";
+import { count } from "console";
 interface CarsListProps {
   color: string;
   plateNumber: string;
@@ -16,7 +22,12 @@ interface CarsListProps {
   carGenerationId: string;
   carGenerations: CarGenerationProps[] | null;
   clients: ClientWithPhoneNumbers[] | null;
+  carMakers: CarMaker[];
+  carModels: CarModelProps[];
   pageNumber: string;
+  count: number;
+  carMakerId: string;
+  carModelId: string;
 }
 const GrageFilterbar: React.FC<CarsListProps> = async ({
   clients,
@@ -33,7 +44,7 @@ const GrageFilterbar: React.FC<CarsListProps> = async ({
 
   // if (categoriesError || brandTypesError || productBrandsError) return null;
   return (
-    <aside className={`sm:w-[200px]  sm:p-2 sm:border-t sm:border-r `}>
+    <aside className={`sm:w-[200px]   sm:p-2 sm:border-t sm:border-r `}>
       <GrageFilter
         clietns={clients || []}
         carGeneration={carGenerations || []}

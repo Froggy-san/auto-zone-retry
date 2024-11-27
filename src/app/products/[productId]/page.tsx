@@ -1,4 +1,4 @@
-import ProductManagement from "@components/dashboard/products-management";
+import ProductManagement from "@components/products-management";
 import ProdcutViewDetials from "@components/products/product-view-detials";
 import FullImagesGallery from "@components/full-images-gallery";
 import { Button } from "@components/ui/button";
@@ -8,20 +8,29 @@ import Link from "next/link";
 import React from "react";
 import { getCurrentUser } from "@lib/actions/authActions";
 import { ImageOff } from "lucide-react";
+import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
+import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
+import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
 
 interface Params {
   productId: string;
 }
 
 const ProductView = async ({ params }: { params: Params }) => {
-  const [product, user] = await Promise.all([
-    getProductByIdAction(params.productId),
-    getCurrentUser(),
-  ]);
+  const [product, user, categories, productBrands, brandTypes] =
+    await Promise.all([
+      getProductByIdAction(params.productId),
+
+      getCurrentUser(),
+      getAllCategoriesAction(),
+      getAllProductBrandsAction(),
+      getAllProductTypesAction(),
+    ]);
 
   const { data: productData, error } = product;
-
-  console.log(productData, "{{{A{A{A{AS{s");
+  const { data: categoriesData, error: categoriesError } = categories;
+  const { data: productBrandsData, error: productBrandsError } = productBrands;
+  const { data: brandTypesData, error: brandTypesError } = brandTypes;
 
   // const { data: images, error: productImagesError } = productImages;
   // const { data: productData, error: producError } = product;
@@ -72,6 +81,9 @@ const ProductView = async ({ params }: { params: Params }) => {
       {user ? (
         <ProductManagement
           useParams
+          categories={categoriesData}
+          productBrands={productBrandsData}
+          productTypes={brandTypesData}
           className=" w-[97%] mx-auto mb-6"
           productToEdit={productData}
         />

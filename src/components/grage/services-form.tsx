@@ -51,6 +51,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Alert from "@components/alert";
+import { isNull } from "lodash";
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
     value
@@ -85,7 +86,9 @@ const ServicesForm = ({
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const serivceParam = searchParam.get("service");
+  console.log(!isNull(serivceParam) ? true : false, "SSSSS");
+  const [isOpen, setIsOpen] = useState(!isNull(serivceParam) ? true : false);
   const [currTab, setCurrTab] = useState("item-1");
   const { toast } = useToast();
 
@@ -162,7 +165,7 @@ const ServicesForm = ({
 
   const params = new URLSearchParams(searchParam);
   function handleOpen(filter: string) {
-    if (useParams) {
+    if (!isNull(serivceParam)) {
       params.set("edit", filter);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     } else {
@@ -187,13 +190,13 @@ const ServicesForm = ({
   }, [productsToSell, form]);
 
   function handleClose() {
-    if (useParams) {
+    if (!isNull(serivceParam)) {
       const params = new URLSearchParams(searchParam);
-      params.delete("edit");
+      params.delete("service");
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    } else {
-      setIsOpen(false);
     }
+    setIsOpen(false);
+
     if (isLoading) return;
     form.reset(defaultValues);
   }

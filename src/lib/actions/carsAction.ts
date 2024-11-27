@@ -15,6 +15,8 @@ interface GetCarsProps {
   clientId?: string;
   carInfoId?: string;
   pageNumber?: string;
+  carMakerId?: string;
+  carModelId?: string;
 }
 
 export async function getCarsAction({
@@ -25,6 +27,8 @@ export async function getCarsAction({
   carInfoId,
   plateNumber,
   pageNumber,
+  carMakerId,
+  carModelId,
 }: GetCarsProps) {
   const token = getToken();
 
@@ -40,6 +44,8 @@ export async function getCarsAction({
   if (motorNumber) query = query + `&MotorNumber=${motorNumber}`;
   if (carInfoId) query = query + `&carGenerationId=${carInfoId}`;
   if (clientId) query = query + `&clientId=${clientId}`;
+  if (carMakerId) query = query + `&carMakerId=${carMakerId}`;
+  if (carModelId) query = query + `&carModelId=${carModelId}`;
 
   const response = await fetch(query, {
     method: "GET",
@@ -102,8 +108,6 @@ export async function createCarAction({
   }
 
   const { id } = await response.json();
-
-  console.log(id, "CAR IDDD");
 
   if (images.length) {
     const upload = images.map((image) => {
@@ -259,6 +263,8 @@ interface GragePaginationProps {
   motorNumber?: string;
   clientId?: string;
   carInfoId?: string;
+  carMakerId: string;
+  carModelId: string;
 }
 
 export async function getCarsCountAction({
@@ -268,6 +274,8 @@ export async function getCarsCountAction({
   chassisNumber,
   clientId,
   carInfoId,
+  carMakerId,
+  carModelId,
 }: GragePaginationProps) {
   const token = getToken();
 
@@ -282,6 +290,8 @@ export async function getCarsCountAction({
   if (motorNumber) query = query + `&MotorNumber=${motorNumber}`;
   if (carInfoId) query = query + `&CarInfoId=${carInfoId}`;
   if (clientId) query = query + `&ClientId=${clientId}`;
+  if (carMakerId) query = query + `&carMakerId=${carMakerId}`;
+  if (carModelId) query = query + `&carModelId=${carModelId}`;
 
   const response = await fetch(query, {
     method: "GET",

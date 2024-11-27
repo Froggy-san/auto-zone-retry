@@ -14,20 +14,21 @@ import { useIntersectionProvidor } from "./intersection-providor";
 import useProductPagination from "@lib/queries/useProductPagination";
 
 interface ProductsListProps {
-  name?: string;
-  categoryId?: string;
-  productTypeId?: string;
-  productBrandId?: string;
-  isAvailable?: string;
+  // name?: string;
+  // categoryId?: string;
+  // productTypeId?: string;
+  // productBrandId?: string;
+  // isAvailable?: string;
+  count: number;
 }
-const ProductPagenation: React.FC<ProductsListProps> = ({...props}) => {
+const ProductPagenation: React.FC<ProductsListProps> = ({ count }) => {
   const { ref } = useIntersectionProvidor();
 
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
- const {isLoading , count,error} = useProductPagination(props)
+  // const { isLoading, count, error } = useProductPagination(props);
 
   // const [count, setCount] = React.useState(0);
   // const [error, setError] = React.useState("");
@@ -80,8 +81,8 @@ const ProductPagenation: React.FC<ProductsListProps> = ({...props}) => {
   //   getCount();
   // }, [categoryId, productTypeId, productBrandId, name]);
 
-  if (isLoading) return <Spinner className=" h-52" />;
-  if (error) return <p>{error}</p>;
+  // if (isLoading) return <Spinner className=" h-52" />;
+  // if (error) return <p>{error}</p>;
   if (!count) return null;
   return (
     <nav ref={ref} className=" w-full my-4">

@@ -85,13 +85,13 @@ const CarForm = ({
   const { toast } = useToast();
 
   const isEditing = edit ? true : false || isOpen;
-  console.log(carToEdit?.carInfo.carGeneration.id, "WWWW");
+
   const defaultValues = {
     color: carToEdit?.color || "#d9c814",
-    plateNumber: carToEdit?.plateNumber || "",
-    chassisNumber: carToEdit?.chassisNumber || "",
-    motorNumber: carToEdit?.motorNumber || "",
-    notes: carToEdit?.notes || "",
+    plateNumber: carToEdit?.plateNumber || "asdasd",
+    chassisNumber: carToEdit?.chassisNumber || "adasda",
+    motorNumber: carToEdit?.motorNumber || "asddss",
+    notes: carToEdit?.notes || "asdasd",
     clientId: carToEdit?.clientId || 0,
     carGenerationId: carToEdit?.carInfo.carGeneration.id || 0,
     images: [],
@@ -195,7 +195,7 @@ const CarForm = ({
         });
 
         if (error) throw new Error(error);
-        queryClient.invalidateQueries({ queryKey: ["carCount"] });
+        // queryClient.invalidateQueries({ queryKey: ["carCount"] });
       }
       handleClose();
 

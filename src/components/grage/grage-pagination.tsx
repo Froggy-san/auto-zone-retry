@@ -13,20 +13,22 @@ import { getCarsCountAction } from "@lib/actions/carsAction";
 import useGragePagination from "@lib/queries/useGragePagination";
 
 interface GragePaginationProps {
-  color: string;
-  plateNumber: string;
-  chassisNumber: string;
-  motorNumber: string;
-  clientId: string;
-  carGenerationId: string;
+  // color: string;
+  // plateNumber: string;
+  // chassisNumber: string;
+  // motorNumber: string;
+  // clientId: string;
+  // carGenerationId: string;
+  count: number;
 }
 const GragePagination: React.FC<GragePaginationProps> = ({
-  color,
-  plateNumber,
-  chassisNumber,
-  motorNumber,
-  clientId,
-  carGenerationId,
+  // color,
+  // plateNumber,
+  // chassisNumber,
+  // motorNumber,
+  // clientId,
+  // carGenerationId,
+  count,
 }) => {
   const { ref } = useIntersectionProvidor();
 
@@ -34,14 +36,14 @@ const GragePagination: React.FC<GragePaginationProps> = ({
   const router = useRouter();
   const pathname = usePathname();
 
-  const { count, error, isLoading } = useGragePagination({
-    color,
-    plateNumber,
-    chassisNumber,
-    motorNumber,
-    clientId,
-    carInfoId: carGenerationId,
-  });
+  // const { count, error, isLoading } = useGragePagination({
+  //   color,
+  //   plateNumber,
+  //   chassisNumber,
+  //   motorNumber,
+  //   clientId,
+  //   carInfoId: carGenerationId,
+  // });
 
   const defaultValue = searchParam.get("page") ?? "1";
   const numberOfPages = Math.ceil(count / PAGE_SIZE);
@@ -61,8 +63,8 @@ const GragePagination: React.FC<GragePaginationProps> = ({
     },
   });
 
-  if (isLoading) return <Spinner className=" h-52" />;
-  if (error) return <p>{error}</p>;
+  // if (isLoading) return <Spinner className=" h-52" />;
+  // if (error) return <p>{error}</p>;
   if (!count) return null;
   return (
     <nav ref={ref} className=" w-full my-4">

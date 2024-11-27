@@ -113,17 +113,16 @@ export async function deleteCarGenerationAction(id: number) {
     }
   );
   if (!response.ok) {
-    if (response.status === 409) {
-      return { data: null, error: (await response.json()).message };
-    }
-    console.log("Something went wrong while creating the car generation.");
-    return { data: null, error: "Something went wrong!" };
+    const errorMessage =
+      response.status === 409
+        ? (await response.json()).message
+        : "Faild to delete car generation data.";
+
+    throw new Error(errorMessage);
   }
 
   // const data = await response.json();
   // return data;
-
-  return { data: null, error: "" };
 }
 
 export async function getCarGenerationCountAction() {

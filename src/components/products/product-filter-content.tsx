@@ -14,13 +14,12 @@ import { useIntersectionProvidor } from "./intersection-providor";
 import { cn } from "@lib/utils";
 import {
   DrawerProvidor,
-  DrawerTrigger,
   DrawerContent,
   DrawerOverlay,
-  DrawerClose,
 } from "@components/DrawerComponent";
 import { Label } from "@components/ui/label";
 import { Checkbox } from "@components/ui/checkbox";
+import { PAGE_SIZE } from "@lib/constants";
 
 interface ProdcutFilterContentProps {
   categories: Category[];
@@ -31,6 +30,7 @@ interface ProdcutFilterContentProps {
   productTypeId?: string;
   productBrandId?: string;
   isAvailable?: string;
+  count: number;
 }
 const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   categories,
@@ -41,14 +41,17 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   isAvailable,
   productTypeId,
   productBrandId,
+  count,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-
   const { inView } = useIntersectionProvidor();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const isBigScreen = useMediaQuery("(min-width:640px)");
+
+  const disappear = count > 2 && Math.ceil(count / PAGE_SIZE) > 3;
+
   function handleChange(number: number, name: string, initalValue: number) {
     const params = new URLSearchParams(searchParams);
     if (number === initalValue) {
@@ -116,7 +119,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
             <Button
               onClick={() => setDrawerOpen((is) => !is)}
               className={cn("fixed right-4 bottom-5 z-50 ", {
-                "opacity-0 invisible": inView,
+                "opacity-0 invisible": inView && disappear,
               })}
               size="icon"
               variant="outline"

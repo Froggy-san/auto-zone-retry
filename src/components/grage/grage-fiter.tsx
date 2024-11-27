@@ -1,7 +1,12 @@
 "use client";
 import { ComboBox } from "@components/combo-box";
 
-import { CarGenerationProps, ClientWithPhoneNumbers } from "@lib/types";
+import {
+  CarGenerationProps,
+  CarMaker,
+  CarModelProps,
+  ClientWithPhoneNumbers,
+} from "@lib/types";
 import { Filter } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
@@ -16,19 +21,32 @@ import {
   DrawerContent,
   DrawerOverlay,
 } from "@components/DrawerComponent";
+import { PAGE_SIZE } from "@lib/constants";
+import { MakerCombobox } from "@components/maker-combobox";
+import { ModelCombobox } from "@components/model-combobox";
 interface CarsListProps {
   color: string;
   plateNumber: string;
   chassisNumber: string;
   motorNumber: string;
   clientId: string;
+  carMakerId: string;
+  carModelId: string;
   carGenerationId: string;
   pageNumber: string;
   carGeneration: CarGenerationProps[];
   clietns: ClientWithPhoneNumbers[];
+  carModels: CarModelProps[];
+  carMakers: CarMaker[];
+  // We want the filter to disapear in the case of the page count i more than 3 pages and the pageSize i more than 2 cars in a single page.
+  count: number;
 }
 
 const GrageFilter: React.FC<CarsListProps> = ({
+  carMakerId,
+  carModelId,
+  carMakers,
+  carModels,
   color,
   plateNumber,
   chassisNumber,
@@ -37,22 +55,27 @@ const GrageFilter: React.FC<CarsListProps> = ({
   carGenerationId,
   clietns,
   carGeneration,
+  count,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [plateNumberValue, setPlateNumberValue] = useState(plateNumber);
   const [motorValue, setMotorValue] = useState(motorNumber);
   const [chassieValue, setChassieValue] = useState(chassisNumber);
   const [chosenClient, setChosenClient] = useState(Number(clientId) || 0);
+  const [chosenMaker, setchosenMaker] = useState(Number(carMakerId) || 0);
+  const [chosenModel, setchosenModel] = useState(Number(carModelId) || 0);
   const [chosenCarGenerationId, setCarGenerationId] = useState(
     Number(carGenerationId) || 0
   );
+
   const { inView } = useIntersectionProvidor();
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const pathname = usePathname();
   const isBigScreen = useMediaQuery("(min-width:640px)");
-
+  const pageCount = Math.ceil(count / PAGE_SIZE);
+  const disapear = count > 3 && pageCount;
   async function handleSubmit() {
     const params = new URLSearchParams(searchParams);
 
@@ -80,6 +103,18 @@ const GrageFilter: React.FC<CarsListProps> = ({
       params.set("carGenerationId", String(chosenCarGenerationId));
     }
 
+    if (!chosenMaker) {
+      params.delete("carMakerId");
+    } else {
+      params.set("carMakerId", String(chosenMaker));
+    }
+
+    if (!chosenModel) {
+      params.delete("carModelId");
+    } else {
+      params.set("carModelId", String(chosenModel));
+    }
+
     if (!chosenClient) {
       params.delete("clientId");
     } else {
@@ -98,7 +133,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
         <form
           action={handleSubmit}
           //   onSubmit={handleSubmit}
-          className=" space-y-5  sticky top-[50px]  sm:block "
+          className=" space-y-4  sticky top-[10px]   sm:block "
         >
           <h1 className=" font-semibold text-2xl flex items-center ">
             Filters{" "}
@@ -108,16 +143,31 @@ const GrageFilter: React.FC<CarsListProps> = ({
             </span>
           </h1>
           <div className=" space-y-2">
-            <label>Clients</label>
+            <label className=" text-sm">Clients</label>
             <ClientsComboBox
               value={chosenClient}
               options={clietns}
               setValue={setChosenClient}
             />
           </div>
-
           <div className=" space-y-2">
-            <label>Car generation</label>
+            <label className=" text-sm">Car maker</label>
+            <MakerCombobox
+              value={chosenMaker}
+              options={carMakers}
+              setValue={setchosenMaker}
+            />
+          </div>
+          <div className=" space-y-2">
+            <label className=" text-sm">Car model</label>
+            <ModelCombobox
+              value={chosenModel}
+              options={carModels}
+              setValue={setchosenModel}
+            />
+          </div>
+          <div className=" space-y-2">
+            <label className=" text-sm">Car generation</label>
             <ComboBox
               value={chosenCarGenerationId}
               options={carGeneration}
@@ -126,7 +176,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
           </div>
 
           <div className=" space-y-2">
-            <label>Plate number</label>
+            <label className=" text-sm">Plate number</label>
             <Input
               value={plateNumberValue}
               onChange={(e) => setPlateNumberValue(e.target.value)}
@@ -135,7 +185,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
           </div>
 
           <div className=" space-y-2">
-            <label>Chassie number</label>
+            <label className=" text-sm">Chassie number</label>
             <Input
               value={chassieValue}
               onChange={(e) => setChassieValue(e.target.value)}
@@ -144,7 +194,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
           </div>
 
           <div className=" space-y-2">
-            <label>Motor number</label>
+            <label className=" text-sm">Motor number</label>
             <Input
               value={motorValue}
               onChange={(e) => setMotorValue(e.target.value)}
@@ -167,7 +217,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
             <Button
               onClick={() => setDrawerOpen((is) => !is)}
               className={cn("fixed right-4 bottom-5 z-50 ", {
-                "opacity-0 invisible": inView,
+                "opacity-0 invisible": inView && disapear,
               })}
               size="icon"
               variant="outline"
@@ -198,6 +248,31 @@ const GrageFilter: React.FC<CarsListProps> = ({
                       value={chosenClient}
                       options={clietns}
                       setValue={setChosenClient}
+                    />
+                  </div>
+
+                  <div className=" space-y-2">
+                    <label className=" text-sm">Car maker</label>
+                    <MakerCombobox
+                      value={chosenMaker}
+                      options={carMakers}
+                      setValue={setchosenMaker}
+                    />
+                  </div>
+                  <div className=" space-y-2">
+                    <label className=" text-sm">Car model</label>
+                    <ModelCombobox
+                      value={chosenModel}
+                      options={carModels}
+                      setValue={setchosenModel}
+                    />
+                  </div>
+                  <div className=" space-y-2">
+                    <label className=" text-sm">Car generation</label>
+                    <ComboBox
+                      value={chosenCarGenerationId}
+                      options={carGeneration}
+                      setValue={setCarGenerationId}
                     />
                   </div>
 
