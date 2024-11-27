@@ -10,7 +10,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Spinner from "@components/Spinner";
 import { useIntersectionProvidor } from "@components/products/intersection-providor";
 import { getCarsCountAction } from "@lib/actions/carsAction";
-import useGragePagination from "@lib/queries/useGragePagination";
+// import useGragePagination from "@lib/queries/useGragePagination";
 
 interface GragePaginationProps {
   // color: string;
