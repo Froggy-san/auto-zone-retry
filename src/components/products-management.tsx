@@ -4,7 +4,13 @@ import { getAllCarsInfoAction } from "@lib/actions/carInfoActions";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
 import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
-import { ProductById, ProductImage } from "@lib/types";
+import {
+  Category,
+  ProductBrand,
+  ProductById,
+  ProductImage,
+  ProductType,
+} from "@lib/types";
 import { cn } from "@lib/utils";
 import React from "react";
 
@@ -12,28 +18,34 @@ const ProductManagement = async ({
   productToEdit,
   useParams = false,
   className,
+  categories,
+  productBrands,
+  productTypes,
 }: {
   productToEdit?: ProductById;
   productToEditImages?: ProductImage[];
+  categories: Category[];
+  productTypes: ProductType[];
+  productBrands: ProductBrand[];
   className?: string;
   useParams?: boolean;
 }) => {
-  const [categories, carInfos, productBrands, brandTypes] = await Promise.all([
-    getAllCategoriesAction(),
-    getAllCarsInfoAction(),
-    getAllProductBrandsAction(),
-    getAllProductTypesAction(),
-  ]);
+  // const [categories, carInfos, productBrands, brandTypes] = await Promise.all([
+  //   getAllCategoriesAction(),
+  //   getAllCarsInfoAction(),
+  //   getAllProductBrandsAction(),
+  //   getAllProductTypesAction(),
+  // ]);
 
-  const { data: categoriesData, error: categoriesError } = categories;
-  // const { data: carInfosData, error: carInfosError } = carInfos;
-  const { data: productBrandsData, error: productBrandsError } = productBrands;
-  const { data: brandTypesData, error: brandTypesError } = brandTypes;
+  // const { data: categoriesData, error: categoriesError } = categories;
+  // // const { data: carInfosData, error: carInfosError } = carInfos;
+  // const { data: productBrandsData, error: productBrandsError } = productBrands;
+  // const { data: brandTypesData, error: brandTypesError } = brandTypes;
 
-  const isError = categoriesError || productBrandsError || brandTypesError;
+  // const isError = categoriesError || productBrandsError || brandTypesError;
 
-  if (isError)
-    return <p>Something went wrong while trying to fetch some data!.</p>;
+  // if (isError)
+  //   return <p>Something went wrong while trying to fetch some data!.</p>;
 
   return (
     <div
@@ -52,10 +64,9 @@ const ProductManagement = async ({
         <ProductForm
           useParams={useParams}
           productToEdit={productToEdit}
-          categories={categoriesData}
-          carinfos={[]}
-          productBrand={productBrandsData}
-          productTypes={brandTypesData}
+          categories={categories || []}
+          productBrand={productBrands || []}
+          productTypes={productTypes || []}
         />
       </div>
     </div>

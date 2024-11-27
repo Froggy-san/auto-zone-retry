@@ -20,6 +20,7 @@ const CarGenerationList = () => {
   const carGenerationData: CarGenerationProps[] =
     data?.carGenerationsData || [];
 
+  console.log(carGenerationData, "AA");
   const handleResetPage = useCallback(() => {
     if (carGenerationData.length === 1) {
       setPage((page) => page - 1);

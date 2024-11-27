@@ -81,7 +81,7 @@ function DeleteBtn({
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => {
+            onClick={async () => {
               deleteCargeneration(item.id, {
                 onSuccess: () => {
                   setOpen(false);

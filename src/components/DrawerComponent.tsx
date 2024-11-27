@@ -57,7 +57,7 @@ function DrawerProvidor({ children, open, setOpen }: DrawerProvidorProps) {
     setIsOpen(false);
     if (setOpen) setOpen(false);
   }
-  console.log(isOpen, "ISSSSSSSSSSSSSS");
+
   return (
     <DrawerContext.Provider
       value={{ isOpen, setIsOpen, handleOpenChange, handleClose }}

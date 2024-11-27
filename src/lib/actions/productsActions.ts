@@ -38,10 +38,11 @@ export async function getProductsAction({
   // if (!token)
   //   return { data: null, error: "You are not authorized to make this action." };
 
-  let query = `${process.env.API_URL}/api/Product?&PageSize=${PAGE_SIZE}`;
+  let query = `${process.env.API_URL}/api/Product?`;
 
   if (name) query = query + `&Name=${name}`;
-  if (pageNumber) query = query + `&PageNumber=${pageNumber}`;
+  if (pageNumber)
+    query = query + `&PageSize=${PAGE_SIZE}&PageNumber=${pageNumber}`;
 
   if (categoryId) query = query + `&CategoryId=${categoryId}`;
 
@@ -283,7 +284,7 @@ export async function getProductsCountAction({
   //     error: "You are not authorized to get the products count data.",
   //   };
 
-  let query = `${process.env.API_URL}/api/Product/count?`;
+  let query = `${process.env.API_URL}/api/Product/count?&PageSize=${PAGE_SIZE}`;
 
   if (name) query = query + `&Name=${name}`;
 
@@ -312,6 +313,7 @@ export async function getProductsCountAction({
   }
 
   const data = await response.json();
+  console.log(data, "ASA");
 
   return { data, error: "" };
 }

@@ -9,6 +9,9 @@ export default function useDeleteCarGenerations() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
     },
+    onError: (error: any) => {
+      throw new Error(error);
+    },
   });
   return { deleteCargeneration, isDeleting };
 }

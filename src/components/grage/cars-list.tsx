@@ -12,6 +12,8 @@ interface CarsListProps {
   clientId: string;
   carGenerationId: string;
   pageNumber: string;
+  carMakerId: string;
+  carModelId: string;
 }
 
 const CarsList = async ({
@@ -22,6 +24,8 @@ const CarsList = async ({
   clientId,
   carGenerationId,
   pageNumber,
+  carMakerId,
+  carModelId,
 }: CarsListProps) => {
   const { data, error } = await getCarsAction({
     pageNumber,
@@ -31,6 +35,8 @@ const CarsList = async ({
     clientId,
     carInfoId: carGenerationId,
     color,
+    carMakerId,
+    carModelId,
   });
 
   if (error) return <p>{error}</p>;

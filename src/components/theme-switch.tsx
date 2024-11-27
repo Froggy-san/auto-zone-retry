@@ -5,21 +5,12 @@ import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@lib/utils";
 import { MonitorCog } from "lucide-react";
 
 // import sound from "@public/sound/mixkit-on-or-off-light-switch-tap-2585.wav";
 export function ModeToggle() {
   const { theme, setTheme } = useTheme();
   const audioRef = React.useRef<HTMLAudioElement>(null);
-
-  console.log(theme);
 
   const playSound = () => {
     if (audioRef.current) {

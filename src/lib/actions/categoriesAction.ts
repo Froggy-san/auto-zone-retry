@@ -10,7 +10,7 @@ export async function getAllCategoriesAction() {
 
   // if (!token)
   //   return { data: null, error: "You are not authorized to make this action." };
-  const response = await fetch(`${process.env.API_URL}/api/categories`, {
+  const response = await fetch(`${process.env.API_URL}/api/Categories`, {
     method: "GET",
     // headers: {
     //   Authorization: `Bearer ${token}`,
@@ -26,6 +26,7 @@ export async function getAllCategoriesAction() {
   }
 
   const data = await response.json();
+
   return { data, error: "" };
 }
 
