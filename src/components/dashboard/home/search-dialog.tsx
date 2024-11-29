@@ -72,8 +72,6 @@ const SearchDialog = ({
     statusId: Number(serviceStatusId) || 0,
   };
 
-  console.log(dateFrom, "FFFFFFROm");
-  console.log(dateTo, "DATE TTOOOO");
   const rangeValues = [initalValus.minPrice, initalValus.maxPrice];
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
@@ -85,7 +83,7 @@ const SearchDialog = ({
     to: initalValus.dateTo,
     from: initalValus.dateFrom,
   });
-  // console.log(date, "DDDATE");
+
   const [value, setValue] = React.useState(rangeValues);
   const searchParams = useSearchParams();
   const pathname = usePathname();

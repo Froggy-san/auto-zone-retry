@@ -1,8 +1,10 @@
 import EditFeesManagement from "@components/dashboard/home/edit-fees-management";
 import ProductSoldManagement from "@components/dashboard/home/edit-product-sold";
-import EditProductSoldManagement from "@components/dashboard/home/edit-product-sold";
+
 import ServiceList from "@components/dashboard/home/service-list";
 import ServicePagination from "@components/dashboard/home/service-pagination";
+import FilterBar from "@components/home/charts/filter-bar";
+import SalesCharts from "@components/home/charts/sales-chart";
 
 import Spinner from "@components/Spinner";
 import React, { Suspense } from "react";
@@ -40,16 +42,13 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   return (
     <main className=" relative">
       <h2 className="  font-semibold text-4xl">SALES OVERVIEW.</h2>
-      <section className=" sm:pl-4">
-        {/* <SearchDialog
-          currPage={pageNumber}
-          shopName={shopName}
-          dateOfOrderFrom={dateOfOrderFrom}
-          dateOfOrderTo={dateOfOrderTo}
-          minTotalPrice={minTotalPrice}
-          maxTotalPrice={maxTotalPrice}
-        /> */}
 
+      <div>
+        <FilterBar />
+        <SalesCharts />
+      </div>
+
+      <section className=" sm:pl-4">
         <Suspense
           fallback={
             <Spinner size={30} className=" mt-10" key={editFee + addFeeId} />

@@ -74,8 +74,21 @@ const GrageFilter: React.FC<CarsListProps> = ({
 
   const pathname = usePathname();
   const isBigScreen = useMediaQuery("(min-width:640px)");
-  const pageCount = Math.ceil(count / PAGE_SIZE);
-  const disapear = count > 3 && pageCount;
+
+  // Don't make the filter button disppear on the smaller devices when the page count is less than 3 and the page size is less than 2.
+  const disapear = count > 2 && Math.ceil(count / PAGE_SIZE) > 3;
+
+  console.log(carModels, "MODELSSS");
+
+  const models = chosenMaker
+    ? carModels.filter((item) => item.carMakerId === chosenMaker)
+    : carModels;
+
+  console.log(models, "UPDATED MODELS");
+  const generations = chosenModel
+    ? carGeneration.filter((item) => item.carModelId === chosenModel)
+    : carGeneration;
+
   async function handleSubmit() {
     const params = new URLSearchParams(searchParams);
 
@@ -155,22 +168,30 @@ const GrageFilter: React.FC<CarsListProps> = ({
             <MakerCombobox
               value={chosenMaker}
               options={carMakers}
-              setValue={setchosenMaker}
+              setValue={(value) => {
+                setchosenMaker(value);
+                setchosenModel(0);
+              }}
             />
           </div>
           <div className=" space-y-2">
             <label className=" text-sm">Car model</label>
             <ModelCombobox
+              disabled={!chosenMaker}
               value={chosenModel}
-              options={carModels}
-              setValue={setchosenModel}
+              options={models}
+              setValue={(value) => {
+                setchosenModel(value);
+                setCarGenerationId(0);
+              }}
             />
           </div>
           <div className=" space-y-2">
             <label className=" text-sm">Car generation</label>
             <ComboBox
+              disabled={!chosenModel}
               value={chosenCarGenerationId}
-              options={carGeneration}
+              options={generations}
               setValue={setCarGenerationId}
             />
           </div>
@@ -263,7 +284,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
                     <label className=" text-sm">Car model</label>
                     <ModelCombobox
                       value={chosenModel}
-                      options={carModels}
+                      options={models}
                       setValue={setchosenModel}
                     />
                   </div>
@@ -271,7 +292,7 @@ const GrageFilter: React.FC<CarsListProps> = ({
                     <label className=" text-sm">Car generation</label>
                     <ComboBox
                       value={chosenCarGenerationId}
-                      options={carGeneration}
+                      options={generations}
                       setValue={setCarGenerationId}
                     />
                   </div>

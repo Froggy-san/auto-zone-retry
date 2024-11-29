@@ -44,6 +44,7 @@ import { ModelCombobox } from "@components/model-combobox";
 const CarForm = ({
   useParams,
   carToEdit,
+  clientId,
   carGenerations,
   clients,
   carMakers,
@@ -52,6 +53,7 @@ const CarForm = ({
 }: {
   useParams?: boolean;
   carToEdit?: CarItem;
+  clientId?: number;
   carGenerations: CarGenerationProps[];
   carMakers: CarMaker[];
   clients: ClientWithPhoneNumbers[];
@@ -85,14 +87,14 @@ const CarForm = ({
   const { toast } = useToast();
 
   const isEditing = edit ? true : false || isOpen;
-
+  console.log(carToEdit, "CCC");
   const defaultValues = {
     color: carToEdit?.color || "#d9c814",
     plateNumber: carToEdit?.plateNumber || "asdasd",
     chassisNumber: carToEdit?.chassisNumber || "adasda",
     motorNumber: carToEdit?.motorNumber || "asddss",
     notes: carToEdit?.notes || "asdasd",
-    clientId: carToEdit?.clientId || 0,
+    clientId: clientId || 0,
     carGenerationId: carToEdit?.carInfo.carGeneration.id || 0,
     images: [],
   };
@@ -134,6 +136,7 @@ const CarForm = ({
     setDeletedMedia([]);
   }
 
+  console.log(form.formState.errors, "ASASDAA");
   function handleClose() {
     if (useParams) {
       const params = new URLSearchParams(searchParam);

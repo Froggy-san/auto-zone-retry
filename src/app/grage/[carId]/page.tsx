@@ -259,6 +259,7 @@ const Page = async ({
             <CarManagement
               useParams
               carToEdit={car}
+              clientId={client.id}
               carGenerations={carGenerations}
               carMakers={carMakersData}
               className=" sm:flex-col   sm:items-stretch lg:flex-row lg:items-center"

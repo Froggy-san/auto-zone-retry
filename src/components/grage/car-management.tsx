@@ -19,10 +19,12 @@ const CarManagement = async ({
   clients,
   carGenerations,
   carMakers,
+  clientId,
 }: {
   useParams?: boolean;
   carToEdit?: CarItem;
   className?: string;
+  clientId?: number;
   carMakers: CarMaker[] | null;
   carGenerations: CarGenerationProps[] | null;
   clients?: ClientWithPhoneNumbers[] | null;
@@ -55,6 +57,7 @@ const CarManagement = async ({
           useParams={useParams}
           carToEdit={carToEdit}
           carMakers={carMakers || []}
+          clientId={clientId}
           clients={clients || []}
           carGenerations={carGenerations || []}
         />
