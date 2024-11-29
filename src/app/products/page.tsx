@@ -101,12 +101,13 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               // productBrandId={productBrandId}
               // isAvailable={isAvailable}
             />
-            <ProductManagement
-              className=" mt-auto mx-3"
-              categories={categoriesData}
-              productBrands={productBrandsData}
-              productTypes={brandTypesData}
-            />
+            <div className=" my-10 px-2">
+              <ProductManagement
+                categories={categoriesData}
+                productBrands={productBrandsData}
+                productTypes={brandTypesData}
+              />
+            </div>
           </section>
         </div>
       </IntersectionProvidor>

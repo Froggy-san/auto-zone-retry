@@ -19,30 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CarInfoProps, Product, ProductWithCategory } from "@lib/types";
-import { DEFAULT_CAR_LOGO } from "@lib/constants";
-
-// const frameworks = [
-//   {
-//     value: "next.js",
-//     label: "Next.js",
-//   },
-//   {
-//     value: "sveltekit",
-//     label: "SvelteKit",
-//   },
-//   {
-//     value: "nuxt.js",
-//     label: "Nuxt.js",
-//   },
-//   {
-//     value: "remix",
-//     label: "Remix",
-//   },
-//   {
-//     value: "astro",
-//     label: "Astro",
-//   },
-// ];
+import { DEFAULT_PRODUCT_PIC } from "@lib/constants";
 
 interface ComboBoxProps {
   setValue: React.Dispatch<React.SetStateAction<number>>;
@@ -78,7 +55,7 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
                 Name: {selected.name} / Category : {selected.categoryId}
               </p>
               <img
-                src={selected.mainProductImage?.imageUrl || DEFAULT_CAR_LOGO}
+                src={selected.mainProductImage?.imageUrl || DEFAULT_PRODUCT_PIC}
                 alt="Car logo"
                 className="  object-cover   max-w-[100%]   h-9 w-9   rounded-sm "
               />
@@ -106,17 +83,21 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
                   }}
                   className="gap-2 justify-between"
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === option.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  <p className=" text-wrap  text-left ">
-                    Name: {option.name} / Category : {option.category}
-                  </p>
+                  <div className=" flex items-center ">
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === option.id ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <p className=" text-wrap  text-left ">
+                      Name: {option.name} / Category : {option.category}
+                    </p>
+                  </div>
                   <img
-                    src={option.mainProductImage?.imageUrl || DEFAULT_CAR_LOGO}
+                    src={
+                      option.mainProductImage?.imageUrl || DEFAULT_PRODUCT_PIC
+                    }
                     alt="Car logo"
                     className="  object-cover   max-w-[100%]   h-9 w-9   rounded-sm "
                   />

@@ -79,7 +79,7 @@ export const ClientsComboBox: React.FC<ClientsComboBoxProps> = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="  w-[300px] sm:w-[400px]   p-0">
+      <PopoverContent className="   p-0">
         <Command className=" max-h-[30vh] sm:max-h-[500px]">
           <CommandInput placeholder="Search client..." />
           <CommandList>

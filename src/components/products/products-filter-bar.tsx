@@ -27,16 +27,6 @@ const ProductsFilterBar: React.FC<Props> = async ({
   productTypes,
   count,
 }) => {
-  // const [categories, productBrands, brandTypes] = await Promise.all([
-  //   getAllCategoriesAction(),
-  //   getAllProductBrandsAction(),
-  //   getAllProductTypesAction(),
-  // ]);
-
-  // const { data: categoriesData, error: categoriesError } = categories;
-  // const { data: productBrandsData, error: productBrandsError } = productBrands;
-  // const { data: brandTypesData, error: brandTypesError } = brandTypes;
-  // if (categoriesError || brandTypesError || productBrandsError) return null;
   return (
     <aside className={`sm:w-[200px]  sm:p-2 sm:border-t sm:border-r `}>
       <ProductsFilterContent

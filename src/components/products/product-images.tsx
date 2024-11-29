@@ -112,7 +112,7 @@ const ProductImages = ({
                   transition={{ duration: 0.2 }}
                   layoutId="tab-indicator"
                   className="w-full h-full  bg-accent-foreground rounded-full "
-                ></motion.div>
+                />
               )}
             </div>
           ))}
