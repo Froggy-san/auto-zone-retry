@@ -18,7 +18,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useObjectCompare from "@hooks/use-compare-objs";
 import { useToast } from "@hooks/use-toast";
 import {
-  Car,
   CarItem,
   Category,
   CreateService,
@@ -87,7 +86,6 @@ const ServicesForm = ({
   const router = useRouter();
   const pathname = usePathname();
   const serivceParam = searchParam.get("service");
-  console.log(!isNull(serivceParam) ? true : false, "SSSSS");
   const [isOpen, setIsOpen] = useState(!isNull(serivceParam) ? true : false);
   const [currTab, setCurrTab] = useState("item-1");
   const { toast } = useToast();
@@ -156,22 +154,14 @@ const ServicesForm = ({
   const totalProductSoldAmounts = productsToSell.reduce(
     (acc, curr) => {
       acc.totalPrice += curr.pricePerUnit * curr.count;
-      acc.totalDiscount += curr.discount;
-
+      acc.totalDiscount += curr.discount * curr.count;
+      acc.totalCount += curr.count;
       return acc;
     },
-    { totalPrice: 0, totalDiscount: 0 }
+    { totalPrice: 0, totalDiscount: 0, totalCount: 0 }
   );
 
   const params = new URLSearchParams(searchParam);
-  function handleOpen(filter: string) {
-    if (!isNull(serivceParam)) {
-      params.set("edit", filter);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    } else {
-      setIsOpen(true);
-    }
-  }
 
   useEffect(() => {
     serviceFees.forEach((item, index) => {
@@ -189,6 +179,15 @@ const ServicesForm = ({
     });
   }, [productsToSell, form]);
 
+  function handleOpen(filter: string) {
+    if (!isNull(serivceParam)) {
+      params.set("edit", filter);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    } else {
+      setIsOpen(true);
+    }
+  }
+
   function handleClose() {
     if (!isNull(serivceParam)) {
       const params = new URLSearchParams(searchParam);
@@ -198,6 +197,7 @@ const ServicesForm = ({
     setIsOpen(false);
 
     if (isLoading) return;
+    setCurrTab("item-1");
     form.reset(defaultValues);
   }
 
@@ -257,7 +257,8 @@ const ServicesForm = ({
               type="single"
               collapsible
               className="w-full   "
-              defaultValue="item-1"
+              // defaultValue="item-1"
+              value={currTab}
               onValueChange={(value) => setCurrTab(value)}
             >
               <AccordionItem value="item-1">
@@ -338,7 +339,7 @@ const ServicesForm = ({
                         <FormControl>
                           <Textarea
                             disabled={isLoading}
-                            placeholder="Car information..."
+                            placeholder="Additional details..."
                             {...field}
                           />
                         </FormControl>
@@ -513,7 +514,7 @@ const ServicesForm = ({
                                   <FormControl>
                                     <Textarea
                                       disabled={isLoading}
-                                      placeholder="Car information..."
+                                      placeholder="Additional details..."
                                       {...field}
                                     />
                                   </FormControl>
@@ -760,7 +761,7 @@ const ServicesForm = ({
                                     <FormControl>
                                       <Textarea
                                         disabled={isLoading}
-                                        placeholder="Car information..."
+                                        placeholder="Additional details..."
                                         {...field}
                                       />
                                     </FormControl>
@@ -772,13 +773,13 @@ const ServicesForm = ({
                                 )}
                               />
 
-                              <div>
+                              <div className=" text-sm text-muted-foreground">
                                 Total amount spent:
                                 <span className=" ml-3">
                                   {formatCurrency(
-                                    productsToSell[i]?.pricePerUnit *
-                                      productsToSell[i]?.count -
-                                      productsToSell[i]?.discount
+                                    (productsToSell[i]?.pricePerUnit -
+                                      productsToSell[i]?.discount) *
+                                      productsToSell[i]?.count
                                   )}
                                 </span>
                               </div>
@@ -811,7 +812,7 @@ const ServicesForm = ({
                           <div>
                             Amount:{" "}
                             <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-dashboard-indigo ">
-                              {productsToSell.length}
+                              {totalProductSoldAmounts.totalCount}
                             </span>
                           </div>
                           <div>
@@ -852,7 +853,7 @@ const ServicesForm = ({
                           <div>
                             Products amount:{" "}
                             <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-dashboard-indigo ">
-                              {productsToSell.length}
+                              {totalProductSoldAmounts.totalCount}
                             </span>
                           </div>
                           <div>
@@ -1059,62 +1060,3 @@ const ServicesForm = ({
 };
 
 export default ServicesForm;
-{
-  /* <div className=" flex   justify-center   gap-5 my-10">
-          <div className="   flex  flex-col  sm:flex-row justify-center  items-center gap-1">
-            <div className=" relative">
-              <span className=" text-[10px] sm:text-sm  absolute bottom-10 left-1/2 -translate-x-1/2  whitespace-nowrap">
-                Issue service bill
-              </span>
-              <Button className=" w-7 h-7 sm:w-10 sm:h-10 p-0 rounded-full">
-                1
-              </Button>
-            </div>
-          </div>
-
-          <div
-            className=" flex items-center justify-center gap-5"
-            style={{ width: "calc(100% / 4)" }}
-          >
-            <span className=" h-1  flex-1 bg-white " />
-            <div className=" relative">
-              <span className=" text-[10px] sm:text-sm  absolute bottom-10 left-1/2 -translate-x-1/2  whitespace-nowrap">
-                Fees
-              </span>
-              <Button className=" w-7 h-7 sm:w-10 sm:h-10 p-0 rounded-full">
-                2
-              </Button>
-            </div>
-          </div>
-
-          <div
-            className=" flex items-center justify-center gap-5"
-            style={{ width: "calc(100% / 4)" }}
-          >
-            <span className=" h-1  flex-1 bg-white" />
-            <div className=" relative">
-              <span className=" text-[10px] sm:text-sm  absolute bottom-10 left-1/2 -translate-x-1/2  whitespace-nowrap">
-                Products sold
-              </span>
-              <Button className=" w-7 h-7 sm:w-10 sm:h-10 p-0 rounded-full">
-                3
-              </Button>
-            </div>
-          </div>
-
-          <div
-            className=" flex items-center  gap-5"
-            style={{ width: "calc(100% / 4)" }}
-          >
-            <span className=" h-1  flex-1 bg-white " />
-            <div className=" relative">
-              <span className=" text-[10px] sm:text-sm  absolute bottom-10 left-1/2 -translate-x-1/2  whitespace-nowrap">
-                Done
-              </span>
-              <Button className=" w-7 h-7 sm:w-10 sm:h-10 p-0 rounded-full">
-                4
-              </Button>
-            </div>
-          </div>
-        </div> */
-}

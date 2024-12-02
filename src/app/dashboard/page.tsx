@@ -3,8 +3,8 @@ import ProductSoldManagement from "@components/dashboard/home/edit-product-sold"
 
 import ServiceList from "@components/dashboard/home/service-list";
 import ServicePagination from "@components/dashboard/home/service-pagination";
-import FilterBar from "@components/home/charts/filter-bar";
-import SalesCharts from "@components/home/charts/sales-chart";
+import FilterBar from "@components/dashboard/home/charts/filter-bar";
+import SalesCharts from "@components/dashboard/home/charts/sales-chart";
 
 import Spinner from "@components/Spinner";
 import React, { Suspense } from "react";
@@ -44,7 +44,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
       <h2 className="  font-semibold text-4xl">SALES OVERVIEW.</h2>
 
       <div>
-        <FilterBar />
+        {/* <FilterBar /> */}
         <SalesCharts />
       </div>
 

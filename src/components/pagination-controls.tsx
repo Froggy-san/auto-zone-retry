@@ -21,13 +21,13 @@ const PaginationControl = ({ count, currPage }: PaginationControlProps) => {
   function handleNext() {
     if (page === pageCount) return;
     params.set("page", String(page + 1));
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
   function handlePrev() {
     if (page === 1) return;
     params.set("page", String(page - 1));
-    router.push(`${pathname}?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
   return (
