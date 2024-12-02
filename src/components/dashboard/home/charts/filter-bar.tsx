@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { SetStateAction, useState } from "react";
 import { motion } from "framer-motion";
+import { cn } from "@lib/utils";
 const filters = [
   { label: "Last 7 days", value: 7 },
   { label: "Last 30 days", value: 30 },
@@ -9,7 +10,15 @@ const filters = [
   { label: "All", value: "all" },
 ];
 
-const FilterBar = () => {
+type selected = "year" | "all" | string;
+
+const FilterBar = ({
+  selected,
+  setSelected,
+}: {
+  selected: number | string;
+  setSelected: React.Dispatch<SetStateAction<number | selected | string>>;
+}) => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
@@ -19,10 +28,14 @@ const FilterBar = () => {
     >
       {filters.map((filter, i) => (
         <motion.button
+          onClick={() => setSelected(filter.value)}
           key={i}
           onMouseOver={() => setHovered(i)}
           //   onMouseOut={() => setHovered(null)}
-          className=" relative text-sm  hover:text-accent-foreground transition-colors duration-200 px-3 py-2 rounded-md bg-transparent "
+          className={cn(
+            "relative text-sm  hover:text-accent-foreground transition-colors duration-200 px-3 py-2 rounded-md bg-transparent ",
+            { " bg-secondary": selected === filter.value }
+          )}
         >
           <div className="   absolute   flex items-center justify-center inset-0 z-50">
             {" "}

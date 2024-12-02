@@ -119,7 +119,7 @@ const EditSoldForm = ({
 
       if (addSoldId) {
         const { error } = await createProductToSellAction(addSoldProduct);
-        throw new Error(error);
+        if (error) throw new Error(error);
       }
 
       if (proSold) {
