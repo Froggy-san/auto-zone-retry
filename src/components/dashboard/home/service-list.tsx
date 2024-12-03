@@ -32,7 +32,6 @@ const ServiceList = async ({
   minPrice,
   maxPrice,
 }: Props) => {
-  
   const { data, error } = await getServicesAction({
     pageNumber,
     dateFrom,
@@ -76,7 +75,7 @@ const ServiceList = async ({
         <ServiceTable
           cars={cars}
           clients={clients || []}
-          categories={categories}
+          categories={categories || []}
           currPage={pageNumber}
           services={data || []}
           status={status}
