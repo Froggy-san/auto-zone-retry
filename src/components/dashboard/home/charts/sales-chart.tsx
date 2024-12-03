@@ -38,7 +38,8 @@ import {
 import { cn } from "@lib/utils";
 import { formatCurrency } from "@lib/client-helpers";
 import FilterBar from "./filter-bar";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { SalesPie } from "./pie-chart";
 
 type selected = "year" | "all" | string;
 
@@ -60,6 +61,7 @@ const chartConfig = {
   desktop: { label: "Desktop", color: "hsl(var(--chart-1))" },
   mobile: { label: "Mobile", color: "hsl(var(--chart-2))" },
 } satisfies ChartConfig;
+
 const SalesCharts = () => {
   const [selected, setSelected] = useState<number | selected>("all");
   const currentYear = new Date().getFullYear();
@@ -72,12 +74,6 @@ const SalesCharts = () => {
   );
 
   const allServices: Service[] = data || [];
-
-  console.log(data, "DATAA");
-  // Extract unique years
-  // const years = Array.from(
-  //   new Set(allServices.map((item) => item.date.split("-")[0]))
-  // );
 
   let dates: string[] | Date[] = [];
 
@@ -100,80 +96,90 @@ const SalesCharts = () => {
     // .map((date) => formatDate(date, "MMM dd"))
   }
 
-  console.log(dates, "DATESS");
-  const salesData = dates?.map((date) => {
-    return (
-      allServices
-        //  items.date.startsWith(year)
-        .filter((items) => {
+  const dataByDate = !dates
+    ? []
+    : dates.map((date) =>
+        allServices.filter((items) => {
           // Get all the services made in each year.
-          if (selected === "all") return items.date.startsWith(date as string);
+          if (selected === "all" && typeof date === "string")
+            return items.date.startsWith(date);
           if (selected === "year") return items.date.split("-")[1] === date;
           return isSameDay(items.date, date);
         })
-        .reduce(
-          (acc, currItem) => {
-            // Get the totals of sold products for each year
-            const soldProductsData = currItem.productsToSell.reduce(
-              (soldAcc, currSold) => {
-                soldAcc.totalPrice += currSold.pricePerUnit * currSold.count;
-                soldAcc.totalDiscounts += currSold.discount * currSold.count;
-                soldAcc.totalPriceAfterDiscount +=
-                  currSold.totalPriceAfterDiscount;
-                return soldAcc;
-              },
-              { totalPrice: 0, totalDiscounts: 0, totalPriceAfterDiscount: 0 }
-            );
+      );
 
-            // Get the totals of the services for each year
-            const servicesProvided = currItem.serviceFees.reduce(
-              (serAcc, currService) => {
-                serAcc.totalPrice += currService.price;
-                serAcc.totalDiscount += currService.discount;
-                serAcc.totalPriceAfterDiscount +=
-                  currService.totalPriceAfterDiscount;
-                return serAcc;
-              },
-              { totalPrice: 0, totalDiscount: 0, totalPriceAfterDiscount: 0 }
-            );
+  console.log(dataByDate, "DAAAAATA");
 
-            acc.totalProductSold += soldProductsData.totalPrice;
-            acc.totalServices += servicesProvided.totalPrice;
-            acc.totalDiscount +=
-              soldProductsData.totalDiscounts + servicesProvided.totalDiscount;
-            acc.totalPriceAfterDiscount +=
-              soldProductsData.totalPriceAfterDiscount +
-              servicesProvided.totalPriceAfterDiscount;
-            return acc;
-          },
-          {
-            date:
-              selected === "year"
-                ? months[Number(date) - 1]
-                : typeof selected === "number"
-                ? formatDate(date, "MMM dd")
-                : date,
-            totalProductSold: 0,
-            totalServices: 0,
-            totalDiscount: 0,
-            totalPriceAfterDiscount: 0,
-          }
-        )
+  const salesData = useMemo(() => {
+    return dataByDate.map((item, index) =>
+      item.reduce(
+        (acc, currItem) => {
+          // Get the totals of sold products for each date.
+          const soldProductsData = currItem.productsToSell.reduce(
+            (soldAcc, currSold) => {
+              soldAcc.totalPrice += currSold.pricePerUnit * currSold.count;
+              soldAcc.totalDiscounts += currSold.discount * currSold.count;
+              soldAcc.totalPriceAfterDiscount +=
+                currSold.totalPriceAfterDiscount;
+              return soldAcc;
+            },
+            { totalPrice: 0, totalDiscounts: 0, totalPriceAfterDiscount: 0 }
+          );
+
+          // Get the totals of the services for each date.
+          const servicesProvided = currItem.serviceFees.reduce(
+            (serAcc, currService) => {
+              serAcc.totalPrice += currService.price;
+              serAcc.totalDiscount += currService.discount;
+              serAcc.totalPriceAfterDiscount +=
+                currService.totalPriceAfterDiscount;
+              return serAcc;
+            },
+            { totalPrice: 0, totalDiscount: 0, totalPriceAfterDiscount: 0 }
+          );
+
+          acc.totalProductSold += soldProductsData.totalPrice;
+          acc.totalServices += servicesProvided.totalPrice;
+          acc.totalDiscount +=
+            soldProductsData.totalDiscounts + servicesProvided.totalDiscount;
+          acc.totalPriceAfterDiscount +=
+            soldProductsData.totalPriceAfterDiscount +
+            servicesProvided.totalPriceAfterDiscount;
+          return acc;
+        },
+        {
+          date:
+            selected === "year"
+              ? months[Number(dates[index]) - 1]
+              : typeof selected === "number"
+              ? formatDate(dates[index], "MMM dd")
+              : dates[index],
+          totalProductSold: 0,
+          totalServices: 0,
+          totalDiscount: 0,
+          totalPriceAfterDiscount: 0,
+        }
+      )
     );
-  });
+  }, [selected, dataByDate]);
   // .filter((item) => item.totalPriceAfterDiscount > 0);
-
+  // console.log(salesData, "Sales data");
   if (isLoading) return <Spinner />;
   if (error) return <ErrorMessage>{error}</ErrorMessage>;
 
   return (
-    <>
+    <div className=" space-y-7 sm:mx-5">
       <FilterBar selected={selected} setSelected={setSelected} />
-      <Card className="mt-7 sm:mx-5">
+      <Card className=" ">
         <CardHeader>
           <CardTitle>Revenue</CardTitle>
           <CardDescription>
-            Showing total revenues for each year.
+            {selected === "all" && "Showing total revenue for each year."}
+            {selected === "year" &&
+              `Showing total revenue for the year '${currentYear}'.`}
+            {selected === 90 && `Showing total revenue for last 90 days.`}
+            {selected === 30 && `Showing total revenue for last 30 days.`}
+            {selected === 7 && `Showing total revenue for last 7 days.`}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -261,13 +267,15 @@ const SalesCharts = () => {
                 <TrendingUp className="h-4 w-4" />
               </div>
               <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                January - June 2024
+                {`${salesData.at(0)?.date}`} - {`${salesData.at(-1)?.date}`}
               </div>
             </div>
           </div>
         </CardFooter>
       </Card>
-    </>
+
+      <SalesPie salesData={dataByDate} />
+    </div>
   );
 };
 

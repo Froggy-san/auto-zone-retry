@@ -8,7 +8,7 @@ import { ArrowUpRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <main className=" h-[100dvh] relative">
+    <main className=" min-h-[100dvh] relative">
       <Header />
       <Image
         src={BackgroundImage}
