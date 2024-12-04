@@ -43,10 +43,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
     <main className=" relative">
       <h2 className="  font-semibold text-4xl">SALES OVERVIEW.</h2>
 
-      <div>
-        {/* <FilterBar /> */}
-        <SalesCharts />
-      </div>
+      <SalesCharts />
 
       <section className=" sm:pl-4">
         <Suspense

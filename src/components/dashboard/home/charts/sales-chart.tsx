@@ -39,7 +39,9 @@ import { cn } from "@lib/utils";
 import { formatCurrency } from "@lib/client-helpers";
 import FilterBar from "./filter-bar";
 import { useMemo, useState } from "react";
-import { SalesPie } from "./pie-chart";
+
+import { ServicePie } from "./services-pie";
+import { SoldProductsPie } from "./sold-products-pie";
 
 type selected = "year" | "all" | string;
 
@@ -108,8 +110,6 @@ const SalesCharts = () => {
         })
       );
 
-  console.log(dataByDate, "DAAAAATA");
-
   const salesData = useMemo(() => {
     return dataByDate.map((item, index) =>
       item.reduce(
@@ -163,7 +163,25 @@ const SalesCharts = () => {
     );
   }, [selected, dataByDate]);
   // .filter((item) => item.totalPriceAfterDiscount > 0);
-  // console.log(salesData, "Sales data");
+
+  const description = useMemo(() => {
+    switch (selected) {
+      case "all":
+        return " for each year.";
+      case "year":
+        return ` for the year '${currentYear}'.`;
+      case 90:
+        return ` for last 90 days.`;
+      case 30:
+        return ` for last 30 days.`;
+      case 7:
+        return ` for last 7 days.`;
+      default:
+        return ".";
+    }
+  }, [selected]);
+  const date = [salesData.at(0)?.date, salesData.at(-1)?.date];
+
   if (isLoading) return <Spinner />;
   if (error) return <ErrorMessage>{error}</ErrorMessage>;
 
@@ -173,17 +191,10 @@ const SalesCharts = () => {
       <Card className=" ">
         <CardHeader>
           <CardTitle>Revenue</CardTitle>
-          <CardDescription>
-            {selected === "all" && "Showing total revenue for each year."}
-            {selected === "year" &&
-              `Showing total revenue for the year '${currentYear}'.`}
-            {selected === 90 && `Showing total revenue for last 90 days.`}
-            {selected === 30 && `Showing total revenue for last 30 days.`}
-            {selected === 7 && `Showing total revenue for last 7 days.`}
-          </CardDescription>
+          <CardDescription>Showing total revenue {description}</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig} className="h-[50vh] w-full">
+        <CardContent className=" p-1 pt-0 sm:p-6">
+          <ChartContainer config={chartConfig} className=" h-[50vh] w-full  ">
             <AreaChart
               accessibilityLayer
               data={salesData}
@@ -210,7 +221,7 @@ const SalesCharts = () => {
               />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContentCustom selected={selected} />}
+                content={<ChartTooltipContentCustom />}
               />
               <defs>
                 <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
@@ -267,14 +278,24 @@ const SalesCharts = () => {
                 <TrendingUp className="h-4 w-4" />
               </div>
               <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                {`${salesData.at(0)?.date}`} - {`${salesData.at(-1)?.date}`}
+                {`${date[0]}`} - {`${date[1]}`}
               </div>
             </div>
           </div>
         </CardFooter>
       </Card>
-
-      <SalesPie salesData={dataByDate} />
+      <div className=" flex flex-col items-center   1xs:flex-row gap-3 md:gap-10">
+        <SoldProductsPie
+          date={date}
+          description={description}
+          salesData={dataByDate}
+        />
+        <ServicePie
+          date={date}
+          description={description}
+          salesData={dataByDate}
+        />
+      </div>
     </div>
   );
 };
@@ -289,12 +310,10 @@ interface CustomPayload {
   [key: string]: any;
 }
 interface ChartTooltipContentProps extends TooltipProps<number, string> {
-  selected: number | selected;
   payload?: { payload: CustomPayload }[];
   label?: string;
 }
 const ChartTooltipContentCustom: React.FC<ChartTooltipContentProps> = ({
-  selected,
   payload,
   label,
 }) => {
