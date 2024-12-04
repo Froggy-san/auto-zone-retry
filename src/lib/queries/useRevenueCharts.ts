@@ -2,7 +2,6 @@ import { getServicesAction } from "@lib/actions/serviceActions";
 import { useQuery } from "@tanstack/react-query";
 
 interface Props {
-  pageNumber?: string;
   dateFrom?: string;
   dateTo?: string;
   clientId?: string;

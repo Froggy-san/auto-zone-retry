@@ -2,6 +2,17 @@
 import React, { SetStateAction, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Check, Ellipsis } from "lucide-react";
+import { Button } from "@components/ui/button";
+
 const filters = [
   { label: "Last 7 days", value: 7 },
   { label: "Last 30 days", value: 30 },
@@ -22,37 +33,68 @@ const FilterBar = ({
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div
-      onMouseLeave={() => setHovered(null)}
-      className=" flex w-fit ml-auto  mr-3 text-sm text-muted-foreground items-center  gap-2"
-    >
-      {filters.map((filter, i) => (
-        <motion.button
-          onClick={() => setSelected(filter.value)}
-          key={i}
-          onMouseOver={() => setHovered(i)}
-          //   onMouseOut={() => setHovered(null)}
-          className={cn(
-            "relative text-sm  hover:text-accent-foreground transition-colors duration-200 px-3 py-2 rounded-md bg-transparent ",
-            { " bg-secondary": selected === filter.value }
-          )}
-        >
-          <div className="   absolute   flex items-center justify-center inset-0 z-50">
-            {" "}
-            {filter.label}
-          </div>
-          <div className="    invisible"> {filter.label}</div>
+    <>
+      <div
+        onMouseLeave={() => setHovered(null)}
+        className="  w-fit ml-auto  mr-3 text-sm  hidden sm:flex text-muted-foreground items-center  gap-2"
+      >
+        {filters.map((filter, i) => (
+          <motion.button
+            onClick={() => setSelected(filter.value)}
+            key={i}
+            onMouseOver={() => setHovered(i)}
+            //   onMouseOut={() => setHovered(null)}
+            className={cn(
+              "relative text-sm  hover:text-accent-foreground transition-colors duration-200 px-3 py-2 rounded-md bg-transparent ",
+              { " bg-secondary": selected === filter.value }
+            )}
+          >
+            <div className="   absolute   flex items-center justify-center inset-0 z-50">
+              {" "}
+              {filter.label}
+            </div>
+            <div className="    invisible"> {filter.label}</div>
 
-          {hovered === i && (
-            <motion.div
-              transition={{ duration: 0.2 }}
-              layoutId="tab-indicator"
-              className="w-full h-full  absolute inset-0   z-10  bg-accent rounded-md "
-            />
-          )}
-        </motion.button>
-      ))}
-    </div>
+            {hovered === i && (
+              <motion.div
+                transition={{ duration: 0.2 }}
+                layoutId="tab-indicator"
+                className="w-full h-full  absolute inset-0   z-10  bg-accent rounded-md "
+              />
+            )}
+          </motion.button>
+        ))}
+      </div>
+      <div className=" flex items-center justify-end sm:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="       p-0 h-6 w-6"
+            >
+              <Ellipsis className=" w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className=" w-48">
+            <DropdownMenuLabel>Time period</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {filters.map((filter, i) => (
+              <DropdownMenuItem
+                className=" justify-between"
+                key={i}
+                onClick={() => {
+                  if (selected !== filter.value) setSelected(filter.value);
+                }}
+              >
+                {filter.label}{" "}
+                {selected === filter.value && <Check className=" w-3 h-3" />}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </>
   );
 };
 

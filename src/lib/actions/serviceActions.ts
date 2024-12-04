@@ -32,9 +32,10 @@ export async function getServicesAction({
 
   if (!token)
     return { data: null, error: "You are not authorized to make this action." };
-  let query = `${process.env.API_URL}/api/Services?&PageSize=${PAGE_SIZE}`;
+  let query = `${process.env.API_URL}/api/Services?`;
 
-  if (pageNumber) query = query + `&PageNumber=${pageNumber}`;
+  if (pageNumber)
+    query = query + `&PageSize=${PAGE_SIZE}&PageNumber=${pageNumber}`;
 
   if (dateFrom) query = query + `&dateFrom=${dateFrom}`;
 

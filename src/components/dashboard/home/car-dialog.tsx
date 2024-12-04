@@ -9,14 +9,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@components/ui/tooltip";
 import { Button } from "@components/ui/button";
-import { CarItem, Service } from "@lib/types";
+import { Service } from "@lib/types";
 import ProductImages from "@components/products/product-images";
 import { ImageOff } from "lucide-react";
 import Link from "next/link";
@@ -70,7 +64,7 @@ const CarDialog = ({ service }: { service: Service }) => {
           />
 
           <Link
-            href={`/grage/${car.id}`}
+            href={`/grage/${service.client.id}?car=${car.id}`}
             className="  space-y-1 text-sm text-muted-foreground "
           >
             <div className=" line-clamp-1 ">Client: {service.client.name}</div>

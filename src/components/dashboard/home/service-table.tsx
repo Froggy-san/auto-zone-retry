@@ -80,13 +80,9 @@ import ClientDialog from "./client-dialog";
 import {
   deleteServiceAction,
   editServiceAction,
-  serviceDownloadPdf,
 } from "@lib/actions/serviceActions";
 import EditServiceForm from "./edit-service-form";
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
-    value
-  );
+import { formatCurrency } from "@lib/client-helpers";
 
 const ServiceTable = ({
   categories,

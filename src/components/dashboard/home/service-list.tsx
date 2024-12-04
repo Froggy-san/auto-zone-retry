@@ -57,7 +57,7 @@ const ServiceList = async ({
   const { data: cars, error: carsError } = carsData;
 
   return (
-    <div>
+    <div className=" mt-10">
       <SearchDialog
         cars={cars}
         clients={clients || []}
