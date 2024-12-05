@@ -134,6 +134,65 @@ body {
 }
 
 @layer base {
+  /* styles/globals.css or a relevant CSS file */
+  /* .dialog {
+    transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .dialog-open {
+    opacity: 1;
+    transform: scale(1);
+    visibility: visible;
+  }
+
+  .dialog-closed {
+    opacity: 0;
+    transform: scale(1.5);
+    visibility: hidden;
+  } */
+
+  @keyframes dialogOpen {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+  @keyframes dialogClose {
+    from {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+  }
+  .dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transform: scale(1.05);
+    visibility: hidden;
+    transition: visibility 0s linear 400ms; /* Delay to match the animation duration */
+  }
+  .dialog-open {
+    animation: dialogOpen 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    visibility: visible;
+    transition: visibility 0s linear 0s; /* Ensure visibility is immediate */
+  }
+  .dialog-closed {
+    animation: dialogClose 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    visibility: hidden;
+    transition: visibility 0s linear 150ms; /* Delay to match the animation duration */
+  }
+
   .cleints-search-bar-mobile {
     position: fixed;
     width: 90% !important;

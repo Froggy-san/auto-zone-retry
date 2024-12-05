@@ -70,7 +70,6 @@ const SalesCharts = () => {
   const dateFrom = `${currentYear}-1-1`;
   const dateTo = `${currentYear}-12-30`;
 
-  // console.log(currentYear.getFullYear(), "YEAR");
   const { data, isLoading, error } = useRevenueCharts(
     selected === "year" ? { dateFrom, dateTo } : {}
   );
