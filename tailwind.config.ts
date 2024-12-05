@@ -71,6 +71,14 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        dialogOpen: {
+          from: { opacity: "0", transform: "scale(1.5)", visibility: "hidden" },
+          to: { opacity: "1", transform: "scale(1)", visibility: "visible" },
+        },
+        dialogClose: {
+          from: { opacity: "1", transform: "scale(1)", visibility: "visible" },
+          to: { opacity: "0", transform: "scale(1.5)", visibility: "hidden" },
+        },
         slideDownAndFade: {
           from: { opacity: "0", transform: "translateY(-2px)" },
           to: { opacity: "1", transform: "translateY(0)" },
@@ -106,6 +114,8 @@ const config: Config = {
         },
       },
       animation: {
+        dialogOpen: "dialogOpen 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        dialogClose: "dialogClose 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards",
         slideDownAndFade:
           "slideDownAndFade 400ms cubic-bezier(0.16, 1, 0.3, 1)",
         slideLeftAndFade:

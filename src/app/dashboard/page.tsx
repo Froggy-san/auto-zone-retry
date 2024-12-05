@@ -1,13 +1,19 @@
 import EditFeesManagement from "@components/dashboard/home/edit-fees-management";
 import ProductSoldManagement from "@components/dashboard/home/edit-product-sold";
-
 import ServiceList from "@components/dashboard/home/service-list";
 import ServicePagination from "@components/dashboard/home/service-pagination";
-import FilterBar from "@components/dashboard/home/charts/filter-bar";
-import SalesCharts from "@components/dashboard/home/charts/sales-chart";
-
 import Spinner from "@components/Spinner";
 import React, { Suspense } from "react";
+import SalesCharts from "@components/dashboard/home/charts/sales-chart";
+
+// import dynamic from "next/dynamic";
+// const Charts = dynamic(
+//   () => import("@components/dashboard/home/charts/charts"),
+//   {
+//     ssr: false,
+//   }
+// );
+
 interface SearchParams {
   page?: string;
   dateFrom?: string;

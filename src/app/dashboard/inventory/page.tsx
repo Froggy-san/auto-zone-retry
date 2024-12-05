@@ -3,6 +3,7 @@ import InventoryManagement from "@components/dashboard/inventory/inventory-manag
 import InventoryPagination from "@components/dashboard/inventory/inventory-pagination";
 import RestockingForm from "@components/dashboard/inventory/restocking-form";
 import SearchDialog from "@components/dashboard/inventory/search-dialong";
+import TestingAnimation from "@components/dashboard/inventory/testing-animation";
 import Spinner from "@components/Spinner";
 import React, { Suspense } from "react";
 interface SearchParams {
@@ -34,6 +35,8 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
     <main className=" relative">
       <h2 className="  font-semibold text-4xl">INVENTORY MANAGEMENT.</h2>
       <section className=" sm:pl-4">
+        {/* <TestingAnimation /> */}
+
         <div className=" space-y-5 mt-12">
           {/* <RestockingForm /> */}
           <Suspense

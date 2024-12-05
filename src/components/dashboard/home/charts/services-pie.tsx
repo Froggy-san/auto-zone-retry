@@ -108,7 +108,6 @@ export function ServicePie({ salesData, date, description }: Props) {
       .sort((a, b) => b.totalPriceAfterDiscount - a.totalPriceAfterDiscount);
   }, [flatData]);
 
-  console.log(servicePie, "SERVICE PIE DATA");
   const servicesMoreThanSix = React.useMemo(() => {
     if (servicePie.length > 6) {
       const firstSix = servicePie.slice(0, 6).map((item, index) => {
