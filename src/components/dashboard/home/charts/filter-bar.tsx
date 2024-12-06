@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Check, Ellipsis } from "lucide-react";
+import { Check, Ellipsis, ListFilter } from "lucide-react";
 import { Button } from "@components/ui/button";
 
 const filters = [
@@ -67,15 +67,17 @@ const FilterBar = ({
       </div>
       <div className=" flex items-center justify-end sm:hidden">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="       p-0 h-6 w-6"
-            >
-              <Ellipsis className=" w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
+          <div className=" flex items-center gap-2 ">
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" className="        gap-1 ">
+                {filters.find((item) => item.value === selected)?.label}
+
+                <ListFilter className=" w-3 h-3" />
+
+                {/* <Ellipsis className=" w-4 h-4" /> */}
+              </Button>
+            </DropdownMenuTrigger>
+          </div>
           <DropdownMenuContent className=" w-48">
             <DropdownMenuLabel>Time period</DropdownMenuLabel>
             <DropdownMenuSeparator />

@@ -138,13 +138,19 @@ const DialogOverlay = React.forwardRef<HTMLDivElement, DialogOverlayProps>(
   ({ className, ...props }, ref) => {
     const { open, handleOpen } = useContext(DialogContext);
     return (
-      <div
+      <motion.div
         onClick={handleOpen}
+        variants={{
+          open: { opacity: 1, visibility: "visible" },
+          close: { opacity: 0, visibility: "hidden" },
+        }}
+        initial={open ? "open" : "close"}
+        animate={open ? "open" : "close"}
+        exit={open ? "open" : "close"}
+        transition={{ duration: 0.15 }}
         className={cn(
-          "fixed inset-0 z-50 bg-black/80 invisible opacity-0  duration-75",
-
-          className,
-          { " opacity-100 visible ": open }
+          "fixed inset-0 z-50 bg-black/80",
+          className
           // { block: open },
           // { hidden: !open }
         )}
@@ -174,15 +180,35 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
           {open && ( */}
         <>
           <DialogOverlay />
-          <div
+          <motion.div
             ref={ref}
+            variants={{
+              open: {
+                translateX: "-50%",
+                translateY: "-50%",
+                scale: 1,
+                opacity: 1,
+                visibility: "visible",
+                transition: {
+                  duration: 0.14,
+                },
+              },
+              close: {
+                translateX: "-50%",
+                translateY: "-45%",
+                scale: 0.9,
+                opacity: 0,
+                visibility: "hidden",
+                transition: { duration: 0.05 },
+              },
+            }}
+            initial={open ? "open" : "close"}
+            animate={open ? "open" : "close"}
+            transition={{ type: "spring" }}
+            exit={open ? "open" : "close"}
             className={cn(
-              " z-50 grid w-full max-w-lg  gap-4  bg-background p-6 shadow-lg  sm:rounded-lg dialog antialiased",
-              className,
-              {
-                "dialog-open": open,
-                "dialog-closed": !open,
-              }
+              "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4  bg-background p-6 shadow-lg  sm:rounded-lg",
+              className
             )}
           >
             {children}
@@ -190,7 +216,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
               <Cross2Icon className="h-4 w-4" />
               {/* <span className="sr-only">Close</span> */}
             </DialogComponent.Close>
-          </div>
+          </motion.div>
         </>
         {/* )}
         </AnimatePresence>
@@ -276,7 +302,6 @@ export default DialogComponent;
 //   useRef,
 //   useState,
 // } from "react";
-// import { motion } from "framer-motion";
 
 // import { cn } from "@lib/utils";
 // import * as Portal from "@radix-ui/react-portal";
@@ -408,19 +433,13 @@ export default DialogComponent;
 //   ({ className, ...props }, ref) => {
 //     const { open, handleOpen } = useContext(DialogContext);
 //     return (
-//       <motion.div
+//       <div
 //         onClick={handleOpen}
-//         variants={{
-//           open: { opacity: 1, visibility: "visible" },
-//           close: { opacity: 0, visibility: "hidden" },
-//         }}
-//         initial={open ? "open" : "close"}
-//         animate={open ? "open" : "close"}
-//         exit={open ? "open" : "close"}
-//         transition={{ duration: 0.15 }}
 //         className={cn(
-//           "fixed inset-0 z-50 bg-black/80",
-//           className
+//           "fixed inset-0 z-50 bg-black/80 invisible opacity-0  duration-75",
+
+//           className,
+//           { " opacity-100 visible ": open }
 //           // { block: open },
 //           // { hidden: !open }
 //         )}
@@ -450,35 +469,15 @@ export default DialogComponent;
 //           {open && ( */}
 //         <>
 //           <DialogOverlay />
-//           <motion.div
+//           <div
 //             ref={ref}
-//             variants={{
-//               open: {
-//                 translateX: "-50%",
-//                 translateY: "-50%",
-//                 scale: 1,
-//                 opacity: 1,
-//                 visibility: "visible",
-//                 transition: {
-//                   duration: 0.14,
-//                 },
-//               },
-//               close: {
-//                 translateX: "-50%",
-//                 translateY: "-45%",
-//                 scale: 0.9,
-//                 opacity: 0,
-//                 visibility: "hidden",
-//                 transition: { duration: 0.05 },
-//               },
-//             }}
-//             initial={open ? "open" : "close"}
-//             animate={open ? "open" : "close"}
-//             transition={{ type: "spring" }}
-//             exit={open ? "open" : "close"}
 //             className={cn(
-//               "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4  bg-background p-6 shadow-lg  sm:rounded-lg",
-//               className
+//               " z-50 grid w-full max-w-lg  gap-4  bg-background p-6 shadow-lg  sm:rounded-lg dialog antialiased",
+//               className,
+//               {
+//                 "dialog-open": open,
+//                 "dialog-closed": !open,
+//               }
 //             )}
 //           >
 //             {children}
@@ -486,7 +485,7 @@ export default DialogComponent;
 //               <Cross2Icon className="h-4 w-4" />
 //               {/* <span className="sr-only">Close</span> */}
 //             </DialogComponent.Close>
-//           </motion.div>
+//           </div>
 //         </>
 //         {/* )}
 //         </AnimatePresence>
