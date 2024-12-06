@@ -134,24 +134,6 @@ body {
 }
 
 @layer base {
-  /* styles/globals.css or a relevant CSS file */
-  /* .dialog {
-    transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .dialog-open {
-    opacity: 1;
-    transform: scale(1);
-    visibility: visible;
-  }
-
-  .dialog-closed {
-    opacity: 0;
-    transform: scale(1.5);
-    visibility: hidden;
-  } */
-
   @keyframes dialogOpen {
     from {
       opacity: 0;
@@ -172,26 +154,52 @@ body {
       transform: translate(-50%, -50%) scale(1.05);
     }
   }
+
   .dialog {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%) translateY(-50%) scale(1.048);
     opacity: 0;
-    transform: scale(1.05);
+    perspective: 1px;
+    filter: blur(0) !important;
     visibility: hidden;
-    transition: visibility 0s linear 400ms; /* Delay to match the animation duration */
+    filter: inherit;
+    transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 400ms cubic-bezier(0.16, 1, 0.3, 1);
+    backface-visibility: hidden; /* Improve rendering performance */
+    -webkit-font-smoothing: subpixel-antialiased;
+    will-change: transform; /* Inform browser about possible changes */
   }
   .dialog-open {
     animation: dialogOpen 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
     visibility: visible;
-    transition: visibility 0s linear 0s; /* Ensure visibility is immediate */
+    transition: visibility 0s linear 0s;
   }
+
   .dialog-closed {
     animation: dialogClose 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
     visibility: hidden;
-    transition: visibility 0s linear 150ms; /* Delay to match the animation duration */
+    transition: visibility 0s linear 150ms;
   }
+
+  /* styles/globals.css or a relevant CSS file */
+  /* .dialog {
+    transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .dialog-open {
+    opacity: 1;
+    transform: scale(1);
+    visibility: visible;
+  }
+
+  .dialog-closed {
+    opacity: 0;
+    transform: scale(1.5);
+    visibility: hidden;
+  } */
 
   .cleints-search-bar-mobile {
     position: fixed;

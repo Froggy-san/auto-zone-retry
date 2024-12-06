@@ -1,9 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { TrendingUp } from "lucide-react";
-import { Label, Pie, PieChart, TooltipProps } from "recharts";
 
+import { Label, Pie, PieChart, TooltipProps } from "recharts";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Card,
   CardContent,
@@ -22,6 +29,9 @@ import { Service } from "@lib/types";
 import { formatCurrency } from "@lib/client-helpers";
 import { cn } from "@lib/utils";
 import { useRouter } from "next/navigation";
+import { useMediaQuery } from "@mui/material";
+import { Button } from "@components/ui/button";
+import { Check, Ellipsis } from "lucide-react";
 
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
@@ -73,6 +83,10 @@ interface Props {
   description: string;
 }
 export function SoldProductsPie({ salesData, date, description }: Props) {
+  const [sortDataBy, setSortDataBy] = React.useState<
+    "totalPriceAfterDiscount" | "totalCount"
+  >("totalCount");
+  const isBigScreen = useMediaQuery("(min-width: 768px)");
   const router = useRouter();
   const flatData = salesData.flat();
   const products = flatData.map((item) => item.productsToSell).flat();
@@ -103,7 +117,7 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
             }
           );
       })
-      .sort((a, b) => b.totalPriceAfterDiscount - a.totalPriceAfterDiscount);
+      .sort((a, b) => b[sortDataBy] - a[sortDataBy]);
   }, [flatData]);
 
   // If there is more than 6 items we want to grop the rest into the others group.
@@ -138,8 +152,16 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
     ? productMoreThanSix
     : productsPie;
 
-  const totalUnits = React.useMemo(() => {
-    return productsSoldData.reduce((acc, curr) => acc + curr.totalCount, 0);
+  const finalTotals = React.useMemo(() => {
+    return productsSoldData.reduce(
+      (acc, curr) => {
+        acc.totalPriceAfterDiscount += curr.totalPriceAfterDiscount;
+        acc.totalCount += curr.totalCount;
+
+        return acc;
+      },
+      { totalCount: 0, totalPriceAfterDiscount: 0 }
+    );
   }, [productsSoldData]);
   // const config : any = {
   //   soldProducts: {
@@ -157,7 +179,44 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
   // });
 
   return (
-    <Card className="flex flex-col  w-full  ">
+    <Card className="flex flex-col  w-full  relative  ">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="      absolute right-5 top-5  p-0 h-6 w-6"
+          >
+            <Ellipsis className=" w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className=" w-52">
+          <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className=" justify-between"
+            onClick={() => {
+              if (sortDataBy !== "totalCount") setSortDataBy("totalCount");
+            }}
+          >
+            Total units sold
+            {sortDataBy === "totalCount" && <Check className=" w-3 h-3" />}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            className=" justify-between"
+            onClick={() => {
+              if (sortDataBy !== "totalPriceAfterDiscount")
+                setSortDataBy("totalPriceAfterDiscount");
+            }}
+          >
+            Total revenue generated
+            {sortDataBy === "totalPriceAfterDiscount" && (
+              <Check className=" w-3 h-3" />
+            )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <CardHeader className="items-center pb-0">
         <CardTitle>Products Sold</CardTitle>
         <CardDescription>
@@ -173,11 +232,13 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
             <ChartTooltip cursor={false} content={<ProductSoldTooltip />} />
             <Pie
               onClick={(e) => {
+                if (!isBigScreen) return;
                 const data = e.payload;
+
                 if (data.id) router.push(`products/${data.id}`);
               }}
               data={productsSoldData}
-              dataKey="totalPriceAfterDiscount"
+              dataKey={sortDataBy}
               nameKey="productName"
               innerRadius={60}
               strokeWidth={5}
@@ -197,14 +258,14 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
                           y={viewBox.cy}
                           className="fill-foreground text-3xl font-bold"
                         >
-                          {totalUnits.toLocaleString()}
+                          {finalTotals[sortDataBy].toLocaleString()}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Units
+                          {sortDataBy === "totalCount" ? "Units" : "EGP"}
                         </tspan>
                       </text>
                     );
