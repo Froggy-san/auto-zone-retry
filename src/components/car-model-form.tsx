@@ -14,7 +14,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CarMaker, CreateCarModelSchema } from "@lib/types";
+import {
+  CarMaker,
+  CarModel,
+  CarModelProps,
+  CreateCarModelSchema,
+} from "@lib/types";
 import { Textarea } from "@components/ui/textarea";
 
 import Spinner from "@components/Spinner";
@@ -24,20 +29,30 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
 
-
-import { createCarModelAction } from "@lib/actions/carModelsActions";
+import {
+  createCarModelAction,
+  editCarModelAction,
+} from "@lib/actions/carModelsActions";
 import { MakerCombobox } from "./maker-combobox";
 import useObjectCompare from "@hooks/use-compare-objs";
 import DialogComponent from "./dialog-component";
+import { useQueryClient } from "@tanstack/react-query";
 
-const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
+const CarModelForm = ({
+  modelToEdit,
+  carMakers,
+}: {
+  modelToEdit?: CarModelProps;
+  carMakers: CarMaker[];
+}) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const defaultValues = {
-    name: "",
-    notes: "",
-    carMakerId: 0,
+    name: modelToEdit?.name || "",
+    notes: modelToEdit?.notes || "",
+    carMakerId: modelToEdit ? 1 : 0,
   };
 
   const form = useForm<z.infer<typeof CreateCarModelSchema>>({
@@ -52,39 +67,62 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
     form.reset();
   }, [open]);
 
-  async function onSubmit(carModel: z.infer<typeof CreateCarModelSchema>) {
+  async function onSubmit(carModelData: z.infer<typeof CreateCarModelSchema>) {
     try {
       if (isEqual) throw new Error("Data hasn't changed.");
-    const {error} =  await createCarModelAction(carModel);
-    if(error) throw new Error(error)
+
+      if (modelToEdit) {
+        const carModel = { name: carModelData.name, notes: carModelData.notes };
+        const data = await editCarModelAction({
+          carModel,
+          id: modelToEdit.id,
+        });
+        if (data?.error) throw new Error(data?.error);
+      } else {
+        const { error } = await createCarModelAction(carModelData);
+        if (error) throw new Error(error);
+      }
+
       handleClose();
+      queryClient.invalidateQueries({ queryKey: ["carModels"] });
+
       toast({
         className: "bg-green-700",
         title: "Success!.",
         description: (
-          <SuccessToastDescription message="A new car model has been create." />
+          <SuccessToastDescription
+            message={
+              modelToEdit
+                ? "Car model has been updated."
+                : "A new car model has been create."
+            }
+          />
         ),
       });
     } catch (error: any) {
       console.log(error);
       toast({
         variant: "destructive",
-        title: "Welcome back.",
+        title: "Something went wrong!.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }
   }
   return (
     <DialogComponent open={open} onOpenChange={handleClose}>
-      <Button size="sm" className=" w-full" onClick={() => setOpen(true)}>
-        Create car model
-      </Button>
+      {modelToEdit ? (
+        <button onClick={() => setOpen(true)}>{modelToEdit.name}</button>
+      ) : (
+        <Button size="sm" className=" w-full" onClick={() => setOpen(true)}>
+          Create car model
+        </Button>
+      )}
 
       <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] border-none sm:p-14">
         <DialogComponent.Header>
-          <DialogComponent.Title>Models</DialogComponent.Title>
+          <DialogComponent.Title>Car Model</DialogComponent.Title>
           <DialogComponent.Description>
-            Create car models.
+            {modelToEdit ? "Edit car model" : "Create a new car model"}.
           </DialogComponent.Description>
         </DialogComponent.Header>
         <Form {...form}>
@@ -108,25 +146,27 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
                 )}
               />
 
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="carMakerId"
-                render={({ field }) => (
-                  <FormItem className=" w-full mb-auto">
-                    <FormLabel>Car maker</FormLabel>
-                    <FormControl>
-                      <MakerCombobox
-                        options={carMakers}
-                        setValue={field.onChange}
-                        value={field.value}
-                      />
-                    </FormControl>
-                    <FormDescription>Add a maker logo.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!modelToEdit && (
+                <FormField
+                  disabled={isLoading}
+                  control={form.control}
+                  name="carMakerId"
+                  render={({ field }) => (
+                    <FormItem className=" w-full mb-auto">
+                      <FormLabel>Car maker</FormLabel>
+                      <FormControl>
+                        <MakerCombobox
+                          options={carMakers}
+                          setValue={field.onChange}
+                          value={field.value}
+                        />
+                      </FormControl>
+                      <FormDescription>Add a maker logo.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
             <FormField
               disabled={isLoading}
@@ -163,7 +203,13 @@ const CarModelForm = ({ carMakers }: { carMakers: CarMaker[] }) => {
                 disabled={isLoading || isEqual}
                 className=" w-full sm:w-[unset]"
               >
-                {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                {isLoading ? (
+                  <Spinner className=" h-full" />
+                ) : modelToEdit ? (
+                  "Update"
+                ) : (
+                  "Create"
+                )}
               </Button>
             </DialogComponent.Footer>
           </form>

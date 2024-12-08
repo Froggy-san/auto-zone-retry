@@ -54,7 +54,6 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   const { data: brandTypesData, error: brandTypesError } = brandTypes;
   const { data: countData, error: countError } = count;
 
-  console.log(countData, "DAASDADADADADA");
   const key =
     pageNumber +
     categoryId +

@@ -120,6 +120,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
               onClick={() => setDrawerOpen((is) => !is)}
               className={cn("fixed right-4 bottom-5 z-50 ", {
                 "opacity-0 invisible": inView && disappear,
+                hidden: drawerOpen,
               })}
               size="icon"
               variant="outline"
@@ -128,7 +129,10 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
               <Filter size={18} />
             </Button>
 
-            <DrawerContent className=" rounded-t-xl border-none max-h-[60vh] overflow-y-auto ">
+            <DrawerContent
+              asCard
+              className="  border-none w-[97%]   max-h-[60vh] overflow-y-auto "
+            >
               <h1 className=" text-center sm:text-left grid gap-1 p-4">
                 <h2 className="  font-semibold text-xl">
                   {" "}

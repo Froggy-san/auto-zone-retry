@@ -1,8 +1,8 @@
 "use client";
-import useCarGenerations from "@lib/queries/useCarGenerations";
+
 import React, { useCallback, useState } from "react";
-import GenerationItem from "./generation-item";
-import { CarGenerationProps } from "@lib/types";
+
+import { CarGenerationProps, CarModelProps } from "@lib/types";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
 import Spinner from "@components/Spinner";
@@ -12,32 +12,33 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import useCarModels from "@lib/queries/useCarModels";
+import ErrorMessage from "@components/error-message";
+import ModelItem from "./model-item";
+import { PAGE_SIZE } from "@lib/constants";
 
-const CarGenerationList = () => {
+const CarModelsList = () => {
   const [page, setPage] = useState(1);
 
-  const { isLoading, data, pageCount, error } = useCarGenerations(page);
+  const { isLoading, data, apiError, error } = useCarModels(page);
 
-  const carGenerationData: CarGenerationProps[] =
-    data?.carGenerationsData || [];
+  const carModels: CarModelProps[] = data?.models || [];
+  const pageCount = data?.count ? Math.ceil(Number(data.count) / PAGE_SIZE) : 0;
 
-  console.log(carGenerationData, "AA");
   const handleResetPage = useCallback(() => {
-    if (carGenerationData.length === 1) {
+    if (carModels.length === 1) {
       setPage((page) => page - 1);
     }
-  }, [carGenerationData.length, setPage]);
+  }, [carModels.length, setPage]);
 
-  // if (error) return <p>{String(error)}</p>;
+  if (apiError) return <ErrorMessage>{apiError}</ErrorMessage>;
 
   return (
     <Accordion type="single" collapsible defaultValue="item-1">
       <AccordionItem value="item-1" className=" border-none">
         <AccordionTrigger>
           {" "}
-          <h3 className=" tracking-wider font-semibold text-2xl">
-            CAR GENERATIONS
-          </h3>
+          <h3 className=" tracking-wider font-semibold text-2xl">CAR MODELS</h3>
         </AccordionTrigger>
         {error ? (
           <p>{String(error)}</p>
@@ -45,15 +46,15 @@ const CarGenerationList = () => {
           <AccordionContent>
             {isLoading ? (
               <Spinner className=" h-[300px]" size={25} />
-            ) : !carGenerationData.length ? (
+            ) : !carModels.length ? (
               <p>No car generation data has been posted yet!</p>
             ) : (
               <ul className=" flex flex-wrap gap-2 p-4 max-h-[45vh] overflow-y-auto  ">
-                {carGenerationData.map((item) => (
-                  <GenerationItem
-                    key={item.id}
-                    handleResetPage={handleResetPage}
+                {carModels.map((item, index) => (
+                  <ModelItem
+                    key={index}
                     item={item}
+                    handleResetPage={handleResetPage}
                   />
                 ))}
               </ul>
@@ -91,4 +92,4 @@ const CarGenerationList = () => {
   );
 };
 
-export default CarGenerationList;
+export default CarModelsList;

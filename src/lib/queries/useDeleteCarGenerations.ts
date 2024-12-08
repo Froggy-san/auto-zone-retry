@@ -7,6 +7,7 @@ export default function useDeleteCarGenerations() {
   const { mutate: deleteCargeneration, isLoading: isDeleting } = useMutation({
     mutationFn: deleteCarGenerationAction,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["carModels"] });
       queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
     },
     onError: (error: any) => {
