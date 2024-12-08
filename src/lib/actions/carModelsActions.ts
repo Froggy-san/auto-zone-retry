@@ -64,8 +64,8 @@ export async function editCarModelAction({
   carModel,
   id,
 }: {
-  carModel: CarModel;
-  id: string;
+  carModel: { name: string; notes: string };
+  id: number;
 }) {
   const token = getToken();
   if (!token) return redirect("/login");
@@ -81,7 +81,7 @@ export async function editCarModelAction({
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    console.log("Something went wrong while creating the car model.");
+
     return {
       data: null,
       error: "Something went wrong while creating the car model.",
@@ -91,7 +91,7 @@ export async function editCarModelAction({
   revalidateTag("carModels");
 }
 
-export async function deleteCarModelAction(id: string) {
+export async function deleteCarModelAction(id: number) {
   const token = getToken();
   if (!token) return redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmodels/${id}`, {

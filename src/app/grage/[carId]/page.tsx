@@ -1,8 +1,6 @@
 import CarItem from "@components/grage/car-item";
 import FullImagesGallery from "@components/full-images-gallery";
 import { getCarByIdAction } from "@lib/actions/carsAction";
-import { STATIC_IMAGES } from "@lib/constants";
-import { ClientWithPhoneNumbers } from "@lib/types";
 import {
   Accordion,
   AccordionContent,

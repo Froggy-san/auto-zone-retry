@@ -142,9 +142,10 @@ const DrawerOverlay = React.forwardRef<HTMLDivElement, DrawerOverlayProps>(
 interface DrawerContentProps {
   children?: React.ReactNode;
   className?: string;
+  asCard?: boolean;
 }
 const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
-  ({ children, className }, externalRef) => {
+  ({ children, className, asCard }, externalRef) => {
     const { isOpen } = useContext(DrawerContext);
 
     const internalRef = useRef<HTMLDivElement>(null);
@@ -165,6 +166,7 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
           variants={{
             open: {
               translateY: "0%",
+              translateX: asCard ? "-50%" : "0%",
               opacity: 1,
               visibility: "visible",
               transition: {
@@ -174,6 +176,7 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
             },
             close: {
               translateY: `${height}px`,
+              translateX: asCard ? "-50%" : "0%",
               opacity: 0,
               visibility: "hidden",
               // transition: { duration: 0.05 },
@@ -183,7 +186,11 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
           animate={isOpen ? "open" : "close"}
           exit="close"
           className={cn(
-            "fixed left-0 bottom-0 antialiased z-50 w-full border bg-background  shadow-lg sm:rounded-t-lg",
+            "fixed left-0 bottom-0 antialiased z-50 w-full mb border bg-background  shadow-lg sm:rounded-t-lg",
+            {
+              " left-1/2 -translate-x-1/2 mx-auto mb-4 rounded-xl w-[97%]":
+                asCard,
+            },
             className
           )}
         >

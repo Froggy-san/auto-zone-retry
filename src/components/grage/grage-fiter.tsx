@@ -247,7 +247,10 @@ const GrageFilter: React.FC<CarsListProps> = ({
               <Filter size={18} />
             </Button>
 
-            <DrawerContent className=" rounded-t-xl border-none max-h-[60vh] overflow-y-auto ">
+            <DrawerContent
+              asCard
+              className=" rounded-t-xl border-none max-h-[60vh] overflow-y-auto "
+            >
               <h1 className=" text-center sm:text-left grid gap-1 p-4">
                 <h2 className="  font-semibold text-xl">
                   {" "}

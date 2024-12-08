@@ -14,9 +14,9 @@ const Page = () => {
           <CategroyForm />
           <ProductTypeForm />
           <ProductBrandForm />
-          <CarMakerManagement />
+          {/* <CarMakerManagement /> */}
           {/* <CarModelManagement /> */}
-          <CarGenAndModelManagement />
+          {/* <CarGenAndModelManagement /> */}
           {/* <CarInfoManagement /> */}
           {/* <ProductManagement /> */}
         </div>
@@ -26,7 +26,7 @@ const Page = () => {
         </Suspense> */}
 
         {/* <CarGenerationList /> */}
-        <InsetAccorion />
+        {/* <InsetAccorion /> */}
       </section>
     </main>
   );

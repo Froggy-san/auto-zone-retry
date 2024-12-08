@@ -389,12 +389,7 @@ export interface CarModelProps {
   notes: string;
   carMaker: any;
   carMakerId: number;
-  carGenerations: {
-    id: number;
-    name: string;
-    notes: string;
-    carModelId: number;
-  }[];
+  carGenerations: CarGenerationProps[];
 }
 
 export interface CarGenerationProps {

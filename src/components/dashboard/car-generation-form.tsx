@@ -64,9 +64,10 @@ const CarGenerationForm = ({
   async function onSubmit(carGeneration: z.infer<typeof CarGenerationsSchema>) {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
-    const {error}  = await createCarGenerationAction(carGeneration);
-    if(error) throw new Error(error)
+      const { error } = await createCarGenerationAction(carGeneration);
+      if (error) throw new Error(error);
       handleClose();
+      queryClient.invalidateQueries({ queryKey: ["carModels"] });
       queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
       form.reset();
       toast({

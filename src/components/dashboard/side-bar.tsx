@@ -20,6 +20,8 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
+import { TbBoxModel2, TbBrandAirtable } from "react-icons/tb";
+import { VscTypeHierarchySuper } from "react-icons/vsc";
 
 <ArrowLeftToLine />;
 <ArrowRightToLine />;
@@ -42,19 +44,31 @@ const SUB_LINKS = [
   //   title: "Settings",
   //   herf: "/dashboard/settings",
   // },
-  // {
-  //   icon: <Car size={ICON_SIZE} />,
-  //   title: "Garage",
-  //   herf: "/dashboard/cars",
-  // },
+
   {
     icon: <PersonStanding size={ICON_SIZE} />,
     title: "Customers",
     herf: "/dashboard/customers",
   },
   {
+    icon: <Car size={ICON_SIZE} />,
+    title: "Cars Data",
+    herf: "/dashboard/cars-data",
+  },
+
+  // {
+  //   icon: <TbBoxModel2 size={ICON_SIZE} />,
+  //   title: "Car Models",
+  //   herf: "/dashboard/car-models",
+  // },
+  // {
+  //   icon: <VscTypeHierarchySuper size={ICON_SIZE} />,
+  //   title: "Car Generations",
+  //   herf: "/dashboard/car-generations",
+  // },
+  {
     icon: <Grid2x2Plus size={ICON_SIZE} />,
-    title: "Insert data",
+    title: "Products Data",
     herf: "/dashboard/insert-data",
   },
 ];
@@ -108,33 +122,37 @@ const SideBar = () => {
           </span>
         </Button>
       </div>
-      <div className=" flex flex-col space-y-2 mt-7">
+      <div className=" flex flex-col space-y-3 mt-7">
         {SUB_LINKS.map((link, i) => (
-          <Button
-            key={i}
-            variant="ghost"
-            className={cn(
-              " w-full justify-start gap-3",
-              {
-                "w-fit": collapse,
-              },
-              { "bg-accent": pathname === link.herf }
-            )}
-            asChild
-          >
-            <Link href={link.herf}>
-              <span>{link.icon}</span>{" "}
-              {!collapse && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="  text-muted-foreground"
-                >
-                  {link.title}
-                </motion.span>
+          <React.Fragment key={i}>
+            {SUB_LINKS.length > 2 && (i === 3 || i === 6) ? (
+              <div className=" w-[98%]  h-[1px] rounded-full  bg-muted mx-auto " />
+            ) : null}
+            <Button
+              variant="ghost"
+              className={cn(
+                " w-full justify-start gap-3",
+                {
+                  "w-fit": collapse,
+                },
+                { "bg-accent": pathname === link.herf }
               )}
-            </Link>
-          </Button>
+              asChild
+            >
+              <Link href={link.herf}>
+                <span>{link.icon}</span>{" "}
+                {!collapse && (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="  text-muted-foreground"
+                  >
+                    {link.title}
+                  </motion.span>
+                )}
+              </Link>
+            </Button>
+          </React.Fragment>
         ))}
       </div>
       <Button

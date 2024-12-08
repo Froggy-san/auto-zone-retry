@@ -1,9 +1,14 @@
-"use client";
-
 import * as React from "react";
-import { TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart, TooltipProps } from "recharts";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Check, Ellipsis } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -16,12 +21,13 @@ import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Service } from "@lib/types";
+import { Category, Service } from "@lib/types";
 import { formatCurrency } from "@lib/client-helpers";
 import { cn } from "@lib/utils";
-import { useRouter } from "next/navigation";
+
+import { Button } from "@components/ui/button";
+import { GiTumbleweed } from "react-icons/gi";
 
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
@@ -71,9 +77,17 @@ interface Props {
   salesData: Service[][];
   date: (string | Date | undefined)[];
   description: string;
+  categories: Category[];
 }
-export function ServicePie({ salesData, date, description }: Props) {
-  const router = useRouter();
+export function ServicePie({
+  salesData,
+  date,
+  description,
+  categories,
+}: Props) {
+  const [sortDataBy, setSortDataBy] = React.useState<
+    "totalPriceAfterDiscount" | "totalCount"
+  >("totalCount");
   const flatData = salesData.flat();
   const services = flatData.map((item) => item.serviceFees).flat();
   const productIds = Array.from(
@@ -83,7 +97,7 @@ export function ServicePie({ salesData, date, description }: Props) {
   const servicePie = React.useMemo(() => {
     return productIds
       .map((id, index) => {
-        const ser = services.find((item) => item.categoryId === id);
+        // const ser = services.find((item) => item.categoryId === id);
         return services
           .filter((serv) => serv.categoryId === id)
           .reduce(
@@ -96,7 +110,7 @@ export function ServicePie({ salesData, date, description }: Props) {
             },
             {
               id: id,
-              name: id,
+              name: categories.find((cat) => cat.id === id)?.name || id,
               totalPrice: 0,
               totalCount: 0,
               totalDiscount: 0,
@@ -105,7 +119,7 @@ export function ServicePie({ salesData, date, description }: Props) {
             }
           );
       })
-      .sort((a, b) => b.totalPriceAfterDiscount - a.totalPriceAfterDiscount);
+      .sort((a, b) => b[sortDataBy] - a[sortDataBy]);
   }, [flatData]);
 
   const servicesMoreThanSix = React.useMemo(() => {
@@ -140,12 +154,58 @@ export function ServicePie({ salesData, date, description }: Props) {
     ? servicesMoreThanSix
     : servicePie;
 
-  const totalUnits = React.useMemo(() => {
-    return servicesPreformed.reduce((acc, curr) => acc + curr.totalCount, 0);
+  const finalTotals = React.useMemo(() => {
+    return servicesPreformed.reduce(
+      (acc, curr) => {
+        acc.totalPriceAfterDiscount += curr.totalPriceAfterDiscount;
+        acc.totalCount += curr.totalCount;
+
+        return acc;
+      },
+      { totalCount: 0, totalPriceAfterDiscount: 0 }
+    );
   }, [servicesPreformed]);
 
   return (
-    <Card className="flex flex-col   w-full">
+    <Card className="flex flex-col  relative  w-full">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            disabled={!servicesPreformed.length}
+            variant="outline"
+            size="icon"
+            className="      absolute right-5 top-5  p-0 h-6 w-6"
+          >
+            <Ellipsis className=" w-4 h-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className=" w-52">
+          <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className=" justify-between"
+            onClick={() => {
+              if (sortDataBy !== "totalCount") setSortDataBy("totalCount");
+            }}
+          >
+            Total services preformed
+            {sortDataBy === "totalCount" && <Check className=" w-3 h-3" />}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            className=" justify-between"
+            onClick={() => {
+              if (sortDataBy !== "totalPriceAfterDiscount")
+                setSortDataBy("totalPriceAfterDiscount");
+            }}
+          >
+            Total fees revenue generated
+            {sortDataBy === "totalPriceAfterDiscount" && (
+              <Check className=" w-3 h-3" />
+            )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <CardHeader className="items-center pb-0">
         <CardTitle>Services Preformed</CardTitle>
         <CardDescription>
@@ -153,51 +213,57 @@ export function ServicePie({ salesData, date, description }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
-        >
-          <PieChart>
-            <ChartTooltip cursor={false} content={<ServicesTooltip />} />
-            <Pie
-              data={servicesPreformed}
-              dataKey="totalPriceAfterDiscount"
-              nameKey="id"
-              innerRadius={60}
-              strokeWidth={5}
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
+        {!servicesPreformed.length ? (
+          <div className="   flex   justify-center my-7 items-center gap-1 ">
+            No data <GiTumbleweed className=" w-4 h-4" />
+          </div>
+        ) : (
+          <ChartContainer
+            config={chartConfig}
+            className="mx-auto aspect-square max-h-[250px]"
+          >
+            <PieChart>
+              <ChartTooltip cursor={false} content={<ServicesTooltip />} />
+              <Pie
+                data={servicesPreformed}
+                dataKey={sortDataBy}
+                nameKey="name"
+                innerRadius={60}
+                strokeWidth={5}
+              >
+                <Label
+                  content={({ viewBox }) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      return (
+                        <text
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
                         >
-                          {totalUnits.toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Services
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
+                          <tspan
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            className="fill-foreground text-3xl font-bold"
+                          >
+                            {finalTotals[sortDataBy].toLocaleString()}
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 24}
+                            className="fill-muted-foreground"
+                          >
+                            {sortDataBy === "totalCount" ? "Services" : "EGP"}
+                          </tspan>
+                        </text>
+                      );
+                    }
+                  }}
+                />
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+        )}
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         {/* <div className="flex items-center gap-2 font-medium leading-none">

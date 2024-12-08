@@ -74,7 +74,8 @@ const SalesCharts = () => {
     selected === "year" ? { dateFrom, dateTo } : {}
   );
 
-  const allServices: Service[] = data || [];
+  const allServices: Service[] = data?.services || [];
+  const categories = data?.categories || [];
 
   let dates: string[] | Date[] = [];
 
@@ -291,6 +292,7 @@ const SalesCharts = () => {
         />
         <ServicePie
           date={date}
+          categories={categories}
           description={description}
           salesData={dataByDate}
         />

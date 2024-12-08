@@ -1,7 +1,4 @@
-"use client";
-
 import * as React from "react";
-
 import { Label, Pie, PieChart, TooltipProps } from "recharts";
 import {
   DropdownMenu,
@@ -32,6 +29,7 @@ import { useRouter } from "next/navigation";
 import { useMediaQuery } from "@mui/material";
 import { Button } from "@components/ui/button";
 import { Check, Ellipsis } from "lucide-react";
+import { GiTumbleweed } from "react-icons/gi";
 
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
@@ -183,6 +181,7 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
+            disabled={!productsSoldData.length}
             variant="outline"
             size="icon"
             className="      absolute right-5 top-5  p-0 h-6 w-6"
@@ -224,57 +223,63 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
-        >
-          <PieChart>
-            <ChartTooltip cursor={false} content={<ProductSoldTooltip />} />
-            <Pie
-              onClick={(e) => {
-                if (!isBigScreen) return;
-                const data = e.payload;
+        {!productsSoldData.length ? (
+          <div className="   flex   justify-center my-7 items-center gap-1 ">
+            No data <GiTumbleweed className=" w-4 h-4" />
+          </div>
+        ) : (
+          <ChartContainer
+            config={chartConfig}
+            className="mx-auto aspect-square max-h-[250px]"
+          >
+            <PieChart>
+              <ChartTooltip cursor={false} content={<ProductSoldTooltip />} />
+              <Pie
+                onClick={(e) => {
+                  if (!isBigScreen) return;
+                  const data = e.payload;
 
-                if (data.id) router.push(`products/${data.id}`);
-              }}
-              data={productsSoldData}
-              dataKey={sortDataBy}
-              nameKey="productName"
-              innerRadius={60}
-              strokeWidth={5}
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
+                  if (data.id) router.push(`products/${data.id}`);
+                }}
+                data={productsSoldData}
+                dataKey={sortDataBy}
+                nameKey="productName"
+                innerRadius={60}
+                strokeWidth={5}
+              >
+                <Label
+                  content={({ viewBox }) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      return (
+                        <text
                           x={viewBox.cx}
                           y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
                         >
-                          {finalTotals[sortDataBy].toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          {sortDataBy === "totalCount" ? "Units" : "EGP"}
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
+                          <tspan
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            className="fill-foreground text-3xl font-bold"
+                          >
+                            {finalTotals[sortDataBy].toLocaleString()}
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 24}
+                            className="fill-muted-foreground"
+                          >
+                            {sortDataBy === "totalCount" ? "Units" : "EGP"}
+                          </tspan>
+                        </text>
+                      );
+                    }
+                  }}
+                />
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+        )}
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         {/* <div className="flex items-center gap-2 font-medium leading-none">

@@ -1,12 +1,12 @@
 "use client";
 import useCarGenerations from "@lib/queries/useCarGenerations";
 import React, { SetStateAction, useCallback, useEffect, useState } from "react";
-
 import { CarGenerationProps, CarMaker } from "@lib/types";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
 import Spinner from "@components/Spinner";
 import {
+  Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
@@ -58,64 +58,67 @@ const CarMakerList = () => {
         showOpenButton={false}
         handleCloseEdit={handleClose}
       />
+      <Accordion type="single" collapsible defaultValue="item-1">
+        <AccordionItem value="item-1" className=" border-none">
+          <AccordionTrigger>
+            {" "}
+            <h3 className=" tracking-wider font-semibold text-2xl">
+              Car makers
+            </h3>
+          </AccordionTrigger>
+          {carMakersData?.error ? (
+            <p>{String(carMakersData.error)}</p>
+          ) : (
+            <AccordionContent>
+              {isLoading ? (
+                <Spinner className=" h-[300px]" size={25} />
+              ) : !carmakers.length ? (
+                <p className=" text-center">
+                  No car maker data has been posted yet!
+                </p>
+              ) : (
+                <ul className="  grid grid-cols-2 md:grid-cols-3   overscroll-contain xl:grid-cols-4 gap-2 px-1  py-2  sm:p-4 max-h-[45vh] overflow-y-auto  ">
+                  {carmakers.map((item) => (
+                    <CarMakerItem
+                      key={item.id}
+                      carMaker={item}
+                      carMakerToEdit={carMakerToEdit}
+                      setCarMakerToEdit={setCarMakerToEdit}
+                      handleResetPage={handleResetPage}
+                    />
+                  ))}
+                </ul>
+              )}
 
-      <AccordionItem value="item-2" className=" border-none">
-        <AccordionTrigger>
-          {" "}
-          <h3 className=" tracking-wider font-semibold text-2xl">Car makers</h3>
-        </AccordionTrigger>
-        {carMakersData?.error ? (
-          <p>{String(carMakersData.error)}</p>
-        ) : (
-          <AccordionContent>
-            {isLoading ? (
-              <Spinner className=" h-[300px]" size={25} />
-            ) : !carmakers.length ? (
-              <p className=" text-center">
-                No car maker data has been posted yet!
-              </p>
-            ) : (
-              <ul className="  grid grid-cols-2 md:grid-cols-3   overscroll-contain xl:grid-cols-4 gap-2 px-1  py-2  sm:p-4 max-h-[45vh] overflow-y-auto  ">
-                {carmakers.map((item) => (
-                  <CarMakerItem
-                    key={item.id}
-                    carMaker={item}
-                    carMakerToEdit={carMakerToEdit}
-                    setCarMakerToEdit={setCarMakerToEdit}
-                    handleResetPage={handleResetPage}
-                  />
-                ))}
-              </ul>
-            )}
+              <div className=" flex  my-4 justify-end gap-3">
+                <Button
+                  onClick={() => {
+                    if (isLoading || page === 1) return;
+                    setPage((page) => page - 1);
+                  }}
+                  size="icon"
+                  variant="secondary"
+                  disabled={isLoading || page === 1}
+                >
+                  <MoveLeft size={12} />
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (isLoading || page === pageCount) return;
 
-            <div className=" flex  my-4 justify-end gap-3">
-              <Button
-                onClick={() => {
-                  if (isLoading || page === 1) return;
-                  setPage((page) => page - 1);
-                }}
-                size="icon"
-                variant="secondary"
-                disabled={isLoading || page === 1}
-              >
-                <MoveLeft size={12} />
-              </Button>
-              <Button
-                onClick={() => {
-                  if (isLoading || page === pageCount) return;
-
-                  setPage((page) => page + 1);
-                }}
-                variant="secondary"
-                size="icon"
-                disabled={isLoading || page === pageCount}
-              >
-                <MoveRight size={12} />
-              </Button>
-            </div>
-          </AccordionContent>
-        )}
-      </AccordionItem>
+                    setPage((page) => page + 1);
+                  }}
+                  variant="secondary"
+                  size="icon"
+                  disabled={isLoading || page === pageCount}
+                >
+                  <MoveRight size={12} />
+                </Button>
+              </div>
+            </AccordionContent>
+          )}
+        </AccordionItem>
+      </Accordion>
     </>
   );
 };
