@@ -1,7 +1,7 @@
-import CarModelsList from "@components/dashboard/car models/car-model-list";
 import CarGenAndModelManagement from "@components/dashboard/car-generation-management";
 import CarMakerManagement from "@components/dashboard/car-makers-managment";
-import CarMakerList from "@components/dashboard/insert-data/car-makers-list";
+import CarMakerList from "@components/dashboard/cars-data/car-makers-list";
+
 import React from "react";
 
 const Page = () => {

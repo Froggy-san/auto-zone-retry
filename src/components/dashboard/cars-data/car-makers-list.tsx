@@ -1,7 +1,7 @@
 "use client";
-import useCarGenerations from "@lib/queries/useCarGenerations";
-import React, { SetStateAction, useCallback, useEffect, useState } from "react";
-import { CarGenerationProps, CarMaker } from "@lib/types";
+
+import React, { useCallback, useState } from "react";
+import { CarMaker } from "@lib/types";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
 import Spinner from "@components/Spinner";
@@ -14,22 +14,7 @@ import {
 import useCarMakers from "@lib/queries/useCarMakers";
 import CarMakerItem from "./car-maker-item";
 import CarkMakerForm from "@components/car-maker-form";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { useToast } from "@hooks/use-toast";
-import SuccessToastDescription, {
-  ErorrToastDescription,
-} from "@components/toast-items";
-import { deleteCarMakerAction } from "@lib/actions/carMakerActions";
-import { useQueryClient } from "@tanstack/react-query";
+
 const CarMakerList = () => {
   const [page, setPage] = useState(1);
   const [carMakerToEdit, setCarMakerToEdit] = useState<CarMaker | undefined>(

@@ -1,8 +1,7 @@
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { CarMaker } from "@lib/types";
-import { ClickAwayListener } from "@mui/material";
-import { AnimatePresence } from "framer-motion";
+
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";

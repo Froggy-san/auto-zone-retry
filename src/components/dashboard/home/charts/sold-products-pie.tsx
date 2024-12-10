@@ -95,6 +95,11 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
     return productIds
       .map((id, index) => {
         const pro = products.find((item) => item.product.id === id);
+        const proImages = pro?.product.productImages;
+        const image: string | null = proImages?.length
+          ? proImages?.find((img) => img.isMain)?.imageUrl ||
+            proImages[0].imageUrl
+          : null;
         return products
           .filter((pro) => pro.product.id === id)
           .reduce(
@@ -107,6 +112,7 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
             {
               id: id,
               productName: pro?.product.name,
+              productImage: image,
               pricePerUnit: pro?.pricePerUnit,
               totalCount: 0,
               totalDiscount: 0,
@@ -296,6 +302,7 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
 interface ProductSoldPayload {
   id: number;
   productName?: string;
+  productImage: string | null;
   pricePerUnit: number;
   totalCount: number;
   totalDiscount: number;
@@ -316,7 +323,7 @@ const ProductSoldTooltip: React.FC<ChartTooltipContentProps> = ({
   return (
     <div className=" grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl">
       {" "}
-      <div className=" flex items-center gap-1">
+      <div className=" flex items-center  break-all gap-1">
         <div
           className={cn(
             `shrink-0 rounded-[2px] border-[--color-border]  h-2.5 w-2.5`
@@ -325,6 +332,14 @@ const ProductSoldTooltip: React.FC<ChartTooltipContentProps> = ({
         />
 
         <p className="font-medium">{`${data.productName}`}</p>
+
+        {data.productImage && (
+          <img
+            src={data.productImage}
+            alt="Product Image"
+            className=" w-6 h-6 rounded-sm  ml-auto"
+          />
+        )}
       </div>{" "}
       {data.productName !== "Other" && (
         <div

@@ -1,6 +1,7 @@
 "use server";
 
 import { getToken } from "@lib/helper";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function getAllProductBrandsAction() {
@@ -10,9 +11,10 @@ export async function getAllProductBrandsAction() {
   //   return { data: null, error: "You are not authorized to make this action." };
   const response = await fetch(`${process.env.API_URL}/api/productbrands`, {
     method: "GET",
-    // headers: {
-    //   Authorization: `Bearer ${token}`,
-    // },
+
+    next: {
+      tags: ["productBrands"],
+    },
   });
 
   if (!response.ok) {
@@ -48,6 +50,7 @@ export async function createProductBrandAction(productBrand: string) {
     return { data: null, error: "Something went wrong!" };
   }
 
+  revalidateTag("productBrands");
   const data = await response.json();
   return { data, error: "" };
 }
@@ -57,7 +60,7 @@ export async function editProductBrandAction({
   id,
 }: {
   productBrand: string;
-  id: string;
+  id: number;
 }) {
   const token = getToken();
   if (!token) return redirect("/login");
@@ -69,7 +72,7 @@ export async function editProductBrandAction({
         Authorization: `Bearer ${token}`,
         "Content-type": "application/json",
       },
-      body: JSON.stringify(productBrand),
+      body: JSON.stringify({ name: productBrand }),
     }
   );
   if (!response.ok) {
@@ -79,21 +82,20 @@ export async function editProductBrandAction({
     console.log("Something went wrong while creating the product brand.");
     return { data: null, error: "Something went wrong!" };
   }
-
-  const data = await response.json();
-  return { data, error: "" };
+  revalidateTag("productBrands");
+  // const data = await response.json();
+  return { data: null, error: "" };
 }
 
-export async function deleteProductBrandAction(id: string) {
+export async function deleteProductBrandAction(id: number) {
   const token = getToken();
   if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/productbrands/${id}`,
     {
-      method: "PUT",
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-type": "application/json",
       },
     }
   );
@@ -105,8 +107,8 @@ export async function deleteProductBrandAction(id: string) {
     return { data: null, error: "Something went wrong!" };
   }
 
-  const data = await response.json();
-  return { data, error: "" };
+  revalidateTag("productBrands");
+  return { data: null, error: "" };
 }
 
 export async function getProductBrandsCountAction() {
