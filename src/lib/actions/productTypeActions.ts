@@ -1,5 +1,6 @@
 "use server";
 import { getToken } from "@lib/helper";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 export async function getAllProductTypesAction() {
   // const token = getToken();
@@ -8,9 +9,9 @@ export async function getAllProductTypesAction() {
   //   return { data: null, error: "You are not authorized to make this action." };
   const response = await fetch(`${process.env.API_URL}/api/producttypes`, {
     method: "GET",
-    // headers: {
-    //   Authorization: `Bearer ${token}`,
-    // },
+    next: {
+      tags: ["productTyps"],
+    },
   });
 
   if (!response.ok) {
@@ -24,6 +25,7 @@ export async function getAllProductTypesAction() {
   }
 
   const data = await response.json();
+
   return { data, error: "" };
 }
 
@@ -46,6 +48,7 @@ export async function createProductTypeAction(productType: string) {
     return { data: null, error: "Something went wrong!" };
   }
 
+  revalidateTag("productTyps");
   const data = await response.json();
   return { data, error: "" };
 }
@@ -55,7 +58,7 @@ export async function editProductTypeAction({
   id,
 }: {
   productType: string;
-  id: string;
+  id: number;
 }) {
   const token = getToken();
   if (!token) return redirect("/login");
@@ -67,7 +70,7 @@ export async function editProductTypeAction({
         Authorization: `Bearer ${token}`,
         "Content-type": "application/json",
       },
-      body: JSON.stringify(productType),
+      body: JSON.stringify({ name: productType }),
     }
   );
   if (!response.ok) {
@@ -77,21 +80,20 @@ export async function editProductTypeAction({
     console.log("Something went wrong while creating the product type.");
     return { data: null, error: "Something went wrong!" };
   }
-
-  const data = await response.json();
-  return { data, error: "" };
+  revalidateTag("productTyps");
+  // const data = await response.json();
+  return { data: null, error: "" };
 }
 
-export async function deleteProductTypeAction(id: string) {
+export async function deleteProductTypeAction(id: number) {
   const token = getToken();
   if (!token) return redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/producttypes/${id}`,
     {
-      method: "PUT",
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-type": "application/json",
       },
     }
   );
@@ -102,9 +104,8 @@ export async function deleteProductTypeAction(id: string) {
     console.log("Something went wrong while deleting the ProductType.");
     return { data: null, error: "Something went wrong!" };
   }
-
-  const data = await response.json();
-  return { data, error: "" };
+  revalidateTag("productTyps");
+  return { data: null, error: "" };
 }
 
 export async function getproducttypesCountAction() {

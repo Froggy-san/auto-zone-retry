@@ -1,7 +1,7 @@
 "use server";
 
 import { getToken } from "@lib/helper";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function getAllCategoriesAction() {
@@ -15,6 +15,9 @@ export async function getAllCategoriesAction() {
     // headers: {
     //   Authorization: `Bearer ${token}`,
     // },
+    next: {
+      tags: ["categories"],
+    },
   });
 
   if (!response.ok) {
@@ -46,14 +49,14 @@ export async function createCategoryAction(category: string) {
       return { data: null, error: (await response.json()).message };
     }
 
-    console.log("Something went wrong while creating the category.");
+    console.log("Something went wrong while updating the category.");
     return {
       data: null,
-      error: "Something went wrong while creating the category.",
+      error: "Something went wrong while updating the category.",
     };
   }
-  revalidatePath("/dashboard/insert-data");
-
+  // revalidatePath("/dashboard/insert-data");
+  revalidateTag("categories");
   const data = await response.json();
   return { data, error: "" };
 }
@@ -63,31 +66,58 @@ export async function editCategoryAction({
   id,
 }: {
   category: string;
-  id: string;
+  id: number;
 }) {
   const token = getToken();
   if (!token) return redirect("/login");
-  const response = await fetch(`${process.env.API_URL}/api/categories/${id}`, {
+  const response = await fetch(`${process.env.API_URL}/api/Categories/${id}`, {
     method: "PUT",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-type": "application/json",
     },
-    body: JSON.stringify(category),
+    body: JSON.stringify({ name: category }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 409) {
+      return { data: null, error: (await response.json()).message };
+    }
+
+    return {
+      data: null,
+      error: "Something went wrong while updating the category.",
+    };
+  }
+
+  // const data = await response.json();
+  revalidateTag("categories");
+  return { data: null, error: "" };
+}
+
+export async function deleteCategoryAction(id: number) {
+  const token = getToken();
+  if (!token) return redirect("/login");
+  const response = await fetch(`${process.env.API_URL}/api/categories/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      // "Content-type": "application/json",
+    },
   });
   if (!response.ok) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    console.log("Something went wrong while creating the category.");
+    console.log("Something went wrong while updating the category.");
     return {
       data: null,
-      error: "Something went wrong while creating the category.",
+      error: "Something went wrong while updating the category.",
     };
   }
-
-  const data = await response.json();
-  return { data, error: "" };
+  revalidateTag("categories");
+  // const data = await response.json();
+  return { data: null, error: "" };
 }
 
 export async function deleteCarAction(id: string) {

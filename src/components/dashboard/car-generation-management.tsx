@@ -3,8 +3,9 @@ import CarGenerationForm from "./car-generation-form";
 import { getAllCarModelsAction } from "@lib/actions/carModelsActions";
 import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 import CarModelForm from "@components/car-model-form";
-import CarModelsList from "./car models/car-model-list";
+
 import CarGenerationList from "./car-generation-list";
+import CarModelsList from "./cars-data/car-model-list";
 
 const CarGenAndModelManagement = async () => {
   const [carGenerations, carMakers] = await Promise.all([
