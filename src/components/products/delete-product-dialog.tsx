@@ -37,6 +37,7 @@ const DeleteProductDialog = ({
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+
   useEffect(() => {
     return () => {
       const body = document.querySelector("body");
@@ -70,7 +71,6 @@ const DeleteProductDialog = ({
       if (error) throw new Error(error);
       setOpen(false);
       checkIfLastItem();
-      queryClient.invalidateQueries(["productCount"]);
     } catch (error: any) {
       console.log(error);
       toast({
@@ -89,33 +89,33 @@ const DeleteProductDialog = ({
         <DialogHeader>
           <DialogTitle>Are you sure?</DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
+            This action cannot be undone. This will permanently delete this
+            product and remove all data associated with it.
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter>
-          <div className=" flex items-center justify-end  gap-2">
-            <Button
-              onClick={() => setOpen(false)}
-              type="reset"
-              variant="secondary"
-              size="sm"
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              type="submit"
-              size="sm"
-              disabled={isLoading}
-            >
-              {isLoading ? <Spinner /> : "Delete"}
-            </Button>
-          </div>
-        </DialogFooter>
+        <div className=" flex items-center flex-col-reverse  sm:flex-row sm:justify-end gap-2">
+          <Button
+            onClick={() => setOpen(false)}
+            type="reset"
+            className=" w-full sm:w-fit"
+            variant="secondary"
+            size="sm"
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            className=" w-full sm:w-fit"
+            onClick={handleDelete}
+            type="submit"
+            size="sm"
+            disabled={isLoading}
+          >
+            {isLoading ? <Spinner /> : "Delete"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -28,17 +28,12 @@ const ProductPagenation: React.FC<ProductsListProps> = ({ count }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  // const { isLoading, count, error } = useProductPagination(props);
-
-  // const [count, setCount] = React.useState(0);
-  // const [error, setError] = React.useState("");
-  // const [isLoading, setIsLoading] = React.useState(false);
-
   const defaultValue = searchParam.get("page") ?? "1";
   const numberOfPages = Math.ceil(count / PAGE_SIZE);
-
+  console.log(numberOfPages, "NUMBER OF PAGES");
+  console.log(count, "count");
   const isSmallScreen = useMediaQuery("(max-width:600px)");
-  const { toast } = useToast();
+
   const { items } = usePagination({
     // defaultPage: Number(defaultValue),
     count: numberOfPages,

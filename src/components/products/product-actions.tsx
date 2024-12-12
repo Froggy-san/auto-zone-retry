@@ -34,7 +34,7 @@ export function ProdcutAction({
 
   if (isLoading) return <LoaderCircle size={12} className=" animate-spin" />;
   return (
-    <div className="" onClick={(e) => e.preventDefault()}>
+    <div onClick={(e) => e.preventDefault()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className=" w-7 h-7  ">
@@ -46,12 +46,14 @@ export function ProdcutAction({
           <DropdownMenuLabel>Product actions</DropdownMenuLabel>
           {/* <DropdownMenuSeparator /> */}
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              View
-              <DropdownMenuShortcut>
-                <Fullscreen size={18} />
-              </DropdownMenuShortcut>
-            </DropdownMenuItem>
+            <Link href={`products/${productId}`}>
+              <DropdownMenuItem>
+                View
+                <DropdownMenuShortcut>
+                  <Fullscreen size={18} />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </Link>
             <Link href={`/products/${productId}?edit=open`}>
               <DropdownMenuItem>
                 Edit

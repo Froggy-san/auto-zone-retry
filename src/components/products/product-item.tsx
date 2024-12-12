@@ -6,7 +6,6 @@ import FullImagesGallery from "./product-images";
 import { formatCurrency } from "@lib/helper";
 import { ProdcutAction } from "./product-actions";
 import Link from "next/link";
-import { STATIC_IMAGES } from "@lib/constants";
 import { ImageOff } from "lucide-react";
 
 const ProductItem = async ({
@@ -29,7 +28,7 @@ const ProductItem = async ({
   return (
     <li className={`${!product.isAvailable && "opacity-50 "}`}>
       <Link
-        href={`/products/${product.id}`}
+        href={`/products/${product.id}?size=${pageSize}&page=${currPage}`}
         className="space-y-1 flex flex-col"
       >
         {error ? (
@@ -43,7 +42,7 @@ const ProductItem = async ({
                 className="h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden"
               />
             ) : (
-              <div className=" h-[250px] 3xl:h-[330px] 4xl:h-[400px]  flex items-center justify-center  bg-foreground/10 rounded-t-lg">
+              <div className=" h-[250px] 3xl:h-[330px] 4xl:h-[400px]  flex items-center justify-center  bg-foreground/10 rounded-lg">
                 <ImageOff className=" w-20 h-20" />
               </div>
             )}
