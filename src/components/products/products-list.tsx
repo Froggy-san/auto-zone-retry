@@ -4,6 +4,7 @@ import ProductItem from "./product-item";
 import { getProductsAction } from "@lib/actions/productsActions";
 import ErrorMessage from "@components/error-message";
 import { ShoppingBasket } from "lucide-react";
+import { redirect } from "next/navigation";
 
 interface ProductsListProps {
   pageNumber: string;

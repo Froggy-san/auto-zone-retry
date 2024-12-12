@@ -284,8 +284,10 @@ export async function getProductsCountAction({
   //     error: "You are not authorized to get the products count data.",
   //   };
 
-  let query = `${process.env.API_URL}/api/Product/count?&PageSize=${PAGE_SIZE}`;
-
+  let query = `${process.env.API_URL}/api/Product/count?`;
+  console.log(query, "QUERY");
+  const areFiltersApplied =
+    name || categoryId || productTypeId || productBrandId || isAvailable;
   if (name) query = query + `&Name=${name}`;
 
   if (categoryId) query = query + `&CategoryId=${categoryId}`;
@@ -296,12 +298,11 @@ export async function getProductsCountAction({
 
   if (isAvailable) query = query + `&IsAvailable=${isAvailable}`;
 
+  // due to error in the back-end when adding the "?" at the end when the user hasn't entered any fitlers, we need to reassign the query variable with a url that doesn't end with the "?" sign.
+  if (!areFiltersApplied) query = `${process.env.API_URL}/api/Product/count`;
+
   const response = await fetch(query, {
     method: "GET",
-    // headers: {
-    //   Authorization: `Bearer ${token}`,
-    //   // "Content-type": "application/json",
-    // },
   });
 
   if (!response.ok) {
@@ -311,10 +312,9 @@ export async function getProductsCountAction({
       error: "Something went wrong while grabbing the products count.",
     };
   }
-
   const data = await response.json();
-  console.log(data, "ASA");
-
+  console.log(response, "ASA");
+  console.log(data, "ؤخعىف");
   return { data, error: "" };
 }
 

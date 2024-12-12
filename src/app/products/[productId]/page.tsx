@@ -11,16 +11,29 @@ import { ImageOff } from "lucide-react";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
 import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
+import DeleteProductDialog from "@components/products/delete-product-dialog";
+import DeleteManagement from "@components/products/delete-management";
 
 interface Params {
   productId: string;
 }
-
-const ProductView = async ({ params }: { params: Params }) => {
+interface searchParams {
+  size?: string;
+  page?: string;
+}
+const ProductView = async ({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: searchParams;
+}) => {
+  const currPage = searchParams.page ?? "";
+  const pageSize = searchParams.size ?? "";
+  console.log(currPage, pageSize, "AYOO ???");
   const [product, user, categories, productBrands, brandTypes] =
     await Promise.all([
       getProductByIdAction(params.productId),
-
       getCurrentUser(),
       getAllCategoriesAction(),
       getAllProductBrandsAction(),
@@ -79,14 +92,23 @@ const ProductView = async ({ params }: { params: Params }) => {
       <ProdcutViewDetials user={user} product={productData} />
 
       {user ? (
-        <ProductManagement
-          useParams
-          categories={categoriesData}
-          productBrands={productBrandsData}
-          productTypes={brandTypesData}
-          className=" w-[97%] mx-auto mb-6"
-          productToEdit={productData}
-        />
+        <div className=" flex flex-col mb-5 sm:flex-row items-center gap-5  px-2  sm:px-5">
+          <ProductManagement
+            useParams
+            className=" w-full"
+            categories={categoriesData}
+            productBrands={productBrandsData}
+            productTypes={brandTypesData}
+            productToEdit={productData}
+          />
+          {currPage && pageSize && (
+            <DeleteManagement
+              pageSize={Number(pageSize)}
+              currPage={Number(currPage)}
+              productId={Number(params.productId)}
+            />
+          )}
+        </div>
       ) : null}
     </div>
   );

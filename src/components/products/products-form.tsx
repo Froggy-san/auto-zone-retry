@@ -56,7 +56,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
   productToEdit,
   useParams = false,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const searchParam = useSearchParams();
+  const edit = searchParam.get("edit") ?? "";
+  const [isOpen, setIsOpen] = useState(edit ? true : false);
   const [isMainImage, setIsMainImage] = useState<ProductImage | null | number>(
     null
   );
@@ -64,34 +66,27 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [deletedMedia, setDeletedMedia] = useState<ProductImage[]>([]);
 
   const { toast } = useToast();
-  const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const edit = searchParam.get("edit") ?? "";
 
-  const isEditing = edit ? true : false || isOpen;
   const isMainChange =
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
   const params = new URLSearchParams(searchParam);
 
-  function handleOpen(filter: string) {
-    if (useParams) {
-      params.set("edit", filter);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    } else {
-      setIsOpen(true);
-    }
+  function handleOpen() {
+    setIsOpen(true);
   }
 
   function handleClose() {
     if (isLoading && productToEdit) return;
-    if (useParams) {
+    if (edit) {
       const params = new URLSearchParams(searchParam);
       params.delete("edit");
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    } else {
-      setIsOpen(false);
     }
+
+    setIsOpen(false);
+
     if (isLoading) return;
     form.reset(defaultValues);
 
@@ -171,7 +166,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       productToEdit?.productImages.find((image) => image.isMain === true) ||
         null
     );
-  }, [isEditing]);
+  }, [isOpen]);
 
   async function onSubmit({
     name,
@@ -281,8 +276,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
     }
   }
   return (
-    <DialogComponent open={isEditing} onOpenChange={handleClose}>
-      <Button onClick={() => handleOpen("open")} size="sm" className=" w-full">
+    <DialogComponent open={isOpen} onOpenChange={handleClose}>
+      <Button onClick={handleOpen} size="sm" className=" w-full">
         {productToEdit ? " Edit" : "Create"} a porduct
       </Button>
 

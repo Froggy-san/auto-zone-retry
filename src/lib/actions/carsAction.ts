@@ -5,7 +5,6 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getClienttByIdAction } from "./clientActions";
 import { PAGE_SIZE } from "@lib/constants";
-import { red } from "@mui/material/colors";
 
 interface GetCarsProps {
   color?: string;
