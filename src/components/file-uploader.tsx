@@ -10,13 +10,13 @@ interface FileUploaderProps {
 
 export function FileUploader({ fieldChange, mediaUrl }: FileUploaderProps) {
   const [viewedImage, setViewedImage] = useState(mediaUrl || "");
-  console.log(mediaUrl);
+
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {
       const imageBlob = URL.createObjectURL(acceptedFiles[0]);
       setViewedImage(imageBlob);
       fieldChange(acceptedFiles);
-      console.log(rejectedFiles);
+
       // Do something with the files
     },
     []

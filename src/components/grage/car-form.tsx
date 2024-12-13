@@ -87,13 +87,13 @@ const CarForm = ({
   const { toast } = useToast();
 
   const isEditing = edit ? true : false || isOpen;
-  console.log(carToEdit, "CCC");
+
   const defaultValues = {
     color: carToEdit?.color || "#d9c814",
-    plateNumber: carToEdit?.plateNumber || "asdasd",
-    chassisNumber: carToEdit?.chassisNumber || "adasda",
-    motorNumber: carToEdit?.motorNumber || "asddss",
-    notes: carToEdit?.notes || "asdasd",
+    plateNumber: carToEdit?.plateNumber || "",
+    chassisNumber: carToEdit?.chassisNumber || "",
+    motorNumber: carToEdit?.motorNumber || "",
+    notes: carToEdit?.notes || "",
     clientId: clientId || 0,
     carGenerationId: carToEdit?.carInfo.carGeneration.id || 0,
     images: [],
@@ -136,7 +136,6 @@ const CarForm = ({
     setDeletedMedia([]);
   }
 
-  console.log(form.formState.errors, "ASASDAA");
   function handleClose() {
     if (useParams) {
       const params = new URLSearchParams(searchParam);
@@ -203,7 +202,8 @@ const CarForm = ({
       handleClose();
 
       toast({
-        title: carToEdit ? "Success" : "A new car has been created",
+        className: "bg-primary  text-primary-foreground",
+        title: carToEdit ? "Data updated." : "A new car has been created",
         description: (
           <SuccessToastDescription
             message={
@@ -215,7 +215,6 @@ const CarForm = ({
         ),
       });
     } catch (error: any) {
-      console.error(error);
       toast({
         variant: "destructive",
         title: "Faild to create a new car.",

@@ -189,7 +189,7 @@ function DeleteDialog({
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["carMakers"] });
       toast({
-        className: "bg-green-700",
+        className: "bg-primary  text-primary-foreground",
         title: `Car maker deleted!`,
         description: (
           <SuccessToastDescription
@@ -198,7 +198,6 @@ function DeleteDialog({
         ),
       });
     } catch (error: any) {
-      console.error(error);
       toast({
         variant: "destructive",
         title: "Faild to delete car maker data",

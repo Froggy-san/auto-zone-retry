@@ -71,7 +71,7 @@ const CarGenerationForm = ({
       queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
       form.reset();
       toast({
-        className: "bg-green-700",
+        className: "bg-primary  text-primary-foreground",
         title: "Success!.",
         description: (
           <SuccessToastDescription message="A new car generation has been created." />

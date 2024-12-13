@@ -86,13 +86,13 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
       form.reset();
       setOpen(false);
       toast({
+        className: "bg-primary  text-primary-foreground",
         title: "Success!.",
         description: (
           <SuccessToastDescription message="A new car information has been create." />
         ),
       });
     } catch (error: any) {
-      console.log(error);
       toast({
         variant: "destructive",
         title: "Something went wrong while creating a new car information.",

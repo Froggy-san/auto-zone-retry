@@ -322,13 +322,15 @@ function TableActions({
       setIsLoading(false);
       // handleClose();
       toast({
-        title: `Client deleted!`,
+        className: "bg-primary  text-primary-foreground",
+        title: `Data updated!.`,
         description: (
-          <SuccessToastDescription message={`''s data has been deleted`} />
+          <SuccessToastDescription
+            message={`Service status has been uptated.'`}
+          />
         ),
       });
     } catch (error: any) {
-      console.log(error);
       setIsLoading(false);
       toast({
         variant: "destructive",
@@ -366,10 +368,11 @@ function TableActions({
       window.URL.revokeObjectURL(url);
       setIsLoading(false);
       toast({
-        title: `Client deleted!`,
+        className: "bg-primary  text-primary-foreground",
+        title: `Done.`,
         description: (
           <SuccessToastDescription
-            message={`Service receipt downloaded as PDF successfully.`}
+            message={`Receipt data is ready to be downloaded as a PDF.`}
           />
         ),
       });
@@ -383,13 +386,6 @@ function TableActions({
       });
     }
   };
-
-  // useEffect(() => {
-  //   handleChangeStatus();
-  // }, [chosenStatus]);
-  // function handleClose() {
-  //   setOpen("");
-  // }
 
   if (isLoading)
     return (
@@ -619,15 +615,15 @@ function DeleteService({
                 setIsDeleting(false);
                 handleClose();
                 toast({
-                  title: `Serivce deleted!`,
+                  className: "bg-primary  text-primary-foreground",
+                  title: `Data deleted!.`,
                   description: (
                     <SuccessToastDescription
-                      message={`''s data has been deleted`}
+                      message={`Service data has been deleted.`}
                     />
                   ),
                 });
               } catch (error: any) {
-                console.log(error);
                 setIsDeleting(false);
                 toast({
                   variant: "destructive",
@@ -723,16 +719,15 @@ function DeleteDialog({
                 setMainDialong(true);
                 // handleClose();
                 toast({
-                  title: `Client deleted!`,
+                  className: "bg-primary  text-primary-foreground",
+                  title: `Data deleted!`,
                   description: (
                     <SuccessToastDescription
-                      message={`''s data has been deleted`}
+                      message={`Service data has been deleted`}
                     />
                   ),
                 });
               } catch (error: any) {
-                console.log(error);
-
                 toast({
                   variant: "destructive",
                   title: "Faild to delete client's data",

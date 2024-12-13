@@ -25,12 +25,6 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const editFee = searchParams.editFee ?? "";
   const serviceStatusId = searchParams.serviceStatusId ?? "";
 
-  console.log(dateFrom, "AYOOOOO FROM HERE");
-  console.log(
-    dateTo,
-    "AYYYYYYYYYYYYYYYYYYYYYOOOOOOOOOOOOOOOOOOOOOOOOO TO HEREEEE"
-  );
-
   const key =
     pageNumber + dateFrom + dateTo + clientId + carId + minPrice + maxPrice;
   const pageKey = dateFrom + dateTo + clientId + carId + minPrice + maxPrice;

@@ -217,7 +217,6 @@ function ProductsDialog({
     params.set("edit", filter);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
-  // console.log(hasReturnedValue, "SSSSSSS");
 
   productsArr = productsArr.filter((product) => {
     // const price = new RegExp(priceValue, "i");
@@ -627,7 +626,6 @@ function EditReceipt({
   const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      console.log("Setting isDeleting to true...");
       setIsDeleting(true);
 
       await editRestockingBillAction({
@@ -641,25 +639,23 @@ function EditReceipt({
       setIsDeleting(false);
       handleClose();
       toast({
-        title: `Client deleted!`,
+        className: "bg-primary  text-primary-foreground",
+        title: `Data updated!`,
         description: (
           <SuccessToastDescription
-            message={`${restockingBill.shopName}'s data has been deleted`}
+            message={`A receipt related to the shop '${restockingBill.shopName}' has been updated.`}
           />
         ),
       });
     } catch (error: any) {
-      console.log(error);
       setIsDeleting(false);
       toast({
         variant: "destructive",
-        title: "Faild to delete client's data",
+        title: "Faild to edit inventory receipt data.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }
   };
-
-  // console.log(isEqual(billDate, dateOfOrder || new Date()));
 
   useEffect(() => {
     if (!dateOfOrder) {
@@ -844,19 +840,18 @@ function DeleteRestockingDialog({
                 setIsDeleting(false);
                 handleClose();
                 toast({
-                  title: `Client deleted!`,
+                  className: "bg-primary  text-primary-foreground",
+                  title: `Data deleted!.`,
                   description: (
                     <SuccessToastDescription
-                      message={`${restockingBill.shopName}'s data has been deleted`}
+                      message={`A receipt related to the shop '${restockingBill.shopName}' has been deleted.`}
                     />
                   ),
                 });
               } catch (error: any) {
-                console.log(error);
-
                 toast({
                   variant: "destructive",
-                  title: "Faild to delete client's data",
+                  title: "Faild to delete inventory receipt data.",
                   description: <ErorrToastDescription error={error.message} />,
                 });
               }
@@ -948,19 +943,18 @@ function DeleteDialog({
                 setMainDialong(true);
                 // handleClose();
                 toast({
-                  title: `Client deleted!`,
+                  className: "bg-primary  text-primary-foreground",
+                  title: `Data deleted!.`,
                   description: (
                     <SuccessToastDescription
-                      message={`${proBought.shopName}'s data has been deleted`}
+                      message={`A receipt related to the  '${proBought.shopName}' has been deleted.`}
                     />
                   ),
                 });
               } catch (error: any) {
-                console.log(error);
-
                 toast({
                   variant: "destructive",
-                  title: "Faild to delete client's data",
+                  title: "Faild to delete inventory receipt data.",
                   description: <ErorrToastDescription error={error.message} />,
                 });
               }

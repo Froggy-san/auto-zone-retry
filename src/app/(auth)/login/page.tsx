@@ -48,13 +48,13 @@ const Page = () => {
       await loginUser(values);
 
       toast({
+        className: "bg-primary  text-primary-foreground",
         title: "Welcome back.",
         description: (
           <SuccessToastDescription message="Glad to see you again." />
         ),
       });
     } catch (error: any) {
-      console.log(error.message, "ERROR");
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",

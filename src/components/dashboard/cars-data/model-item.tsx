@@ -158,7 +158,8 @@ function DeleteBtn({
       queryClient.invalidateQueries({ queryKey: ["carModels"] });
 
       toast({
-        title: "Deleted.",
+        className: "bg-primary  text-primary-foreground",
+        title: "Done.",
         description: (
           <SuccessToastDescription message="Car model has been deleted." />
         ),

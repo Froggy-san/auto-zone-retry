@@ -111,7 +111,7 @@ const CarkMakerForm = ({
       }
       handleClose();
       toast({
-        className: "bg-green-700",
+        className: "bg-primary  text-primary-foreground",
         title: "Success.",
         description: (
           <SuccessToastDescription message="Car maker has been created." />
@@ -119,7 +119,6 @@ const CarkMakerForm = ({
       });
       setIsOpen(false);
     } catch (error: any) {
-      console.log(error.message);
       toast({
         variant: "destructive",
         title: "Error",
@@ -135,7 +134,7 @@ const CarkMakerForm = ({
         </Button>
       )}
 
-      <DialogContent className=" max-h-[65vh]  sm:max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
+      <DialogContent className=" max-h-[65vh]   sm:max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogHeader>
           <DialogTitle>Car makers</DialogTitle>
           <DialogDescription>Create a new car maker.</DialogDescription>

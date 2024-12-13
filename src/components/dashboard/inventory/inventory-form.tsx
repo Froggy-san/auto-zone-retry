@@ -183,8 +183,8 @@ const InventoryForm = ({
       handleClose();
 
       toast({
-        className: "bg-green-700",
-        title: proBoughtToEdit ? "Inventory updated" : "Success.",
+        className: "bg-primary  text-primary-foreground",
+        title: proBoughtToEdit ? "Data updated" : "Done.",
         description: (
           <SuccessToastDescription
             message={
@@ -196,7 +196,6 @@ const InventoryForm = ({
         ),
       });
     } catch (error: any) {
-      console.error(error);
       toast({
         variant: "destructive",
         title: proBoughtToEdit

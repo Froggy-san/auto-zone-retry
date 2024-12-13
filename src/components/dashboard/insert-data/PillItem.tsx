@@ -103,7 +103,8 @@ function DeleteBtn({
       handleResetPage();
 
       toast({
-        title: "Deleted.",
+        className: "bg-primary  text-primary-foreground",
+        title: "Data deleted.",
         description: (
           <SuccessToastDescription message="Car model has been deleted." />
         ),

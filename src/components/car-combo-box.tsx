@@ -40,7 +40,7 @@ export const CarsComboBox: React.FC<Props> = ({
     selected?.carImages.length &&
     (selected?.carImages.find((image) => image.isMain)?.imagePath ||
       selected?.carImages[0].imagePath);
-  // console.log(options, "OP");
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -96,7 +96,6 @@ export const CarsComboBox: React.FC<Props> = ({
                     key={option.id}
                     value={option.plateNumber + String(option.id)}
                     onSelect={() => {
-                      // console.log(currentValue, "CCCC");
                       setValue(option.id === value ? 0 : option.id);
                       setOpen(false);
                     }}

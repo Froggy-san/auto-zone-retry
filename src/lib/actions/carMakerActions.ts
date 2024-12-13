@@ -22,7 +22,6 @@ export async function getAllCarMakersAction(pageNumber?: number) {
   });
 
   if (!response.ok) {
-    console.log("Something went wrong while trying to fetch car makers data.");
     return {
       data: null,
       error: "Something went wrong while trying to fetch car makers data.",
@@ -48,7 +47,7 @@ export async function createCarMakerAction(formData: FormData) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    // console.log("Something went wrong while creating the car maker.");
+
     return {
       data: null,
       error: "Something went wrong while creating the car maker.",
@@ -75,11 +74,10 @@ export async function editCarMakerAction(formData: FormData, id: number) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    console.log("Something went wrong while creating the car maker.");
+
     throw new Error("Something went wrong!");
   }
 
-  console.log(response, "MAKERERRSS");
   revalidateTag("carMakers");
 }
 
@@ -97,7 +95,7 @@ export async function deleteCarMakerAction(id: string) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    console.log("Something went wrong while creating the car maker.");
+
     return { data: null, error: "Something went wrong!" };
   }
   revalidateTag("carMakers");
@@ -116,7 +114,6 @@ export async function getCarMakerCountAction() {
   });
 
   if (!response.ok) {
-    console.log("Something went wrong while trying to fetch car makers count.");
     return {
       data: null,
       error: "Something went wrong while trying to fetch car makers count.",

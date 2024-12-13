@@ -12,10 +12,13 @@ import {
 import Spinner from "@components/Spinner";
 import { deleteProductsByIdAction } from "@lib/actions/productsActions";
 import { useToast } from "@hooks/use-toast";
-import { ErorrToastDescription } from "@components/toast-items";
+import SuccessToastDescription, {
+  ErorrToastDescription,
+} from "@components/toast-items";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 const DeleteProductDialog = ({
+  navBack,
   open,
   setOpen,
   productId,
@@ -24,6 +27,7 @@ const DeleteProductDialog = ({
   pageSize,
   currPage,
 }: {
+  navBack?: boolean;
   pageSize: number;
   currPage: number;
   productId: number | undefined;
@@ -33,7 +37,6 @@ const DeleteProductDialog = ({
   setOpen: React.Dispatch<SetStateAction<boolean>>;
 }) => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -48,6 +51,7 @@ const DeleteProductDialog = ({
   const checkIfLastItem = useCallback(() => {
     const params = new URLSearchParams(searchParam);
 
+    // if (navBack) router.back();
     if (pageSize === 1) {
       if (Number(currPage) === 1) {
         params.delete("categoryId");
@@ -61,7 +65,12 @@ const DeleteProductDialog = ({
       }
     }
 
-    router.push(`${pathname}?${params.toString()}`);
+    if (navBack) {
+      params.delete("size");
+      router.replace(`/products?${params.toString()}`);
+    } else {
+      router.push(`${pathname}?${params.toString()}`);
+    }
   }, [productId, pageSize]);
 
   async function handleDelete() {
@@ -71,8 +80,13 @@ const DeleteProductDialog = ({
       if (error) throw new Error(error);
       setOpen(false);
       checkIfLastItem();
+      toast({
+        className: "bg-primary  text-primary-foreground",
+        variant: "default",
+        title: "Data deleted!.",
+        description: <SuccessToastDescription message="Product deleted." />,
+      });
     } catch (error: any) {
-      console.log(error);
       toast({
         variant: "destructive",
         title: "Something went wrong.",

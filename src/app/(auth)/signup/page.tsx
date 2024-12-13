@@ -50,13 +50,13 @@ const Page = () => {
 
       await signUp({ email, username, password, token });
       toast({
-        title: "Welcome back.",
+        className: "bg-primary  text-primary-foreground",
+        title: "Done.",
         description: (
-          <SuccessToastDescription message="Glad to see you again." />
+          <SuccessToastDescription message="Account created successfully." />
         ),
       });
     } catch (error: any) {
-      console.log(error.message);
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",

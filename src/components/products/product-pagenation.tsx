@@ -6,12 +6,7 @@ import { Button } from "@components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMediaQuery } from "@mui/material";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { getProductsCountAction } from "@lib/actions/productsActions";
-import { useToast } from "@hooks/use-toast";
-import { ErorrToastDescription } from "@components/toast-items";
-import Spinner from "@components/Spinner";
 import { useIntersectionProvidor } from "./intersection-providor";
-import useProductPagination from "@lib/queries/useProductPagination";
 
 interface ProductsListProps {
   // name?: string;
@@ -30,8 +25,7 @@ const ProductPagenation: React.FC<ProductsListProps> = ({ count }) => {
 
   const defaultValue = searchParam.get("page") ?? "1";
   const numberOfPages = Math.ceil(count / PAGE_SIZE);
-  console.log(numberOfPages, "NUMBER OF PAGES");
-  console.log(count, "count");
+
   const isSmallScreen = useMediaQuery("(max-width:600px)");
 
   const { items } = usePagination({
@@ -47,37 +41,6 @@ const ProductPagenation: React.FC<ProductsListProps> = ({ count }) => {
     },
   });
 
-  // React.useEffect(() => {
-  //   async function getCount() {
-  //     setIsLoading(true);
-  //     const { data: count, error: countError } = await getProductsCountAction({
-  //       name,
-  //       categoryId,
-  //       productTypeId,
-  //       productBrandId,
-  //       isAvailable,
-  //     });
-
-  //     if (countError) {
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Something went wrong.",
-  //         description: <ErorrToastDescription error={countError} />,
-  //       });
-  //       setIsLoading(false);
-  //       setError(countError);
-
-  //       return;
-  //     }
-
-  //     setIsLoading(false);
-  //     setCount(count);
-  //   }
-  //   getCount();
-  // }, [categoryId, productTypeId, productBrandId, name]);
-
-  // if (isLoading) return <Spinner className=" h-52" />;
-  // if (error) return <p>{error}</p>;
   if (!count) return null;
   return (
     <nav ref={ref} className=" w-full my-4">

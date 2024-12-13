@@ -16,7 +16,6 @@ export async function getAllCarsInfoAction() {
   });
 
   if (!response.ok) {
-    console.log("Something went wrong while trying to fetch cars info data.");
     return {
       data: null,
       error: "Something went wrong while trying to fetch cars info data.",
@@ -39,7 +38,6 @@ export async function createCarInfoAction(carInfo: CarInfo) {
     body: JSON.stringify(carInfo),
   });
   if (!response.ok) {
-    console.log("Something went wrong while creating the car info.");
     throw new Error("Something went wrong!");
   }
 
@@ -65,7 +63,6 @@ export async function editCarInfoAction({
     body: JSON.stringify(carInfo),
   });
   if (!response.ok) {
-    console.log("Something went wrong while creating the car info.");
     throw new Error("Something went wrong!");
   }
 
@@ -84,7 +81,6 @@ export async function deleteCarInfoAction(id: string) {
     },
   });
   if (!response.ok) {
-    console.log("Something went wrong while creating the car info.");
     throw new Error("Something went wrong!");
   }
 
@@ -105,7 +101,6 @@ export async function getCarInfoCountAction() {
   });
 
   if (!response.ok) {
-    console.log("Something went wrong while trying to fetch car infos count.");
     return {
       data: null,
       error: "Something went wrong while trying to fetch car infos count.",

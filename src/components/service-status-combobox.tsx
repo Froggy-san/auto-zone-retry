@@ -69,7 +69,7 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
   const [open, setOpen] = React.useState(false);
   // const [value, setValue] = React.useState(0);
   const selected = options.find((option) => option.id === value);
-  // console.log(options, "OP");
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -102,7 +102,6 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
                   key={option.id}
                   value={option.name + option.description + String(option.id)} // to avoid selecting two or more items that has the same name proprty.
                   onSelect={() => {
-                    // console.log(currentValue, "CCCC");
                     setValue(option.id === value ? 0 : option.id);
                     setOpen(false);
                   }}

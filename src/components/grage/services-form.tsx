@@ -206,7 +206,8 @@ const ServicesForm = ({
       const { error } = await createServiceAction(data);
       if (error) throw new Error(error);
       toast({
-        title: carToEdit ? "Success" : "A new car has been created",
+        className: "bg-primary  text-primary-foreground",
+        title: carToEdit ? "Data updated." : "A new car has been created",
         description: (
           <SuccessToastDescription
             message={

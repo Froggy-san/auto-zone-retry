@@ -299,10 +299,11 @@ export async function getProductsCountAction({
   if (isAvailable) query = query + `&IsAvailable=${isAvailable}`;
 
   // due to error in the back-end when adding the "?" at the end when the user hasn't entered any fitlers, we need to reassign the query variable with a url that doesn't end with the "?" sign.
-  if (!areFiltersApplied) query = `${process.env.API_URL}/api/Product/count`;
+  // if (!areFiltersApplied) query = `${process.env.API_URL}/api/Product/count`;
 
   const response = await fetch(query, {
     method: "GET",
+    cache: "no-cache",
   });
 
   if (!response.ok) {

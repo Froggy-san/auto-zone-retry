@@ -59,14 +59,12 @@ function DeleteDialog({ carId }: { carId: string | undefined }) {
       setOpen(false);
 
       toast({
+        className: "bg-primary  text-primary-foreground",
         variant: "default",
-        title: "Success.",
-        description: (
-          <SuccessToastDescription message="Car hass been deleted" />
-        ),
+        title: "Data deleted!.",
+        description: <SuccessToastDescription message="Car has been deleted" />,
       });
     } catch (error: any) {
-      console.log(error);
       toast({
         variant: "destructive",
         title: "Something went wrong.",

@@ -23,7 +23,6 @@ const PillList = ({
 }) => {
   const [page, setPage] = useState(1);
 
-  console.log(items, itemType);
   const { result, totalPages } = useLocalPagination({
     currPage: page,
     pageSize: 24,

@@ -37,7 +37,7 @@ export default function TextInputSwitch({
           category: value,
           id: item.id,
         });
-        console.log("Category function executed.");
+
         if (error) throw new Error(error);
       }
 
@@ -46,7 +46,7 @@ export default function TextInputSwitch({
           productBrand: value,
           id: item.id,
         });
-        console.log("Brand function executed.");
+
         if (error) throw new Error(error);
       }
 
@@ -55,43 +55,15 @@ export default function TextInputSwitch({
           productType: value,
           id: item.id,
         });
-        console.log("Type function executed.");
+
         if (error) throw new Error(error);
       }
 
-      /// ===
-      //   switch (ItemType) {
-      //     case "category": {
-      //       const { error } = await editCategoryAction({
-      //         category: value,
-      //         id: item.id,
-      //       });
-      //       console.log("Category function executed.");
-      //       if (error) throw new Error(error);
-      //     }
-      //     case "productBrand": {
-      //       const { error } = await editProductBrandAction({
-      //         productBrand: value,
-      //         id: item.id,
-      //       });
-      //       console.log("Brand function executed.");
-      //       if (error) throw new Error(error);
-      //     }
-
-      //     case "productType": {
-      //       const { error } = await editProductTypeAction({
-      //         productType: value,
-      //         id: item.id,
-      //       });
-      //       console.log("Type function executed.");
-      //       if (error) throw new Error(error);
-      //     }
-      //   }
-
       toast({
+        className: "bg-primary  text-primary-foreground",
         title: "Success.",
         description: (
-          <SuccessToastDescription message="data has been updated." />
+          <SuccessToastDescription message="Data has been updated." />
         ),
       });
     } catch (error: any) {

@@ -28,7 +28,7 @@ const DeleteManagement = ({
         <div className="space-y-0.5   ">
           <label className=" font-semibold">Delete</label>
           <p className=" text-muted-foreground text-sm">
-            Delete this product along side it&apos;s all associated data.
+            Delete this product along side all it&apos;s associated data.
           </p>
         </div>
         <div className=" sm:pr-2">
@@ -43,6 +43,7 @@ const DeleteManagement = ({
         </div>
       </div>
       <DeleteProductDialog
+        navBack
         open={open}
         setOpen={setOpen}
         isLoading={isLoading}

@@ -19,7 +19,6 @@ export async function loginUser(loginData: z.infer<typeof LoginFormSchema>) {
   if (!response.ok) return { data: null, error: "Invalid login credentials." };
 
   const token = await response.json();
-  console.log(token, "TTOEKN");
 
   // localStorage.setItem("auto-zone-token", token);
 
@@ -27,7 +26,6 @@ export async function loginUser(loginData: z.infer<typeof LoginFormSchema>) {
   getCookies.set("auto-zone-token", token.token);
 
   // const decoded = jwtDecode(token.token);
-  // console.log(token.token, "TOKEN");
 
   redirect("/");
 
@@ -92,7 +90,6 @@ export async function logoutUser() {
   const getCookies = cookies();
   const token = getCookies.get("auto-zone-token")?.value || "";
 
-  console.log(token, "TOKEN");
   if (!token) throw new Error("The user is already logged out");
   const response = await fetch(`${process.env.API_URL}/api/Account/logout`, {
     method: "POST",
@@ -123,6 +120,4 @@ export async function car() {
   //   }
   // );
   // const data = await car.json();
-  // console.log(car, "CARRRRR");
-  // console.log(data, "data");
 }

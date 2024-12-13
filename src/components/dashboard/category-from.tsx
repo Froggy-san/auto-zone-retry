@@ -21,13 +21,13 @@ const CategroyForm = () => {
       await createCategoryAction(value);
       setValue("");
       toast({
-        title: "Welcome back.",
+        className: "bg-primary  text-primary-foreground",
+        title: "Done.",
         description: (
           <SuccessToastDescription message="A new category has been created." />
         ),
       });
     } catch (error: any) {
-      console.log(error.message, "ERROR");
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
