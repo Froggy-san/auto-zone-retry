@@ -110,7 +110,7 @@ export default function TextInputSwitch({
       const currantWidth = spanRef.current.offsetWidth + 30;
       setWidth(currantWidth);
     }
-  }, [spanRef, value, setWidth]);
+  }, [spanRef, value, setWidth, ItemType]);
 
   return (
     <div className=" flex-1 max-w-[97%]">

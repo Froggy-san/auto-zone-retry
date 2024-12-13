@@ -151,7 +151,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     if (!productToEdit && images.length) {
       setIsMainImage(0);
     }
-  }, [images]);
+  }, [images, productToEdit]);
 
   // checking if the user changet the forms data in order to enable the user to change it. if not we check if they deleted any images as shown below in the (disabled variable).
   const isEqual = useObjectCompare(defaultValues, form.getValues());
@@ -166,7 +166,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       productToEdit?.productImages.find((image) => image.isMain === true) ||
         null
     );
-  }, [isOpen]);
+  }, [isOpen, productToEdit?.productImages]);
 
   async function onSubmit({
     name,
