@@ -73,13 +73,13 @@ export function EditCarGenerationForm({
       queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
 
       toast({
+        className: "bg-primary  text-primary-foreground",
         title: "Done.",
         description: (
           <SuccessToastDescription message="Car generation as been updated." />
         ),
       });
     } catch (error: any) {
-      console.log(error);
       toast({
         variant: "destructive",
         title: "Something went wrong.",

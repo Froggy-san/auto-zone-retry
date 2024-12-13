@@ -101,6 +101,7 @@ function DeleteBtn({
                   setOpen(false);
                   handleResetPage?.();
                   toast({
+                    className: "bg-primary  text-primary-foreground",
                     title: "Deleted.",
                     description: (
                       <SuccessToastDescription message="Car generation has been deleted." />

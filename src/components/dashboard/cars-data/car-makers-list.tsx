@@ -62,7 +62,7 @@ const CarMakerList = () => {
                   No car maker data has been posted yet!
                 </p>
               ) : (
-                <ul className="  grid grid-cols-2 md:grid-cols-3   overscroll-contain xl:grid-cols-4 gap-2 px-1  py-2  sm:p-4 max-h-[45vh] overflow-y-auto  ">
+                <ul className="  grid grid-cols-2 md:grid-cols-3   overscroll-contain xl:grid-cols-4 gap-2 px-1  py-2  sm:p-4 max-h-[45vh] sm:max-h-none overflow-y-auto  ">
                   {carmakers.map((item) => (
                     <CarMakerItem
                       key={item.id}

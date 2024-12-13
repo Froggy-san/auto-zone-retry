@@ -22,13 +22,13 @@ const ProductTypeForm = () => {
       await createProductTypeAction(value);
       setValue("");
       toast({
-        title: "Welcome back.",
+        className: "bg-primary  text-primary-foreground",
+        title: "Done.",
         description: (
           <SuccessToastDescription message="A new product type has been created." />
         ),
       });
     } catch (error: any) {
-      console.log(error.message, "ERROR");
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",

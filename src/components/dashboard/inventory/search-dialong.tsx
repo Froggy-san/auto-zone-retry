@@ -72,13 +72,12 @@ const SearchDialog = ({
     to: initalValus.dateOfOrderTo,
     from: initalValus.dateOfOrderFrom,
   });
-  // console.log(date, "DDDATE");
+
   const [value, setValue] = React.useState(rangeValues);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
 
-  console.log(value, "VALUESS");
   const page = Number(currPage);
 
   const handleMinPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {

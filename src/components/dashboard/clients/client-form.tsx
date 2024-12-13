@@ -132,10 +132,8 @@ const ClientForm = ({
       handleClose();
       setDeletedPhones([]);
       toast({
-        className: "bg-green-700",
-        title: client
-          ? `${client.name}'s data has been changed`
-          : "New client.",
+        className: "bg-primary  text-primary-foreground",
+        title: client ? `Data update.` : "New client.",
         description: (
           <SuccessToastDescription
             message={
@@ -149,7 +147,6 @@ const ClientForm = ({
 
       // handleClose();
     } catch (error: any) {
-      console.log(error);
       // form.reset();
       toast({
         variant: "destructive",

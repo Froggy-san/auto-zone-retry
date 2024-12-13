@@ -340,8 +340,8 @@ function DeleteClientDialog({
                 setIsDeleting(false);
                 handleClose();
                 toast({
-                  className: "bg-green-700",
-                  title: `Client deleted!`,
+                  className: "bg-primary  text-primary-foreground",
+                  title: `Data deleted!`,
                   description: (
                     <SuccessToastDescription
                       message={`${client.name}'s data has been deleted`}

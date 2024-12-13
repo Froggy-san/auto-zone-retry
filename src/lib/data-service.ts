@@ -14,7 +14,6 @@ export async function getAllCategories() {
   });
 
   if (!response.ok) {
-    console.log("Something went wrong while trying to fetch categories data.");
     throw new Error(
       "Something went wrong while trying to fetch categories data."
     );
@@ -36,8 +35,6 @@ export async function getAllCarsInfo() {
   });
 
   if (!response.ok) {
-    console.log("Something went wrong while trying to fetch cars info data.");
-
     throw new Error(
       "Something went wrong while trying to fetch cars info data."
     );
@@ -59,9 +56,6 @@ export async function getAllProductTypes() {
   });
 
   if (!response.ok) {
-    console.log(
-      "Something went wrong while trying to fetch product types data."
-    );
     throw new Error(
       "Something went wrong while trying to fetch product types data."
     );
@@ -83,9 +77,6 @@ export async function getAllProductBrands() {
   });
 
   if (!response.ok) {
-    console.log(
-      "Something went wrong while trying to fetch product brands data."
-    );
     throw new Error(
       "Something went wrong while trying to fetch product brands data."
     );
@@ -114,11 +105,7 @@ export async function getProductFormReleventData() {
 export async function createCarMakerAction(formData: FormData) {
   const token = getToken();
   if (!token) throw new Error("You are not Authorized to make this action.");
-  // const formData = new FormData();
-  // formData.append("name", name);
-  // formData.append("notes", notes);
-  // formData.append("logo", logo[0]);
-  console.log(formData, "formData");
+
   const response = await fetch(`${process.env.API_URL}/api/carmakers`, {
     method: "POST",
     headers: {
@@ -127,7 +114,6 @@ export async function createCarMakerAction(formData: FormData) {
     body: formData,
   });
   if (!response.ok) {
-    console.log("Something went wrong while creating the car maker.");
     throw new Error("Something went wrong!");
   }
 

@@ -39,7 +39,6 @@ export function MultiFileUploader({
       );
 
       fieldChange([...selectedFiles, ...addedImages]);
-      console.log(rejectedFiles);
     },
     [fieldChange, selectedFiles]
   );

@@ -147,12 +147,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
   });
   const { images } = form.watch();
 
-  useEffect(() => {
-    if (!productToEdit && images.length) {
-      setIsMainImage(0);
-    }
-  }, [images, productToEdit]);
-
   // checking if the user changet the forms data in order to enable the user to change it. if not we check if they deleted any images as shown below in the (disabled variable).
   const isEqual = useObjectCompare(defaultValues, form.getValues());
   // if the user didn't change the form's data nor did he delete any already uploaded images we want the submit button to be disabled to prevent any unnecessary api calls.
@@ -160,6 +154,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
     isMainChange === isMainImage && isEqual && !deletedMedia.length;
 
   const isLoading = form.formState.isSubmitting;
+
+  useEffect(() => {
+    if (!productToEdit && images.length) {
+      setIsMainImage(0);
+    }
+  }, [images, productToEdit]);
 
   useEffect(() => {
     setIsMainImage(
@@ -255,7 +255,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       }
 
       toast({
-        title: `Done`,
+        title: `Done.`,
         description: (
           <SuccessToastDescription
             message={`${
@@ -267,7 +267,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
         ),
       });
     } catch (error: any) {
-      console.log(error);
       toast({
         variant: "destructive",
         title: "Something went wrong.",

@@ -87,7 +87,7 @@ const CarModelForm = ({
       queryClient.invalidateQueries({ queryKey: ["carModels"] });
 
       toast({
-        className: "bg-green-700",
+        className: "bg-primary  text-primary-foreground",
         title: "Success!.",
         description: (
           <SuccessToastDescription
@@ -100,7 +100,6 @@ const CarModelForm = ({
         ),
       });
     } catch (error: any) {
-      console.log(error);
       toast({
         variant: "destructive",
         title: "Something went wrong!.",

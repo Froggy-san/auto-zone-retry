@@ -552,19 +552,18 @@ function DeleteProSold({
                 setIsDeleting(false);
                 handleClose();
                 toast({
-                  title: `Client deleted!`,
+                  className: "bg-primary  text-primary-foreground",
+                  title: `Data deleted!.`,
                   description: (
                     <SuccessToastDescription
-                      message={`''s data has been deleted`}
+                      message={`Sold product receipt has been deleted.`}
                     />
                   ),
                 });
               } catch (error: any) {
-                console.log(error);
-
                 toast({
                   variant: "destructive",
-                  title: "Faild to delete client's data",
+                  title: "Faild to delete client's data.",
                   description: <ErorrToastDescription error={error.message} />,
                 });
               }

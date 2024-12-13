@@ -78,13 +78,10 @@ const GrageFilter: React.FC<CarsListProps> = ({
   // Don't make the filter button disppear on the smaller devices when the page count is less than 3 and the page size is less than 2.
   const disapear = count > 2 && Math.ceil(count / PAGE_SIZE) > 3;
 
-  console.log(carModels, "MODELSSS");
-
   const models = chosenMaker
     ? carModels.filter((item) => item.carMakerId === chosenMaker)
     : carModels;
 
-  console.log(models, "UPDATED MODELS");
   const generations = chosenModel
     ? carGeneration.filter((item) => item.carModelId === chosenModel)
     : carGeneration;

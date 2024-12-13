@@ -7,6 +7,7 @@ const ProductFilterInput = ({ name }: { name: string }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const currPage = searchParams.get("page") ?? "1";
 
   const params = new URLSearchParams(searchParams);
   const handleSearch = useCallback(
@@ -16,6 +17,8 @@ const ProductFilterInput = ({ name }: { name: string }) => {
       } else {
         params.set("name", value);
       }
+
+      if (Number(currPage) > 1) params.set("page", "1");
       router.replace(`${pathname}?${params.toString()}`, {
         scroll: false,
       });

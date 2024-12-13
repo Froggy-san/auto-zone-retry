@@ -36,7 +36,7 @@ export const CarModelComboBox: React.FC<CarModelComboBoxProps> = ({
   // const [value, setValue] = React.useState(0);
 
   const selectedItem = options.find((option) => option.id === value);
-  // console.log(options, "OP");
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -76,7 +76,6 @@ export const CarModelComboBox: React.FC<CarModelComboBoxProps> = ({
                   key={option.id}
                   value={option.name + String(option.id)} // to avoid selecting two or more items that has the same name proprty.
                   onSelect={() => {
-                    // console.log(currentValue, "CCCC");
                     setValue(option.id === value ? 0 : option.id);
                     setOpen(false);
                   }}

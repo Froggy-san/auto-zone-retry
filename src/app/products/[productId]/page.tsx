@@ -30,7 +30,7 @@ const ProductView = async ({
 }) => {
   const currPage = searchParams.page ?? "";
   const pageSize = searchParams.size ?? "";
-  console.log(currPage, pageSize, "AYOO ???");
+
   const [product, user, categories, productBrands, brandTypes] =
     await Promise.all([
       getProductByIdAction(params.productId),
@@ -47,8 +47,6 @@ const ProductView = async ({
 
   // const { data: images, error: productImagesError } = productImages;
   // const { data: productData, error: producError } = product;
-
-  // console.log(product.data, productImages.data, "PPPPPPPPPPPPP");
 
   if (error)
     return <p>Something went wrong while searching for the product&rsquo;</p>;

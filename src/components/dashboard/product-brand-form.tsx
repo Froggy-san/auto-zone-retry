@@ -21,14 +21,13 @@ const ProductBrandForm = () => {
       await createProductBrandAction(value);
       setValue("");
       toast({
-        className: "bg-green-700",
-        title: "Welcome back.",
+        className: "bg-primary  text-primary-foreground",
+        title: "Done.",
         description: (
           <SuccessToastDescription message="A new product brand has been created." />
         ),
       });
     } catch (error: any) {
-      console.log(error.message, "ERROR");
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",

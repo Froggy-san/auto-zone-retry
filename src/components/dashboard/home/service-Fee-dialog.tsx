@@ -478,7 +478,8 @@ function DeleteFee({
                 setIsDeleting(false);
                 handleClose();
                 toast({
-                  title: `Service deleted!`,
+                  className: "bg-primary  text-primary-foreground",
+                  title: `Data deleted!.`,
                   description: (
                     <SuccessToastDescription
                       message={`Service fee has been deleted.`}
@@ -486,8 +487,6 @@ function DeleteFee({
                   ),
                 });
               } catch (error: any) {
-                console.log(error);
-
                 toast({
                   variant: "destructive",
                   title: "Faild to delete service fee data.",

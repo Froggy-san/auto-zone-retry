@@ -22,7 +22,6 @@ export async function getAllCarModelsAction(pageNumber?: number) {
   });
 
   if (!response.ok) {
-    console.log("Something went wrong while trying to fetch cars info data.");
     return {
       data: null,
       error: "Something went wrong while trying to fetch cars info data.",
@@ -48,7 +47,7 @@ export async function createCarModelAction(carModel: CreateCarModel) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    console.log("Something went wrong while creating the car model.");
+
     return {
       data: null,
       error: "Something went wrong while creating the car model.",
@@ -105,7 +104,7 @@ export async function deleteCarModelAction(id: number) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    console.log("Something went wrong while creating the car model.");
+
     return {
       data: null,
       error: "Something went wrong while creating the car model.",
@@ -130,7 +129,6 @@ export async function getCarModelsCountAction() {
   });
 
   if (!response.ok) {
-    console.log("Something went wrong while trying to fetch car models count.");
     return {
       data: null,
       error: "Something went wrong while trying to fetch car models count.",

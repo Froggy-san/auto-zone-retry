@@ -131,13 +131,13 @@ const EditSoldForm = ({
       }
       handleClose();
       toast({
+        className: "bg-primary  text-primary-foreground",
         title: "Success!.",
         description: (
           <SuccessToastDescription message="Service fee data has been updated." />
         ),
       });
     } catch (error: any) {
-      console.log(error);
       toast({
         variant: "destructive",
         title: "Something went wrong while updating the service fee data.",

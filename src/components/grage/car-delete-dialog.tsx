@@ -52,14 +52,14 @@ const CarDeleteDialog = ({
       setOpen(false);
       setIsLoading?.(false);
       toast({
+        className: "bg-primary  text-primary-foreground",
         variant: "default",
-        title: "Success.",
+        title: "Data deleted!.",
         description: (
-          <SuccessToastDescription message="Car hass been deleted" />
+          <SuccessToastDescription message="Car has been deleted." />
         ),
       });
     } catch (error: any) {
-      console.log(error);
       setIsLoading?.(false);
       toast({
         variant: "destructive",

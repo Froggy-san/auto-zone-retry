@@ -46,7 +46,9 @@ export function ProdcutAction({
           <DropdownMenuLabel>Product actions</DropdownMenuLabel>
           {/* <DropdownMenuSeparator /> */}
           <DropdownMenuGroup>
-            <Link href={`products/${productId}`}>
+            <Link
+              href={`products/${productId}?size=${pageSize}&page=${currPage}`}
+            >
               <DropdownMenuItem>
                 View
                 <DropdownMenuShortcut>

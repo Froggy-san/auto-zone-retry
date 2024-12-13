@@ -29,7 +29,6 @@ export function GrageFileUploader({
       );
 
       fieldChange([...selectedFiles, ...addedImages]);
-      console.log(rejectedFiles);
     },
     [fieldChange, selectedFiles]
   );
