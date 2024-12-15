@@ -66,11 +66,11 @@ const ClientsTable = ({
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Id</TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Phone numbers</TableHead>
-          <TableHead className="text-right">Cars</TableHead>
+          <TableHead className="w-[100px]">ID</TableHead>
+          <TableHead>NAME</TableHead>
+          <TableHead>EMAIL</TableHead>
+          <TableHead>PHONE NUMBER</TableHead>
+          <TableHead className="text-right">CAR</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

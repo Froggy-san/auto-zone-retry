@@ -221,7 +221,7 @@ function ServiceFeesDialog({
 
           {/* <main className="  gap-6  flex flex-col max-h-[90%]  h-full relative   "> */}
 
-          <div className="border-b flex flex-wrap gap-3  pb-3  text-sm">
+          <div className="   flex flex-wrap gap-3 bg-card/20 rounded-md  justify-center   p-3    text-sm">
             {/* <div className=" flex  flex-col sm:flex-row items-center  gap-3 "> */}
             <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
               <label className=" text-xs " htmlFor="price">
@@ -286,7 +286,7 @@ function ServiceFeesDialog({
             </div>
           </div>
 
-          <div className=" space-y-4    sm:flex-1  sm:px-2   sm:overflow-y-auto">
+          <div className=" space-y-4    sm:flex-1  sm:px-2 pb-1   sm:overflow-y-auto">
             <div className=" flex items-center justify-between">
               <h2 className=" font-semibold text-xl   whitespace-nowrap">
                 <span className=" text-primary"> {servicesArr.length}</span>{" "}

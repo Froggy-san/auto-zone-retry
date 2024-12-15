@@ -132,15 +132,21 @@ const EditSoldForm = ({
       handleClose();
       toast({
         className: "bg-primary  text-primary-foreground",
-        title: "Success!.",
+        title: "Data updated.",
         description: (
-          <SuccessToastDescription message="Service fee data has been updated." />
+          <SuccessToastDescription
+            message={
+              addSoldId
+                ? "New product added to the receipt."
+                : "Product sold data has been updated."
+            }
+          />
         ),
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Something went wrong while updating the service fee data.",
+        title: "Something went wrong.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }
@@ -163,6 +169,37 @@ const EditSoldForm = ({
         </DialogComponent.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
+            {addSoldId && (
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name={"productId"}
+                render={({ field }) => (
+                  <FormItem className=" flex-1">
+                    <FormLabel>Product</FormLabel>
+                    <FormControl>
+                      <ProductsComboBox
+                        value={field.value}
+                        setValue={(value) => {
+                          const product = products.find(
+                            (pro) => pro.id === value
+                          );
+                          field.onChange(value);
+                          if (product)
+                            form.setValue("pricePerUnit", product.salePrice);
+                        }}
+                        options={products}
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter what product you bought.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <div className=" flex    items-center gap-1 xs:gap-3">
               <FormField
                 disabled={isLoading}
@@ -248,31 +285,6 @@ const EditSoldForm = ({
                 )}
               />
             </div>
-
-            {addSoldId && (
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name={"productId"}
-                render={({ field }) => (
-                  <FormItem className=" flex-1">
-                    <FormLabel>Product</FormLabel>
-                    <FormControl>
-                      <ProductsComboBox
-                        value={field.value}
-                        setValue={field.onChange}
-                        options={products}
-                        disabled={isLoading}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Enter what product you bought.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
 
             <FormField
               disabled={isLoading}

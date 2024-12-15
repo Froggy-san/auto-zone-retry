@@ -1,5 +1,5 @@
 "use client";
-import React, { SetStateAction } from "react";
+import React, { SetStateAction, useEffect } from "react";
 import {
   Dialog,
   DialogClose,
@@ -35,6 +35,15 @@ function NoteDialog({
   title?: string;
   description?: React.ReactNode;
 }) {
+  useEffect(() => {
+    const body = document.querySelector("body");
+    if (body) {
+      body.style.pointerEvents = "auto";
+    }
+    return () => {
+      if (body) body.style.pointerEvents = "auto";
+    };
+  }, [open]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <TooltipProvider>
@@ -60,13 +69,13 @@ function NoteDialog({
       <DialogContent className="sm:max-w-[500px]  max-h-[55vh] overflow-y-auto     border-none">
         <DialogHeader>
           <DialogTitle className=" break-all  pr-5">
-            {title ? title : "note."}
+            {title ? title : "Note."}
           </DialogTitle>
           <DialogDescription className={`${!description && "hidden"}`}>
             {description ? description : null}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4   whitespace-pre-wrap   text-left break-all">
+        <div className="grid gap-4 py-4  indent-4  whitespace-pre-wrap   text-left break-all">
           {content}
         </div>
 

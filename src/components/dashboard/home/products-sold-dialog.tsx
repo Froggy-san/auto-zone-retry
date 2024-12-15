@@ -32,6 +32,7 @@ import { deleteProductToSellAction } from "@lib/actions/product-sold-actions";
 import { useToast } from "@hooks/use-toast";
 import Spinner from "@components/Spinner";
 import { DEFAULT_CAR_LOGO, DEFAULT_PRODUCT_PIC } from "@lib/constants";
+import Link from "next/link";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
@@ -173,7 +174,6 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
     params.set("editSold", filter);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
-  // console.log(hasReturnedValue, "SSSSSSS");
 
   //   const [priceValue, setPriceValue] = useState("");
   //   const [discountValue, setDiscountValue] = useState("");
@@ -253,7 +253,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
         >
           Show
         </Button>
-        <DialogContent className="  p-4  sm:p-6  !pb-0  flex flex-col  overflow-y-auto    max-h-[81vh]     max-w-[900px]">
+        <DialogContent className="  p-4  sm:p-6  !pb-0  flex flex-col  overflow-y-auto     max-h-[81vh]     max-w-[900px]">
           <DialogHeader className=" hidden  invisible">
             <DialogTitle>{`'s phome numbers`}</DialogTitle>
             <DialogDescription className=" hidden">
@@ -261,12 +261,14 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
               account and remove your data from our servers.
             </DialogDescription>
           </DialogHeader>
-
+          {/* <h4 className=" text-sm font-semibold  -mb-2  -mt-2 underline ">
+            PRODUCTS SOLD RECEIPT.
+          </h4> */}
           {/* <main className="  gap-6  flex flex-col max-h-[90%]  h-full relative   "> */}
 
-          <div className="border-b flex flex-wrap gap-3  pb-3  text-sm">
+          <div className=" flex flex-wrap gap-3 bg-card/20 rounded-md  justify-center   p-3  text-sm">
             {/* <div className=" flex  flex-col sm:flex-row items-center  gap-3 "> */}
-            <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
+            <div className=" space-y-2  w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]   mb-auto">
               <label className=" text-xs " htmlFor="price">
                 Price per unit
               </label>
@@ -279,7 +281,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
                 }
               />
             </div>
-            <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
+            <div className=" space-y-2  w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]  mb-auto">
               <label className=" text-xs " htmlFor="discount">
                 Discount
               </label>
@@ -292,7 +294,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
                 }
               />
             </div>
-            <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
+            <div className=" space-y-2  w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]  mb-auto">
               <label className=" text-xs " htmlFor="count">
                 Count
               </label>
@@ -305,7 +307,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
                 }
               />
             </div>
-            <div className=" space-y-2  w-[48%] sm:w-[32%]  mb-auto">
+            <div className=" space-y-2  w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]  mb-auto">
               <label className=" text-xs " htmlFor="totalPrice">
                 Total price after discount
               </label>
@@ -318,7 +320,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
                 }
               />
             </div>
-            <div className=" space-y-2   w-[48%] sm:w-[32%]  mb-auto">
+            <div className=" space-y-2   w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]  mb-auto">
               <label className=" text-xs " htmlFor="name">
                 Name
               </label>
@@ -332,7 +334,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
               />
             </div>
 
-            <div className="flex items-center  justify-center  space-x-2   w-[48%] sm:w-[32%] ">
+            <div className="flex items-center  justify-center  space-x-2   w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%] ">
               <Switch
                 id="airplane-mode"
                 checked={hasReturnedValue}
@@ -350,16 +352,16 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
             </div>
           </div>
 
-          <div className=" space-y-4    sm:flex-1  sm:px-2   sm:overflow-y-auto">
+          <div className=" space-y-4    sm:flex-1  sm:px-2  pb-2   sm:overflow-y-auto">
             <div className=" flex items-center justify-between">
               <h2 className=" font-semibold text-xl  whitespace-nowrap">
                 <span className=" text-primary">{productsArr.length}</span>{" "}
                 Products sold.
               </h2>
               <div className=" text-xs   justify-end flex items-center gap-y-1 gap-x-3 flex-wrap text-muted-foreground  ">
-                <div>
-                  Shop: <span>{service.date}</span>
-                </div>
+                <Link href={`/dashboard/customers?name=${service.client.name}`}>
+                  Client: <span>{service.client.name}</span>
+                </Link>
                 <div>
                   Date: <span>{service.date}</span>
                 </div>
@@ -524,7 +526,7 @@ function DeleteProSold({
     <Dialog open={deleteOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px] border-none">
         <DialogHeader>
-          <DialogTitle>Product sold.</DialogTitle>
+          <DialogTitle>Delete product sold.</DialogTitle>
           <DialogDescription>
             {`You are about to delete a product receipt along with all its associated data.`}
           </DialogDescription>

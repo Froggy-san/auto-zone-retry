@@ -51,10 +51,8 @@ import {
 } from "@/components/ui/accordion";
 import Alert from "@components/alert";
 import { isNull } from "lodash";
-export const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
-    value
-  );
+import { formatCurrency } from "@lib/client-helpers";
+
 interface Client {
   name: string;
   email: string;
@@ -247,8 +245,9 @@ const ServicesForm = ({
             Service
           </DialogComponent.Title>
           <DialogComponent.Description>
-            You are initiating a service for &lsquo;asaassa&lsquo; on the
-            vehicle with plate number &lsquo;123123131&lsquo;.
+            You are initiating a service for &lsquo;{client?.name || ""}&lsquo;
+            on the vehicle with plate number &lsquo;{car?.plateNumber || ""}
+            &lsquo;.
           </DialogComponent.Description>
         </DialogComponent.Header>
 
@@ -257,7 +256,7 @@ const ServicesForm = ({
             <Accordion
               type="single"
               collapsible
-              className="w-full   "
+              className="w-full "
               // defaultValue="item-1"
               value={currTab}
               onValueChange={(value) => setCurrTab(value)}
