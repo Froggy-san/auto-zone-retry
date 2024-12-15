@@ -255,6 +255,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       }
 
       toast({
+        className: "bg-primary  text-primary-foreground",
         title: `Done.`,
         description: (
           <SuccessToastDescription
