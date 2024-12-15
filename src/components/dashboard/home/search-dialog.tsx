@@ -383,15 +383,20 @@ const SearchDialog = ({
             </div>
           </div>
           <div className=" flex flex-col-reverse gap-2 mt-4">
-            <DialogComponent.Close>
-              <Button
+            <DialogComponent.Close
+              className="inline-flex items-center justify-center whitespace-nowrap  font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-8 rounded-md px-3 text-xs
+            
+            bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80"
+            >
+              Cancel
+              {/* <Button
                 variant="secondary"
                 size="sm"
                 type="button"
                 className=" w-full"
               >
-                Cancel
-              </Button>
+                Cancel */}
+              {/* </Button> */}
             </DialogComponent.Close>
             <Button type="submit" size="sm">
               Search...

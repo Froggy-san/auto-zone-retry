@@ -106,7 +106,15 @@ function DeleteBtn({
         className: "bg-primary  text-primary-foreground",
         title: "Data deleted.",
         description: (
-          <SuccessToastDescription message="Car model has been deleted." />
+          <SuccessToastDescription
+            message={`${
+              itemType === "category"
+                ? "Category"
+                : itemType === "productBrand"
+                ? "Product brand"
+                : "Product type"
+            } has been deleted.`}
+          />
         ),
       });
     } catch (error: any) {
@@ -134,7 +142,15 @@ function DeleteBtn({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] border-none">
         <DialogHeader>
-          <DialogTitle>Delete category {item.id}</DialogTitle>
+          <DialogTitle>
+            Delete{" "}
+            {itemType === "category"
+              ? "Category"
+              : itemType === "productBrand"
+              ? "Product brand"
+              : "Product Type"}{" "}
+            &apos;{item.name}&apos;
+          </DialogTitle>
           <DialogDescription>
             This action can&apos;t be undone.
           </DialogDescription>

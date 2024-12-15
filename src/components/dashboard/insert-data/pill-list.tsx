@@ -48,11 +48,11 @@ const PillList = ({
 
         <AccordionContent>
           <ul className=" flex gap-2  max-h-[50Vh] overflow-y-auto  flex-wrap">
-            {result.map((category, index) => (
+            {result.map((item, index) => (
               <PillITem
                 itemType={itemType}
-                key={index}
-                item={category}
+                key={item.id}
+                item={item}
                 handleResetPage={handleResetPage}
               />
             ))}

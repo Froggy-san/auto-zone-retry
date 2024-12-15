@@ -262,7 +262,7 @@ function Row({
           </div>
         </TableCell> */}
       </TableRow>
-      <DeleteDialog
+      {/* <DeleteDialog
         currPage={currPage}
         pageSize={currPageSize}
         service={service}
@@ -273,7 +273,7 @@ function Row({
         open={typeof deleteOpen === "number"}
         productBoughtId={deleteOpen}
         handleClose={handleClose}
-      />
+      /> */}
       {/* <ProductsDialog
         service={service}
         open={open}
@@ -595,11 +595,10 @@ function DeleteService({
         </DialogHeader>
 
         <DialogFooter className="   gap-2 sm:gap-0">
-          <DialogClose asChild>
-            <Button size="sm" variant="secondary">
-              Cancel
-            </Button>
-          </DialogClose>
+          <Button onClick={handleClose} size="sm" variant="secondary">
+            Cancel
+          </Button>
+
           <Button
             disabled={isDeleting}
             variant="destructive"
@@ -699,10 +698,11 @@ function DeleteDialog({
         </DialogHeader>
 
         <DialogFooter className="   gap-2 sm:gap-0">
-          <DialogClose asChild>
-            <Button size="sm" variant="secondary">
+          <DialogClose>
+            Cancel
+            {/* <Button size="sm" variant="secondary">
               Cancel
-            </Button>
+            </Button> */}
           </DialogClose>
           <Button
             disabled={isDeleting}

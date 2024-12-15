@@ -22,7 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@components/ui/tooltip";
-import Link from "next/link";
+
 import { LinkPreview } from "@components/link-preview";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import SuccessToastDescription, {
@@ -526,7 +526,7 @@ function DeleteProSold({
         <DialogHeader>
           <DialogTitle>Product sold.</DialogTitle>
           <DialogDescription>
-            {`You are about to delete a fee along with all its associated data.`}
+            {`You are about to delete a product receipt along with all its associated data.`}
           </DialogDescription>
         </DialogHeader>
 
