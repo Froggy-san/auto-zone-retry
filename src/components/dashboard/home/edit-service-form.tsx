@@ -60,15 +60,13 @@ const EditServiceForm = ({
   clients: ClientWithPhoneNumbers[];
   cars: CarItem[];
   open: boolean;
-  setOpen: React.Dispatch<SetStateAction<"edit" | "delete" | "">>;
+  setOpen: React.Dispatch<SetStateAction<"edit" | "delete" | "note" | "">>;
   setIsLoading: React.Dispatch<SetStateAction<boolean>>;
   service: Service;
   status: ServiceStatus[];
 }) => {
   const { toast } = useToast();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+
   const defaultValues = {
     date: new Date(service.date),
     clientId: service.client.id || 0,

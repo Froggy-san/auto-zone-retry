@@ -50,6 +50,7 @@ import {
   Ellipsis,
   HandPlatter,
   LoaderCircle,
+  NotepadTextDashed,
   PackageMinus,
   PackagePlus,
   Pencil,
@@ -83,6 +84,7 @@ import {
 } from "@lib/actions/serviceActions";
 import EditServiceForm from "./edit-service-form";
 import { formatCurrency } from "@lib/client-helpers";
+import NoteDialog from "@components/grage/note-dialog";
 
 const ServiceTable = ({
   categories,
@@ -301,7 +303,8 @@ function TableActions({
   currPageSize: number;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [open, setOpen] = useState<"delete" | "edit" | "">("");
+  const [open, setOpen] = useState<"delete" | "edit" | "note" | "">("");
+
   // const [open, setOpen] = useState(false);
   // const [chosenStatus, setChosenStatus] = useState<number>(service.status.id);
   const [isLoading, setIsLoading] = useState(false);
@@ -419,6 +422,15 @@ function TableActions({
           </DropdownMenuItem>
 
           <DropdownMenuItem
+            disabled={!service.note}
+            className=" gap-2"
+            onClick={() => {
+              setOpen("note");
+            }}
+          >
+            <NotepadTextDashed className=" w-4 h-4" /> View receipt note
+          </DropdownMenuItem>
+          <DropdownMenuItem
             className=" gap-2"
             onClick={() => {
               params.set("addFeeId", service.id.toString());
@@ -519,6 +531,14 @@ function TableActions({
         setIsDeleting={setIsLoading}
         open={open === "delete"}
         handleClose={() => setOpen("")}
+      />
+
+      <NoteDialog
+        description={`Note related to a car with the plate number '${service.car.plateNumber}' belonging to '${service.client.name}', with a service date of '2024-11-06.'`}
+        className="hidden"
+        open={open === "note"}
+        onOpenChange={() => setOpen("")}
+        content={service.note}
       />
 
       {/* <EditReceipt

@@ -94,9 +94,9 @@ const InventoryTable = ({
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Id</TableHead>
-          <TableHead>Shop name</TableHead>
-          <TableHead className="text-right">Date of order</TableHead>
+          <TableHead className="w-[100px]">ID</TableHead>
+          <TableHead>SHOP NAME</TableHead>
+          <TableHead className="text-right">DATE OF ORDER</TableHead>
           <TableHead></TableHead>
         </TableRow>
       </TableHeader>

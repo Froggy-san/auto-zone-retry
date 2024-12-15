@@ -133,13 +133,19 @@ const EditFeesForm = ({
         className: "bg-primary  text-primary-foreground",
         title: "Success!.",
         description: (
-          <SuccessToastDescription message="Service fee data has been updated." />
+          <SuccessToastDescription
+            message={
+              addFeeId
+                ? "A new service fee added to the receipt"
+                : "Service fee data has been updated."
+            }
+          />
         ),
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Something went wrong while updating the service fee data.",
+        title: "Something went wrong.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }
