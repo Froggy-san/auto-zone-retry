@@ -30,6 +30,7 @@ import { useMediaQuery } from "@mui/material";
 import { Button } from "@components/ui/button";
 import { Check, Ellipsis } from "lucide-react";
 import { GiTumbleweed } from "react-icons/gi";
+import SoldMoreDetails from "./sold-more-details";
 
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
@@ -294,6 +295,8 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
         <div className="leading-none text-muted-foreground">
           Showing total products sold {description}
         </div>
+
+        <SoldMoreDetails products={productsPie} date={date} />
       </CardFooter>
     </Card>
   );
