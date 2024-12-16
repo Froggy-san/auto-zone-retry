@@ -117,12 +117,15 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
               pricePerUnit: pro?.pricePerUnit,
               totalCount: 0,
               totalDiscount: 0,
-              fill: colors[index],
+              // fill: colors[index],
               totalPriceAfterDiscount: 0,
             }
           );
       })
-      .sort((a, b) => b[sortDataBy] - a[sortDataBy]);
+      .sort((a, b) => b[sortDataBy] - a[sortDataBy])
+      .map((item, index) => {
+        return { ...item, fill: colors[index] || "hsl(0deg 0% 50.2%)" };
+      });
   }, [flatData]);
 
   // If there is more than 6 items we want to grop the rest into the others group.
@@ -191,7 +194,7 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
             disabled={!productsSoldData.length}
             variant="outline"
             size="icon"
-            className="      absolute right-5 top-5  p-0 h-6 w-6"
+            className="absolute right-5 top-5  p-0 h-6 w-6"
           >
             <Ellipsis className=" w-4 h-4" />
           </Button>
@@ -292,7 +295,7 @@ export function SoldProductsPie({ salesData, date, description }: Props) {
         {/* <div className="flex items-center gap-2 font-medium leading-none">
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div> */}
-        <div className="leading-none text-muted-foreground">
+        <div className="leading-none text-muted-foreground text-center">
           Showing total products sold {description}
         </div>
 

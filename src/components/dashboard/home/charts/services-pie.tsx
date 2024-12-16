@@ -28,6 +28,7 @@ import { cn } from "@lib/utils";
 
 import { Button } from "@components/ui/button";
 import { GiTumbleweed } from "react-icons/gi";
+import FeesMoreDetails from "./fees-more-details";
 
 const chartData = [
   { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
@@ -114,12 +115,15 @@ export function ServicePie({
               totalPrice: 0,
               totalCount: 0,
               totalDiscount: 0,
-              fill: colors[index],
+              // fill: colors[index],
               totalPriceAfterDiscount: 0,
             }
           );
       })
-      .sort((a, b) => b[sortDataBy] - a[sortDataBy]);
+      .sort((a, b) => b[sortDataBy] - a[sortDataBy])
+      .map((fee, index) => {
+        return { ...fee, fill: colors[index] || "hsl(0deg 0% 50.2%)" };
+      });
   }, [flatData]);
 
   const servicesMoreThanSix = React.useMemo(() => {
@@ -269,9 +273,10 @@ export function ServicePie({
         {/* <div className="flex items-center gap-2 font-medium leading-none">
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div> */}
-        <div className="leading-none text-muted-foreground">
+        <div className="leading-none text-muted-foreground text-center">
           Showing total services preformed {description}
         </div>
+        <FeesMoreDetails fees={servicePie} date={date} />
       </CardFooter>
     </Card>
   );

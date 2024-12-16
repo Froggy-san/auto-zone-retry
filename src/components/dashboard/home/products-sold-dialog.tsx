@@ -266,7 +266,7 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
           </h4> */}
           {/* <main className="  gap-6  flex flex-col max-h-[90%]  h-full relative   "> */}
 
-          <div className=" flex flex-wrap gap-3 bg-card/20 rounded-md  justify-center   p-3  text-sm">
+          <div className=" flex flex-wrap gap-2 xs:gap-3 bg-card/20 rounded-md  justify-center   p-3  text-sm">
             {/* <div className=" flex  flex-col sm:flex-row items-center  gap-3 "> */}
             <div className=" space-y-2  w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]   mb-auto">
               <label className=" text-xs " htmlFor="price">
