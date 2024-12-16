@@ -164,6 +164,36 @@ const SalesCharts = () => {
     );
   }, [selected, dataByDate]);
   // .filter((item) => item.totalPriceAfterDiscount > 0);
+  console.log(salesData, "SATELS DATA");
+
+  const { growthRates, averageGrowthRate, trend } = useMemo(() => {
+    const revenueData = salesData.filter(
+      (item) => item.totalPriceAfterDiscount > 0
+    );
+    if (revenueData.length < 2) {
+      return {
+        growthRates: [],
+        averageGrowthRate: 0,
+        trend: "Not enough data",
+      };
+    }
+    const growthRates = [];
+    for (let i = 1; i < revenueData.length; i++) {
+      const previousRevenue = revenueData[i - 1].totalPriceAfterDiscount;
+      const currentRevenue = revenueData[i].totalPriceAfterDiscount;
+      const growthRate =
+        ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+      growthRates.push(growthRate);
+    }
+    const averageGrowthRate =
+      growthRates.reduce((sum, rate) => sum + rate, 0) / growthRates.length;
+
+    return {
+      growthRates,
+      averageGrowthRate,
+      trend: averageGrowthRate > 0 ? "Upward" : "Downward",
+    };
+  }, [salesData]);
 
   const description = useMemo(() => {
     switch (selected) {
@@ -195,93 +225,87 @@ const SalesCharts = () => {
           <CardDescription>Showing total revenue {description}</CardDescription>
         </CardHeader>
         <CardContent className=" p-1 pt-0 sm:p-6">
-          {!salesData.length ? (
-            <div className="   flex   justify-center my-7 items-center gap-1 ">
-              No data <GiTumbleweed className=" w-4 h-4" />
-            </div>
-          ) : (
-            <ChartContainer config={chartConfig} className=" h-[50vh] w-full  ">
-              <AreaChart
-                accessibilityLayer
-                data={salesData}
-                margin={{
-                  left: 12,
-                  right: 12,
+          <ChartContainer config={chartConfig} className=" h-[50vh] w-full  ">
+            <AreaChart
+              accessibilityLayer
+              data={salesData}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => {
+                  return value;
                 }}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => {
-                    return value;
-                  }}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => value.toLocaleString()}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContentCustom />}
-                />
-                <defs>
-                  <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="5%"
-                      stopColor="var(--color-desktop)"
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor="var(--color-desktop)"
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                  <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="5%"
-                      stopColor="var(--color-mobile)"
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor="var(--color-mobile)"
-                      stopOpacity={0.1}
-                    />
-                  </linearGradient>
-                </defs>
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.toLocaleString()}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContentCustom />}
+              />
+              <defs>
+                <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-desktop)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+                <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="var(--color-mobile)"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="var(--color-mobile)"
+                    stopOpacity={0.1}
+                  />
+                </linearGradient>
+              </defs>
 
-                <Area
-                  dataKey="totalDiscount"
-                  type="monotone"
-                  fill="url(#fillMobile)"
-                  fillOpacity={0.4}
-                  stroke="var(--color-mobile)"
-                  stackId="a"
-                />
+              <Area
+                dataKey="totalDiscount"
+                type="monotone"
+                fill="url(#fillMobile)"
+                fillOpacity={0.4}
+                stroke="var(--color-mobile)"
+                stackId="a"
+              />
 
-                <Area
-                  dataKey="totalPriceAfterDiscount"
-                  type="monotone"
-                  fill="url(#fillDesktop)"
-                  fillOpacity={0.4}
-                  stroke="var(--color-desktop)"
-                  stackId="a"
-                />
-              </AreaChart>
-            </ChartContainer>
-          )}
+              <Area
+                dataKey="totalPriceAfterDiscount"
+                type="monotone"
+                fill="url(#fillDesktop)"
+                fillOpacity={0.4}
+                stroke="var(--color-desktop)"
+                stackId="a"
+              />
+            </AreaChart>
+          </ChartContainer>
         </CardContent>
         <CardFooter>
           <div className="flex w-full items-start gap-2 text-sm">
             <div className="grid gap-2">
               <div className="flex items-center gap-2 font-medium leading-none">
-                Trending up by 5.2% this month{" "}
+                Trending {trend} by {averageGrowthRate.toFixed(1)}% this month{" "}
                 <TrendingUp className="h-4 w-4" />
               </div>
               <div className="flex items-center gap-2 leading-none text-muted-foreground">
@@ -291,7 +315,7 @@ const SalesCharts = () => {
           </div>
         </CardFooter>
       </Card>
-      <div className=" flex flex-col items-center   1xs:flex-row gap-3 md:gap-10">
+      <div className=" flex flex-col   items-stretch  1xs:flex-row gap-3 lg:gap-10">
         <SoldProductsPie
           date={date}
           description={description}

@@ -4,40 +4,36 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import useLocalPagination from "@hooks/use-local-pagination";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
 import { formatCurrency } from "@lib/client-helpers";
-import Link from "next/link";
 
-interface Product {
+interface Fee {
   id: number;
-  productName?: string;
-  productImage: string | null;
-  pricePerUnit?: number;
+  name: string | number;
+  totalPrice: number;
   totalCount: number;
   totalDiscount: number;
   fill: string;
   totalPriceAfterDiscount: number;
 }
 interface Props {
-  products: Product[];
+  fees: Fee[];
   date: (string | Date | undefined)[];
 }
-const SoldMoreDetails = ({ products, date }: Props) => {
+const FeesMoreDetails = ({ fees, date }: Props) => {
   const [page, setpage] = useState(1);
 
   const { result, totalPages } = useLocalPagination({
     currPage: page,
     pageSize: 10,
-    arr: products,
+    arr: fees,
   });
   return (
     <Dialog>
@@ -48,45 +44,35 @@ const SoldMoreDetails = ({ products, date }: Props) => {
       </DialogTrigger>
       <DialogContent className=" p-0 gap-0">
         <DialogHeader className=" p-6 pb-1">
-          <DialogTitle>Sold product detials</DialogTitle>
+          <DialogTitle>Services preformed details</DialogTitle>
           <DialogDescription>
-            This is a list of all products sold for the period{" "}
-            {`'${date[0]}-${date[1]}'`} .
+            This is a list of all services preformed for the period{" "}
+            {`'${date[0]}-${date[1]}'`}.
           </DialogDescription>
         </DialogHeader>
         <ul className=" space-y-2 relative max-h-[55vh]    py-2  pr-2 xs:px-4 mx-2 overflow-y-auto">
-          {result.map((pro) => (
-            <Link
-              href={`/products/${pro.id}`}
-              key={pro.id}
-              className="flex gap-1 sm:gap-x-3   h-fit  rounded-md  bg-secondary   dark:bg-card/30 overflow-hidden"
+          {result.map((fee) => (
+            <li
+              key={fee.id}
+              className="  p-3 gap-1   h-fit  rounded-md space-y-1  bg-secondary dark:bg-card/30 overflow-hidden"
             >
-              <div className="  min-w-[120px] max-w-[120px]  sm:min-w-[150px] sm:max-w-[150px]   sm:max-h-32  flex   items-center justify-center">
-                {pro.productImage && (
-                  <img
-                    src={pro.productImage}
-                    alt="Product image"
-                    className="   w-full  h-full object-cover"
-                  />
-                )}
+              <div className=" flex items-center gap-1">
+                <div
+                  className=" w-4 h-4  rounded  "
+                  style={{ backgroundColor: `${fee.fill}` }}
+                />
+                <h2 className=" max-w-full  line-clamp-1  font-semibold text-sm ">
+                  {fee.name}
+                </h2>
               </div>
 
-              <div className=" text-left flex-1 relative p-2">
-                <h2 className=" max-w-full  line-clamp-1  font-semibold text-sm ">
-                  {pro.productName}
-                </h2>
-                <div className=" flex items-center text-xs text-muted-foreground max-w-full gap-y-2 sm:gap-y-0 gap-x-5 flex-wrap">
-                  <p>Total units sold: {pro.totalCount}</p>
-                  <p>Total discount: {formatCurrency(pro.totalDiscount)}</p>
-                  <p>Price per unit: {formatCurrency(pro.pricePerUnit || 0)}</p>
-                  <p>Net: {formatCurrency(pro.totalPriceAfterDiscount)}</p>
-                  <div
-                    className=" w-4 h-4  rounded  "
-                    style={{ backgroundColor: `${pro.fill}` }}
-                  />
-                </div>
+              <div className=" flex items-center text-xs text-muted-foreground max-w-full gap-y-2 sm:gap-y-0 gap-x-5 flex-wrap">
+                <p>Total units sold: {fee.totalCount}</p>
+                <p>Price per unit: {formatCurrency(fee.totalPrice || 0)}</p>
+                <p>Total discount: {formatCurrency(fee.totalDiscount)}</p>
+                <p>Net: {formatCurrency(fee.totalPriceAfterDiscount)}</p>
               </div>
-            </Link>
+            </li>
           ))}
         </ul>
         <div className=" p-6 pt-2 flex  items-center justify-between relative">
@@ -126,4 +112,4 @@ const SoldMoreDetails = ({ products, date }: Props) => {
   );
 };
 
-export default SoldMoreDetails;
+export default FeesMoreDetails;

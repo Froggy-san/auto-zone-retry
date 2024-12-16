@@ -154,7 +154,11 @@ body {
       transform: translate(-50%, -50%) scale(1.05);
     }
   }
-
+  .truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .dialog {
     position: fixed;
     top: 50%;
