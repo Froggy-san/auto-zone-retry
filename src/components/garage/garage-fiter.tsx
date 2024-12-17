@@ -42,7 +42,7 @@ interface CarsListProps {
   count: number;
 }
 
-const GrageFilter: React.FC<CarsListProps> = ({
+const GarageFilter: React.FC<CarsListProps> = ({
   carMakerId,
   carModelId,
   carMakers,
@@ -348,4 +348,4 @@ const GrageFilter: React.FC<CarsListProps> = ({
   );
 };
 
-export default GrageFilter;
+export default GarageFilter;

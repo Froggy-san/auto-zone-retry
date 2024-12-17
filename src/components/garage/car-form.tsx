@@ -34,7 +34,7 @@ import Spinner from "@components/Spinner";
 import { Textarea } from "@components/ui/textarea";
 import { ClientsComboBox } from "@components/clients-combobox";
 import { createCarAction, editCarAction } from "@lib/actions/carsAction";
-import { GrageFileUploader } from "./grage-files-uploader";
+import { GarageFileUploader } from "./garage-files-uploader";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { ComboBox } from "@components/combo-box";
@@ -64,8 +64,8 @@ const CarForm = ({
   const router = useRouter();
   const pathname = usePathname();
   const edit = searchParam.get("edit") ?? "";
-  const queryClient = useQueryClient();
-  const [isOpen, setIsOpen] = useState(false);
+
+  const [isOpen, setIsOpen] = useState(edit ? true : false);
   const [deletedMedia, setDeletedMedia] = useState<CarImage[]>([]);
   const [carMakerId, setCarMakerId] = useState(
     carToEdit?.carInfo.carMaker.id || 0
@@ -120,13 +120,8 @@ const CarForm = ({
       ? carGenerations.filter((gen) => gen.carModelId === carModelId)
       : [];
   const params = new URLSearchParams(searchParam);
-  function handleOpen(filter: string) {
-    if (useParams) {
-      params.set("edit", filter);
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    } else {
-      setIsOpen(true);
-    }
+  function handleOpen() {
+    setIsOpen(true);
   }
 
   function handleReset() {
@@ -137,13 +132,13 @@ const CarForm = ({
   }
 
   function handleClose() {
-    if (useParams) {
+    if (edit) {
       const params = new URLSearchParams(searchParam);
       params.delete("edit");
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    } else {
-      setIsOpen(false);
     }
+    setIsOpen(false);
+
     if (isLoading) return;
     handleReset();
   }
@@ -225,11 +220,7 @@ const CarForm = ({
   return (
     <DialogComponent open={isEditing} onOpenChange={handleClose}>
       {open === undefined && (
-        <Button
-          onClick={() => handleOpen("open")}
-          size="sm"
-          className=" w-full"
-        >
+        <Button onClick={handleOpen} size="sm" className=" w-full">
           {carToEdit ? "Edit car" : " Create car"}
         </Button>
       )}
@@ -451,7 +442,7 @@ const CarForm = ({
                 <FormItem className=" w-full mb-auto">
                   <FormLabel>Car information</FormLabel>
                   <FormControl>
-                    <GrageFileUploader
+                    <GarageFileUploader
                       selectedFiles={field.value}
                       handleDeleteMedia={handleDeleteMedia}
                       fieldChange={field.onChange}

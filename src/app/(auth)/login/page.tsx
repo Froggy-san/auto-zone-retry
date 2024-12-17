@@ -27,9 +27,13 @@ import { useToast } from "@/hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@/components/toast-items";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type LoginFormSchemaTypes = z.infer<typeof LoginFormSchema>;
 const Page = () => {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") ?? "";
+
   const [isShowPass, setIsShowPass] = useState(false);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof LoginFormSchema>>({
@@ -45,7 +49,7 @@ const Page = () => {
 
   async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
     try {
-      await loginUser(values);
+      await loginUser(values, redirect);
 
       toast({
         className: "bg-primary  text-primary-foreground",
@@ -80,9 +84,7 @@ const Page = () => {
                 <FormControl>
                   <Input placeholder="shadcn" {...field} />
                 </FormControl>
-                <FormDescription>
-                  This is your public display name.
-                </FormDescription>
+                <FormDescription>Enter user name.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

@@ -84,7 +84,7 @@ import {
 } from "@lib/actions/serviceActions";
 import EditServiceForm from "./edit-service-form";
 import { formatCurrency } from "@lib/client-helpers";
-import NoteDialog from "@components/grage/note-dialog";
+import NoteDialog from "@components/garage/note-dialog";
 
 const ServiceTable = ({
   categories,

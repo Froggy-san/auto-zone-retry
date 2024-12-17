@@ -1,8 +1,8 @@
 import ErrorMessage from "@components/error-message";
-import CarManagement from "@components/grage/car-management";
-import CarsList from "@components/grage/cars-list";
-import GrageFilterbar from "@components/grage/grage-filter-bar";
-import GragePagination from "@components/grage/grage-pagination";
+import CarManagement from "@components/garage/car-management";
+import CarsList from "@components/garage/cars-list";
+import GarageFilterbar from "@components/garage/garage-filter-bar";
+import GaragePagination from "@components/garage/garage-pagination";
 import Header from "@components/home/header";
 import IntersectionProvidor from "@components/products/intersection-providor";
 import Spinner from "@components/Spinner";
@@ -75,7 +75,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
       <Header />
       <IntersectionProvidor>
         <div className=" flex   flex-1  w-full">
-          <GrageFilterbar
+          <GarageFilterbar
             count={countData || 0}
             carMakers={carMakersData}
             carModels={carModelsData}
@@ -112,7 +112,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             {countError ? (
               <ErrorMessage>{countError} </ErrorMessage>
             ) : (
-              <GragePagination
+              <GaragePagination
                 count={countData}
                 // key={paginationKey}
                 // color={color}

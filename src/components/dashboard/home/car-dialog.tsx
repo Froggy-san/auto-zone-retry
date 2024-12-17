@@ -14,7 +14,7 @@ import { Service } from "@lib/types";
 import ProductImages from "@components/products/product-images";
 import { ImageOff } from "lucide-react";
 import Link from "next/link";
-import NoteDialog from "@components/grage/note-dialog";
+import NoteDialog from "@components/garage/note-dialog";
 
 const CarDialog = ({ service }: { service: Service }) => {
   const [noteOpen, setNoteOpen] = useState(false);
@@ -64,7 +64,7 @@ const CarDialog = ({ service }: { service: Service }) => {
           />
 
           <Link
-            href={`/grage/${service.client.id}?car=${car.id}`}
+            href={`/garage/${service.client.id}?car=${car.id}`}
             className="  space-y-1 text-sm text-muted-foreground "
           >
             <div className=" line-clamp-1 ">Client: {service.client.name}</div>

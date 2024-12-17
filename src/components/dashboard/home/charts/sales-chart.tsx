@@ -43,6 +43,7 @@ import { useMemo, useState } from "react";
 import { ServicePie } from "./services-pie";
 import { SoldProductsPie } from "./sold-products-pie";
 import { GiTumbleweed } from "react-icons/gi";
+import WarningTooltip from "./warning-tooltop";
 
 type selected = "year" | "all" | string;
 
@@ -164,8 +165,6 @@ const SalesCharts = () => {
     );
   }, [selected, dataByDate]);
   // .filter((item) => item.totalPriceAfterDiscount > 0);
-  console.log(salesData, "SATELS DATA");
-
   const { growthRates, averageGrowthRate, trend } = useMemo(() => {
     const revenueData = salesData.filter(
       (item) => item.totalPriceAfterDiscount > 0
@@ -219,7 +218,8 @@ const SalesCharts = () => {
   return (
     <div className=" space-y-7 sm:mx-5">
       <FilterBar selected={selected} setSelected={setSelected} />
-      <Card className=" ">
+      <Card className="  relative">
+        <WarningTooltip />
         <CardHeader>
           <CardTitle>Revenue</CardTitle>
           <CardDescription>Showing total revenue {description}</CardDescription>
@@ -305,8 +305,15 @@ const SalesCharts = () => {
           <div className="flex w-full items-start gap-2 text-sm">
             <div className="grid gap-2">
               <div className="flex items-center gap-2 font-medium leading-none">
-                Trending {trend} by {averageGrowthRate.toFixed(1)}% this month{" "}
-                <TrendingUp className="h-4 w-4" />
+                {!averageGrowthRate ? (
+                  `${trend}`
+                ) : (
+                  <>
+                    {" "}
+                    Trending {trend} by {averageGrowthRate.toFixed(1)}%{" "}
+                    <TrendingUp className="h-4 w-4" />
+                  </>
+                )}
               </div>
               <div className="flex items-center gap-2 leading-none text-muted-foreground">
                 {`${date[0]}`} - {`${date[1]}`}
@@ -315,7 +322,7 @@ const SalesCharts = () => {
           </div>
         </CardFooter>
       </Card>
-      <div className=" flex flex-col   items-stretch  1xs:flex-row gap-3 lg:gap-10">
+      <div className=" flex flex-col   items-center  1xs:flex-row gap-3 lg:gap-10">
         <SoldProductsPie
           date={date}
           description={description}

@@ -4,16 +4,13 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import useLocalPagination from "@hooks/use-local-pagination";
 import { Button } from "@components/ui/button";
-import { MoveLeft, MoveRight } from "lucide-react";
+import { ImageOff, MoveLeft, MoveRight } from "lucide-react";
 import { formatCurrency } from "@lib/client-helpers";
 import Link from "next/link";
 
@@ -51,7 +48,7 @@ const SoldMoreDetails = ({ products, date }: Props) => {
           <DialogTitle>Sold product detials</DialogTitle>
           <DialogDescription>
             This is a list of all products sold for the period{" "}
-            {`'${date[0]}-${date[1]}'`} .
+            {`'${date[0]}-${date[1]}'`}.
           </DialogDescription>
         </DialogHeader>
         <ul className=" space-y-2 relative max-h-[55vh]    py-2  pr-2 xs:px-4 mx-2 overflow-y-auto">
@@ -61,13 +58,17 @@ const SoldMoreDetails = ({ products, date }: Props) => {
               key={pro.id}
               className="flex gap-1 sm:gap-x-3   h-fit  rounded-md  bg-secondary   dark:bg-card/30 overflow-hidden"
             >
-              <div className="  min-w-[120px] max-w-[120px]  sm:min-w-[150px] sm:max-w-[150px]   sm:max-h-32  flex   items-center justify-center">
-                {pro.productImage && (
+              <div className="  min-w-[120px] max-w-[120px]  sm:min-w-[150px] sm:max-w-[150px]   sm:max-h-28  flex   items-center justify-center">
+                {pro.productImage ? (
                   <img
                     src={pro.productImage}
                     alt="Product image"
                     className="   w-full  h-full object-cover"
                   />
+                ) : (
+                  <div className=" h-full w-full flex items-center justify-center  bg-foreground/10   ">
+                    <ImageOff className=" w-6 h-6" />
+                  </div>
                 )}
               </div>
 

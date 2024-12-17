@@ -221,7 +221,7 @@ export async function editCarAction({
   }
 
   revalidateTag("cars");
-  revalidatePath(`/grage/${id}`);
+  revalidatePath(`/garage/${id}`);
 
   return { data: null, error: "" };
 }
@@ -252,7 +252,7 @@ export async function deleteCarAction(id: string) {
 
   return { data: null, error: "" };
 }
-interface GragePaginationProps {
+interface GaragePaginationProps {
   color?: string;
   plateNumber?: string;
   chassisNumber?: string;
@@ -272,7 +272,7 @@ export async function getCarsCountAction({
   carInfoId,
   carMakerId,
   carModelId,
-}: GragePaginationProps) {
+}: GaragePaginationProps) {
   const token = getToken();
 
   if (!token)
