@@ -25,6 +25,11 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@/components/toast-items";
 import { signUp } from "@/lib/actions/authActions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sign-up",
+};
 
 type sginUpSchemaTypes = z.infer<typeof SignUpFormSchema>;
 

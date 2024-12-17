@@ -11,7 +11,13 @@ import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 import { getAllCarModelsAction } from "@lib/actions/carModelsActions";
 import { getCarsCountAction } from "@lib/actions/carsAction";
 import { getClientsDataAction } from "@lib/actions/clientActions";
+import { Metadata } from "next";
 import React, { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Garage",
+};
+
 interface SearchParams {
   page?: string;
   color?: string;

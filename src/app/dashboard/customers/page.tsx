@@ -3,7 +3,13 @@ import ClientSearch from "@components/dashboard/clients/client-search";
 import ClientsList from "@components/dashboard/clients/clients-list";
 import ClientsPagination from "@components/dashboard/clients/clients-pagination";
 import Spinner from "@components/Spinner";
+import { Metadata } from "next";
 import React, { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Customers",
+};
+
 interface SearchParams {
   page?: string;
   name?: string;

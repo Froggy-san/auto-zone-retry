@@ -2,7 +2,13 @@ import EditFeesManagement from "@components/dashboard/home/edit-fees-management"
 import ServiceList from "@components/dashboard/home/service-list";
 import ServicePagination from "@components/dashboard/home/service-pagination";
 import Spinner from "@components/Spinner";
+import { Metadata } from "next";
 import React, { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Home",
+};
+
 interface SearchParams {
   page?: string;
   dateFrom?: string;

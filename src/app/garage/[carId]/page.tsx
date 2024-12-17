@@ -21,6 +21,11 @@ import Link from "next/link";
 import ServiceManagement from "@components/garage/add-service";
 import { getAllCarGenerationsAction } from "@lib/actions/carGenerationsActions";
 import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Car Details",
+};
 
 interface Params {
   carId: string;

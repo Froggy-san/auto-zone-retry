@@ -12,6 +12,11 @@ import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
 
 import ProductManagement from "@components/products-management";
 import { getProductsCountAction } from "@lib/actions/productsActions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Products",
+};
 
 // Define the type for searchParam
 interface SearchParams {

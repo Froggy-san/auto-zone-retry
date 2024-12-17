@@ -1,9 +1,12 @@
 import CarGenAndModelManagement from "@components/dashboard/car-generation-management";
 import CarMakerManagement from "@components/dashboard/car-makers-managment";
 import CarMakerList from "@components/dashboard/cars-data/car-makers-list";
+import { Metadata } from "next";
 
 import React from "react";
-
+export const metadata: Metadata = {
+  title: "Cars Data",
+};
 const Page = () => {
   return (
     <main>
