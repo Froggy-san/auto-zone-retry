@@ -7,6 +7,7 @@ import { TokenData } from "@lib/types";
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   //path === "/signup" ||
+
   const checkPublickRoutesPath = path === "/login";
   const getCookies = cookies();
   const token = getCookies.get("auto-zone-token")?.value || "";
@@ -20,10 +21,12 @@ export async function middleware(request: NextRequest) {
   }
 
   if (
-    (path.startsWith("/dashboard") || path.startsWith("/grage")) &&
+    (path.startsWith("/dashboard") || path.startsWith("/garage")) &&
     hasExpired
   ) {
-    return NextResponse.redirect(new URL("/login", request.nextUrl));
+    return NextResponse.redirect(
+      new URL(`/login?&redirect=${path}`, request.nextUrl)
+    );
   }
   // console.log(token);
   // const url = req.url;

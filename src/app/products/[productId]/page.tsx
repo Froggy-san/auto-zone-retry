@@ -11,7 +11,6 @@ import { ImageOff } from "lucide-react";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
 import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
-import DeleteProductDialog from "@components/products/delete-product-dialog";
 import DeleteManagement from "@components/products/delete-management";
 
 interface Params {
@@ -99,13 +98,12 @@ const ProductView = async ({
             productTypes={brandTypesData}
             productToEdit={productData}
           />
-          {currPage && pageSize && (
-            <DeleteManagement
-              pageSize={Number(pageSize)}
-              currPage={Number(currPage)}
-              productId={Number(params.productId)}
-            />
-          )}
+
+          <DeleteManagement
+            pageSize={Number(pageSize)}
+            currPage={Number(currPage)}
+            productId={Number(params.productId)}
+          />
         </div>
       ) : null}
     </div>

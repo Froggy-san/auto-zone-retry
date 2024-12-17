@@ -1,16 +1,18 @@
 import ProductImages from "@components/products/product-images";
 import { Card } from "@components/ui/card";
-import { STATIC_IMAGES } from "@lib/constants";
+
 import { CarItem as CarItemProps } from "@lib/types";
-import React, { useMemo } from "react";
+import React from "react";
 import CarAction from "./car-item-actions";
 import Link from "next/link";
 import { ImageOff } from "lucide-react";
 
 const CarItem = ({
+  clientId,
   car,
   pageSize,
 }: {
+  clientId?: number;
   pageSize?: number;
   car: CarItemProps;
 }) => {
@@ -20,7 +22,7 @@ const CarItem = ({
   return (
     <Card className="   border    min-h-[250px]">
       <Link
-        href={`/grage/${car.clientId}?car=${car.id}`}
+        href={`/garage/${car.clientId || clientId}?car=${car.id}`}
         className="  flex  flex-col  md:flex-row h-full w-full relative "
       >
         <div className="  min-h-[250px] lg:min-h-[300px]  md:min-w-[270px] flex-1">

@@ -73,7 +73,7 @@ export default function CarAction({
         <DropdownMenuContent>
           <DropdownMenuItem
             onClick={() => {
-              router.push(`/grage/${car.clientId}?car=${car.id}&service`);
+              router.push(`/garage/${car.clientId}?car=${car.id}&service`);
             }}
           >
             Add service{" "}
@@ -83,7 +83,7 @@ export default function CarAction({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              router.push(`/grage/${car.clientId}?car=${car.id}&edit=open`);
+              router.push(`/garage/${car.clientId}?car=${car.id}&edit=open`);
             }}
           >
             Edit{" "}

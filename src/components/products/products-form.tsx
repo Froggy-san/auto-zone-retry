@@ -127,11 +127,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const defaultValues = {
-    name: pro.name || "NAMEEEEEE",
+    name: pro.name || "",
     categoryId: pro.categoryId || 0,
     productTypeId: pro.productTypeId || 0,
     productBrandId: productToEdit?.productBrand.id || 0,
-    description: pro.description || "DESCRIPTION",
+    description: pro.description || "",
     listPrice: pro.listPrice || 0,
     carinfoId: 0, //! Removed from the back end
     salePrice: pro.salePrice || 0,

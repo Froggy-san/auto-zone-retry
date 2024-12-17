@@ -64,7 +64,6 @@ export async function getProductsAction({
     },
   });
 
-  // console.log(response, "Product Response");
   if (!response.ok) {
     console.log("Something went wrong while grabbing the products.");
     return {
@@ -198,7 +197,6 @@ export async function editProductAction({
       }
     );
 
-    console.log(response);
     if (!response.ok) {
       if (response.status === 409) {
         return { data: null, error: (await response.json()).message };
@@ -285,9 +283,7 @@ export async function getProductsCountAction({
   //   };
 
   let query = `${process.env.API_URL}/api/Product/count?`;
-  console.log(query, "QUERY");
-  const areFiltersApplied =
-    name || categoryId || productTypeId || productBrandId || isAvailable;
+
   if (name) query = query + `&Name=${name}`;
 
   if (categoryId) query = query + `&CategoryId=${categoryId}`;
@@ -297,9 +293,6 @@ export async function getProductsCountAction({
   if (productBrandId) query = query + `&ProductBrandId=${productBrandId}`;
 
   if (isAvailable) query = query + `&IsAvailable=${isAvailable}`;
-
-  // due to error in the back-end when adding the "?" at the end when the user hasn't entered any fitlers, we need to reassign the query variable with a url that doesn't end with the "?" sign.
-  // if (!areFiltersApplied) query = `${process.env.API_URL}/api/Product/count`;
 
   const response = await fetch(query, {
     method: "GET",
@@ -314,8 +307,7 @@ export async function getProductsCountAction({
     };
   }
   const data = await response.json();
-  console.log(response, "ASA");
-  console.log(data, "ؤخعىف");
+
   return { data, error: "" };
 }
 
@@ -367,7 +359,6 @@ export async function createProductImageAction(formData: FormData) {
     body: formData,
   });
 
-  console.log(response);
   if (!response.ok) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
@@ -467,7 +458,6 @@ export async function getProductsImagesMainAction(id: number) {
 
   const data = await response.json();
 
-  console.log(data, "DATA");
   return { data, error: "" };
 }
 
@@ -514,6 +504,5 @@ export async function deleteProductsImageMainAction(id: number) {
 
   const data = await response.json();
 
-  console.log(data, "DATA");
   return { data, error: "" };
 }

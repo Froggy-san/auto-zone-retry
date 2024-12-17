@@ -14,7 +14,7 @@ interface MultiFileUploaderProps {
   handleDeleteMedia: (image: CarImage) => void;
 }
 
-export function GrageFileUploader({
+export function GarageFileUploader({
   selectedFiles,
   fieldChange,
   handleDeleteMedia,

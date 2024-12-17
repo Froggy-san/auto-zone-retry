@@ -2,7 +2,7 @@ import Collapse, {
   CollapseButton,
   CollapseContant,
 } from "@components/collapse";
-import NoteDialog from "@components/grage/note-dialog";
+import NoteDialog from "@components/garage/note-dialog";
 import { Card } from "@components/ui/card";
 import { formatCurrency } from "@lib/helper";
 import { ProductById, User } from "@lib/types";

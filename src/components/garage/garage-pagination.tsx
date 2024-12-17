@@ -6,13 +6,9 @@ import { Button } from "@components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMediaQuery } from "@mui/material";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
-import Spinner from "@components/Spinner";
 import { useIntersectionProvidor } from "@components/products/intersection-providor";
-import { getCarsCountAction } from "@lib/actions/carsAction";
-// import useGragePagination from "@lib/queries/useGragePagination";
 
-interface GragePaginationProps {
+interface GaragePaginationProps {
   // color: string;
   // plateNumber: string;
   // chassisNumber: string;
@@ -21,7 +17,7 @@ interface GragePaginationProps {
   // carGenerationId: string;
   count: number;
 }
-const GragePagination: React.FC<GragePaginationProps> = ({
+const GaragePagination: React.FC<GaragePaginationProps> = ({
   // color,
   // plateNumber,
   // chassisNumber,
@@ -124,4 +120,4 @@ const GragePagination: React.FC<GragePaginationProps> = ({
   );
 };
 
-export default GragePagination;
+export default GaragePagination;

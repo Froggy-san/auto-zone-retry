@@ -7,7 +7,10 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { checkTokenExpiration } from "@lib/helper";
 
-export async function loginUser(loginData: z.infer<typeof LoginFormSchema>) {
+export async function loginUser(
+  loginData: z.infer<typeof LoginFormSchema>,
+  direct: string
+) {
   const response = await fetch(`${process.env.API_URL}/api/Account/login`, {
     method: "POST",
     headers: {
@@ -27,6 +30,7 @@ export async function loginUser(loginData: z.infer<typeof LoginFormSchema>) {
 
   // const decoded = jwtDecode(token.token);
 
+  if (direct) redirect(direct);
   redirect("/");
 
   /// this is another way of which you can get the data from token.

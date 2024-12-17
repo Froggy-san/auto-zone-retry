@@ -1,4 +1,4 @@
-import CarItem from "@components/grage/car-item";
+import CarItem from "@components/garage/car-item";
 import FullImagesGallery from "@components/full-images-gallery";
 import { getCarByIdAction } from "@lib/actions/carsAction";
 import {
@@ -8,17 +8,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import React from "react";
-import CarManagement from "@components/grage/car-management";
-import DeleteCar from "@components/grage/delete-car";
+import CarManagement from "@components/garage/car-management";
+import DeleteCar from "@components/garage/delete-car";
 import { Card } from "@components/ui/card";
 import { ArrowLeft, Blend, Car, ImageOff } from "lucide-react";
-import NoteDialog from "@components/grage/note-dialog";
+import NoteDialog from "@components/garage/note-dialog";
 import { VscTypeHierarchySuper } from "react-icons/vsc";
 import { TbBoxModel2 } from "react-icons/tb";
 import { BsFillPersonLinesFill } from "react-icons/bs";
 import { Button } from "@components/ui/button";
 import Link from "next/link";
-import ServiceManagement from "@components/grage/add-service";
+import ServiceManagement from "@components/garage/add-service";
 import { getAllCarGenerationsAction } from "@lib/actions/carGenerationsActions";
 import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 
@@ -82,7 +82,7 @@ const Page = async ({
         {/* Car Information  starts*/}
         <div className=" space-y-5">
           <Button asChild variant="secondary" size="sm">
-            <Link href="/grage" className=" group">
+            <Link href="/garage" className=" group">
               <ArrowLeft
                 size={25}
                 className="  group-hover:-translate-x-1 transition-all"
@@ -284,7 +284,7 @@ const Page = async ({
                 <AccordionContent>
                   <ul className=" grid  px-4  mt-10 gap-3">
                     {clientOtherCars.map((car, i) => (
-                      <CarItem car={car} key={i} />
+                      <CarItem clientId={client.id} car={car} key={i} />
                     ))}
                   </ul>
                 </AccordionContent>

@@ -22,7 +22,7 @@ import {
   PersonStanding,
 } from "lucide-react";
 import Link from "next/link";
-import { GiTowTruck } from "react-icons/gi";
+import { GiMechanicGarage, GiTowTruck } from "react-icons/gi";
 import { MdOutlineCarRepair } from "react-icons/md";
 import { logoutUser } from "@lib/actions/authActions";
 const NavDrawer = () => {
@@ -75,8 +75,8 @@ const NavDrawer = () => {
               size="sm"
               onClick={() => setOpen(false)}
             >
-              <Link href="/grage">
-                <MdOutlineCarRepair className=" w-5 h-5" /> Grage
+              <Link href="/garage">
+                <GiMechanicGarage className=" w-5 h-5" /> Garage
               </Link>
             </Button>
             <div className=" relative group z-10">
@@ -155,7 +155,7 @@ const NavDrawer = () => {
             }}
           >
             <LogOut className=" w-4 h-4" />
-            Products Data
+            Log out
           </Button>
         </div>
       </DrawerContent>

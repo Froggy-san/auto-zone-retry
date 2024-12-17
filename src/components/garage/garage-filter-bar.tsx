@@ -1,18 +1,13 @@
-import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
-import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
-import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
 import React from "react";
 
-import { getAllCarsInfoAction } from "@lib/actions/carInfoActions";
-import { getClientsDataAction } from "@lib/actions/clientActions";
-import GrageFilter from "./grage-fiter";
+import GarageFilter from "./garage-fiter";
 import {
   CarGenerationProps,
   CarMaker,
   CarModelProps,
   ClientWithPhoneNumbers,
 } from "@lib/types";
-import { count } from "console";
+
 interface CarsListProps {
   color: string;
   plateNumber: string;
@@ -29,14 +24,14 @@ interface CarsListProps {
   carMakerId: string;
   carModelId: string;
 }
-const GrageFilterbar: React.FC<CarsListProps> = async ({
+const GarageFilterbar: React.FC<CarsListProps> = async ({
   clients,
   carGenerations,
   ...props
 }) => {
   return (
     <aside className={`sm:w-[200px]   sm:p-2 sm:border-t sm:border-r `}>
-      <GrageFilter
+      <GarageFilter
         clietns={clients || []}
         carGeneration={carGenerations || []}
         {...props}
@@ -45,4 +40,4 @@ const GrageFilterbar: React.FC<CarsListProps> = async ({
   );
 };
 
-export default GrageFilterbar;
+export default GarageFilterbar;

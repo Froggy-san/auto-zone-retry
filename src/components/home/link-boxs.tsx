@@ -3,6 +3,7 @@ import { cn } from "@lib/utils";
 import { LayoutDashboard, PackageSearch, UserRoundCog } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { GiMechanicGarage } from "react-icons/gi";
 
 const ICON_SIZE = 20;
 const LINKS = [
@@ -28,13 +29,13 @@ const LINKS = [
   },
 
   {
-    link: "/login",
-    title: "Account",
-    description: "Edit your account.",
+    link: "/garage",
+    title: "Garage",
+    description: "View the cars in the Garage.",
     icon: (
       <div className=" p-5 rounded-full bg-dashboard-indigo text-dashboard-text-indigo ">
         {" "}
-        <UserRoundCog size={ICON_SIZE} />
+        <GiMechanicGarage size={21} />
       </div>
     ),
   },
@@ -45,7 +46,7 @@ const LinkBoxs = () => {
     <div className="  flex-1 hidden lg:block  space-y-10 mt-24">
       {LINKS.map((link, i) => (
         <Card
-        key={i}
+          key={i}
           className={cn(
             "min-w-fit w-[250px] bg-foreground/20 backdrop-blur-md border-slate-100/20  ml-auto",
             {

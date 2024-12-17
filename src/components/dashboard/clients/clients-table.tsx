@@ -252,7 +252,7 @@ function ShowCars({ client }: { client: ClientWithPhoneNumbers }) {
     <Button
       disabled={!client.carsCount}
       onClick={() => {
-        if (client.carsCount) router.push(`/grage?clientId=${client.id}`);
+        if (client.carsCount) router.push(`/garage?clientId=${client.id}`);
       }}
       size="sm"
       className="   h-6 px-2 py-3 text-xs"
