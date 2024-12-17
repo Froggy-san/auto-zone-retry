@@ -27,7 +27,12 @@ import { useToast } from "@/hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@/components/toast-items";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login",
+};
 
 type LoginFormSchemaTypes = z.infer<typeof LoginFormSchema>;
 const Page = () => {

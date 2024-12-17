@@ -1,11 +1,16 @@
 import InventoryList from "@components/dashboard/inventory/inventory-list";
 import InventoryManagement from "@components/dashboard/inventory/inventory-management";
 import InventoryPagination from "@components/dashboard/inventory/inventory-pagination";
-import RestockingForm from "@components/dashboard/inventory/restocking-form";
+
 import SearchDialog from "@components/dashboard/inventory/search-dialong";
-import TestingAnimation from "@components/dashboard/inventory/testing-animation";
+
 import Spinner from "@components/Spinner";
+import { Metadata } from "next";
 import React, { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Inventory",
+};
 interface SearchParams {
   page?: string;
   name?: string;

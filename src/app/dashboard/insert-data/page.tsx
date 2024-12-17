@@ -1,7 +1,11 @@
 import Categories from "@components/dashboard/insert-data/categories";
 import ProductBrands from "@components/dashboard/insert-data/product-brands";
 import ProductTypes from "@components/dashboard/insert-data/product-types";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Insert-Data",
+};
 const Page = () => {
   return (
     <main className=" relative">

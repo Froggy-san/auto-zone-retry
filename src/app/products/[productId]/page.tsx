@@ -12,6 +12,11 @@ import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
 import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
 import DeleteManagement from "@components/products/delete-management";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Product Details",
+};
 
 interface Params {
   productId: string;

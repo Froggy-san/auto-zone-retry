@@ -554,11 +554,14 @@ const ServicesForm = ({
                         </Button>
                       )}
 
-                      <div className="w-[300px]">
+                      <div className="w-[280px]">
                         <h3 className=" text-sm">Total:</h3>
                         <div className=" py-2  border-b border-t space-y-2 text-xs text-muted-foreground">
                           <div>
-                            Total fees: {formatCurrency(totalFees.totalPrice)}
+                            Total fees:{" "}
+                            <span className=" relative after:content-['fees'] after:absolute after:-right-7 after:-top-1 after:text-orange-400 dark:after:text-dashboard-orange ">
+                              {formatCurrency(totalFees.totalPrice)}
+                            </span>
                           </div>
                           <div>
                             Total fees discount:{" "}
@@ -806,12 +809,12 @@ const ServicesForm = ({
                         ADD PRODUCT SOLD
                       </Button>
 
-                      <div className="w-[300px]">
+                      <div className="w-[280px]">
                         <h3 className=" text-sm">Total:</h3>
                         <div className=" py-2  border-b border-t space-y-2 text-xs text-muted-foreground">
                           <div>
                             Amount:{" "}
-                            <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-dashboard-indigo ">
+                            <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-indigo-800 dark:after:text-dashboard-indigo ">
                               {totalProductSoldAmounts.totalCount}
                             </span>
                           </div>
@@ -852,7 +855,7 @@ const ServicesForm = ({
                         <div className=" space-y-2  ">
                           <div>
                             Products amount:{" "}
-                            <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-dashboard-indigo ">
+                            <span className=" relative after:content-['units'] after:absolute after:-right-8 after:-top-1 after:text-indigo-800 dark:after:text-dashboard-indigo ">
                               {totalProductSoldAmounts.totalCount}
                             </span>
                           </div>
@@ -868,7 +871,7 @@ const ServicesForm = ({
                           </div>
                           <div className="  py-2 border-y w-fit text-xs">
                             Products sold net:{" "}
-                            <span className=" text-dashboard-indigo">
+                            <span className="text-indigo-800 dark:text-dashboard-indigo">
                               {" "}
                               {formatCurrency(
                                 totalProductSoldAmounts.totalPrice -
@@ -880,7 +883,7 @@ const ServicesForm = ({
                         <div className=" space-y-2">
                           <div>
                             Fees amount:{" "}
-                            <span className=" relative after:content-['fees'] after:absolute after:-right-7 after:-top-1 after:text-dashboard-orange ">
+                            <span className=" relative after:content-['fees'] after:absolute after:-right-7 after:-top-1 text-orange-400 dark:after:text-dashboard-orange ">
                               {serviceFees.length}
                             </span>
                           </div>
@@ -894,7 +897,7 @@ const ServicesForm = ({
                           </div>
                           <div className="  py-2 border-y  w-fit">
                             Net fees:{" "}
-                            <span className=" text-dashboard-orange text-xs">
+                            <span className=" text-orange-400 dark:text-dashboard-orange text-xs">
                               {" "}
                               {formatCurrency(
                                 totalFees.totalPrice - totalFees.totalDiscount

@@ -2,8 +2,19 @@ import SideBar, { SideBarMobile } from "@components/dashboard/side-bar";
 import NavDrawer from "@components/nav-drawer";
 
 import { ModeToggle } from "@components/theme-switch";
+import { Metadata } from "next";
 import Link from "next/link";
 import React from "react";
+
+export const metadata: Metadata = {
+  // title: "The Wild Oasis",
+  title: {
+    template: "%s / Dashboard",
+    default: "Home / Dashboard",
+  },
+
+  description: "Manage your business.",
+};
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
