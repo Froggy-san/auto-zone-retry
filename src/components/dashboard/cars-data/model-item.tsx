@@ -46,7 +46,7 @@ const ModelItem = ({
 }) => {
   const [loading, setLoading] = useState(false);
   return (
-    <li className=" w-full  sm:w-fit px-3 py-2 flex items-center gap-2  text-sm border rounded-lg">
+    <li className=" w-full  sm:w-fit px-3 py-2 flex items-center gap-2   justify-between text-sm border rounded-lg">
       {/* <EditCarGenerationForm item={item} /> */}
       <CarModelForm modelToEdit={item} carMakers={[]} />
       {/* {item.name} */}
