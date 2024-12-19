@@ -60,6 +60,7 @@ const EditFeesForm = ({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const defaultValues = {
     price: feesToEdit?.price || 0,
     discount: feesToEdit?.discount || 0,
@@ -75,6 +76,8 @@ const EditFeesForm = ({
 
   const { discount, price } = form.watch();
 
+  const isEqual = useObjectCompare(form.getValues(), defaultValues);
+
   useEffect(() => {
     form.reset(defaultValues);
   }, [open]);
@@ -85,7 +88,6 @@ const EditFeesForm = ({
     }
   }, [discount, price, form]);
 
-  const isEqual = useObjectCompare(form.getValues(), defaultValues);
   const handleClose = useCallback(() => {
     const params = new URLSearchParams(searchParams);
     params.delete("editFee");
@@ -104,20 +106,23 @@ const EditFeesForm = ({
     notes,
   }: EditServiceFee) {
     try {
+      // If the user hasn't changed anything about the form values.
       if (isEqual) throw new Error("You haven't changed anything.");
 
+      // In case of adding a new service fee.
       if (addFeeId) {
-        await createServiceFeeAction({
+        const { error } = await createServiceFeeAction({
           price,
           discount,
           categoryId,
           notes,
           serviceId: Number(addFeeId),
         });
+        if (error) throw new Error(error);
       }
-
+      // In the case of editting a serivce fee.
       if (feesToEdit) {
-        await editServiceFeeAction({
+        const { error } = await editServiceFeeAction({
           serviceFee: {
             price,
             discount,
@@ -127,8 +132,14 @@ const EditFeesForm = ({
           },
           id: feesToEdit.id,
         });
+
+        if (error) throw new Error(error);
       }
+
+      // Close the dialog and reset the form values to the default values.
       handleClose();
+
+      // Display a toast depending on the actions made.
       toast({
         className: "bg-primary  text-primary-foreground",
         title: "Success!.",

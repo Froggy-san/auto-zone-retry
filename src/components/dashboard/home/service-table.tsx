@@ -73,7 +73,7 @@ import {
   useSearchParams,
 } from "next/navigation";
 
-import StatusBadge from "./status-badge";
+import StatusBadge from "../status-badge";
 import ServiceFeesDialog from "./service-Fee-dialog";
 import ProductSoldDialog from "./products-sold-dialog";
 import CarDialog from "./car-dialog";
@@ -230,7 +230,7 @@ function Row({
         </TableCell>
 
         <TableCell>
-          <StatusBadge status={service?.status.name || ""} />
+          <StatusBadge status={service.status} />
         </TableCell>
 
         <TableCell>
@@ -477,7 +477,7 @@ function TableActions({
                       await handleChangeStatus(status.id);
                     }}
                   >
-                    <StatusBadge status={status.name} className=" py-[.1rem]" />
+                    <StatusBadge status={status} className=" py-[.1rem]" />
                     {service.status.id === status.id && (
                       <Check className=" w-3 h-3" />
                     )}

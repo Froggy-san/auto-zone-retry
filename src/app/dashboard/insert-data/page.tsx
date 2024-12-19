@@ -1,6 +1,8 @@
 import Categories from "@components/dashboard/insert-data/categories";
 import ProductBrands from "@components/dashboard/insert-data/product-brands";
 import ProductTypes from "@components/dashboard/insert-data/product-types";
+import ServiceStatus from "@components/dashboard/insert-data/service-status";
+import StatusManagement from "@components/dashboard/insert-data/status-management";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,6 +17,10 @@ const Page = () => {
           <Categories />
           <ProductTypes />
           <ProductBrands />
+          <div className=" space-y-7">
+            <StatusManagement />
+            <ServiceStatus />
+          </div>
         </div>
       </section>
     </main>

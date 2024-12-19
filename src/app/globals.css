@@ -154,6 +154,9 @@ body {
       transform: translate(-50%, -50%) scale(1.05);
     }
   }
+  .color-inputs input {
+    background-color: #e0e7ff;
+  }
   .truncate {
     white-space: nowrap;
     overflow: hidden;

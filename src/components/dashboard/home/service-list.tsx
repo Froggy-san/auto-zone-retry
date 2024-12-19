@@ -61,7 +61,7 @@ const ServiceList = async ({
       <SearchDialog
         cars={cars}
         clients={clients || []}
-        status={status}
+        status={status || []}
         carId={carId}
         clientId={clientId}
         dateTo={dateTo}
@@ -78,7 +78,7 @@ const ServiceList = async ({
           categories={categories || []}
           currPage={pageNumber}
           services={data || []}
-          status={status}
+          status={status || []}
         />
       ) : (
         <p>{error}</p>
