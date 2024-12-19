@@ -61,7 +61,7 @@ const ServiceManagement = async ({
           client={client}
           car={car}
           products={products}
-          serviceStatus={serviceStatus}
+          serviceStatus={serviceStatus || []}
         />
       </div>
     </div>

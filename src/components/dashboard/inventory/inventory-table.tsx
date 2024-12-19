@@ -664,6 +664,7 @@ function EditReceipt({
       setErrors((err) => ({ ...err, dateOfOrderError: "" }));
     }
   }, [dateOfOrder]);
+
   useEffect(() => {
     const body = document.querySelector("body");
     setSetDateOfOrder(new Date(restockingBill.dateOfOrder));

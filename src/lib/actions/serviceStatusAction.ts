@@ -2,6 +2,7 @@
 
 import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
+import { ServiceStatus, ServiceStatusForm } from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -16,7 +17,12 @@ interface GetRestockingProps {
   maxPrice?: string;
 }
 
-export async function getServiceStatusAction() {
+interface servicesReturns {
+  data: ServiceStatus[] | null;
+  error: string;
+}
+
+export async function getServiceStatusAction(): Promise<servicesReturns> {
   const token = getToken();
 
   if (!token)
@@ -46,86 +52,100 @@ export async function getServiceStatusAction() {
   return { data, error: "" };
 }
 
-export async function createRestockingBillAction(shopName: string) {
+interface ServiceStatusProps {
+  colorLight: string;
+  colorDark: string;
+  name: string;
+  description: string;
+}
+
+export async function createStatus(formData: ServiceStatusProps) {
   const token = getToken();
   if (!token) return redirect("/login");
-  const response = await fetch(`${process.env.API_URL}/api/Services`, {
+  const response = await fetch(`${process.env.API_URL}/api/ServicesStatuses`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-type": "application/json",
     },
-    body: JSON.stringify({ shopName }),
+    body: JSON.stringify(formData),
   });
   if (!response.ok) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    console.log("Something went wrong while creating the a restocking bill.");
-    return { data: null, error: "Something went wrong!" };
+
+    return {
+      data: null,
+      error: "Something went wrong while creating a new service status.",
+    };
   }
 
   //   revalidatePath("/dashboard/insert-data");
-  revalidateTag("services");
+  revalidateTag("serviceStatus");
 
   const data = await response.json();
   return { data, error: "" };
 }
 
 interface EditProps {
-  restockingToEdit: { shopName: string; dateOfOrder: string };
-  id: string;
+  statusToEdit: ServiceStatusProps;
+  id: number;
 }
 
-export async function editRestockingBillAction({
-  restockingToEdit,
-  id,
-}: EditProps) {
+export async function editServiceStatus({ statusToEdit, id }: EditProps) {
   const token = getToken();
   if (!token) return redirect("/login");
-  const response = await fetch(`${process.env.API_URL}/api/Services/${id}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-type": "application/json",
-    },
-    body: JSON.stringify(restockingToEdit),
-  });
+  const response = await fetch(
+    `${process.env.API_URL}/api/ServiceStatuses${id}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(statusToEdit),
+    }
+  );
   if (!response.ok) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    console.log("Something went wrong while creating the a restocking bill.");
-    return { data: null, error: "Something went wrong!" };
+
+    return {
+      data: null,
+      error: "Something went wrong while editing service status.",
+    };
   }
 
-  revalidateTag("restockingBills");
+  revalidateTag("serviceStatus");
   // const data = await response.json();
   // return data;
 
   return { data: null, error: "" };
 }
 
-export async function deleteRestockingBillAction(id: string) {
+export async function deleteServiceStatus(id: number) {
   const token = getToken();
   if (!token) return redirect("/login");
-  const response = await fetch(`${process.env.API_URL}/api/Services/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-type": "application/json",
-    },
-  });
+  const response = await fetch(
+    `${process.env.API_URL}/api/ServiceStatuses/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-type": "application/json",
+      },
+    }
+  );
   if (!response.ok) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
     }
-    console.log("Something went wrong while deleting the a restocking bill.");
-    return { data: null, error: "Something went wrong!" };
+
+    return { data: null, error: "Failed to delete service status." };
   }
-  revalidateTag("restockingBills");
-  // const data = await response.json();
-  // return data;
+  revalidateTag("serviceStatus");
 
   return { data: null, error: "" };
 }

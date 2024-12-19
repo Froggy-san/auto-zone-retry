@@ -71,7 +71,7 @@ const DeleteProductDialog = ({
     } else {
       router.push(`${pathname}?${params.toString()}`);
     }
-  }, [productId, pageSize]);
+  }, [productId, pageSize, navBack, pathname, router, searchParam]);
 
   async function handleDelete() {
     try {

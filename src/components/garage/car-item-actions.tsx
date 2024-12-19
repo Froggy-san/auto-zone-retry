@@ -48,7 +48,7 @@ export default function CarAction({
       }
     }
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [car.id, pageSize]);
+  }, [car.id, pageSize, currPage, pathname, router, searchParam]);
 
   if (isLoading)
     return (

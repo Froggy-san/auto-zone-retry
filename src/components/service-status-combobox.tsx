@@ -26,7 +26,7 @@ import {
   ServiceStatus,
 } from "@lib/types";
 import { DEFAULT_CAR_LOGO } from "@lib/constants";
-import StatusBadge from "./dashboard/home/status-badge";
+import StatusBadge from "./dashboard/status-badge";
 
 // const frameworks = [
 //   {
@@ -82,8 +82,7 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
         >
           {selected ? (
             <div className=" flex items-center gap-2">
-              Status:{" "}
-              <StatusBadge status={selected.name} className=" py-[.1rem]" />
+              Status: <StatusBadge status={selected} className=" py-[.1rem]" />
             </div>
           ) : (
             "Select status..."
@@ -115,7 +114,7 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
                   />
                   <div className="  flex items-center gap-2 ">
                     Status:{" "}
-                    <StatusBadge status={option.name} className=" py-[.1rem]" />
+                    <StatusBadge status={option} className=" py-[.1rem]" />
                     {option.description
                       ? ` / Descrioptin: ${option.description}`
                       : null}

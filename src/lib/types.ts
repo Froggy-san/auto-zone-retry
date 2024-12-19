@@ -151,9 +151,24 @@ export const CreateProdcutImageSchema = z.object({
 export const EditNameAndNote = z.object({
   name: z
     .string()
-    .min(3, { message: "Too short" })
-    .max(100, { message: "Too long" }),
+    .min(3, { message: "Too short." })
+    .max(100, { message: "Too long." }),
   notes: z.string(),
+});
+
+const HslColorValues = z.object({
+  h: z.number(),
+  s: z.number(),
+  l: z.number(),
+});
+export const ServiceStatusSchema = z.object({
+  name: z
+    .string()
+    .min(4, { message: "Name is too short." })
+    .max(33, { message: "Name is too long." }),
+  colorLight: HslColorValues,
+  colorDark: HslColorValues,
+  description: z.string(),
 });
 
 // const phone = z.object({
@@ -637,6 +652,15 @@ export interface Service {
   serviceFees: ServiceFee[];
 }
 
+export interface ServiceStatus {
+  id: number;
+  name: string;
+  colorLight: string;
+  colorDark: string;
+  description: string | null;
+  services: any[];
+}
+
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
 export type CarGeneration = z.infer<typeof CarGenerationsSchema>;
 export type CarInfo = z.infer<typeof CarInfoSchema>;
@@ -652,3 +676,5 @@ export type CreateService = z.infer<typeof CreateServiceSchema>;
 export type EditServiceFee = z.infer<typeof ServiceFeeSchema>;
 export type ProductSold = z.infer<typeof ProductSoldSchema>;
 export type EditService = z.infer<typeof EditServiceSchema>;
+export type ServiceStatusForm = z.infer<typeof ServiceStatusSchema>;
+export type HslColor = z.infer<typeof HslColorValues>;
