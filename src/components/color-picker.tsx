@@ -53,7 +53,7 @@ const ColorPicker = ({
       <div className="  w-full  relative">
         <button
           type="button"
-          className={cn(`w-full h-9 rounded-md border `, className)}
+          className={cn(`w-full h-9 z-10 rounded-md border `, className)}
           style={{
             backgroundColor: `hsl(${color.h} ${color.s}% ${color.l}%)`,
           }}
@@ -65,7 +65,7 @@ const ColorPicker = ({
           onChange={handler}
           disableAlpha={disableAlpha}
           className={cn(
-            "absolute left-1/2 -translate-x-1/2  top-5 invisible opacity-0  transition-all  color-inputs  text-black",
+            "absolute left-1/2 -translate-x-1/2  top-5  z-50 invisible opacity-0  transition-all  color-inputs  text-black",
             { " visible opacity-100 top-10": open },
             paletteClassName
           )}

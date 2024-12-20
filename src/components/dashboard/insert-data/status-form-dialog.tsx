@@ -8,24 +8,25 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import ServiceStatusForm from "./service-status-form";
+import { ServiceStatus } from "@lib/types";
 
 interface Props {
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>;
+  statusToEdit?: ServiceStatus;
 }
-const StatusFormDialog = ({ open, setOpen }: Props) => {
+const StatusFormDialog = ({ open, setOpen, statusToEdit }: Props) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className=" max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Status form</DialogTitle>
+          <DialogTitle>Service status</DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
+            Create and design a service status badge.
           </DialogDescription>
         </DialogHeader>
 
-        <ServiceStatusForm />
+        <ServiceStatusForm statusToEdit={statusToEdit} />
       </DialogContent>
     </Dialog>
   );
