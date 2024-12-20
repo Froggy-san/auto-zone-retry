@@ -83,6 +83,7 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
         description,
       };
 
+      console.log(values);
       // In case of editting service status.
       if (statusToEdit) {
         const { error } = await editServiceStatus({
@@ -93,7 +94,6 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
         if (error) throw new Error(error);
       } else {
         // In case of creating a new service status.
-
         const { error } = await createStatus(values);
         if (error) throw new Error(error);
       }
@@ -123,28 +123,31 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 ">
-        <div
-          className={cn(
-            `text-xs select-none w-fit font-semibold  px-2 py-1  whitespace-nowrap bg-dashboard-blue text-dashboard-text-blue text-center rounded-lg bg-[${colorLight}/70] text-[${colorLight}] dark:bg-[${colorDark}/70] dark:text-[${colorDark}] `
-          )}
-          style={{
-            backgroundColor:
-              theme === "light"
-                ? `hsla(${colorLight?.h}, ${colorLight?.s}%, ${colorLight?.l}%)`
-                : `hsla(${colorDark?.h}, ${colorDark?.s}%, ${colorDark?.l}%)`,
-            color:
-              theme === "light"
-                ? `hsl(${colorLight?.h}, ${colorLight?.s + 50}%, ${
-                    colorLight?.l + 50
-                  }%)`
-                : `hsl(${colorDark?.h}, ${colorDark?.s + 50}%, ${
-                    colorDark?.l + 50
-                  }%)`,
-          }}
-        >
-          {name ? name : "Dummy text"}
+        <div className=" flex flex-col  sm:flex-row flex-wrap items-center gap-2 justify-center ">
+          <p className=" text-muted-foreground text-xs">Badge preview:</p>
+          <div
+            className={cn(
+              `text-xs select-none w-fit font-semibold  break-all px-2 py-1   text-center rounded-lg max-w-full  `
+            )}
+            style={{
+              backgroundColor:
+                theme === "light"
+                  ? `hsla(${colorLight?.h}, ${colorLight?.s}%, ${colorLight?.l}%)`
+                  : `hsla(${colorDark?.h}, ${colorDark?.s}%, ${colorDark?.l}%)`,
+              color:
+                theme === "light"
+                  ? `hsl(${colorLight?.h}, ${colorLight?.s + 50}%, ${
+                      colorLight?.l + 50
+                    }%)`
+                  : `hsl(${colorDark?.h}, ${colorDark?.s + 50}%, ${
+                      colorDark?.l + 50
+                    }%)`,
+            }}
+          >
+            {name ? name : "Dummy text"}
+          </div>
         </div>
-        <div className=" flex items-center gap-3 ">
+        <div className=" flex flex-col sm:flex-row items-center gap-3 ">
           <FormField
             disabled={isLoading}
             control={form.control}
@@ -164,26 +167,8 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
                         s: Number((s * 100).toFixed(1)),
                         l: Number((l * 100).toFixed(1)),
                       });
-                      // field.onChange(
-                      //   `hsl(${h.toFixed(1)}, ${(s * 100).toFixed(1)}%, ${(
-                      //     l * 100
-                      //   ).toFixed(1)}%)`
-                      // );
                     }}
                   />
-                  {/* <SketchPicker
-                    color={field.value}
-                    onChange={(value) => {
-                      field.onChange(value);
-                    }}
-                  /> */}
-                  {/* <input
-                    type="color"
-                    disabled={isLoading}
-                    placeholder="Car color"
-                    {...field}
-                    className="  w-full h-9 rounded-md border"
-                  /> */}
                 </FormControl>
                 <FormDescription>
                   Enter badge&apos;s color while on light mode.
@@ -212,20 +197,8 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
                         s: Number((s * 100).toFixed(1)),
                         l: Number((l * 100).toFixed(1)),
                       });
-                      // field.onChange(
-                      //   `hsl(${h.toFixed(1)}, ${(s * 100).toFixed(1)}%, ${(
-                      //     l * 100
-                      //   ).toFixed(1)}%)`
-                      // );
                     }}
                   />
-                  {/* <input
-                    type="color"
-                    disabled={isLoading}
-                    placeholder="Car color"
-                    {...field}
-                    className="  w-full h-9 rounded-md border"
-                  /> */}
                 </FormControl>
                 <FormDescription>
                   Enter badge&apos;s color whole on dark mode.
@@ -277,10 +250,15 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
           )}
         />
         <div className=" flex flex-col gap-2">
-          <Button className=" w-full" size="sm">
+          <Button className=" w-full" size="sm" type="submit">
             {isLoading ? <Spinner className=" h-full" /> : "Submit"}
           </Button>
-          <Button variant="secondary" className=" w-full" size="sm">
+          <Button
+            variant="secondary"
+            className=" w-full"
+            size="sm"
+            type="button"
+          >
             Cancel
           </Button>
         </div>

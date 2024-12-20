@@ -62,7 +62,7 @@ interface ServiceStatusProps {
 export async function createStatus(formData: ServiceStatusProps) {
   const token = getToken();
   if (!token) return redirect("/login");
-  const response = await fetch(`${process.env.API_URL}/api/ServicesStatuses`, {
+  const response = await fetch(`${process.env.API_URL}/api/ServiceStatuses`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -70,6 +70,7 @@ export async function createStatus(formData: ServiceStatusProps) {
     },
     body: JSON.stringify(formData),
   });
+  console.log(response, "STATUS RESPONSE");
   if (!response.ok) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
@@ -97,7 +98,7 @@ export async function editServiceStatus({ statusToEdit, id }: EditProps) {
   const token = getToken();
   if (!token) return redirect("/login");
   const response = await fetch(
-    `${process.env.API_URL}/api/ServiceStatuses${id}`,
+    `${process.env.API_URL}/api/ServiceStatuses/${id}`,
     {
       method: "PUT",
       headers: {
@@ -107,6 +108,8 @@ export async function editServiceStatus({ statusToEdit, id }: EditProps) {
       body: JSON.stringify(statusToEdit),
     }
   );
+  console.log(response, "STATUS RESPONSE edit");
+
   if (!response.ok) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
