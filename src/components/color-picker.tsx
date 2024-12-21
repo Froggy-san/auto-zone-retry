@@ -3,7 +3,7 @@ import { HslColor } from "@lib/types";
 import { cn } from "@lib/utils";
 import { ClickAwayListener } from "@mui/material";
 import { useTheme } from "next-themes";
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ColorChangeHandler, SketchPicker } from "react-color";
 
 interface Props {

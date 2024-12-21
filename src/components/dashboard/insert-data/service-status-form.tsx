@@ -83,7 +83,6 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
         description,
       };
 
-      console.log(values);
       // In case of editting service status.
       if (statusToEdit) {
         const { error } = await editServiceStatus({
@@ -132,15 +131,15 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
             style={{
               backgroundColor:
                 theme === "light"
-                  ? `hsla(${colorLight?.h}, ${colorLight?.s}%, ${colorLight?.l}%)`
-                  : `hsla(${colorDark?.h}, ${colorDark?.s}%, ${colorDark?.l}%)`,
+                  ? `hsla(${colorLight?.h}, ${colorLight?.s}%, ${colorLight?.l}%, 0.4)`
+                  : `hsl(${colorDark?.h}, ${colorDark?.s}%, ${colorDark?.l}%)`,
               color:
                 theme === "light"
-                  ? `hsl(${colorLight?.h}, ${colorLight?.s + 50}%, ${
-                      colorLight?.l + 50
+                  ? `hsl(${colorLight?.h}, ${colorLight?.s + 90}%, ${
+                      colorLight?.l - 33
                     }%)`
-                  : `hsl(${colorDark?.h}, ${colorDark?.s + 50}%, ${
-                      colorDark?.l + 50
+                  : `hsla(${colorDark?.h}, ${colorDark?.s + 55}%, ${
+                      colorDark?.l + 55
                     }%)`,
             }}
           >
