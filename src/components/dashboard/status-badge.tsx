@@ -51,19 +51,22 @@ const StatusBadge = ({
   controls?: boolean;
 }) => {
   const { theme } = useTheme();
+
   const prefered = window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
-  console.log(prefered, "ABOUT TO DIEE");
+
   const [isEditing, setisEditing] = useState(false);
   const [isLoading, setisLoading] = useState(false);
+
+  const chosenTheme = theme === "system" ? prefered : theme;
   const darkModelColor = JSON.parse(status.colorDark);
   const lightModeColor = JSON.parse(status.colorLight);
   const isDarkColor = Object.values(darkModelColor).every((item) => item !== 0);
   const isLightColor = Object.values(lightModeColor).every(
     (item) => item !== 0
   );
-  console.log(theme);
+
   // console.log(isDarkColor, isLightColor);
   // const light = `hsl(${lightModeColor.h} ${lightModeColor.s} ${lightModeColor.l})`;
   // const dark = `hsl(${darkModelColor.h} ${darkModelColor.s} ${darkModelColor.l})`;
@@ -94,20 +97,20 @@ const StatusBadge = ({
                 )}
                 style={{
                   backgroundColor:
-                    isLightColor && theme === "light"
-                      ? `hsl(${lightModeColor.h} ${lightModeColor.s} ${lightModeColor.l})`
-                      : isDarkColor && theme === "dark"
-                      ? `hsl(${darkModelColor.h} ${darkModelColor.s} ${darkModelColor.l})`
+                    isLightColor && chosenTheme === "light"
+                      ? `hsla(${lightModeColor?.h}, ${lightModeColor?.s}%, ${lightModeColor?.l}%, 0.4)`
+                      : isDarkColor && chosenTheme === "dark"
+                      ? `hsla(${darkModelColor?.h}, ${darkModelColor?.s}%, ${darkModelColor?.l}%)`
                       : "",
 
                   color:
-                    isLightColor && theme === "light"
-                      ? `hsl(${lightModeColor.h} ${lightModeColor.s + 50} ${
-                          lightModeColor.l + 50
+                    isLightColor && chosenTheme === "light"
+                      ? `hsl(${lightModeColor.h} ${lightModeColor.s + 90} ${
+                          lightModeColor.l - 33
                         })`
-                      : isDarkColor && theme === "dark"
-                      ? `hsl(${darkModelColor.h} ${darkModelColor.s + 50} ${
-                          darkModelColor.l + 50
+                      : isDarkColor && chosenTheme === "dark"
+                      ? `hsla(${darkModelColor.h} ${darkModelColor.s + 55} ${
+                          darkModelColor.l + 65
                         })`
                       : "",
                 }}
