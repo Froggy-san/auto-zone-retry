@@ -466,7 +466,7 @@ function TableActions({
             </DropdownMenuSubTrigger>
 
             <DropdownMenuPortal>
-              <DropdownMenuSubContent>
+              <DropdownMenuSubContent className=" max-h-[170px] overflow-y-auto">
                 {status.map((status, i) => (
                   <DropdownMenuItem
                     key={i}
@@ -477,7 +477,11 @@ function TableActions({
                       await handleChangeStatus(status.id);
                     }}
                   >
-                    <StatusBadge status={status} className=" py-[.1rem]" />
+                    <StatusBadge
+                      disableToolTip
+                      status={status}
+                      className=" py-[.1rem]"
+                    />
                     {service.status.id === status.id && (
                       <Check className=" w-3 h-3" />
                     )}

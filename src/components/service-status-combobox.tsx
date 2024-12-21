@@ -99,7 +99,7 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
               {options?.map((option) => (
                 <CommandItem
                   key={option.id}
-                  value={option.name + option.description + String(option.id)} // to avoid selecting two or more items that has the same name proprty.
+                  value={option.name + String(option.id)} // to avoid selecting two or more items that has the same name proprty.
                   onSelect={() => {
                     setValue(option.id === value ? 0 : option.id);
                     setOpen(false);
@@ -115,9 +115,6 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
                   <div className="  flex items-center gap-2 ">
                     Status:{" "}
                     <StatusBadge status={option} className=" py-[.1rem]" />
-                    {option.description
-                      ? ` / Descrioptin: ${option.description}`
-                      : null}
                   </div>
                 </CommandItem>
               ))}
