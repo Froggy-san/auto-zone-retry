@@ -4,6 +4,12 @@ import { logoutUser } from "@lib/actions/authActions";
 import { cn } from "@lib/utils";
 import { motion } from "framer-motion";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ArrowLeftToLine,
   ArrowRightToLine,
   Car,
@@ -20,8 +26,6 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
-import { TbBoxModel2, TbBrandAirtable } from "react-icons/tb";
-import { VscTypeHierarchySuper } from "react-icons/vsc";
 
 <ArrowLeftToLine />;
 <ArrowRightToLine />;
@@ -128,53 +132,87 @@ const SideBar = () => {
             {SUB_LINKS.length > 2 && (i === 3 || i === 6) ? (
               <div className=" w-[98%]  h-[1px] rounded-full  bg-muted mx-auto " />
             ) : null}
-            <Button
-              variant="ghost"
-              className={cn(
-                " w-full justify-start gap-3",
-                {
-                  "w-fit": collapse,
-                },
-                { "bg-accent": pathname === link.herf }
-              )}
-              asChild
-            >
-              <Link href={link.herf}>
-                <span>{link.icon}</span>{" "}
-                {!collapse && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="  text-muted-foreground"
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      `  w-full justify-start gap-3`,
+                      {
+                        "w-fit": collapse,
+                      },
+                      { "bg-accent dark:bg-card": pathname === link.herf }
+                    )}
+                    asChild
+                  >
+                    <Link href={link.herf}>
+                      <span>{link.icon}</span>{" "}
+                      {!collapse && (
+                        <motion.span
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="  text-muted-foreground"
+                        >
+                          {link.title}
+                        </motion.span>
+                      )}
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                {collapse && lock && (
+                  <TooltipContent
+                    avoidCollisions
+                    align="center"
+                    sideOffset={10}
+                    side="right"
+                    className="  mb-5  dark:bg-card bg-secondary-foreground  text-white rounded "
                   >
                     {link.title}
-                  </motion.span>
+                  </TooltipContent>
                 )}
-              </Link>
-            </Button>
+              </Tooltip>
+            </TooltipProvider>
           </React.Fragment>
         ))}
       </div>
-      <Button
-        onClick={async () => await logoutUser()}
-        variant="ghost"
-        className={cn(" w-full justify-start gap-3", {
-          "w-fit": collapse,
-        })}
-      >
-        <span>
-          <LogOut size={ICON_SIZE} />
-        </span>{" "}
-        {!collapse && (
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="  text-muted-foreground"
-          >
-            Logout
-          </motion.span>
-        )}
-      </Button>
+      <TooltipProvider delayDuration={150}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={async () => await logoutUser()}
+              variant="ghost"
+              className={cn(" w-full justify-start gap-3", {
+                "w-fit": collapse,
+              })}
+            >
+              <span>
+                <LogOut size={ICON_SIZE} />
+              </span>{" "}
+              {!collapse && (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="  text-muted-foreground"
+                >
+                  Logout
+                </motion.span>
+              )}
+            </Button>
+          </TooltipTrigger>
+          {collapse && lock && (
+            <TooltipContent
+              avoidCollisions
+              align="center"
+              sideOffset={10}
+              side="right"
+              className="  mb-2 dark:bg-card bg-secondary-foreground  text-white rounded "
+            >
+              Log out
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
     </motion.aside>
   );
 };
@@ -182,6 +220,7 @@ const SideBar = () => {
 export default SideBar;
 
 export const SideBarMobile = () => {
+  const pathname = usePathname();
   return (
     <div className=" w-full flex gap-x-2  justify-center pb-2 px-2 sm:hidden border-t pt-1">
       {SUB_LINKS.map((link, i) => (
@@ -189,6 +228,7 @@ export const SideBarMobile = () => {
           key={i}
           variant="ghost"
           asChild
+          className={`${{ "bg-card": pathname === link.herf }}`}
           style={{ width: `calc(90% / ${SUB_LINKS.length})` }}
         >
           <Link href={link.herf}>
