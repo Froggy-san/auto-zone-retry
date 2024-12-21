@@ -75,7 +75,7 @@ export default function TextInputSwitch({
     } finally {
       setLoading(false);
     }
-  }, [item, value, ItemType]);
+  }, [item, value, ItemType, toast, setLoading]);
 
   useEffect(() => {
     if (spanRef.current) {
