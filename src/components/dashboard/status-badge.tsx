@@ -81,7 +81,7 @@ const StatusBadge = ({
                   if (controls) setisEditing((is) => !is);
                 }}
                 className={cn(
-                  "text-xs select-none w-fit font-semibold flex items-center justify-center gap-1  px-2 py-1  whitespace-nowrap text-center rounded-lg transition-all",
+                  "text-xs select-none w-fit font-semibold flex items-center justify-center gap-1  px-2 py-1  whitespace-nowrap text-center rounded-lg bg-primary text-primary-foreground  transition-all",
 
                   {
                     "bg-dashboard-orange text-dashboard-text-orange":
@@ -101,18 +101,18 @@ const StatusBadge = ({
                       ? `hsla(${lightModeColor?.h}, ${lightModeColor?.s}%, ${lightModeColor?.l}%, 0.4)`
                       : isDarkColor && chosenTheme === "dark"
                       ? `hsla(${darkModelColor?.h}, ${darkModelColor?.s}%, ${darkModelColor?.l}%)`
-                      : "",
+                      : "  primary ",
 
                   color:
                     isLightColor && chosenTheme === "light"
-                      ? `hsl(${lightModeColor.h} ${lightModeColor.s + 90} ${
-                          lightModeColor.l - 33
-                        })`
+                      ? `hsl(${lightModeColor?.h}, ${
+                          lightModeColor?.s + 90
+                        }%, ${lightModeColor?.l - 33}%)`
                       : isDarkColor && chosenTheme === "dark"
-                      ? `hsla(${darkModelColor.h} ${darkModelColor.s + 55} ${
-                          darkModelColor.l + 65
-                        })`
-                      : "",
+                      ? `hsla(${darkModelColor?.h}, ${
+                          darkModelColor?.s + 55
+                        }%, ${darkModelColor?.l + 55}%)`
+                      : "  primary-foreground",
                 }}
               >
                 {status.name}
