@@ -2,9 +2,9 @@ import ErrorMessage from "@components/error-message";
 import { getServiceStatusAction } from "@lib/actions/serviceStatusAction";
 import React from "react";
 // import StatusBadge from "../status-badge";
-import { stat } from "fs";
 import dynamic from "next/dynamic";
 import Spinner from "@components/Spinner";
+
 const StatusBadge = dynamic(() => import("../status-badge"), {
   loading: () => <Spinner className="  w-fit h-fit" size={12} />,
   ssr: false,
