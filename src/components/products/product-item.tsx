@@ -30,6 +30,7 @@ const ProductItem = async ({
       <Link
         href={`/products/${product.id}?size=${pageSize}&page=${currPage}`}
         className="space-y-1 flex flex-col"
+        prefetch={false}
       >
         {error ? (
           <h2>{error}</h2>
