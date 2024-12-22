@@ -73,7 +73,11 @@ import {
   useSearchParams,
 } from "next/navigation";
 
-import StatusBadge from "../status-badge";
+// import StatusBadge from "../status-badge";
+const StatusBadge = dynamic(() => import("../status-badge"), {
+  loading: () => <Spinner className="  w-fit h-fit" size={12} />,
+  ssr: false,
+});
 import ServiceFeesDialog from "./service-Fee-dialog";
 import ProductSoldDialog from "./products-sold-dialog";
 import CarDialog from "./car-dialog";
@@ -85,6 +89,7 @@ import {
 import EditServiceForm from "./edit-service-form";
 import { formatCurrency } from "@lib/client-helpers";
 import NoteDialog from "@components/garage/note-dialog";
+import dynamic from "next/dynamic";
 
 const ServiceTable = ({
   categories,
@@ -149,14 +154,14 @@ const ServiceTable = ({
       </TableHeader>
       <TableBody>
         {services && services.length
-          ? services.map((service, i) => (
+          ? services.map((service) => (
               <Row
                 categories={categories}
                 status={status}
                 service={service}
                 cars={cars}
                 clients={clients}
-                key={i}
+                key={service.id}
                 currPage={currPage}
                 currPageSize={currPageSize}
               />
