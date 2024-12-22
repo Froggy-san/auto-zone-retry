@@ -65,7 +65,6 @@ const InventoryForm = ({
   client?: ClientWithPhoneNumbers;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-
   const [isReturned, setIsReturned] = useState<boolean>(
     proBoughtToEdit?.isReturned ? proBoughtToEdit.isReturned : false
   );
@@ -150,7 +149,7 @@ const InventoryForm = ({
   const total = productBoughtArr.reduce(
     (acc, item) => {
       acc.totalDiscount += item.discount;
-      acc.totalpriceAfter += item.pricePerUnit * item.count - item.discount;
+      acc.totalpriceAfter += (item.pricePerUnit - item.discount) * item.count;
 
       return acc;
     },
@@ -255,6 +254,59 @@ const InventoryForm = ({
                       key={field.id}
                       className=" space-y-4  "
                     >
+                      <div className=" flex  flex-col gap-2 sm:flex-row">
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.productId`}
+                          render={({ field }) => (
+                            <FormItem className=" flex-1">
+                              <FormLabel>Product</FormLabel>
+                              <FormControl>
+                                <ProductsComboBox
+                                  value={field.value}
+                                  setValue={field.onChange}
+                                  options={products}
+                                  disabled={true}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter what product you bought.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name="shopName"
+                          render={({ field }) => (
+                            <FormItem className=" flex-1">
+                              <FormLabel>Shop</FormLabel>
+                              <FormControl>
+                                {/* <Input
+                      type="text"
+                      placeholder="Shop name..."
+                      {...field}
+                    /> */}
+                                <RestockingComboBox
+                                  value={
+                                    proBoughtToEdit.productsRestockingBillId
+                                  }
+                                  setValue={field.onChange}
+                                  options={restockings}
+                                  disabled={true}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter shop name.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <div className=" flex  flex-col gap-2  sm:flex-row  ">
                         <FormField
                           disabled={isLoading}
@@ -344,59 +396,6 @@ const InventoryForm = ({
                           )}
                         />
                       </div>
-                      <div className=" flex  flex-col gap-2 sm:flex-row">
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name={`productBought.${i}.productId`}
-                          render={({ field }) => (
-                            <FormItem className=" flex-1">
-                              <FormLabel>Product</FormLabel>
-                              <FormControl>
-                                <ProductsComboBox
-                                  value={field.value}
-                                  setValue={field.onChange}
-                                  options={products}
-                                  disabled={true}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter what product you bought.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name="shopName"
-                          render={({ field }) => (
-                            <FormItem className=" flex-1">
-                              <FormLabel>Shop</FormLabel>
-                              <FormControl>
-                                {/* <Input
-                      type="text"
-                      placeholder="Shop name..."
-                      {...field}
-                    /> */}
-                                <RestockingComboBox
-                                  value={
-                                    proBoughtToEdit.productsRestockingBillId
-                                  }
-                                  setValue={field.onChange}
-                                  options={restockings}
-                                  disabled={true}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter shop name.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
 
                       <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
@@ -435,9 +434,9 @@ const InventoryForm = ({
                         Total amount spent:
                         <span className=" ml-3">
                           {formatCurrency(
-                            productBoughtArr[i]?.pricePerUnit *
-                              productBoughtArr[i]?.count -
-                              productBoughtArr[i]?.discount
+                            (productBoughtArr[i]?.pricePerUnit -
+                              productBoughtArr[i]?.discount) *
+                              productBoughtArr[i]?.count
                           )}
                         </span>
                       </div>
@@ -471,7 +470,7 @@ const InventoryForm = ({
                   disabled={isLoading || disabled}
                   className=" w-full sm:w-[unset]"
                 >
-                  {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                  {isLoading ? <Spinner className=" h-full" /> : "Update"}
                 </Button>
               </div>
             </form>
@@ -537,6 +536,76 @@ const InventoryForm = ({
                         <Cross2Icon className="h-4 w-4" />
                         {/* <span className="sr-only">Close</span> */}
                       </button>
+
+                      <div className=" flex  flex-col gap-2 sm:flex-row">
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name={`productBought.${i}.productId`}
+                          render={({ field }) => (
+                            <FormItem className=" flex-1">
+                              <FormLabel>Product</FormLabel>
+                              <FormControl>
+                                <ProductsComboBox
+                                  value={field.value}
+                                  setValue={(value) => {
+                                    const proBoughtById = products.find(
+                                      (pro) => pro.id === value
+                                    );
+                                    field.onChange(value);
+                                    if (proBoughtById)
+                                      form.setValue(
+                                        `productBought.${i}.pricePerUnit`,
+                                        proBoughtById.salePrice
+                                      );
+                                  }}
+                                  options={products}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter what product you bought.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          disabled={isLoading}
+                          control={form.control}
+                          name="shopName"
+                          render={({ field }) => (
+                            <FormItem className=" flex-1">
+                              <FormLabel>Shop</FormLabel>
+                              <FormControl>
+                                {reStockingBillId ? (
+                                  <RestockingComboBox
+                                    value={Number(reStockingBillId)}
+                                    setValue={field.onChange}
+                                    options={restockings}
+                                    disabled={true}
+                                  />
+                                ) : (
+                                  <Input
+                                    type="text"
+                                    placeholder="Shop name..."
+                                    {...field}
+                                  />
+                                )}
+                                {/* <RestockingComboBox
+                                value={24}
+                                setValue={field.onChange}
+                                options={restockings}
+                                disabled={true}
+                              /> */}
+                              </FormControl>
+                              <FormDescription>
+                                Enter shop name.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
                       <div className=" flex  flex-col gap-2  sm:flex-row  ">
                         <FormField
                           disabled={isLoading}
@@ -626,66 +695,7 @@ const InventoryForm = ({
                           )}
                         />
                       </div>
-                      <div className=" flex  flex-col gap-2 sm:flex-row">
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name={`productBought.${i}.productId`}
-                          render={({ field }) => (
-                            <FormItem className=" flex-1">
-                              <FormLabel>Product</FormLabel>
-                              <FormControl>
-                                <ProductsComboBox
-                                  value={field.value}
-                                  setValue={field.onChange}
-                                  options={products}
-                                  disabled={isLoading}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                Enter what product you bought.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          disabled={isLoading}
-                          control={form.control}
-                          name="shopName"
-                          render={({ field }) => (
-                            <FormItem className=" flex-1">
-                              <FormLabel>Shop</FormLabel>
-                              <FormControl>
-                                {reStockingBillId ? (
-                                  <RestockingComboBox
-                                    value={Number(reStockingBillId)}
-                                    setValue={field.onChange}
-                                    options={restockings}
-                                    disabled={true}
-                                  />
-                                ) : (
-                                  <Input
-                                    type="text"
-                                    placeholder="Shop name..."
-                                    {...field}
-                                  />
-                                )}
-                                {/* <RestockingComboBox
-                                value={24}
-                                setValue={field.onChange}
-                                options={restockings}
-                                disabled={true}
-                              /> */}
-                              </FormControl>
-                              <FormDescription>
-                                Enter shop name.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
+
                       <FormField
                         disabled={isLoading}
                         control={form.control}
@@ -708,9 +718,9 @@ const InventoryForm = ({
                         Total amount spent:
                         <span className=" ml-3">
                           {formatCurrency(
-                            productBoughtArr[i]?.pricePerUnit *
-                              productBoughtArr[i]?.count -
-                              productBoughtArr[i]?.discount
+                            (productBoughtArr[i]?.pricePerUnit -
+                              productBoughtArr[i]?.discount) *
+                              productBoughtArr[i]?.count
                           )}
                         </span>
                       </div>
@@ -782,7 +792,13 @@ const InventoryForm = ({
                   disabled={isLoading || isEqual}
                   className=" w-full sm:w-[unset]"
                 >
-                  {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                  {isLoading ? (
+                    <Spinner className=" h-full" />
+                  ) : reStockingBillId ? (
+                    "Add"
+                  ) : (
+                    "Create"
+                  )}
                 </Button>
               </div>
             </form>

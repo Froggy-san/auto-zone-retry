@@ -3,7 +3,7 @@ import { Button } from "@components/ui/button";
 import { PAGE_SIZE } from "@lib/constants";
 import { MoveLeft, MoveRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 
 interface PaginationControlProps {
   currPage: string;
@@ -29,6 +29,20 @@ const PaginationControl = ({ count, currPage }: PaginationControlProps) => {
     params.set("page", String(page - 1));
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }
+
+  useEffect(() => {
+    const currentPage = Number(page);
+    const prefechParams = new URLSearchParams(searchParam);
+    if (currentPage < pageCount) {
+      prefechParams.set("page", String(currentPage + 1));
+      router.prefetch(`${pathname}?${prefechParams.toString()}`);
+    }
+
+    if (currentPage > 1) {
+      prefechParams.set("page", String(currentPage - 1));
+      router.prefetch(`${pathname}?${prefechParams.toString()}`);
+    }
+  }, [page, searchParam, pathname, pageCount, router]);
 
   return (
     <div className=" flex items-center justify-between">

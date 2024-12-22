@@ -87,7 +87,7 @@ const NavDrawer = () => {
                 size="sm"
                 onClick={() => setOpen(false)}
               >
-                <Link href="/dashboard" className=" gap-1">
+                <Link href="/dashboard" className=" gap-1" prefetch={false}>
                   <LayoutDashboard className=" w-4 h-4" /> Dashboard
                 </Link>
               </Button>
@@ -100,7 +100,7 @@ const NavDrawer = () => {
                   variant="ghost"
                   onClick={() => setOpen(false)}
                 >
-                  <Link href="/dashboard/inventory">
+                  <Link href="/dashboard/inventory" prefetch={false}>
                     {" "}
                     <Package className=" h-4 w-4" /> Inventory
                   </Link>
@@ -113,7 +113,7 @@ const NavDrawer = () => {
                   variant="ghost"
                   onClick={() => setOpen(false)}
                 >
-                  <Link href="/dashboard/customers">
+                  <Link href="/dashboard/customers" prefetch={false}>
                     <PersonStanding className=" w-4 h-4" /> Clients
                   </Link>
                 </Button>
@@ -125,7 +125,7 @@ const NavDrawer = () => {
                   variant="ghost"
                   onClick={() => setOpen(false)}
                 >
-                  <Link href="/dashboard/cars-data">
+                  <Link href="/dashboard/cars-data" prefetch={false}>
                     <Car className=" w-4 h-4" /> Cars Data
                   </Link>
                 </Button>

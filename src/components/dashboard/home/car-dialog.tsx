@@ -64,6 +64,7 @@ const CarDialog = ({ service }: { service: Service }) => {
           />
 
           <Link
+            prefetch={false}
             href={`/garage/${service.client.id}?car=${car.id}`}
             className="  space-y-1 text-sm text-muted-foreground "
           >

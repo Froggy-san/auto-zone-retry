@@ -359,7 +359,10 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
                 Products sold.
               </h2>
               <div className=" text-xs   justify-end flex items-center gap-y-1 gap-x-3 flex-wrap text-muted-foreground  ">
-                <Link href={`/dashboard/customers?name=${service.client.name}`}>
+                <Link
+                  prefetch={false}
+                  href={`/dashboard/customers?name=${service.client.name}`}
+                >
                   Client: <span>{service.client.name}</span>
                 </Link>
                 <div>

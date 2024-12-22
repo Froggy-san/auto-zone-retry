@@ -22,6 +22,7 @@ const CarItem = ({
   return (
     <Card className="   border    min-h-[250px]">
       <Link
+        prefetch={false}
         href={`/garage/${car.clientId || clientId}?car=${car.id}`}
         className="  flex  flex-col  md:flex-row h-full w-full relative "
       >
