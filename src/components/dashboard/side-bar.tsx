@@ -228,7 +228,9 @@ export const SideBarMobile = () => {
           key={i}
           variant="ghost"
           asChild
-          className={`${pathname === link.herf && "bg-card"}}`}
+          className={`${
+            pathname === link.herf && " bg-secondary dark:bg-card "
+          }}`}
           style={{ width: `calc(90% / ${SUB_LINKS.length})` }}
         >
           <Link href={link.herf}>
