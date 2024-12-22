@@ -31,7 +31,10 @@ const ClientDialog = ({ service }: { service: Service }) => {
     <TooltipProvider delayDuration={500}>
       <Tooltip>
         <TooltipTrigger>
-          <Link href={`/dashboard/customers?name=${client.name}`}>
+          <Link
+            prefetch={false}
+            href={`/dashboard/customers?name=${client.name}`}
+          >
             {client.name}
           </Link>
         </TooltipTrigger>

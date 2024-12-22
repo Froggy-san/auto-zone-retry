@@ -6,7 +6,7 @@ import SuccessToastDescription, {
 
 import { Input } from "@components/ui/input";
 import { useToast } from "@hooks/use-toast";
-import { createCategoryAction } from "@lib/actions/categoriesAction";
+
 import { createRestockingBillAction } from "@lib/actions/restockingBillActions";
 
 import { SendHorizontal } from "lucide-react";

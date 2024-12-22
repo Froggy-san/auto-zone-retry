@@ -43,9 +43,17 @@ const ProductPagenation: React.FC<ProductsListProps> = ({ count }) => {
 
   React.useEffect(() => {
     const currentPage = Number(defaultValue);
-    if (currentPage < numberOfPages)
-      router.prefetch(`/products?page=${currentPage + 1}`);
-  }, [defaultValue]);
+    const prefechParams = new URLSearchParams(searchParam);
+    if (currentPage < numberOfPages) {
+      prefechParams.set("page", String(currentPage + 1));
+      router.prefetch(`${pathname}?${prefechParams.toString()}`);
+    }
+
+    if (currentPage > 1) {
+      prefechParams.set("page", String(currentPage - 1));
+      router.prefetch(`${pathname}?${prefechParams.toString()}`);
+    }
+  }, [defaultValue, searchParam, pathname, numberOfPages, router]);
   if (!count) return null;
   return (
     <nav ref={ref} className=" w-full my-4">
