@@ -22,13 +22,13 @@ const ServiceStatus = async () => {
   console.log(data);
 
   return (
-    <ul className=" flex flex-col sm:flex-row gap-2 flex-wrap ">
+    <ul className=" flex flex-row gap-2  ">
       {data.map((status, index) => (
         <StatusBadge
           controls
           key={status.id}
           status={status}
-          className=" hover:opacity-90 transition-opacity"
+          className="  hover:opacity-90 transition-opacity "
         />
       ))}
     </ul>
