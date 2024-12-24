@@ -13,6 +13,7 @@ import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
 import ProductManagement from "@components/products-management";
 import { getProductsCountAction } from "@lib/actions/productsActions";
 import { Metadata } from "next";
+import { getCurrentUser } from "@lib/actions/authActions";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -42,18 +43,21 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   //   return <div>Error loading data</div>;
   // }
 
-  const [categories, productBrands, brandTypes, count] = await Promise.all([
-    getAllCategoriesAction(),
-    getAllProductBrandsAction(),
-    getAllProductTypesAction(),
-    getProductsCountAction({
-      name,
-      categoryId,
-      productBrandId,
-      productTypeId,
-      isAvailable,
-    }),
-  ]);
+  const [categories, productBrands, brandTypes, user, count] =
+    await Promise.all([
+      getAllCategoriesAction(),
+      getAllProductBrandsAction(),
+      getAllProductTypesAction(),
+      getCurrentUser(),
+      getProductsCountAction({
+        name,
+        categoryId,
+        productBrandId,
+        productTypeId,
+        isAvailable,
+      }),
+    ]);
+  console.log(user);
   const { data: categoriesData, error: categoriesError } = categories;
   const { data: productBrandsData, error: productBrandsError } = productBrands;
   const { data: brandTypesData, error: brandTypesError } = brandTypes;
@@ -89,6 +93,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
           <section className=" flex-1 ">
             <Suspense fallback={<Spinner />} key={key}>
               <ProductsList
+                user={user}
                 name={name}
                 pageNumber={pageNumber}
                 categoryId={categoryId}
@@ -105,13 +110,15 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               // productBrandId={productBrandId}
               // isAvailable={isAvailable}
             />
-            <div className=" my-10 px-2">
-              <ProductManagement
-                categories={categoriesData}
-                productBrands={productBrandsData}
-                productTypes={brandTypesData}
-              />
-            </div>
+            {!user || user.sub !== "admin" ? null : (
+              <div className=" my-10 px-2">
+                <ProductManagement
+                  categories={categoriesData}
+                  productBrands={productBrandsData}
+                  productTypes={brandTypesData}
+                />
+              </div>
+            )}
           </section>
         </div>
       </IntersectionProvidor>
