@@ -26,7 +26,11 @@ const StatusFormDialog = ({ open, setOpen, statusToEdit }: Props) => {
           </DialogDescription>
         </DialogHeader>
 
-        <ServiceStatusForm statusToEdit={statusToEdit} />
+        <ServiceStatusForm
+          open={open}
+          setOpen={setOpen}
+          statusToEdit={statusToEdit}
+        />
       </DialogContent>
     </Dialog>
   );

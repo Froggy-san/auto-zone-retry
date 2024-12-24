@@ -156,7 +156,7 @@ export async function createClientAction({
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Clients`, {
     method: "POST",
@@ -231,7 +231,7 @@ export async function editClientAction({
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
   const { id, name, email } = clientToEdit;
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Clients/${id}`, {
     method: "PUT",
@@ -296,7 +296,7 @@ export async function deleteClientByIdAction(id: number, revalidate = true) {
 
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Clients/${id}`, {
     method: "DELETE",
@@ -410,7 +410,7 @@ export async function createProductImageAction(formData: FormData) {
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/ProductImages`, {
     method: "POST",
@@ -441,7 +441,7 @@ export async function deleteProductsImageAction(imageId: number) {
 
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(
     `${process.env.API_URL}/api/ProductImages/${imageId}`,

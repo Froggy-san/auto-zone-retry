@@ -34,7 +34,7 @@ export async function getAllCategoriesAction() {
 
 export async function createCategoryAction(category: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/categories`, {
     method: "POST",
     headers: {
@@ -67,7 +67,7 @@ export async function editCategoryAction({
   id: number;
 }) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/Categories/${id}`, {
     method: "PUT",
     headers: {
@@ -95,7 +95,7 @@ export async function editCategoryAction({
 
 export async function deleteCategoryAction(id: number) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/categories/${id}`, {
     method: "DELETE",
     headers: {
@@ -120,7 +120,7 @@ export async function deleteCategoryAction(id: number) {
 
 export async function deleteCarAction(id: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/categories/${id}`, {
     method: "PUT",
     headers: {

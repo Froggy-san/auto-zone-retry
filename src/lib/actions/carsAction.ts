@@ -86,7 +86,7 @@ export async function createCarAction({
 }) {
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/cars`, {
     method: "POST",
@@ -172,7 +172,7 @@ export async function editCarAction({
     color,
   } = car;
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   if (!isEqual) {
     const response = await fetch(`${process.env.API_URL}/api/cars/${id}`, {
@@ -228,7 +228,7 @@ export async function editCarAction({
 
 export async function deleteCarAction(id: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/cars/${id}`, {
     method: "DELETE",
     headers: {
@@ -346,7 +346,7 @@ export async function getProductsImageAction(id: number) {
 export async function createCarImageAction(formData: FormData) {
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/CarImages`, {
     method: "POST",
@@ -366,7 +366,7 @@ export async function deleteCarImageAction(imageId: number) {
 
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(
     `${process.env.API_URL}/api/CarImages/${imageId}`,

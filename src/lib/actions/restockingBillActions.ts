@@ -71,7 +71,7 @@ export async function getRestockingBillsAction({
 
 export async function createRestockingBillAction(shopName: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsRestockingBills`,
     {
@@ -109,7 +109,7 @@ export async function editRestockingBillAction({
   id,
 }: EditProps) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsRestockingBills/${id}`,
     {
@@ -138,7 +138,7 @@ export async function editRestockingBillAction({
 
 export async function deleteRestockingBillAction(id: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsRestockingBills/${id}`,
     {

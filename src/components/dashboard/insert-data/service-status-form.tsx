@@ -23,7 +23,7 @@ import {
   ServiceStatus,
   ServiceStatusSchema,
 } from "@lib/types";
-import React from "react";
+import React, { SetStateAction, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { SketchPicker } from "react-color";
 import ColorPicker from "@components/color-picker";
@@ -35,9 +35,11 @@ import { Button } from "@components/ui/button";
 import Spinner from "@components/Spinner";
 interface Props {
   statusToEdit?: ServiceStatus;
+  open: boolean;
+  setOpen: React.Dispatch<SetStateAction<boolean>>;
 }
 
-const ServiceStatusForm = ({ statusToEdit }: Props) => {
+const ServiceStatusForm = ({ statusToEdit, setOpen, open }: Props) => {
   const { theme } = useTheme();
   const { toast } = useToast();
 
@@ -60,9 +62,12 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
   const { colorLight, colorDark, name } = form.watch();
   const isLoading = form.formState.isSubmitting;
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
-  // const lightModeColor = `hsl(${colorLight.h}  ${colorLight.s}  ${colorLight.l})`;
-  // const darkModeColor = `hsl(${colorDark.h}  ${colorDark.s}  ${colorDark.l})`;
-  // console.log(colorLight, colorDark);
+
+  const handleClose = useCallback(() => {
+    if (isLoading) return;
+    setOpen(false);
+    form.reset(defaultValues);
+  }, [open, isLoading, form]);
 
   async function onSubmit({
     colorLight,
@@ -96,6 +101,8 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
         const { error } = await createStatus(values);
         if (error) throw new Error(error);
       }
+
+      handleClose();
 
       toast({
         className: "bg-primary  text-primary-foreground",
@@ -253,6 +260,7 @@ const ServiceStatusForm = ({ statusToEdit }: Props) => {
             {isLoading ? <Spinner className=" h-full" /> : "Submit"}
           </Button>
           <Button
+            onClick={handleClose}
             variant="secondary"
             className=" w-full"
             size="sm"

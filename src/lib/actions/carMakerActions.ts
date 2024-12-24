@@ -34,7 +34,7 @@ export async function getAllCarMakersAction(pageNumber?: number) {
 
 export async function createCarMakerAction(formData: FormData) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/CarMakers`, {
     method: "POST",
@@ -62,7 +62,7 @@ export async function createCarMakerAction(formData: FormData) {
 
 export async function editCarMakerAction(formData: FormData, id: number) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/CarMakers/${id}`, {
     method: "PUT",
     headers: {
@@ -83,7 +83,7 @@ export async function editCarMakerAction(formData: FormData, id: number) {
 
 export async function deleteCarMakerAction(id: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmakers/${id}`, {
     method: "DELETE",
     headers: {

@@ -82,7 +82,7 @@ interface CreateProps {
 
 export async function createServiceFeeAction(newFee: CreateProps) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/ServicesFee`, {
     method: "POST",
     headers: {
@@ -164,7 +164,7 @@ export async function editServiceFeeAction({
 
 export async function deleteServiceFeeAction(id: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/ServicesFee/${id}`, {
     method: "DELETE",
     headers: {

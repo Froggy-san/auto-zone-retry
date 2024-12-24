@@ -31,7 +31,8 @@ export async function getAllProductTypesAction() {
 
 export async function createProductTypeAction(productType: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
+
   const response = await fetch(`${process.env.API_URL}/api/producttypes`, {
     method: "POST",
     headers: {
@@ -61,7 +62,7 @@ export async function editProductTypeAction({
   id: number;
 }) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/producttypes/${id}`,
     {
@@ -87,7 +88,7 @@ export async function editProductTypeAction({
 
 export async function deleteProductTypeAction(id: number) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/producttypes/${id}`,
     {

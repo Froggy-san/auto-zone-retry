@@ -34,7 +34,7 @@ export async function getAllCarModelsAction(pageNumber?: number) {
 
 export async function createCarModelAction(carModel: CreateCarModel) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmodels`, {
     method: "POST",
     headers: {
@@ -67,7 +67,7 @@ export async function editCarModelAction({
   id: number;
 }) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmodels/${id}`, {
     method: "PUT",
     headers: {
@@ -92,7 +92,7 @@ export async function editCarModelAction({
 
 export async function deleteCarModelAction(id: number) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/carmodels/${id}`, {
     method: "DELETE",
     headers: {
