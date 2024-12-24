@@ -316,7 +316,7 @@ const SalesCharts = () => {
                 )}
               </div>
               <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                {`${date[0]}`} - {`${date[1]}`}
+                {!dates.length ? null : `${date[0]} - ${date[1]}`}
               </div>
             </div>
           </div>
