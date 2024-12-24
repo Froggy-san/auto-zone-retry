@@ -17,7 +17,7 @@ const filters = [
   { label: "Last 7 days", value: 7 },
   { label: "Last 30 days", value: 30 },
   { label: "Last 90 days", value: 90 },
-  { label: "current year", value: "year" },
+  { label: "Current year", value: "year" },
   { label: "All", value: "all" },
 ];
 
@@ -46,7 +46,10 @@ const FilterBar = ({
             //   onMouseOut={() => setHovered(null)}
             className={cn(
               "relative text-sm  hover:text-accent-foreground transition-colors duration-200 px-3 py-2 rounded-md bg-transparent ",
-              { " bg-secondary": selected === filter.value }
+              {
+                " bg-accent dark:bg-card text-accent-foreground":
+                  selected === filter.value,
+              }
             )}
           >
             <div className="   absolute   flex items-center justify-center inset-0 z-50">
@@ -59,7 +62,7 @@ const FilterBar = ({
               <motion.div
                 transition={{ duration: 0.2 }}
                 layoutId="tab-indicator"
-                className="w-full h-full  absolute inset-0   z-10  bg-accent rounded-md "
+                className="w-full h-full  absolute inset-0   z-10  bg-accent dark:bg-card  rounded-md "
               />
             )}
           </motion.button>
