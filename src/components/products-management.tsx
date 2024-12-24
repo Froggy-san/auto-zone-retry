@@ -1,9 +1,5 @@
 import ProductForm from "@components/products/products-form";
-import { getCurrentUser } from "@lib/actions/authActions";
-import { getAllCarsInfoAction } from "@lib/actions/carInfoActions";
-import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
-import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
-import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
+
 import {
   Category,
   ProductBrand,

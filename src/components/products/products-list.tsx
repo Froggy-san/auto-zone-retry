@@ -1,4 +1,4 @@
-import { Product, ProductWithCategory } from "@lib/types";
+import { Product, ProductWithCategory, User } from "@lib/types";
 import React from "react";
 import ProductItem from "./product-item";
 import { getProductsAction } from "@lib/actions/productsActions";
@@ -13,9 +13,11 @@ interface ProductsListProps {
   productTypeId?: string;
   productBrandId?: string;
   isAvailable?: string;
+  user: User | null;
 }
 
 const ProductsList: React.FC<ProductsListProps> = async ({
+  user,
   pageNumber,
   name,
   categoryId,
@@ -51,6 +53,7 @@ const ProductsList: React.FC<ProductsListProps> = async ({
         {products && products.length
           ? products.map((product: ProductWithCategory, i: number) => (
               <ProductItem
+                user={user}
                 currPage={pageNumber}
                 pageSize={products.length}
                 product={product}

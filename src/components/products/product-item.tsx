@@ -1,5 +1,5 @@
 import { getProductsImageAction } from "@lib/actions/productsActions";
-import { Product, ProductImage, ProductWithCategory } from "@lib/types";
+import { Product, ProductImage, ProductWithCategory, User } from "@lib/types";
 import { cn } from "@lib/utils";
 import React, { useMemo } from "react";
 import FullImagesGallery from "./product-images";
@@ -9,10 +9,12 @@ import Link from "next/link";
 import { ImageOff } from "lucide-react";
 
 const ProductItem = async ({
+  user,
   product,
   pageSize,
   currPage,
 }: {
+  user: User | null;
   pageSize: number;
   currPage: string;
   product: ProductWithCategory;
@@ -72,11 +74,13 @@ const ProductItem = async ({
                   ? "In stock"
                   : "Out of stock"}
               </span>
-              <ProdcutAction
-                currPage={currPage}
-                pageSize={pageSize}
-                productId={product.id}
-              />
+              {!user || user.sub !== "admin" ? null : (
+                <ProdcutAction
+                  currPage={currPage}
+                  pageSize={pageSize}
+                  productId={product.id}
+                />
+              )}
             </div>
           </div>
         </div>
