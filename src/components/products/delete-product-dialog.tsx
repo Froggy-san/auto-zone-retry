@@ -69,7 +69,7 @@ const DeleteProductDialog = ({
       params.delete("size");
       router.replace(`/products?${params.toString()}`);
     } else {
-      router.push(`${pathname}?${params.toString()}`);
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
     }
   }, [productId, pageSize, navBack, pathname, router, searchParam]);
 
