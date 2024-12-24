@@ -140,7 +140,7 @@ export async function createProductBoughtBulkAction({
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   let shopNameId: number | null = null;
   if (!reStockingBillId) {
@@ -206,7 +206,7 @@ export async function editProductBoughtAction({
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsBought/${id}`,
@@ -241,7 +241,7 @@ export async function deleteProductsBoughtByIdAction(id: number) {
 
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsBought/${id}`,
@@ -367,7 +367,7 @@ export async function createProductImageAction(formData: FormData) {
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/ProductImages`, {
     method: "POST",
@@ -395,7 +395,7 @@ export async function deleteProductsImageAction(imageId: number) {
 
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(
     `${process.env.API_URL}/api/ProductImages/${imageId}`,
@@ -459,7 +459,7 @@ export async function getProductsImagesMainAction(id: number) {
 export async function setProductImageAsMain(id: number) {
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   await fetch(`${process.env.API_URL}/api/ProductImages/${id}`, {
     method: "PUT",

@@ -77,7 +77,7 @@ export async function getServicesAction({
 
 export async function createServiceAction(service: CreateService) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/Services`, {
     method: "POST",
     headers: {
@@ -110,7 +110,7 @@ interface EditProps {
 
 export async function editServiceAction(serivceToEdit: EditProps) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/Services/${serivceToEdit.id}`,
     {
@@ -139,7 +139,7 @@ export async function editServiceAction(serivceToEdit: EditProps) {
 
 export async function deleteServiceAction(id: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/Services/${id}`, {
     method: "DELETE",
     headers: {

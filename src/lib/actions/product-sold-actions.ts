@@ -74,7 +74,7 @@ export async function getServiceFeesAction({
 
 export async function createProductToSellAction(productToSell: ProductSold) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/ProductsToSell`, {
     method: "POST",
@@ -173,7 +173,7 @@ export async function editProductToSellAction({
 
 export async function deleteProductToSellAction(id: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(
     `${process.env.API_URL}/api/ProductsToSell/${id}`,

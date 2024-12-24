@@ -61,7 +61,7 @@ interface ServiceStatusProps {
 
 export async function createStatus(formData: ServiceStatusProps) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/ServiceStatuses`, {
     method: "POST",
     headers: {
@@ -97,7 +97,7 @@ interface EditProps {
 export async function editServiceStatus({ statusToEdit, id }: EditProps) {
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(
     `${process.env.API_URL}/api/ServiceStatuses/${id}?description=${
@@ -133,7 +133,7 @@ export async function editServiceStatus({ statusToEdit, id }: EditProps) {
 
 export async function deleteServiceStatus(id: number) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/ServiceStatuses/${id}`,
     {

@@ -41,7 +41,7 @@ export async function getAllCarGenerationsAction(page?: number) {
 
 export async function createCarGenerationAction(generations: CarGeneration) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/cargenerations`, {
     method: "POST",
     headers: {
@@ -70,7 +70,7 @@ export async function editCarGenerationAction({
   id: number;
 }) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/cargenerations/${id}`,
     {
@@ -98,7 +98,7 @@ export async function editCarGenerationAction({
 
 export async function deleteCarGenerationAction(id: number) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/CarGenerations/${id}`,
     {

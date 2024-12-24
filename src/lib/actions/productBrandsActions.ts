@@ -33,7 +33,7 @@ export async function getAllProductBrandsAction() {
 
 export async function createProductBrandAction(productBrand: string) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(`${process.env.API_URL}/api/productbrands`, {
     method: "POST",
     headers: {
@@ -63,7 +63,7 @@ export async function editProductBrandAction({
   id: number;
 }) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/productbrands/${id}`,
     {
@@ -89,7 +89,7 @@ export async function editProductBrandAction({
 
 export async function deleteProductBrandAction(id: number) {
   const token = getToken();
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
   const response = await fetch(
     `${process.env.API_URL}/api/productbrands/${id}`,
     {

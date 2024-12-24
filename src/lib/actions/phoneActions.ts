@@ -70,7 +70,7 @@ export async function getPhonesAction({
 export async function getProductByIdAction(id: number) {
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Phones/${id}`, {
     method: "GET",
@@ -100,7 +100,7 @@ export async function createPhoneNumAction(data: {
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Phones`, {
     method: "POST",
@@ -135,7 +135,7 @@ export async function createPhoneNumsBulkAction(
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Phones/bulk`, {
     method: "POST",
@@ -170,7 +170,7 @@ export async function editPhoneNumAction({
   const cookie = cookies();
   const token = cookie.get(AUTH_TOEKN_NAME)?.value || "";
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Phones/${id}`, {
     method: "PUT",
@@ -196,7 +196,7 @@ export async function deletePhoneNumByIdAction(id: number) {
 
   const token = getToken();
 
-  if (!token) return redirect("/login");
+  if (!token) redirect("/login");
 
   const response = await fetch(`${process.env.API_URL}/api/Phones/${id}`, {
     method: "DELETE",
