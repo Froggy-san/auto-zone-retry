@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 
 import Spinner from "@components/Spinner";
-import { deleteProductsByIdAction } from "@lib/actions/productsActions";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,

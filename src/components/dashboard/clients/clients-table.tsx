@@ -296,7 +296,7 @@ function DeleteClientDialog({
       if (!isFirstPage) {
         params.set("page", String(Number(currPage) - 1));
       }
-      router.push(`${pathname}?${params.toString()}`);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
   }
 
