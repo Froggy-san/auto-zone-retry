@@ -2,13 +2,10 @@ import Collapse, {
   CollapseButton,
   CollapseContant,
 } from "@components/collapse";
-import NoteDialog from "@components/garage/note-dialog";
 import { Card } from "@components/ui/card";
 import { formatCurrency } from "@lib/helper";
 import { ProductById, User } from "@lib/types";
-import { Blend } from "lucide-react";
 import React from "react";
-import { PiPackageFill } from "react-icons/pi";
 import { TbBoxModel2 } from "react-icons/tb";
 import { VscTypeHierarchySuper } from "react-icons/vsc";
 import { MdCategory } from "react-icons/md";

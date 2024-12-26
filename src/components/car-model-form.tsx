@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -62,9 +62,14 @@ const CarModelForm = ({
 
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
   const isLoading = form.formState.isSubmitting;
+
+  useEffect(() => {
+    form.reset(defaultValues);
+  }, [open, form]);
+
   const handleClose = useCallback(() => {
     setOpen(false);
-    form.reset();
+    // form.reset(defaultValues);
   }, [open]);
 
   async function onSubmit(carModelData: z.infer<typeof CreateCarModelSchema>) {

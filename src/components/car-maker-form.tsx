@@ -77,7 +77,7 @@ const CarkMakerForm = ({
   }, [open]);
 
   function handleClose() {
-    form.reset(defaultValues);
+    // form.reset(defaultValues);
     handleCloseEdit?.();
     setIsOpen(false);
   }
@@ -217,7 +217,13 @@ const CarkMakerForm = ({
                 disabled={isLoading || isEqual}
                 className=" w-full sm:w-[unset]"
               >
-                {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                {isLoading ? (
+                  <Spinner className=" h-full" />
+                ) : carMakerToEdit ? (
+                  "Update"
+                ) : (
+                  "Create"
+                )}
               </Button>
             </div>
           </form>

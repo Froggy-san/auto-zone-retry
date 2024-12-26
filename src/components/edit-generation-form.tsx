@@ -34,7 +34,7 @@ import { editCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { useQueryClient } from "@tanstack/react-query";
 import useDeleteCarGenerations from "@lib/queries/useDeleteCarGenerations";
 import { CarGenerationProps, EditNameAndNote } from "@lib/types";
-import { cloneElement, useState } from "react";
+import { cloneElement, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
 export function EditCarGenerationForm({
@@ -56,12 +56,15 @@ export function EditCarGenerationForm({
     defaultValues,
   });
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
+  const isLoading = form.formState.isSubmitting;
+
+  useEffect(() => {
+    form.reset(defaultValues);
+  }, [isOpen, form]);
+
   function handleClose() {
-    form.reset();
     setIsOpen(false);
   }
-
-  const isLoading = form.formState.isSubmitting;
 
   async function onSubmit(generation: z.infer<typeof EditNameAndNote>) {
     try {

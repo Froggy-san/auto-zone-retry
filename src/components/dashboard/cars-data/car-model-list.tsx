@@ -21,7 +21,7 @@ const CarModelsList = () => {
   const [page, setPage] = useState(1);
 
   const { isLoading, data, apiError, error } = useCarModels(page);
-
+  console.log(data);
   const carModels: CarModelProps[] = data?.models || [];
   const pageCount = data?.count ? Math.ceil(Number(data.count) / PAGE_SIZE) : 0;
 

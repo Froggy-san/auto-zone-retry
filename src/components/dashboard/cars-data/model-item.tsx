@@ -67,16 +67,22 @@ const ModelItem = ({
   );
 };
 
-function NoteDialog({ item }: { item: CarModelProps }) {
+function NoteDialog({
+  item,
+  disabled = false,
+}: {
+  item: CarModelProps;
+  disabled?: boolean;
+}) {
   return (
     <Dialog>
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <DialogTrigger asChild>
-              <span className="  flex items-center justify-center rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  ">
+              <button className="  flex items-center justify-center rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  ">
                 <CgDetailsLess className="h-4 w-4" />
-              </span>
+              </button>
             </DialogTrigger>
           </TooltipTrigger>
           <TooltipContent>

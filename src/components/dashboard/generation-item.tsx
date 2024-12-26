@@ -48,7 +48,7 @@ const GenerationItem = ({
       <EditCarGenerationForm item={item} />
 
       <div className=" flex items-center  gap-2">
-        <NoteDialog item={item} />
+        <NoteDialog disabled={!item.notes} item={item} />
         <DeleteBtn handleResetPage={handleResetPage} item={item} />
       </div>
     </li>
@@ -128,16 +128,25 @@ function DeleteBtn({
   );
 }
 
-function NoteDialog({ item }: { item: CarGenerationProps }) {
+function NoteDialog({
+  item,
+  disabled = false,
+}: {
+  item: CarGenerationProps;
+  disabled?: boolean;
+}) {
   return (
     <Dialog>
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <DialogTrigger asChild>
-              <span className="  flex items-center justify-center rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  ">
+              <button
+                disabled={disabled}
+                className="  flex items-center justify-center rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  disabled:text-muted-foreground "
+              >
                 <NotepadText className="h-4 w-4" />
-              </span>
+              </button>
             </DialogTrigger>
           </TooltipTrigger>
           <TooltipContent>

@@ -28,6 +28,7 @@ export default function TextInputSwitch({
   const [width, setWidth] = useState(0);
   const { toast } = useToast();
   const spanRef = useRef<HTMLSpanElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleEdit = useCallback(async () => {
     try {
@@ -94,8 +95,14 @@ export default function TextInputSwitch({
       </span>
       {isEditing ? (
         <input
+          ref={inputRef}
           value={value}
           onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && inputRef.current) {
+              inputRef.current.blur();
+            }
+          }}
           onBlur={async () => {
             setIsEditing(false);
             if (item.name.trim() === value.trim() || !value.trim().length)

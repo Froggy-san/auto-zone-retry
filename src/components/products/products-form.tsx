@@ -73,34 +73,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
   const params = new URLSearchParams(searchParam);
 
-  function handleOpen() {
-    setIsOpen(true);
-  }
-
-  function handleClose() {
-    if (isLoading && productToEdit) return;
-    if (edit) {
-      const params = new URLSearchParams(searchParam);
-      params.delete("edit");
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }
-
-    setIsOpen(false);
-
-    if (isLoading) return;
-    form.reset(defaultValues);
-
-    setIsMainImage(
-      productToEdit?.productImages.find((image) => image.isMain === true) ||
-        null
-    );
-    setDeletedMedia([]);
-  }
-
-  function handleDeleteMedia(productImage: ProductImage) {
-    setDeletedMedia((arr) => [...arr, productImage]);
-  }
-
   const mediaUrls = useMemo(() => {
     const deletedIds = deletedMedia.map((del) => del.id);
     const mediaArr = productToEdit
@@ -167,6 +139,34 @@ const ProductForm: React.FC<ProductFormProps> = ({
         null
     );
   }, [isOpen, productToEdit?.productImages]);
+
+  function handleOpen() {
+    setIsOpen(true);
+  }
+
+  function handleClose() {
+    if (isLoading && productToEdit) return;
+    if (edit) {
+      const params = new URLSearchParams(searchParam);
+      params.delete("edit");
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+
+    setIsOpen(false);
+
+    if (isLoading) return;
+    form.reset(defaultValues);
+
+    setIsMainImage(
+      productToEdit?.productImages.find((image) => image.isMain === true) ||
+        null
+    );
+    setDeletedMedia([]);
+  }
+
+  function handleDeleteMedia(productImage: ProductImage) {
+    setDeletedMedia((arr) => [...arr, productImage]);
+  }
 
   async function onSubmit({
     name,
