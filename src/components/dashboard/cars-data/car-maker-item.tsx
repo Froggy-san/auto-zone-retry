@@ -87,6 +87,7 @@ const CarMakerItem = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem
+                disabled={!carMaker.notes}
                 className=" gap-2"
                 onClick={() => setNoteOpen(true)}
               >

@@ -78,7 +78,7 @@ export const ProductsSchema = z.object({
 export const CarGenerationsSchema = z.object({
   name: z
     .string()
-    .min(5, { message: "Name is too short" })
+    .min(2, { message: "Name is too short" })
     .max(55, { message: "Name is too long." }),
   carModelId: z.number().default(0),
   notes: z.string(),
@@ -93,7 +93,7 @@ export const CarInfoSchema = z.object({
 export const CarModelSchema = z.object({
   name: z
     .string()
-    .min(5, { message: "Name is too short" })
+    .min(2, { message: "Name is too short" })
     .max(55, { message: "Name is too long." }),
   carMakerId: z.number().default(0),
   notes: z.string(),
@@ -121,7 +121,7 @@ export const CarSchema = z.object({
 export const CreateCarMakerScehma = z.object({
   name: z
     .string()
-    .min(3, { message: "Toos short" })
+    .min(2, { message: "Toos short" })
     .max(55, { message: "Too long" }),
   notes: z.string(),
   logo: z.custom<File[]>(),
@@ -130,7 +130,7 @@ export const CreateCarMakerScehma = z.object({
 export const CreateCarModelSchema = z.object({
   name: z
     .string()
-    .min(3, { message: "Toos short" })
+    .min(2, { message: "Toos short" })
     .max(55, { message: "Too long" }),
   carMakerId: z.number(),
   notes: z.string(),
