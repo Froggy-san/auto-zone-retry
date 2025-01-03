@@ -359,6 +359,8 @@ export async function createProductImageAction(formData: FormData) {
     body: formData,
   });
 
+  console.log(response);
+
   if (!response.ok) {
     if (response.status === 409) {
       return { data: null, error: (await response.json()).message };
