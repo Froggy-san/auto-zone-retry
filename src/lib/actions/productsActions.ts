@@ -155,20 +155,15 @@ export async function createProductAction({
   const { prodcutId } = await response.json();
 
   if (images.length) {
-    // const upload = images.map((image) => {
-    //   image.append("productId", String(prodcutId));
-    //   return createProductImageAction(image);
-    // });
-    // await Promise.all(upload);
+    const upload = images.map((image) => {
+      image.append("productId", String(prodcutId));
+      return createProductImageAction(image);
+    });
+    const result = await Promise.all(upload);
 
-    try {
-      for (let i = 0; i < images.length; i++) {
-        images[i].append("productId", String(prodcutId));
-        await createProductImageAction(images[i]);
-      }
-    } catch (error) {
-      console.log(error);
-      return { data: null, error: error };
+    const item = result.find((item) => item.error.length > 0);
+    if (item) {
+      return { data: null, error: item.error };
     }
   }
   revalidateTag("products");
@@ -376,14 +371,14 @@ export async function createProductImageAction(formData: FormData) {
       response.status === 409
         ? (await response.json()).message
         : "Hat truble posting an image.";
-    throw new Error(error);
-    // if (response.status === 409) {
-    //   return { data: null, error: (await response.json()).message };
-    // }
-    // return { data: null, error: "Had truble creating a product." };
+    // throw new Error(error);
+    if (response.status === 409) {
+      return { data: null, error: (await response.json()).message };
+    }
+    return { data: null, error: "Had truble creating a product." };
   }
 
-  // return { data: null, error: "" };
+  return { data: null, error: "" };
 }
 
 export async function createMultipleProImages(formData: FormData, id: number) {
