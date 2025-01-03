@@ -159,7 +159,12 @@ export async function createProductAction({
       image.append("productId", String(prodcutId));
       return createProductImageAction(image);
     });
-    await Promise.all(upload);
+    try {
+      await Promise.all(upload);
+    } catch (error) {
+      console.log(error);
+      return { data: null, error: error };
+    }
   }
   revalidateTag("products");
 
@@ -362,13 +367,18 @@ export async function createProductImageAction(formData: FormData) {
   console.log(response);
 
   if (!response.ok) {
-    if (response.status === 409) {
-      return { data: null, error: (await response.json()).message };
-    }
-    return { data: null, error: "Had truble creating a product." };
+    const error =
+      response.status === 409
+        ? (await response.json()).message
+        : "Hat truble posting an image.";
+    throw new Error(error);
+    // if (response.status === 409) {
+    //   return { data: null, error: (await response.json()).message };
+    // }
+    // return { data: null, error: "Had truble creating a product." };
   }
 
-  return { data: null, error: "" };
+  // return { data: null, error: "" };
 }
 
 export async function createMultipleProImages(formData: FormData, id: number) {
