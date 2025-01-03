@@ -210,14 +210,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
           isAvailable,
         };
         // Edit the product.
-        const { error } = await editProductAction({
+        const data = await editProductAction({
           productToEdit: productToEditData,
           imagesToUpload,
           imagesToDelete: deletedMedia,
           isMain: isMainEdited ? isMainImage : null,
           isEqual,
         });
-        if (error) throw new Error(error);
+        if (data?.error) throw new Error(data?.error);
         handleClose();
         setDeletedMedia([]);
       } else {
@@ -236,7 +236,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             })
           : [];
 
-        const { error } = await createProductAction({
+        const data = await createProductAction({
           name,
           categoryId,
           productTypeId,
@@ -250,7 +250,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           images: imagesToUpload,
         });
 
-        if (error) throw new Error(error);
+        if (data?.error) throw new Error(data?.error);
         handleClose();
       }
 
