@@ -163,6 +163,7 @@ export async function createProductAction({
 
     try {
       for (let i = 0; i < images.length; i++) {
+        images[i].append("productId", String(prodcutId));
         await createProductImageAction(images[i]);
       }
     } catch (error) {
