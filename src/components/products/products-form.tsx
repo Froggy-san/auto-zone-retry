@@ -225,7 +225,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
           ? images.map((image, i) => {
               const formData = new FormData();
               formData.append("image", image);
-              // formData.append("productId", String(prodcutId));
               formData.append(
                 "isMain",
                 typeof isMainImage === "number" && isMainImage === i
