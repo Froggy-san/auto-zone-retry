@@ -155,12 +155,16 @@ export async function createProductAction({
   const { prodcutId } = await response.json();
 
   if (images.length) {
-    const upload = images.map((image) => {
-      image.append("productId", String(prodcutId));
-      return createProductImageAction(image);
-    });
+    // const upload = images.map((image) => {
+    //   image.append("productId", String(prodcutId));
+    //   return createProductImageAction(image);
+    // });
+    // await Promise.all(upload);
+
     try {
-      await Promise.all(upload);
+      for (let i = 0; i < images.length; i++) {
+        await createProductImageAction(images[i]);
+      }
     } catch (error) {
       console.log(error);
       return { data: null, error: error };
