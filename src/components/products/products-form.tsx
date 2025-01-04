@@ -40,6 +40,7 @@ import { MultiFileUploader } from "./multi-file-uploader";
 import useObjectCompare from "@hooks/use-compare-objs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import DialogComponent from "@components/dialog-component";
+import { Trash2 } from "lucide-react";
 
 interface ProductFormProps {
   categories: Category[];
@@ -71,7 +72,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   const isMainChange =
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
-  const params = new URLSearchParams(searchParam);
 
   const mediaUrls = useMemo(() => {
     const deletedIds = deletedMedia.map((del) => del.id);
@@ -164,8 +164,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
     setDeletedMedia([]);
   }
 
-  function handleDeleteMedia(productImage: ProductImage) {
-    setDeletedMedia((arr) => [...arr, productImage]);
+  function handleDeleteMedia(productImage?: ProductImage) {
+    if (productImage) setDeletedMedia((arr) => [...arr, productImage]);
   }
 
   async function onSubmit({
@@ -282,9 +282,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
       <DialogComponent.Content className="  max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14 pb-0 sm:pb-0">
         <DialogComponent.Header>
-          <DialogComponent.Title>Product form</DialogComponent.Title>
+          <DialogComponent.Title>
+            {" "}
+            {productToEdit ? "Update" : "Add"} Product
+          </DialogComponent.Title>
           <DialogComponent.Description>
-            Create or edit products.
+            {productToEdit
+              ? `Edit product '${productToEdit.name}' data.`
+              : "Add new product to the products page."}
+            .
           </DialogComponent.Description>
         </DialogComponent.Header>
         <Form {...form}>
@@ -536,9 +542,26 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   </FormControl>
                   <FormDescription className=" flex justify-between">
                     <span> Add images related to the product.</span>{" "}
-                    <span className=" text-xs">
-                      Images: {field.value.length + mediaUrls?.length}
-                    </span>
+                    <div className=" flex items-center gap-2">
+                      <span className=" text-xs">
+                        Images: {field.value.length + mediaUrls?.length}
+                      </span>
+                      <Button
+                        disabled={!field.value.length && !mediaUrls.length}
+                        onClick={() => {
+                          field.onChange([]);
+                          setIsMainImage(null);
+                          if (productToEdit)
+                            setDeletedMedia(productToEdit.productImages);
+                        }}
+                        type="button"
+                        variant="destructive"
+                        className=" p-0 w-6 h-6"
+                      >
+                        {" "}
+                        <Trash2 className=" w-4 h-4 shrink-0" />
+                      </Button>
+                    </div>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
