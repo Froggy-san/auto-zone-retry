@@ -126,11 +126,13 @@ const Page = async ({
                   style={{ backgroundColor: `${car?.color || "black"}` }}
                 />
               </div>
-              <NoteDialog
-                title="Car note."
-                content={<p>{car?.notes}</p>}
-                className=" absolute right-5 top-7"
-              />
+              {car?.notes && (
+                <NoteDialog
+                  title="Car note."
+                  content={<p>{car.notes}</p>}
+                  className=" absolute right-5 top-7"
+                />
+              )}
             </Card>
 
             <Card className="  p-5  text-sm relative">
@@ -145,7 +147,8 @@ const Page = async ({
                 </span>
               </div>
 
-              {carInfo && carInfo.carGeneration.notes.length < 300 ? (
+              {!carInfo?.carGeneration.notes ? null : carInfo &&
+                carInfo.carGeneration.notes.length < 300 ? (
                 <div className=" mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
                   <span className=" mb-auto"> Note: </span>
                   <p className=" text-muted-foreground break-all">
@@ -184,11 +187,13 @@ const Page = async ({
                   <span>Logo</span>
                 )}
               </div>
-              <NoteDialog
-                title="Car maker note."
-                content={<p>{carInfo?.carMaker.notes}</p>}
-                className=" absolute right-5 top-7"
-              />
+              {carInfo?.carMaker.notes && (
+                <NoteDialog
+                  title="Car maker note."
+                  content={<p>{carInfo?.carMaker.notes}</p>}
+                  className=" absolute right-5 top-7"
+                />
+              )}
             </Card>
 
             <Card className="  p-5  text-sm relative">
@@ -203,7 +208,8 @@ const Page = async ({
                 </span>
               </div>
 
-              {carInfo && carInfo.carModel.notes.length < 300 ? (
+              {!carInfo?.carModel.notes ? null : carInfo &&
+                carInfo.carModel.notes.length < 300 ? (
                 <div className=" mt-3 flex  flex-col sm:flex-row sm:items-center gap-2">
                   Note:{" "}
                   <p className=" text-muted-foreground break-all">
