@@ -99,7 +99,7 @@ const ProdcutViewDetials = ({
                 </h2>
               </div>
               <p className="   decoration-clone  break-all">
-                &bull; {product.productType.name}
+                &bull; {product.productBrand.name}
               </p>
             </Card>
 
