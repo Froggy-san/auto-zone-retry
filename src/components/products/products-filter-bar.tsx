@@ -28,7 +28,7 @@ const ProductsFilterBar: React.FC<Props> = async ({
   count,
 }) => {
   return (
-    <aside className={`sm:w-[200px]  sm:p-2 sm:border-t sm:border-r `}>
+    <aside className={`sm:w-[200px]  sm:p-2  sm:border-r `}>
       <ProductsFilterContent
         name={name}
         count={count || 0}

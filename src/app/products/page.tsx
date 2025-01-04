@@ -77,13 +77,15 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
       data-vaul-drawer-wrapper
       className=" min-h-screen bg-background flex flex-col"
     >
-      <Header />
-      <div className="  px-2 mb-4  space-y-2 ">
-        <h3 className=" text-md font-semibold">Categories</h3>
-        <CategoryCarousel
-          categories={categoriesData || []}
-          options={{ dragFree: true }}
-        />
+      <div className=" border-b">
+        <Header />
+        <div className="  px-2 mb-4  space-y-2 ">
+          <h3 className=" text-md font-semibold">Categories</h3>
+          <CategoryCarousel
+            categories={categoriesData || []}
+            options={{ dragFree: true }}
+          />
+        </div>
       </div>
       <IntersectionProvidor>
         <div className=" flex   flex-1  w-full">
