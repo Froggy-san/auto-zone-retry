@@ -29,7 +29,7 @@ import {
 } from "@lib/types";
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Trash2 } from "lucide-react";
 import Spinner from "@components/Spinner";
 import { Textarea } from "@components/ui/textarea";
 import { ClientsComboBox } from "@components/clients-combobox";
@@ -73,6 +73,7 @@ const CarForm = ({
   const [carModelId, setCarModelId] = useState(
     carToEdit?.carInfo.carModel.id || 0
   );
+  const { toast } = useToast();
 
   const mediaUrls = useMemo(() => {
     const deletedIds = deletedMedia.map((del) => del.id);
@@ -83,8 +84,6 @@ const CarForm = ({
       : [];
     return mediaArr;
   }, [deletedMedia, carToEdit]);
-
-  const { toast } = useToast();
 
   const isEditing = edit ? true : false || isOpen;
 
@@ -109,6 +108,7 @@ const CarForm = ({
   const disabled = isEqual && !deletedMedia.length;
 
   const isLoading = form.formState.isSubmitting;
+
   const models: CarModelProps[] = (
     carMakerId && carMakers.length
       ? carMakers.find((maker) => maker.id === carMakerId)?.carModels
@@ -227,10 +227,13 @@ const CarForm = ({
 
       <DialogComponent.Content className="   max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogComponent.Header>
-          <DialogComponent.Title>Car creation</DialogComponent.Title>
-          <DialogComponent.Description>
+          <DialogComponent.Title>
+            {" "}
+            {carToEdit ? "Update car's data" : " Create a new car"}r
+          </DialogComponent.Title>
+          {/* <DialogComponent.Description>
             Create a new car.
-          </DialogComponent.Description>
+          </DialogComponent.Description> */}
         </DialogComponent.Header>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
@@ -450,9 +453,29 @@ const CarForm = ({
                       disabled={isLoading}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Enter car&apos;s information.
+                  <FormDescription className=" flex justify-between">
+                    <span> Enter car&apos;s information.</span>{" "}
+                    <div className=" flex items-center gap-2">
+                      <span className=" text-xs">
+                        Images: {field.value.length + mediaUrls?.length}
+                      </span>
+                      <Button
+                        disabled={!field.value.length && !mediaUrls.length}
+                        onClick={() => {
+                          field.onChange([]);
+
+                          if (carToEdit) setDeletedMedia(carToEdit.carImages);
+                        }}
+                        type="button"
+                        variant="destructive"
+                        className=" p-0 w-6 h-6"
+                      >
+                        {" "}
+                        <Trash2 className=" w-4 h-4 shrink-0" />
+                      </Button>
+                    </div>
                   </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -486,7 +509,7 @@ const CarForm = ({
                 {isLoading ? (
                   <Spinner className=" h-full" />
                 ) : carToEdit ? (
-                  "Edit"
+                  "Update"
                 ) : (
                   "Create"
                 )}
