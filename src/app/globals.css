@@ -137,6 +137,25 @@ body {
     color: var(--text-low-contrast);
     font-weight: 600;
   }
+
+  progress {
+    border-radius: 7px;
+    width: 80%;
+    margin-inline: auto;
+    height: 22px;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+  }
+  progress::-webkit-progress-bar {
+    border-radius: 7px;
+  }
+  progress::-webkit-progress-value {
+    background-color: blue;
+    border-radius: 7px;
+    /* box-shadow: 1px 1px 5px 3px rgba(255, 0, 0, 0.8); */
+  }
+  progress::-moz-progress-bar {
+    /* style rules */
+  }
 }
 
 @layer base {

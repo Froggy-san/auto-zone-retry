@@ -540,14 +540,17 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       mediaUrl={mediaUrls}
                     />
                   </FormControl>
-                  <FormDescription className=" flex justify-between">
+                  <FormDescription className=" flex items-center justify-between">
                     <span> Add images related to the product.</span>{" "}
                     <div className=" flex items-center gap-2">
-                      <span className=" text-xs">
+                      <span className=" text-xs ">
                         Images: {field.value.length + mediaUrls?.length}
                       </span>
                       <Button
-                        disabled={!field.value.length && !mediaUrls.length}
+                        disabled={
+                          (!field.value.length && !mediaUrls.length) ||
+                          isLoading
+                        }
                         onClick={() => {
                           field.onChange([]);
                           setIsMainImage(null);

@@ -460,7 +460,10 @@ const CarForm = ({
                         Images: {field.value.length + mediaUrls?.length}
                       </span>
                       <Button
-                        disabled={!field.value.length && !mediaUrls.length}
+                        disabled={
+                          (!field.value.length && !mediaUrls.length) ||
+                          isLoading
+                        }
                         onClick={() => {
                           field.onChange([]);
 
