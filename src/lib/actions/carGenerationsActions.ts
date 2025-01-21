@@ -1,5 +1,6 @@
 "use server";
 
+import { PILL_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
 import { CarGeneration } from "@lib/types";
 import { redirect } from "next/navigation";
@@ -11,7 +12,7 @@ export async function getAllCarGenerationsAction(page?: number) {
     return { data: null, error: "You are not authorized to make this action." };
 
   let query = `${process.env.API_URL}/api/CarGenerations`;
-  if (page) query = query + `?PageNumber=${page}&PageSize=${10}`;
+  if (page) query = query + `?PageNumber=${page}&PageSize=${PILL_SIZE}`;
 
   const response = await fetch(query, {
     method: "GET",

@@ -1,5 +1,6 @@
 "use server";
 
+import { PILL_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
 import { CarModel, CreateCarModel } from "@lib/types";
 import { revalidateTag } from "next/cache";
@@ -12,7 +13,8 @@ export async function getAllCarModelsAction(pageNumber?: number) {
     return { data: null, error: "You are not authorized to make this action." };
 
   let query = `${process.env.API_URL}/api/carmodels`;
-  if (pageNumber) query = query + `?PageSize=12&PageNumber=${pageNumber}`;
+  if (pageNumber)
+    query = query + `?PageSize=${PILL_SIZE}&PageNumber=${pageNumber}`;
   const response = await fetch(query, {
     method: "GET",
     headers: {

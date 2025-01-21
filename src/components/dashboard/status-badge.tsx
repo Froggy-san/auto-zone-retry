@@ -62,12 +62,14 @@ const StatusBadge = ({
   const chosenTheme = theme === "system" ? prefered : theme;
   const darkModelColor = JSON.parse(status.colorDark);
   const lightModeColor = JSON.parse(status.colorLight);
-  const isDarkColor = Object.values(darkModelColor).every((item) => item !== 0);
-  const isLightColor = Object.values(lightModeColor).every(
-    (item) => item !== 0
+  const isNotDarkColor = Object.values(darkModelColor).every(
+    (item) => item === 0
+  );
+  const isNotLightColor = Object.values(lightModeColor).every(
+    (item) => item === 0
   );
 
-  // console.log(isDarkColor, isLightColor);
+  // console.log(isNotDarkColor, isNotLightColor);
   // const light = `hsl(${lightModeColor.h} ${lightModeColor.s} ${lightModeColor.l})`;
   // const dark = `hsl(${darkModelColor.h} ${darkModelColor.s} ${darkModelColor.l})`;
   return (
@@ -97,18 +99,18 @@ const StatusBadge = ({
                 )}
                 style={{
                   backgroundColor:
-                    isLightColor && chosenTheme === "light"
+                    !isNotLightColor && chosenTheme === "light"
                       ? `hsla(${lightModeColor?.h}, ${lightModeColor?.s}%, ${lightModeColor?.l}%, 0.4)`
-                      : isDarkColor && chosenTheme === "dark"
+                      : !isNotDarkColor && chosenTheme === "dark"
                       ? `hsla(${darkModelColor?.h}, ${darkModelColor?.s}%, ${darkModelColor?.l}%)`
                       : "  primary ",
 
                   color:
-                    isLightColor && chosenTheme === "light"
+                    !isNotLightColor && chosenTheme === "light"
                       ? `hsl(${lightModeColor?.h}, ${
                           lightModeColor?.s + 90
                         }%, ${lightModeColor?.l - 33}%)`
-                      : isDarkColor && chosenTheme === "dark"
+                      : !isNotDarkColor && chosenTheme === "dark"
                       ? `hsla(${darkModelColor?.h}, ${
                           darkModelColor?.s + 55
                         }%, ${darkModelColor?.l + 55}%)`

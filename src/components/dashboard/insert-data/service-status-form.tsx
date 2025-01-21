@@ -23,7 +23,7 @@ import {
   ServiceStatus,
   ServiceStatusSchema,
 } from "@lib/types";
-import React, { SetStateAction, useCallback } from "react";
+import React, { SetStateAction, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { SketchPicker } from "react-color";
 import ColorPicker from "@components/color-picker";
@@ -63,10 +63,15 @@ const ServiceStatusForm = ({ statusToEdit, setOpen, open }: Props) => {
   const isLoading = form.formState.isSubmitting;
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
 
+  console.log(colorDark, "DARRRK");
+  useEffect(() => {
+    form.reset(defaultValues);
+  }, [open]);
+
   const handleClose = useCallback(() => {
     if (isLoading) return;
     setOpen(false);
-    form.reset(defaultValues);
+    // form.reset(defaultValues);
   }, [open, isLoading, form]);
 
   async function onSubmit({

@@ -15,7 +15,7 @@ import {
 import useCarModels from "@lib/queries/useCarModels";
 import ErrorMessage from "@components/error-message";
 import ModelItem from "./model-item";
-import { PAGE_SIZE } from "@lib/constants";
+import { PILL_SIZE } from "@lib/constants";
 
 const CarModelsList = () => {
   const [page, setPage] = useState(1);
@@ -23,7 +23,7 @@ const CarModelsList = () => {
   const { isLoading, data, apiError, error } = useCarModels(page);
   console.log(data);
   const carModels: CarModelProps[] = data?.models || [];
-  const pageCount = data?.count ? Math.ceil(Number(data.count) / PAGE_SIZE) : 0;
+  const pageCount = data?.count ? Math.ceil(Number(data.count) / PILL_SIZE) : 0;
 
   const handleResetPage = useCallback(() => {
     if (carModels.length === 1) {

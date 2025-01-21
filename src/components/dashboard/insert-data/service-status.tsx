@@ -23,7 +23,7 @@ const ServiceStatus = async () => {
 
   return (
     <ul className=" flex flex-row gap-2  flex-wrap ">
-      {data.map((status, index) => (
+      {data.map((status) => (
         <StatusBadge
           controls
           key={status.id}

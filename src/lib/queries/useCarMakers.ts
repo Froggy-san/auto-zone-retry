@@ -5,7 +5,8 @@ import {
   getAllCarMakersAction,
   getCarMakerCountAction,
 } from "@lib/actions/carMakerActions";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { MAKER_PAGE_SIZE } from "@lib/constants";
+import { useQuery } from "@tanstack/react-query";
 
 export default function useCarMakers(page: number) {
   const {
@@ -26,7 +27,7 @@ export default function useCarMakers(page: number) {
   });
 
   const pageCount = countData?.data
-    ? Math.ceil(Number(countData.data) / 12)
+    ? Math.ceil(Number(countData.data) / MAKER_PAGE_SIZE)
     : 0;
 
   return { carMakersData, pageCount, isLoading, countError: countData?.error };
