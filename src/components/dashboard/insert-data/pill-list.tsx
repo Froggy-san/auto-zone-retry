@@ -25,7 +25,7 @@ const PillList = ({
 
   const { result, totalPages } = useLocalPagination({
     currPage: page,
-    pageSize: 24,
+    pageSize: 32,
     arr: items,
   });
 

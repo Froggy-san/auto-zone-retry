@@ -42,7 +42,7 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
   React.useEffect(() => {
     const body = document.querySelector("body");
     if (body) {
-      if (index) body.style.overflow = "hidden";
+      if (index !== undefined) body.style.overflow = "hidden";
       else body.style.overflow = "auto";
     }
 

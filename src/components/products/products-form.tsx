@@ -134,6 +134,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   }, [images, productToEdit]);
 
   useEffect(() => {
+    form.reset(defaultValues);
     setIsMainImage(
       productToEdit?.productImages.find((image) => image.isMain === true) ||
         null
@@ -155,7 +156,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
     setIsOpen(false);
 
     if (isLoading) return;
-    form.reset(defaultValues);
 
     setIsMainImage(
       productToEdit?.productImages.find((image) => image.isMain === true) ||

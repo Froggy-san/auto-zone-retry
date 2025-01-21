@@ -1,4 +1,5 @@
 "use server";
+import { MAKER_PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -11,7 +12,8 @@ export async function getAllCarMakersAction(pageNumber?: number) {
 
   let query = `${process.env.API_URL}/api/CarMakers`;
 
-  if (pageNumber) query = query + `?PageSize=12&PageNumber=${pageNumber}`;
+  if (pageNumber)
+    query = query + `?PageSize=${MAKER_PAGE_SIZE}&PageNumber=${pageNumber}`;
 
   const response = await fetch(query, {
     method: "GET",

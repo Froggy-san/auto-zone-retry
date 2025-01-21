@@ -46,12 +46,6 @@ export function MultiFileUploader({
     return totalSize / byteSize;
   }, [selectedFiles]);
 
-  const maxFileSizeMB = 4;
-  const progressPercentage = Math.min(
-    (totalFileSizesMB / maxFileSizeMB) * 100,
-    100
-  );
-
   // Handle file drop
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {
