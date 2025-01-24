@@ -343,7 +343,7 @@ const ProductSoldTooltip: React.FC<ChartTooltipContentProps> = ({
           <img
             src={data.productImage}
             alt="Product Image"
-            className=" w-6 h-6 rounded-sm  ml-auto"
+            className=" w-6 h-6 rounded-sm  ml-auto object-cover"
           />
         )}
       </div>{" "}
