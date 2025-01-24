@@ -29,8 +29,6 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
       .then((data) => setClientSecret(data.clientSecret));
   }, [amount]);
 
-  console.log(clientSecret, "Secret");
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
