@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useRef } from "react";
 import { CarMaker } from "@lib/types";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
@@ -14,6 +14,7 @@ import {
 import useCarMakers from "@lib/queries/useCarMakers";
 import CarMakerItem from "./car-maker-item";
 import CarkMakerForm from "@components/car-maker-form";
+import useScrollToPoint from "@hooks/use-scroll-to-point";
 
 const CarMakerList = () => {
   const [page, setPage] = useState(1);
@@ -21,6 +22,15 @@ const CarMakerList = () => {
     undefined
   );
 
+  const divRef = useRef<HTMLDivElement>(null);
+  const makerList = useRef<HTMLUListElement>(null);
+
+  const handleScroll = useScrollToPoint({
+    ref: divRef,
+    options: {
+      behavior: "smooth",
+    },
+  });
   const { carMakersData, isLoading, pageCount, countError } =
     useCarMakers(page);
 
@@ -36,6 +46,12 @@ const CarMakerList = () => {
     }
   }, [carmakers.length, setPage]);
 
+  function handleScrollList() {
+    if (makerList.current) {
+      makerList.current.scrollTo(0, 0);
+    }
+  }
+
   return (
     <>
       <CarkMakerForm
@@ -43,6 +59,7 @@ const CarMakerList = () => {
         showOpenButton={false}
         handleCloseEdit={handleClose}
       />
+      <div className=" relative " id="car-makers" ref={divRef} />
       <Accordion type="single" collapsible defaultValue="item-1">
         <AccordionItem value="item-1" className=" border-none">
           <AccordionTrigger>
@@ -62,7 +79,10 @@ const CarMakerList = () => {
                   No car maker data has been posted yet!
                 </p>
               ) : (
-                <ul className="  grid grid-cols-2 md:grid-cols-3   overscroll-contain xl:grid-cols-4 gap-2 px-1  py-2  sm:p-4 max-h-[70vh] sm:max-h-none overflow-y-auto  ">
+                <ul
+                  ref={makerList}
+                  className="  grid grid-cols-2 md:grid-cols-3   overscroll-contain xl:grid-cols-4 gap-2 px-1  py-2  sm:p-4 max-h-[70vh] sm:max-h-none overflow-y-auto  "
+                >
                   {carmakers.map((item) => (
                     <CarMakerItem
                       key={item.id}
@@ -80,6 +100,8 @@ const CarMakerList = () => {
                   onClick={() => {
                     if (isLoading || page === 1) return;
                     setPage((page) => page - 1);
+                    handleScroll();
+                    handleScrollList();
                   }}
                   size="icon"
                   variant="secondary"
@@ -92,6 +114,8 @@ const CarMakerList = () => {
                     if (isLoading || page === pageCount) return;
 
                     setPage((page) => page + 1);
+                    handleScroll();
+                    handleScrollList();
                   }}
                   variant="secondary"
                   size="icon"
