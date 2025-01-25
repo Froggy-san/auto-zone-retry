@@ -43,3 +43,15 @@ export default function useScrollToPoint({
 
   return handleScroll;
 }
+
+// How to use:
+// the hook accepts either the alignToTop which is a boolean value or the options props.
+// 1. const myRef = useRef(null)
+// const returnedFn = useScrollToPoint({ref:myRef , options:{behaviour:"smooth",inline:"nearest",block:"nearest"}})    ||     const returnedFn = useScrollToPoint({ref:myRef ,alignToTo:true})
+// in the JSX you should have a div as the scrolling point like shown in the example below:
+// return<>
+// <div ref={myRef}/>
+// <ul>
+// {list.map((item)=> <ItemComp key={item.id}/>)}
+// </ul>
+// </>
