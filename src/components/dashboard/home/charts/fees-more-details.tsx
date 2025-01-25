@@ -1,4 +1,4 @@
-import React, { useCallback, , useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 
 import {
   Dialog,
@@ -97,7 +97,7 @@ const FeesMoreDetails = ({ fees, date }: Props) => {
               onClick={() => {
                 if (page === 1) return;
                 setpage((currPage) => currPage - 1);
-               handleScrollTop()
+                handleScrollTop();
               }}
               variant="secondary"
               size="sm"
@@ -111,6 +111,7 @@ const FeesMoreDetails = ({ fees, date }: Props) => {
               onClick={() => {
                 if (page === totalPages) return;
                 setpage((currPage) => currPage + 1);
+                handleScrollTop();
               }}
               variant="secondary"
               size="sm"

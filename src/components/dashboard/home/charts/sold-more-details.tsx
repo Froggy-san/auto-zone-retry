@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 
 import {
   Dialog,
@@ -30,12 +30,19 @@ interface Props {
 }
 const SoldMoreDetails = ({ products, date }: Props) => {
   const [page, setpage] = useState(1);
-
+  const ref = useRef<HTMLUListElement>(null);
   const { result, totalPages } = useLocalPagination({
     currPage: page,
     pageSize: 10,
     arr: products,
   });
+
+  const handleScrollTop = useCallback(() => {
+    if (ref.current) {
+      ref.current.scrollTo(0, 0);
+    }
+  }, [ref]);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -51,7 +58,10 @@ const SoldMoreDetails = ({ products, date }: Props) => {
             {`'${date[0]}-${date[1]}'`}.
           </DialogDescription>
         </DialogHeader>
-        <ul className=" space-y-2 relative max-h-[55vh]    py-2  pr-2 xs:px-4 mx-2 overflow-y-auto">
+        <ul
+          ref={ref}
+          className=" space-y-2 relative max-h-[55vh]    py-2  pr-2 xs:px-4 mx-2 overflow-y-auto"
+        >
           {result.map((pro) => (
             <Link
               href={`/products/${pro.id}`}
@@ -101,6 +111,7 @@ const SoldMoreDetails = ({ products, date }: Props) => {
               onClick={() => {
                 if (page === 1) return;
                 setpage((currPage) => currPage - 1);
+                handleScrollTop();
               }}
               variant="secondary"
               size="sm"
@@ -114,6 +125,7 @@ const SoldMoreDetails = ({ products, date }: Props) => {
               onClick={() => {
                 if (page === totalPages) return;
                 setpage((currPage) => currPage + 1);
+                handleScrollTop();
               }}
               variant="secondary"
               size="sm"
