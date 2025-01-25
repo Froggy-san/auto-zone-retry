@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, , useRef, useState } from "react";
 
 import {
   Dialog,
@@ -35,6 +35,14 @@ const FeesMoreDetails = ({ fees, date }: Props) => {
     pageSize: 10,
     arr: fees,
   });
+
+  const list = useRef<HTMLUListElement>(null);
+
+  const handleScrollTop = useCallback(() => {
+    if (list.current) {
+      list.current.scrollTo(0, 0);
+    }
+  }, [list]);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -50,7 +58,10 @@ const FeesMoreDetails = ({ fees, date }: Props) => {
             {`'${date[0]}-${date[1]}'`}.
           </DialogDescription>
         </DialogHeader>
-        <ul className=" space-y-2 relative max-h-[55vh]    py-2  pr-2 xs:px-4 mx-2 overflow-y-auto">
+        <ul
+          ref={list}
+          className=" space-y-2 relative max-h-[55vh]    py-2  pr-2 xs:px-4 mx-2 overflow-y-auto"
+        >
           {result.map((fee) => (
             <li
               key={fee.id}
@@ -86,6 +97,7 @@ const FeesMoreDetails = ({ fees, date }: Props) => {
               onClick={() => {
                 if (page === 1) return;
                 setpage((currPage) => currPage - 1);
+               handleScrollTop()
               }}
               variant="secondary"
               size="sm"

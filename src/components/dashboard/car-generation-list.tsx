@@ -1,6 +1,6 @@
 "use client";
 import useCarGenerations from "@lib/queries/useCarGenerations";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import GenerationItem from "./generation-item";
 import { CarGenerationProps } from "@lib/types";
 import { Button } from "@components/ui/button";
@@ -12,11 +12,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import useScrollToPoint from "@hooks/use-scroll-to-point";
 
 const CarGenerationList = () => {
   const [page, setPage] = useState(1);
 
   const { isLoading, data, pageCount, error } = useCarGenerations(page);
+  const ref = useRef<HTMLDivElement>(null);
+  const handleScroll = useScrollToPoint({ ref });
 
   const carGenerationData: CarGenerationProps[] =
     data?.carGenerationsData || [];
@@ -63,6 +66,7 @@ const CarGenerationList = () => {
                 onClick={() => {
                   if (isLoading || page === 1) return;
                   setPage((page) => page - 1);
+                  handleScroll();
                 }}
                 size="icon"
                 variant="secondary"
@@ -75,6 +79,7 @@ const CarGenerationList = () => {
                   if (isLoading || page === pageCount) return;
 
                   setPage((page) => page + 1);
+                  handleScroll();
                 }}
                 variant="secondary"
                 size="icon"

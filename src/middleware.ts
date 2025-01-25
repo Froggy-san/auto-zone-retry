@@ -21,7 +21,9 @@ export async function middleware(request: NextRequest) {
   }
 
   if (
-    (path.startsWith("/dashboard") || path.startsWith("/garage")) &&
+    (path.startsWith("/dashboard") ||
+      path.startsWith("/garage") ||
+      path.startsWith("/stripe")) &&
     hasExpired
   ) {
     return NextResponse.redirect(

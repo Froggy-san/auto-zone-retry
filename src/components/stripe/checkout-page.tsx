@@ -63,7 +63,10 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
   if (!clientSecret || !stripe || !elements)
     return <Spinner className=" h-10" />;
 
-  if (errorMessage) return <ErrorMessage>{errorMessage}</ErrorMessage>;
+  if (errorMessage)
+    return (
+      <ErrorMessage className=" text-white   ">{errorMessage}</ErrorMessage>
+    );
 
   return (
     <form
