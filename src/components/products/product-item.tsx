@@ -30,6 +30,7 @@ const ProductItem = async ({
   return (
     <li className={`${!product.isAvailable && "opacity-50 "}`}>
       <Link
+        prefetch={false}
         href={`/products/${product.id}?size=${pageSize}&page=${currPage}`}
         className="space-y-1 flex flex-col"
         // prefetch={false}

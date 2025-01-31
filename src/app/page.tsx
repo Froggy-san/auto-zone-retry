@@ -5,10 +5,11 @@ import LinkBoxs from "@components/home/link-boxs";
 import { Button } from "@components/ui/button";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import ReduxTest from "@components/redux-test";
 
 export default function Home() {
   return (
-    <main className=" min-h-[100dvh] relative">
+    <main className=" min-h-[100vh] relative">
       <Header />
       <Image
         src={BackgroundImage}
@@ -32,6 +33,7 @@ export default function Home() {
             </Link>
           </Button>
         </div>
+        <ReduxTest />
         <p className=" text-xs  text-muted-foreground pr-2">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore
           harum, nam amet eveniet ipsam ea facere accusantium repellat, natus

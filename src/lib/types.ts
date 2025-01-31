@@ -661,6 +661,10 @@ export interface ServiceStatus {
   services: any[];
 }
 
+export interface CartItem extends ProductById {
+  quantity: number;
+  totalPrice: number;
+}
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
 export type CarGeneration = z.infer<typeof CarGenerationsSchema>;
 export type CarInfo = z.infer<typeof CarInfoSchema>;

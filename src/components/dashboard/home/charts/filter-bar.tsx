@@ -45,7 +45,7 @@ const FilterBar = ({
             onMouseOver={() => setHovered(i)}
             //   onMouseOut={() => setHovered(null)}
             className={cn(
-              "relative text-sm  hover:text-accent-foreground transition-colors duration-200 px-3 py-2 rounded-md bg-transparent ",
+              "relative hover:text-accent-foreground transition-colors duration-500  h-8 rounded-md px-3 text-xs bg-transparent ",
               {
                 " bg-accent dark:bg-card text-accent-foreground":
                   selected === filter.value,
@@ -60,7 +60,7 @@ const FilterBar = ({
 
             {hovered === i && (
               <motion.div
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.25 }}
                 layoutId="tab-indicator"
                 className="w-full h-full  absolute inset-0   z-10  bg-accent dark:bg-card  rounded-md "
               />
