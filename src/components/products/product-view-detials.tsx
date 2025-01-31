@@ -9,6 +9,7 @@ import React from "react";
 import { TbBoxModel2 } from "react-icons/tb";
 import { VscTypeHierarchySuper } from "react-icons/vsc";
 import { MdCategory } from "react-icons/md";
+import CartControls from "./cart-controls";
 
 const ProdcutViewDetials = ({
   product,
@@ -27,13 +28,15 @@ const ProdcutViewDetials = ({
       <section className=" mt-10 space-y-7 p-6">
         <div className=" text-xs items-center  flex justify-between">
           <div className="  flex  gap-3">
-            <span>
-              Listing price:{" "}
-              <span className=" text-red-400">
-                {" "}
-                {formatCurrency(product.listPrice)}
+            {user && (
+              <span>
+                Listing price:{" "}
+                <span className=" text-red-400">
+                  {" "}
+                  {formatCurrency(product.listPrice)}
+                </span>
               </span>
-            </span>
+            )}
             <span className=" ">
               Sales price:{" "}
               <span className=" text-green-400">
@@ -54,6 +57,7 @@ const ProdcutViewDetials = ({
             </div>
           )}
         </div>
+        <CartControls product={product} />
 
         <div className=" space-y-14">
           <h2 className=" text-xl font-semibold">Product information</h2>
