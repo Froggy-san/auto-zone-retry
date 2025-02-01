@@ -1,22 +1,19 @@
 "use client";
-import { RootState } from "@lib/store/store";
 import React from "react";
 import { useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import CartITem from "./cart-item";
 import { formatCurrency } from "@lib/client-helpers";
 import { getCart, getTotalCartPrices } from "./cartSlice";
-import ErrorMessage from "@components/error-message";
 import { ShoppingCart } from "lucide-react";
 
 const CartList = () => {
   const cartItems = useSelector(getCart);
   const totalPrices = useSelector(getTotalCartPrices);
 
-  console.log(cartItems, "WWW");
   return (
-    <section className="  mx-auto mt-10  max-w-[1200px] ">
-      <div className="  rounded-sm   p-5 md:p-10 space-y-4">
+    <section className="   flex-1   space-y-4 pb-10 max-h-full ">
+      <div className="  rounded-sm   space-y-4">
         <AnimatePresence mode="popLayout">
           {cartItems.length ? (
             cartItems.map((item, i) => (
