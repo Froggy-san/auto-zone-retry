@@ -2,9 +2,20 @@ import { RootState } from "@lib/store/store";
 import { CartItem, ProductById } from "@lib/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState: { cart: CartItem[] } = {
+type Client = {
+  name: string;
+  phone: string;
+  email: string;
+};
+const initialState: {
+  cart: CartItem[];
+  date: string | undefined;
+  client: Client | undefined;
+} = {
   //   cart: JSON.parse(sessionStorage.getItem("cart") || "[]"),
   cart: [],
+  date: undefined,
+  client: undefined,
 };
 
 const cartSlice = createSlice({
@@ -63,7 +74,16 @@ const cartSlice = createSlice({
     },
 
     clearCart(state) {
+      state.date = undefined;
       state.cart = [];
+    },
+
+    setDate(state, action: PayloadAction<string | undefined>) {
+      state.date = action.payload;
+    },
+
+    setClient(state, action: PayloadAction<Client | undefined>) {
+      state.client = action.payload;
     },
   },
 });
@@ -74,11 +94,15 @@ export const {
   increaseItemQuantity,
   decreaseItemQuantity,
   clearCart,
+  setDate,
+  setClient,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
 
 export const getCart = (state: RootState) => state.cartData.cart;
+export const getClient = (state: RootState) => state.cartData.client;
+export const getDate = (state: RootState) => state.cartData.date;
 
 export const getTotalItemQuantity = (state: RootState) =>
   state.cartData.cart.reduce((sum, curEl) => sum + curEl.quantity, 0);

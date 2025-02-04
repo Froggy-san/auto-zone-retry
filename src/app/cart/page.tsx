@@ -7,7 +7,7 @@ const Page = () => {
   return (
     <main
       data-vaul-drawer-wrapper
-      className=" flex  flex-col min-h-[100vh] bg-background "
+      className=" flex  flex-col min-h-[100vh] bg-background   "
     >
       <Header />
 
