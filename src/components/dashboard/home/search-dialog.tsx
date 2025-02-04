@@ -3,18 +3,13 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import DialogComponent from "@components/dialog-component";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RotateCcw, Search } from "lucide-react";
-import { DialogClose } from "@radix-ui/react-dialog";
-
+import { RotateCcw } from "lucide-react";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
-
 import { cn } from "@/lib/utils";
 import Box from "@mui/joy/Box";
 import Slider from "@mui/joy/Slider";
-
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -27,6 +22,7 @@ import { CarItem, ClientWithPhoneNumbers, ServiceStatus } from "@lib/types";
 import { ServiceStatusCombobox } from "@components/service-status-combobox";
 import { CarsComboBox } from "@components/car-combo-box";
 import { ClientsComboBox } from "@components/clients-combobox";
+
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
     value

@@ -1,15 +1,17 @@
 "use client";
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import CartITem from "./cart-item";
 import { formatCurrency } from "@lib/client-helpers";
-import { getCart, getTotalCartPrices } from "./cartSlice";
+import { clearCart, getCart, getTotalCartPrices } from "./cartSlice";
 import { ShoppingCart } from "lucide-react";
+import { Button } from "@components/ui/button";
 
 const CartList = () => {
   const cartItems = useSelector(getCart);
   const totalPrices = useSelector(getTotalCartPrices);
+  const dispatch = useDispatch();
 
   return (
     <section className="   flex-1   space-y-4 pb-10 max-h-full ">
@@ -31,7 +33,7 @@ const CartList = () => {
         </AnimatePresence>
       </div>
 
-      <div className=" w-full p-10 rounded-lg bg-card">
+      <div className=" w-full p-10 flex items-center justify-between rounded-lg bg-card">
         <motion.h2
           key={totalPrices}
           initial={{ opacity: 0 }}
@@ -41,6 +43,13 @@ const CartList = () => {
           Summary: {formatCurrency(totalPrices)}
         </motion.h2>
         {/* <p>Total: <span>{formatCurrency(getTotalCartPrices(cartItems))}</span></p> */}
+        <Button
+          onClick={() => dispatch(clearCart())}
+          size="sm"
+          variant="destructive"
+        >
+          Clear
+        </Button>
       </div>
     </section>
   );
