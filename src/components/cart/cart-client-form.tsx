@@ -289,8 +289,8 @@ const PickupDate = forwardRef<HTMLDivElement, PickupDateProps>(
               }}
               className=" text-xs text-yellow-600 mb-1 dark:text-yellow-500"
             >
-              We can't guarantee that the items in the cart will be available
-              past the 31 days mark.
+              We can&apos;t guarantee that the items in the cart will be
+              available past the 31 days mark.
             </motion.p>
           )}
         </AnimatePresence>
@@ -305,6 +305,8 @@ const PickupDate = forwardRef<HTMLDivElement, PickupDateProps>(
     );
   }
 );
+
+PickupDate.displayName = "PickupDate";
 
 interface ErrorMessageProps {
   children: React.ReactNode;
