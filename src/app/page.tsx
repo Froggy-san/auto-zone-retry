@@ -33,7 +33,7 @@ export default function Home() {
             </Link>
           </Button>
         </div>
-        <ReduxTest />
+
         <p className=" text-xs  text-muted-foreground pr-2">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Inventore
           harum, nam amet eveniet ipsam ea facere accusantium repellat, natus

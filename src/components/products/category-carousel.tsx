@@ -68,7 +68,7 @@ const CategoryCarousel: React.FC<PropType> = (props) => {
                 <button
                   onClick={() => handleCategoryClick(category)}
                   className={cn(
-                    "select-none px-2 py-1  text-xs  font-bold rounded-[.5rem] bg-secondary hover:bg-muted-foreground/20   dark:bg-card dark:hover:bg-accent  transition-colors duration-200",
+                    "select-none px-2 py-1  text-xs  whitespace-nowrap  font-bold rounded-[.5rem] bg-secondary hover:bg-muted-foreground/20   dark:bg-card dark:hover:bg-accent  transition-colors duration-200",
                     {
                       "bg-muted-foreground/20 dark:bg-accent":
                         Number(currCategory) === category.id,
