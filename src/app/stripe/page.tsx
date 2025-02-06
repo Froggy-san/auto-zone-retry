@@ -3,7 +3,7 @@ import React from "react";
 
 const Page = () => {
   return (
-    <main>
+    <main className=" min-h-full px-2">
       <Stripe />
     </main>
   );

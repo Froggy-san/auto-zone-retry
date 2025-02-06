@@ -2,6 +2,7 @@
 import ErrorMessage from "@components/error-message";
 import Spinner from "@components/Spinner";
 import { Button } from "@components/ui/button";
+import { formatCurrency } from "@lib/client-helpers";
 import convertToSubcurrency from "@lib/convertToSubcurrency";
 import {
   PaymentElement,
@@ -49,7 +50,7 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
       elements,
       clientSecret,
       confirmParams: {
-        return_url: `http://localhost:3000/`,
+        return_url: `http://localhost:3000/success?stripe="${amount}"`,
       },
     });
 
@@ -69,10 +70,7 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
     );
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className=" bg-gradient-to-bl from-orange-400 to-red-400 p-5 rounded-sm space-y-4"
-    >
+    <form onSubmit={handleSubmit} className="   rounded-sm space-y-4">
       {clientSecret && <PaymentElement />}
 
       <Button
@@ -81,7 +79,7 @@ const CheckoutPage = ({ amount }: { amount: number }) => {
         size="sm"
         variant="secondary"
       >
-        {!loading ? `Pay $${amount}` : "Processing..."}
+        {!loading ? `Pay ${formatCurrency(amount)}` : "Processing..."}
       </Button>
     </form>
   );

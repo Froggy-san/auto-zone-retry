@@ -10,10 +10,11 @@ const CartIncDec = ({ productInCart }: { productInCart: CartItem }) => {
   const dispatch = useDispatch();
 
   return (
-    <div className=" flex items-center  transition-opacity overflow-hidden duration-300  gap-2">
+    <div className=" flex items-center  transition-opacity overflow-hidden duration-300   gap-2">
       <Button
         onClick={() => dispatch(decreaseItemQuantity(productInCart.id))}
         size="sm"
+        className="  p-2 h-fit "
       >
         <Minus size={17} />
       </Button>
@@ -37,6 +38,7 @@ const CartIncDec = ({ productInCart }: { productInCart: CartItem }) => {
         disabled={productInCart?.quantity === productInCart.stock}
         onClick={() => dispatch(increaseItemQuantity(productInCart.id))}
         size="sm"
+        className="  p-2 h-fit "
       >
         <Plus size={17} />
       </Button>

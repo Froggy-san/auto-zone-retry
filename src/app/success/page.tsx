@@ -3,6 +3,7 @@ import React from "react";
 
 type params = {
   amount?: string;
+  stripe?: string;
 };
 
 interface Props {
@@ -10,11 +11,12 @@ interface Props {
 }
 
 const Page = ({ searchParams }: Props) => {
-  const amount = searchParams?.amount ?? "";
+  const paidByCard = searchParams?.stripe ?? "";
+  console.log(searchParams?.stripe, "add");
 
   return (
     <main className=" min-h-full">
-      <SuccessMessage amount={amount} />
+      <SuccessMessage paidByCard={paidByCard} />
     </main>
   );
 };
