@@ -7,15 +7,34 @@ import { formatCurrency } from "@lib/client-helpers";
 import { clearCart, getCart, getTotalCartPrices } from "./cartSlice";
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@components/ui/button";
+import useInitializeCart from "@hooks/use-initailize-cart";
 
 const CartList = () => {
   const cartItems = useSelector(getCart);
   const totalPrices = useSelector(getTotalCartPrices);
   const dispatch = useDispatch();
-
+  useInitializeCart();
   return (
     <section className="   flex-1   space-y-4 pb-10 max-h-full ">
-      <div className="  rounded-sm   space-y-4">
+      <div className=" w-full bg-secondary p-4 flex items-center justify-between rounded-lg border dark:bg-card">
+        <motion.h2
+          key={totalPrices}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="  text-md  sm:text-lg  font-semibold"
+        >
+          Summary: {formatCurrency(totalPrices)}
+        </motion.h2>
+        {/* <p>Total: <span>{formatCurrency(getTotalCartPrices(cartItems))}</span></p> */}
+        <Button
+          onClick={() => dispatch(clearCart())}
+          size="sm"
+          variant="destructive"
+        >
+          Clear
+        </Button>
+      </div>
+      <div className="  rounded-sm      space-y-4">
         <AnimatePresence mode="popLayout">
           {cartItems.length ? (
             cartItems.map((item, i) => (
@@ -31,25 +50,6 @@ const CartList = () => {
             </motion.p>
           )}
         </AnimatePresence>
-      </div>
-
-      <div className=" w-full p-10 flex items-center justify-between rounded-lg bg-card">
-        <motion.h2
-          key={totalPrices}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className=" text-xl  font-semibold"
-        >
-          Summary: {formatCurrency(totalPrices)}
-        </motion.h2>
-        {/* <p>Total: <span>{formatCurrency(getTotalCartPrices(cartItems))}</span></p> */}
-        <Button
-          onClick={() => dispatch(clearCart())}
-          size="sm"
-          variant="destructive"
-        >
-          Clear
-        </Button>
       </div>
     </section>
   );

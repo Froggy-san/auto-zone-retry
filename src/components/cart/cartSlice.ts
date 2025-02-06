@@ -1,6 +1,16 @@
+"use client";
+
 import { RootState } from "@lib/store/store";
 import { CartItem, ProductById } from "@lib/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+function setCartInSession(cart: CartItem[]) {
+  try {
+    sessionStorage.setItem("cart", JSON.stringify(cart));
+  } catch (error) {
+    console.error("Failed to save cart to sessionStorage:", error);
+  }
+}
 
 type Client = {
   name: string;
@@ -12,7 +22,6 @@ const initialState: {
   date: string | undefined;
   client: Client | undefined;
 } = {
-  //   cart: JSON.parse(sessionStorage.getItem("cart") || "[]"),
   cart: [],
   date: undefined,
   client: undefined,
@@ -22,6 +31,10 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
+    setCart(state, action: PayloadAction<CartItem[]>) {
+      state.cart = action.payload;
+    },
+
     addItemToCart(state, action: PayloadAction<ProductById>) {
       // 1. check if the same items with the same properties exist in the cart.
       // 2. if so find it.
@@ -40,10 +53,13 @@ const cartSlice = createSlice({
           totalPrice: action.payload.salePrice,
         });
       }
+
+      setCartInSession(state.cart);
     },
     // here we are deleting the prodcut with the itemId, becasue every product can be bought with different color/size
     deleteCartItem(state, action: PayloadAction<number>) {
       state.cart = state.cart.filter((item) => item.id !== action.payload);
+      setCartInSession(state.cart);
     },
 
     // deleteAllRelatedItems(state, action) {
@@ -56,6 +72,7 @@ const cartSlice = createSlice({
         if (item.quantity === item.stock) return;
         item.quantity++;
         item.totalPrice = item.salePrice * item.quantity;
+        setCartInSession(state.cart);
       }
     },
 
@@ -71,11 +88,14 @@ const cartSlice = createSlice({
         if (item.quantity === 0)
           cartSlice.caseReducers.deleteCartItem(state, action);
       }
+
+      setCartInSession(state.cart);
     },
 
     clearCart(state) {
       state.date = undefined;
       state.cart = [];
+      setCartInSession(state.cart);
     },
 
     setDate(state, action: PayloadAction<string | undefined>) {
@@ -94,6 +114,7 @@ export const {
   increaseItemQuantity,
   decreaseItemQuantity,
   clearCart,
+  setCart,
   setDate,
   setClient,
 } = cartSlice.actions;

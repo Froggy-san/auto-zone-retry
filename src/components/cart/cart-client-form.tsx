@@ -93,11 +93,11 @@ const CartClientForm = () => {
   }
 
   return (
-    <motion.div className=" w-[350px] overflow-hidden">
+    <motion.div className="  w-full sm:max-w-[600px] mx-auto  lg:w-[350px] overflow-hidden">
       <form
         ref={formRef}
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-2 p-3 rounded-md flex-1 bg-secondary dark:bg-card/30 h-fit"
+        className="space-y-2 p-3 rounded-md  flex-1 bg-secondary dark:bg-card/30 h-fit"
       >
         {/* Full Name Field */}
         <motion.div className="space-y-1">
@@ -212,7 +212,7 @@ const CartClientForm = () => {
           disabled={isSubmitting || !formIsValid || !cart.length}
           onClick={() => {
             submitForm();
-            // router.push("/stripe");
+            router.push("/stripe");
           }}
         >
           Pay By Card <FaCcMastercard size={16} /> <FaCcPaypal size={16} />

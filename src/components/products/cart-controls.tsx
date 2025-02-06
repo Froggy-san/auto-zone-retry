@@ -19,6 +19,7 @@ import { cn } from "@lib/utils";
 import { Minus, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import CartIncDec from "@components/cart/cart-inc-dec";
+import useInitializeCart from "@hooks/use-initailize-cart";
 
 interface Props {
   product: ProductById;
@@ -29,6 +30,7 @@ const CartControls: FC<Props> = ({ product }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { toast } = useToast();
+  useInitializeCart();
   const relatedProduct = cart.find((pro) => pro.id === product.id);
 
   console.log(cart, "CART");

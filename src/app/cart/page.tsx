@@ -11,7 +11,7 @@ const Page = () => {
     >
       <Header />
 
-      <div className=" overflow-y-auto gap-2 px-2 relative    flex flex-1">
+      <div className=" overflow-y-auto  relative gap-y-10   flex-col-reverse  px-2 sm:px-8 gap-x-6 lg:flex-row   flex flex-1">
         <CartList />
 
         <CartClientForm />

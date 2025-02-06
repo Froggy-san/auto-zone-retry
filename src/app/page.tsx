@@ -5,7 +5,6 @@ import LinkBoxs from "@components/home/link-boxs";
 import { Button } from "@components/ui/button";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import ReduxTest from "@components/redux-test";
 
 export default function Home() {
   return (
