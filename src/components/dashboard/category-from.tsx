@@ -13,12 +13,15 @@ import React, { useState } from "react";
 
 const CategroyForm = () => {
   const [value, setValue] = useState("");
+
   const { toast } = useToast();
 
   const disabled = value.trim() === "";
   async function handleSubmit() {
     try {
-      await createCategoryAction(value);
+      const { error } = await createCategoryAction(value);
+
+      if (error) throw new Error(error);
       setValue("");
       toast({
         className: "bg-primary  text-primary-foreground",

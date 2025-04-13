@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useState } from "react";
+import React, { cloneElement, useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,35 +14,46 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CarModelProps, CarGenerationsSchema, CarMaker } from "@lib/types";
+import {
+  CarModelProps,
+  CarGenerationsSchema,
+  CarMaker,
+  CarGenerationProps,
+} from "@lib/types";
 import { Textarea } from "@components/ui/textarea";
 import Spinner from "@components/Spinner";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
-import { createCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { ModelCombobox } from "@components/model-combobox";
 import useObjectCompare from "@hooks/use-compare-objs";
 import DialogComponent from "@components/dialog-component";
-import { useQueryClient } from "@tanstack/react-query";
 import { MakerCombobox } from "@components/maker-combobox";
+import useCreateGeneration from "@lib/queries/car-generation/useCreateGeneration";
+import useEditGeneration from "@lib/queries/car-generation/useEditGeneration";
 
 const CarGenerationForm = ({
+  generationToEdit,
+  openBtn,
   carModels,
   carMakers,
 }: {
+  generationToEdit?: CarGenerationProps;
+  openBtn?: React.ReactElement;
   carMakers: CarMaker[];
   carModels: CarModelProps[];
 }) => {
   const [open, setOpen] = useState(false);
   const [carMaker, setCarMaker] = useState(0);
+  const { createGeneration } = useCreateGeneration();
+  const { editGeneration } = useEditGeneration();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+
   const defaultValues = {
-    name: "",
-    notes: "",
-    carModelId: 0,
+    name: generationToEdit ? generationToEdit.name : "",
+    notes: generationToEdit ? generationToEdit.notes : "",
+    carModelId: generationToEdit ? generationToEdit.carModelId : 0,
   };
 
   const carModelsArr =
@@ -64,11 +75,17 @@ const CarGenerationForm = ({
   async function onSubmit(carGeneration: z.infer<typeof CarGenerationsSchema>) {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
-      const { error } = await createCarGenerationAction(carGeneration);
-      if (error) throw new Error(error);
+      if (generationToEdit) {
+        await editGeneration({
+          generation: carGeneration,
+          id: generationToEdit.id,
+        });
+      } else {
+        await createGeneration(carGeneration);
+      }
+
       handleClose();
-      queryClient.invalidateQueries({ queryKey: ["carModels"] });
-      queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
+
       form.reset();
       toast({
         className: "bg-primary  text-primary-foreground",
@@ -88,9 +105,13 @@ const CarGenerationForm = ({
   }
   return (
     <DialogComponent open={open} onOpenChange={handleClose}>
-      <Button onClick={() => setOpen(true)} size="sm" className=" w-full">
-        Create car generation
-      </Button>
+      {openBtn ? (
+        cloneElement(openBtn, { onClick: () => setOpen(true) })
+      ) : (
+        <Button onClick={() => setOpen(true)} size="sm" className=" w-full">
+          Create car generation
+        </Button>
+      )}
 
       <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogComponent.Header>

@@ -4,6 +4,7 @@ import { getClientsAction } from "@lib/actions/clientActions";
 import InventoryTable from "./inventory-table";
 import { getProductsBoughtAction } from "@lib/actions/productBoughtActions";
 import { getRestockingBillsAction } from "@lib/actions/restockingBillActions";
+import PaginationControl from "@components/pagination-controls";
 
 interface ClientListProps {
   // Add the properties you expect in searchParam
@@ -25,7 +26,7 @@ const InventoryList = async ({
   minTotalPrice,
   maxTotalPrice,
 }: ClientListProps) => {
-  const { data, error } = await getRestockingBillsAction({
+  const { data: inventoryData, error } = await getRestockingBillsAction({
     pageNumber,
     name,
     shopName,
@@ -39,7 +40,13 @@ const InventoryList = async ({
 
   return (
     <div>
-      <InventoryTable currPage={pageNumber} productBought={data || []} />
+      <InventoryTable
+        currPage={pageNumber}
+        productBought={inventoryData?.data || []}
+      />
+      {inventoryData?.count && (
+        <PaginationControl count={inventoryData.count} currPage={pageNumber} />
+      )}
     </div>
   );
 };

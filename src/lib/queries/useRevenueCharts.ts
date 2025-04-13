@@ -26,7 +26,7 @@ export default function useRevenueCharts(props: Props) {
       const { data: services, error } = servicesData;
       const { data: categories, error: categoriesError } = categoriesData;
       const errorMessage = error || categoriesError || "";
-      const data = { services, categories };
+      const data = { services: services?.data, categories };
       return { data, error: errorMessage };
     },
     queryKey: ["revenueChart", { ...props }],

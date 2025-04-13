@@ -25,7 +25,7 @@ import {
 import Link from "next/link";
 
 const ClientDialog = ({ service }: { service: Service }) => {
-  const client = service.client;
+  const client = service.clients;
 
   return (
     <TooltipProvider delayDuration={500}>

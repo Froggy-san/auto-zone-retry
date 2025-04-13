@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Search } from "lucide-react";
+import { RotateCcw, Search } from "lucide-react";
 import { DialogClose } from "@radix-ui/react-dialog";
 
 import { CalendarIcon } from "@radix-ui/react-icons";
@@ -42,6 +42,7 @@ function valueText(value: any) {
 interface SearchProps {
   currPage: string;
   shopName: string;
+  name: string;
   dateOfOrderFrom: string;
   dateOfOrderTo: string;
   minTotalPrice: string;
@@ -51,6 +52,7 @@ interface SearchProps {
 const SearchDialog = ({
   currPage,
   shopName,
+  name,
   dateOfOrderFrom,
   dateOfOrderTo,
   minTotalPrice,
@@ -59,14 +61,16 @@ const SearchDialog = ({
   const initalValus = {
     minTotalPrice: Number(minTotalPrice) || 0,
     maxTotalPrice: Number(maxTotalPrice) || 0,
+    name,
+    shopName,
     dateOfOrderFrom: dateOfOrderFrom ? new Date(dateOfOrderFrom) : undefined,
     dateOfOrderTo: dateOfOrderTo ? new Date(dateOfOrderTo) : undefined,
-    shopName: shopName,
   };
   const rangeValues = [initalValus.minTotalPrice, initalValus.maxTotalPrice];
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [nameValue, setNameValue] = useState(initalValus.shopName);
+  const [proName, setProName] = useState(initalValus.name || "");
   const [step, setStep] = useState(50);
   const [date, setDate] = React.useState<DateRange | undefined>({
     to: initalValus.dateOfOrderTo,
@@ -96,6 +100,12 @@ const SearchDialog = ({
     }
   };
 
+  function handleReset() {
+    setNameValue("");
+    setStep(50);
+    setDate(undefined);
+    setValue([0, 0]);
+  }
   const handleMaxPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     if (/^\d*$/.test(inputValue)) {
@@ -111,6 +121,8 @@ const SearchDialog = ({
       }
     }
   };
+  console.log("PRO NAME", proName);
+  console.log("shopName", shopName);
 
   async function handleSub() {
     const name = nameValue.trim();
@@ -127,6 +139,12 @@ const SearchDialog = ({
       params.delete("shopName");
     } else {
       params.set("shopName", name);
+    }
+
+    if (!proName.length) {
+      params.delete("name");
+    } else {
+      params.set("name", proName);
     }
 
     if (!dateTo) {
@@ -253,6 +271,13 @@ const SearchDialog = ({
               />
               <p className=" text-xs text-muted-foreground">Max total price.</p>
             </div>
+
+            {/* <Input
+              type="text"
+              value={proName}
+              onChange={(e) => setProName(e.target.value)}
+              placeholder="Max price"
+            /> */}
             <Box sx={{ width: "100%" }}>
               <Slider
                 sx={{
@@ -313,19 +338,30 @@ const SearchDialog = ({
                 className=" w-10 h-7  p-1  pl-[.4rem]  ml-auto"
               />
             </Box>
-            <div className=" flex items-center gap-3 flex-wrap text-xs">
-              <div>
-                Min price:{" "}
-                <span className=" text-xs text-muted-foreground">
-                  {formatCurrency(value[0])}
-                </span>
+            <div className=" flex items-center justify-between w-full flex-wrap gap-2">
+              <div className=" flex items-center gap-3 flex-wrap text-[10px]">
+                <div>
+                  Min price:{" "}
+                  <span className=" text-muted-foreground">
+                    {formatCurrency(value[0])}
+                  </span>
+                </div>
+                <div>
+                  Max price:{" "}
+                  <span className="  text-muted-foreground">
+                    {formatCurrency(value[1])}
+                  </span>
+                </div>
               </div>
-              <div>
-                Max price:{" "}
-                <span className=" text-xs text-muted-foreground">
-                  {formatCurrency(value[1])}
-                </span>
-              </div>
+
+              <Button
+                onClick={handleReset}
+                type="button"
+                className=" p-0 h-6 w-6 "
+                variant="outline"
+              >
+                <RotateCcw className=" w-4 h-4" />
+              </Button>
             </div>
           </div>
           <div className=" flex flex-col-reverse gap-2 mt-4">

@@ -98,15 +98,16 @@ const SearchDialog = ({
     const inputValue = e.target.value;
     if (/^\d*$/.test(inputValue)) {
       const newMinPrice = Number(inputValue);
-      if (newMinPrice <= value[1]) {
-        setValue([newMinPrice, value[1]]);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Invalid value",
-          description: `Min total price must be lower than ${value[1]}`,
-        });
-      }
+      setValue([newMinPrice, value[1]]);
+      // if (newMinPrice <= value[1]) {
+      //   setValue([newMinPrice, value[1]]);
+      // } else {
+      //   toast({
+      //     variant: "destructive",
+      //     title: "Invalid value",
+      //     description: `Min total price must be lower than ${value[1]}`,
+      //   });
+      // }
     }
   };
 
@@ -114,15 +115,16 @@ const SearchDialog = ({
     const inputValue = e.target.value;
     if (/^\d*$/.test(inputValue)) {
       const newMaxPrice = Number(inputValue);
-      if (newMaxPrice >= value[0]) {
-        setValue([value[0], newMaxPrice]);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Invalid value",
-          description: `Max total price must be higher than ${value[0]}`,
-        });
-      }
+      setValue([value[0], newMaxPrice]);
+      // if (newMaxPrice >= value[0]) {
+      //   setValue([value[0], newMaxPrice]);
+      // } else {
+      //   toast({
+      //     variant: "destructive",
+      //     title: "Invalid value",
+      //     description: `Max total price must be higher than ${value[0]}`,
+      //   });
+      // }
     }
   };
 

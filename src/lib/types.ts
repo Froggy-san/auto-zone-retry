@@ -153,6 +153,7 @@ export const EditNameAndNote = z.object({
     .string()
     .min(3, { message: "Too short." })
     .max(100, { message: "Too long." }),
+  carModelId: z.number(),
   notes: z.string(),
 });
 
@@ -314,7 +315,7 @@ export const ProductSoldSchema = z
   });
 
 export const EditServiceSchema = z.object({
-  date: z.date(),
+  created_at: z.date(),
   clientId: z.number().min(1, { message: "Requried" }),
   carId: z.number().min(1, { message: "Requried" }),
   serviceStatusId: z.number().min(1, { message: "Requried" }),
@@ -453,6 +454,7 @@ export interface Product {
   salePrice: number;
   stock: number;
   isAvailable: boolean;
+  productImages: ProductImage[];
   mainProductImage: mainProductImage | null;
 }
 
@@ -473,15 +475,15 @@ export interface ProductInProductToSell {
 }
 
 export interface ProductWithCategory extends Product {
-  category: string;
+  categories: { name: string };
 }
 
 export interface ProductById {
   id: number;
   name: string;
-  category: Category;
-  productType: ProductType;
-  productBrand: ProductBrand;
+  categories: Category;
+  productTypes: ProductType;
+  productBrands: ProductBrand;
   dateAdded: string;
   description: string;
   listPrice: number;
@@ -506,7 +508,7 @@ export interface EditProduct {
 export interface Client {
   id: number;
   name: string;
-  carsCount: number;
+  cars: { count: number }[];
   email: string;
 }
 
@@ -517,7 +519,7 @@ export interface PhoneNumber {
 }
 
 export interface ClientWithPhoneNumbers extends Client {
-  phoneNumbers: PhoneNumber[];
+  phones: PhoneNumber[];
 }
 
 export interface CarImage {
@@ -525,6 +527,22 @@ export interface CarImage {
   imagePath: string;
   isMain: boolean;
   carId: number;
+}
+
+interface CarInformation {
+  id: number;
+  name: string;
+  notes: string;
+  carModels: {
+    id: number;
+    name: string;
+    notes: string;
+    carMakers: CarMaker;
+    carMakerId: number;
+    created_at: string;
+  };
+  carModelId: number;
+  created_at: string;
 }
 
 export interface CarItem {
@@ -536,12 +554,7 @@ export interface CarItem {
   notes: string;
   carImages: CarImage[];
   clientId: number;
-  carInfo: {
-    id: number;
-    carMaker: CarMakerData;
-    carModel: CarModelData;
-    carGeneration: CarGenerationData;
-  };
+  carGenerations: CarInformation;
 }
 
 export interface CarItemWithClient {
@@ -580,13 +593,16 @@ export interface ProductBought {
   totalPriceAfterDiscount: number;
   productName: string;
   productId: number;
+  product: Product;
   productsRestockingBillId: number;
+  productsRestockingBills?: { totalPrice: number };
 }
 
 export interface ProductBoughtData {
   id: number;
   shopName: string;
-  dateOfOrder: string;
+  created_at: string;
+  totalPrice: number;
   productsBought: ProductBought[];
 }
 
@@ -615,6 +631,7 @@ export interface ServiceStatus {
 }
 
 export interface ProductToSell {
+  created_at: string;
   id: number;
   pricePerUnit: number;
   discount: number;
@@ -626,6 +643,7 @@ export interface ProductToSell {
 }
 
 export interface ServiceFee {
+  created_at: string;
   id: number;
   price: number;
   discount: number;
@@ -638,18 +656,19 @@ export interface ServiceFee {
 
 export interface Service {
   id: number;
-  date: string;
+  created_at: string;
   totalPriceAfterDiscount: number;
-  client: {
+  cars: CarItem;
+  serviceStatuses: ServiceStatus;
+  note: string;
+  productsToSell: ProductToSell[];
+  servicesFee: ServiceFee[];
+  clients: {
     id: number;
     name: string;
     email: string;
+    phones?: PhoneNumber[];
   };
-  car: CarItem;
-  status: ServiceStatus;
-  note: string;
-  productsToSell: ProductToSell[];
-  serviceFees: ServiceFee[];
 }
 
 export interface ServiceStatus {
@@ -665,6 +684,13 @@ export interface CartItem extends ProductById {
   quantity: number;
   totalPrice: number;
 }
+
+export type ImgData = {
+  path: string;
+  name: string;
+  isMain: boolean;
+  file: FilesWithPreview | File;
+};
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
 export type CarGeneration = z.infer<typeof CarGenerationsSchema>;
 export type CarInfo = z.infer<typeof CarInfoSchema>;

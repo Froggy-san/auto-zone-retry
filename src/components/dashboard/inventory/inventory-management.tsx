@@ -21,7 +21,9 @@ const InventoryManagement = async ({
   if (edit) {
     const { data, error } = await getProductBoughtByIdAction(edit);
     productToEdit = { data, error };
+    console.log("DDDDD", data);
   }
+
   const { data: products, error } = productsData;
   const { data: restockings, error: restockingsError } = restockingData;
 
@@ -40,7 +42,7 @@ const InventoryManagement = async ({
           open={isOpen}
           reStockingBillId={reStockingBillId}
           products={products}
-          restockings={restockings}
+          restockings={restockings?.data || []}
           proBoughtToEdit={productToEdit?.data}
         />
       </div>

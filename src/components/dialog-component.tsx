@@ -147,7 +147,7 @@ const DialogOverlay = React.forwardRef<HTMLDivElement, DialogOverlayProps>(
         initial={open ? "open" : "close"}
         animate={open ? "open" : "close"}
         exit={open ? "open" : "close"}
-        transition={{ duration: 0.15 }}
+        transition={{ duration: 0.15, ease: "circIn" }}
         className={cn(
           "fixed inset-0 z-50 bg-black/80",
           className
@@ -191,6 +191,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
                 visibility: "visible",
                 transition: {
                   duration: 0.14,
+                  ease: "easeOut",
                 },
               },
               close: {
@@ -199,7 +200,7 @@ const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(
                 scale: 0.9,
                 opacity: 0,
                 visibility: "hidden",
-                transition: { duration: 0.05 },
+                transition: { duration: 0.05, ease: "easeOut" },
               },
             }}
             initial={open ? "open" : "close"}

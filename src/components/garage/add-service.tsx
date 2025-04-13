@@ -1,5 +1,3 @@
-import { getAllCarsInfoAction } from "@lib/actions/carInfoActions";
-import { getClientsDataAction } from "@lib/actions/clientActions";
 import React from "react";
 import CarForm from "./car-form";
 import { CarItem, PhoneNumber } from "@lib/types";
@@ -40,7 +38,7 @@ const ServiceManagement = async ({
   const { data: categoriesData, error: categoriesError } = categories;
   if (productError || serviceStatusError)
     return <p>{productError || serviceStatusError}</p>;
-
+  console.log(products);
   if (!products || !car || !client) return <p>Soemthng went wrong</p>;
   return (
     <div

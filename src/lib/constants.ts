@@ -1,6 +1,7 @@
 export const AUTH_TOEKN_NAME = "auto-zone-token";
 export const DEFAULT_CAR_LOGO =
   "https://mywarsha.blob.core.windows.net/mywarshaimages/8005f9f6-2be7-49aa-a506-c4984bc8d8cc.jpg";
+
 export const PAGE_SIZE = 12;
 export const MAKER_PAGE_SIZE = 20;
 export const PILL_SIZE = 30;
@@ -13,3 +14,5 @@ export const STATIC_IMAGES = [
   "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.365694995834676-450801928_122185965308031351_3973663162623189835_n.jpg",
   "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.4160722142697284-FB_IMG_1715907147440.jpg",
 ];
+
+export const SUPABASE_URL = "https://umkyoinqpknmedkowqva.supabase.co";

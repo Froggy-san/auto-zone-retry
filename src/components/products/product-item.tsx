@@ -17,15 +17,9 @@ const ProductItem = async ({
   user: User | null;
   pageSize: number;
   currPage: string;
-  product: ProductWithCategory;
+  product: Product;
 }) => {
-  const { data, error } = await getProductsImageAction(product.id);
-
-  if (error) return <p>{error}</p>;
-
-  const viewedImages = data?.length
-    ? data.map((image: ProductImage) => image.imageUrl)
-    : [];
+  const viewedImages = product.productImages?.map((imgObj) => imgObj.imageUrl);
 
   return (
     <li className={`${!product.isAvailable && "opacity-50 "}`}>
@@ -35,23 +29,20 @@ const ProductItem = async ({
         className="space-y-1 flex flex-col"
         // prefetch={false}
       >
-        {error ? (
-          <h2>{error}</h2>
-        ) : (
-          <>
-            {viewedImages.length ? (
-              <FullImagesGallery
-                imageUrls={viewedImages}
-                productId={product.id}
-                className="h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden"
-              />
-            ) : (
-              <div className=" h-[250px] 3xl:h-[330px] 4xl:h-[400px]  flex items-center justify-center  bg-foreground/10 rounded-lg">
-                <ImageOff className=" w-20 h-20" />
-              </div>
-            )}
-          </>
-        )}
+        <>
+          {viewedImages?.length ? (
+            <FullImagesGallery
+              imageUrls={viewedImages}
+              productId={product.id}
+              className="h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden"
+            />
+          ) : (
+            <div className=" h-[250px] 3xl:h-[330px] 4xl:h-[400px]  flex items-center justify-center  bg-foreground/10 rounded-lg">
+              <ImageOff className=" w-20 h-20" />
+            </div>
+          )}
+        </>
+
         {/* {product.category} */}
         <div className="    flex-1  space-y-1  flex flex-col ">
           <h1 className=" line-clamp-1 text-xl font-semibold">
@@ -77,6 +68,7 @@ const ProductItem = async ({
               </span>
               {!user || user.sub !== "admin" ? null : (
                 <ProdcutAction
+                  imagesToDelete={viewedImages}
                   currPage={currPage}
                   pageSize={pageSize}
                   productId={product.id}

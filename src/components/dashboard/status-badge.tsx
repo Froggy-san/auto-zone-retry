@@ -102,7 +102,7 @@ const StatusBadge = ({
                     !isNotLightColor && chosenTheme === "light"
                       ? `hsla(${lightModeColor?.h}, ${lightModeColor?.s}%, ${lightModeColor?.l}%, 0.4)`
                       : !isNotDarkColor && chosenTheme === "dark"
-                      ? `hsla(${darkModelColor?.h}, ${darkModelColor?.s}%, ${darkModelColor?.l}%)`
+                      ? `hsl(${darkModelColor?.h}, ${darkModelColor?.s}%, ${darkModelColor?.l}%)`
                       : "  primary ",
 
                   color:
@@ -145,63 +145,6 @@ const StatusBadge = ({
       ) : null}
     </>
   );
-  // if (status.name === "Pending")
-  //   return (
-  //     <button
-  //       onClick={() => setisEditing((is) => !is)}
-  //       type="button"
-  //       className={cn(
-  //         "text-xs select-none w-fit font-semibold  px-2 py-1  whitespace-nowrap bg-dashboard-orange text-dashboard-text-orange text-center rounded-lg",
-  //         className
-  //       )}
-  //     >
-  //       Pending
-  //     </button>
-  //   );
-  // if (status.name === "InProgress")
-  //   return (
-  //     <button
-  //       onClick={() => setisEditing((is) => !is)}
-  //       type="button"
-  //       className={cn(
-  //         "text-xs select-none w-fit font-semibold  px-2 py-1  whitespace-nowrap bg-dashboard-blue text-dashboard-text-blue text-center rounded-lg",
-  //         className
-  //       )}
-  //     >
-  //       In Progress
-  //     </button>
-  //   );
-  // if (status.name === "Canceled")
-  //   return (
-  //     <button
-  //       onClick={() => setisEditing((is) => !is)}
-  //       type="button"
-  //       className={cn(
-  //         "text-xs select-none w-fit font-semibold  px-2 py-1  whitespace-nowrap  text-red-800  dark:text-red-200  bg-destructive/70 text-center rounded-lg",
-  //         className
-  //       )}
-  //     >
-  //       Canceled
-  //     </button>
-  //   );
-  // if (status.name === "Done")
-  //   return (
-  //     <button
-  //       onClick={() => setisEditing((is) => !is)}
-  //       type="button"
-  //       className={cn(
-  //         "text-xs select-none w-fit font-semibold  px-2 py-1  whitespace-nowrap bg-dashboard-green text-dashboard-text-green text-center rounded-lg",
-  //         className
-  //       )}
-  //     >
-  //       Done
-  //     </button>
-  //   );
-  // return (
-  //   <Badge onClick={() => setisEditing((is) => !is)} className="">
-  //     {status.name || ""}
-  //   </Badge>
-  // );
 };
 
 function DeleteBtn({

@@ -3,6 +3,254 @@
 import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
 import { EditServiceFee, ProductSold, ProductToSell } from "@lib/types";
+import { createClient } from "@utils/supabase/server";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
+import { editServiceAction } from "./serviceActions";
+
+interface GetProps {
+  pageNumber?: string;
+  price?: string;
+  discount?: string;
+  isReturned?: string;
+  notes?: string;
+  categoryId?: string;
+  serviceId?: string;
+}
+
+export async function getServiceFeesAction({
+  pageNumber,
+  price,
+  discount,
+  isReturned,
+  notes,
+  categoryId,
+  serviceId,
+}: GetProps) {
+  //   await new Promise((res) => setTimeout(res, 9000));
+  const token = getToken();
+
+  if (!token)
+    return { data: null, error: "You are not authorized to make this action." };
+  let query = `${process.env.API_URL}/api/ServicesFee?&PageSize=${PAGE_SIZE}`;
+
+  if (pageNumber) query = query + `&PageNumber=${pageNumber}`;
+
+  if (price) query = query + `&price=${price}`;
+
+  if (discount) query = query + `&discount=${discount}`;
+
+  if (isReturned) query = query + `&isReturned=${isReturned}`;
+
+  if (notes) query = query + `&notes=${notes}`;
+
+  if (categoryId) query = query + `&categoryId=${categoryId}`;
+
+  if (serviceId) query = query + `&serviceId=${serviceId}`;
+
+  const response = await fetch(query, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    next: {
+      tags: ["services"],
+    },
+  });
+
+  if (!response.ok) {
+    console.log(
+      "Something went wrong while trying to fetch Service fees data."
+    );
+    return {
+      data: null,
+      error: "Something went wrong while trying to fetch Service fees data.",
+    };
+  }
+
+  const data = await response.json();
+  return { data, error: "" };
+}
+
+// The service fees are created in the service actions.
+
+type CreateProps = ProductSold & { totalPriceAfterDiscount: number };
+export async function createProductToSellAction(
+  productToSell: CreateProps,
+  totalPrice: number
+) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("productsToSell")
+    .insert([productToSell]);
+  if (error) return { data: null, error: error.message };
+  const { data, error: serviceError } = await editServiceAction({
+    id: productToSell.serviceId,
+    totalPrice,
+  });
+  if (serviceError) return { data, error: serviceError };
+  revalidateTag("services");
+
+  return { data: null, error: "" };
+}
+export async function getProductToSellById(id: string) {
+  const supabase = await createClient();
+  const { data: productsToSell, error } = await supabase
+    .from("productsToSell")
+    .select("*")
+    .eq("id", id);
+
+  if (error) return { data: null, error: error.message };
+
+  if (!productsToSell)
+    return { data: null, error: `Couldn't find product sold data '${id}'` };
+  return { data: productsToSell[0], error: "" };
+}
+// export async function getProductToSellById(id: string) {
+//   const token = getToken();
+//   if (!token)
+//     return { data: null, error: "You are not authorized to make this action." };
+//   const response = await fetch(
+//     `${process.env.API_URL}/api/ProductsToSell/${id}`,
+//     {
+//       method: "GET",
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         "Content-type": "application/json",
+//       },
+//     }
+//   );
+//   if (!response.ok) {
+//     console.log("Something went wrong while deleting the a restocking bill.");
+//     return { data: null, error: "Something went wrong!" };
+//   }
+
+//   const data = await response.json();
+
+//   return { data: data, error: "" };
+// }
+
+interface EditProps {
+  pricePerUnit: number;
+  discount: number;
+  count: number;
+  isReturned: boolean;
+  note: string;
+  totalPriceAfterDiscount: number;
+}
+
+interface ServiceProps {
+  id: number;
+  totalPrice: number;
+  isEqual: boolean;
+}
+export async function editProductToSellAction(
+  {
+    productToSell,
+    id,
+  }: {
+    productToSell: EditProps;
+    id: number;
+  },
+  { id: serviceId, totalPrice, isEqual }: ServiceProps
+) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("productsToSell")
+    .update(productToSell)
+    .eq("id", id);
+
+  if (error) return { data: null, error: error.message };
+
+  if (!isEqual) {
+    const { data, error } = await editServiceAction({
+      id: serviceId,
+      totalPrice,
+    });
+    if (error) return { data, error };
+  }
+  revalidateTag("services");
+
+  return { data: null, error: "" };
+}
+
+export async function deleteProductToSellAction(
+  id: string,
+  serviceId: number,
+  totalPrice: number
+) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("productsToSell").delete().eq("id", id);
+  if (error) return { data: null, error: error.message };
+  const { data, error: serviceError } = await editServiceAction({
+    id: serviceId,
+    totalPrice,
+  });
+  if (serviceError) return { data, error: serviceError };
+  revalidateTag("services");
+
+  return { data: null, error: "" };
+}
+
+export async function getServiceFeesCountAction({
+  price,
+  discount,
+  isReturned,
+  notes,
+  categoryId,
+  serviceId,
+}: {
+  price?: string;
+  discount?: string;
+  isReturned?: string;
+  notes?: string;
+  categoryId?: string;
+  serviceId?: string;
+}) {
+  const token = getToken();
+
+  if (!token)
+    return { data: null, error: "You are not authorized to make this action." };
+  let query = `${process.env.API_URL}/api/ServicesFee?&PageSize=${PAGE_SIZE}`;
+
+  if (price) query = query + `&price=${price}`;
+
+  if (discount) query = query + `&discount=${discount}`;
+
+  if (isReturned) query = query + `&isReturned=${isReturned}`;
+
+  if (notes) query = query + `&notes=${notes}`;
+
+  if (categoryId) query = query + `&categoryId=${categoryId}`;
+
+  if (serviceId) query = query + `&serviceId=${serviceId}`;
+
+  const response = await fetch(query, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    console.log("Something went wrong while trying to fetch Services count.");
+    return {
+      data: null,
+      error: "Something went wrong while trying to fetch Services count.",
+    };
+  }
+
+  const data = await response.json();
+  return { data, error: "" };
+}
+
+/*
+
+"use server";
+
+import { PAGE_SIZE } from "@lib/constants";
+import { getToken } from "@lib/helper";
+import { EditServiceFee, ProductSold, ProductToSell } from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -248,3 +496,4 @@ export async function getServiceFeesCountAction({
   const data = await response.json();
   return { data, error: "" };
 }
+*/

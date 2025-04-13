@@ -17,7 +17,7 @@ const SubmitButton: React.FC<SubmitButton> = ({
   const { pending } = useFormStatus();
   return (
     <Button
-      disabled={disabled}
+      disabled={disabled || pending}
       variant={variant}
       size={size}
       className={className || ""}

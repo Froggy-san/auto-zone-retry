@@ -50,7 +50,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
             />
           </Suspense>
 
-          <Suspense
+          {/* <Suspense
             key={pageKey}
             fallback={<Spinner className=" h-fit" size={15} />}
           >
@@ -60,7 +60,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
               email={email}
               phone={phone}
             />
-          </Suspense>
+          </Suspense> */}
         </div>
       </section>
     </main>

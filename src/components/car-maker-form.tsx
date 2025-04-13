@@ -37,6 +37,7 @@ import {
 } from "@lib/actions/carMakerActions";
 import useObjectCompare from "@hooks/use-compare-objs";
 import { useQueryClient } from "@tanstack/react-query";
+import { createCarMaker, editCarMaker } from "@lib/services/car-maker-services";
 
 const CarkMakerForm = ({
   carMakerToEdit,
@@ -92,21 +93,32 @@ const CarkMakerForm = ({
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
       if (carMakerToEdit) {
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("notes", notes);
-        if (logo.length) formData.append("logo", logo[0]);
+        // const formData = new FormData();
+        // formData.append("name", name);
+        // formData.append("notes", notes);
+        // if (logo.length) formData.append("logo", logo[0]);
 
-        const res = await editCarMakerAction(formData, carMakerToEdit.id);
-        if (res?.error) throw new Error(res.error);
+        // const res = await editCarMakerAction(formData, carMakerToEdit.id);
+
+        const newCarMaker = {
+          id: carMakerToEdit.id,
+          name,
+          notes,
+          logo: carMakerToEdit.logo,
+        };
+
+        await editCarMaker({ carMakerToEdit: newCarMaker, newLogo: logo?.[0] });
         queryClient.invalidateQueries({ queryKey: ["carMakers"] });
       } else {
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("notes", notes);
-        formData.append("logo", logo[0]);
-        const res = await createCarMakerAction(formData);
-        if (res.error) throw new Error(res.error);
+        // const formData = new FormData();
+        // formData.append("name", name);
+        // formData.append("notes", notes);
+        // formData.append("logo", logo[0]);
+        // const res = await createCarMakerAction(formData);
+        // if (res.error) throw new Error(res.error);
+
+        await createCarMaker({ name, notes, logo: logo?.[0] });
+
         queryClient.invalidateQueries({ queryKey: ["carMakers"] });
       }
       handleClose();

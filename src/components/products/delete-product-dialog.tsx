@@ -20,6 +20,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 const DeleteProductDialog = ({
   navBack,
   open,
+  imagesToDelete,
   setOpen,
   productId,
   isLoading,
@@ -28,6 +29,7 @@ const DeleteProductDialog = ({
   currPage,
 }: {
   navBack?: boolean;
+  imagesToDelete: string[];
   pageSize: number;
   currPage: number;
   productId: number | undefined;
@@ -76,7 +78,10 @@ const DeleteProductDialog = ({
   async function handleDelete() {
     try {
       setIsLoading?.(true);
-      const { error } = await deleteProductsByIdAction(productId as number);
+      const { error } = await deleteProductsByIdAction(
+        productId as number,
+        imagesToDelete
+      );
       if (error) throw new Error(error);
       setOpen(false);
       checkIfLastItem();

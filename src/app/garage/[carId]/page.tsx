@@ -1,4 +1,3 @@
-import CarItem from "@components/garage/car-item";
 import FullImagesGallery from "@components/full-images-gallery";
 import { getCarByIdAction } from "@lib/actions/carsAction";
 import {
@@ -22,6 +21,8 @@ import ServiceManagement from "@components/garage/add-service";
 import { getAllCarGenerationsAction } from "@lib/actions/carGenerationsActions";
 import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 import { Metadata } from "next";
+import { CarItem as CarItemType } from "@lib/types";
+import CarItem from "@components/garage/car-item";
 
 export const metadata: Metadata = {
   title: "Car Details",
@@ -58,9 +59,12 @@ const Page = async ({
   if (!data) return <p>Couldn&apos;t find a car with that id {params.carId}</p>;
 
   const carGenerations = carGenerationData?.carGenerationsData;
-  const car = data.cars.find((car) => car.id === Number(carId)); // Client's information with client's cars.
-  const images = car?.carImages.map((image) => image.imagePath);
-  const carInfo = car?.carInfo;
+  const car = data.cars.find((car) => car.id === Number(carId)) as CarItemType; // Client's information with client's cars.
+  console.log("CAR IN QUESTION", car);
+  const images = car.carImages.map((image) => image.imagePath);
+  const carInfo = car.carGenerations;
+  const carModel = carInfo.carModels;
+  const carMaker = carModel.carMakers;
   const clinetPhones = data.phones;
   const client = {
     name: data.name,
@@ -69,9 +73,8 @@ const Page = async ({
     phones: clinetPhones,
   };
 
-  const clientOtherCars = data.cars.filter(
-    (car) => car.id !== Number(params.carId)
-  );
+  const clientOtherCars = data.cars.filter((car) => car.id !== Number(carId));
+  console.log(clientOtherCars, "OTHER CARS");
   // const client: ClientWithPhoneNumbers = data.client;
   return (
     <main className=" min-h-screen ">
@@ -143,22 +146,21 @@ const Page = async ({
               <div>
                 Generation:{" "}
                 <span className=" text-muted-foreground break-all">
-                  {carInfo?.carGeneration.name}
+                  {carInfo.name}
                 </span>
               </div>
 
-              {!carInfo?.carGeneration.notes ? null : carInfo &&
-                carInfo.carGeneration.notes.length < 300 ? (
+              {!carInfo.notes ? null : carInfo && carInfo.notes.length < 300 ? (
                 <div className=" mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
                   <span className=" mb-auto"> Note: </span>
                   <p className=" text-muted-foreground break-all">
-                    {carInfo?.carGeneration.notes}
+                    {carInfo.notes}
                   </p>
                 </div>
               ) : (
                 <NoteDialog
                   title="Car model note."
-                  content={<p>{carInfo?.carGeneration.notes}</p>}
+                  content={<p>{carInfo.notes}</p>}
                   className=" absolute right-5 top-7"
                 />
               )}
@@ -172,14 +174,14 @@ const Page = async ({
               <div>
                 Maker:{" "}
                 <span className=" text-muted-foreground break-all">
-                  {carInfo?.carMaker.name}
+                  {carMaker.name}
                 </span>
               </div>
               <div className=" flex items-center mt-3 gap-3">
                 Logo:{" "}
-                {carInfo?.carMaker.logo ? (
+                {carMaker.logo ? (
                   <img
-                    src={carInfo.carMaker.logo}
+                    src={carMaker.logo}
                     alt="Car logo"
                     className=" h-10 w-10 object-contain"
                   />
@@ -187,10 +189,10 @@ const Page = async ({
                   <span>Logo</span>
                 )}
               </div>
-              {carInfo?.carMaker.notes && (
+              {carMaker.notes && (
                 <NoteDialog
                   title="Car maker note."
-                  content={<p>{carInfo?.carMaker.notes}</p>}
+                  content={<p>{carMaker.notes}</p>}
                   className=" absolute right-5 top-7"
                 />
               )}
@@ -204,22 +206,22 @@ const Page = async ({
               <div>
                 Model:{" "}
                 <span className=" text-muted-foreground break-all">
-                  {carInfo?.carModel.name}
+                  {carModel.name}
                 </span>
               </div>
 
-              {!carInfo?.carModel.notes ? null : carInfo &&
-                carInfo.carModel.notes.length < 300 ? (
+              {!carModel.notes ? null : carInfo &&
+                carModel.notes.length < 300 ? (
                 <div className=" mt-3 flex  flex-col sm:flex-row sm:items-center gap-2">
                   Note:{" "}
                   <p className=" text-muted-foreground break-all">
-                    {carInfo?.carModel.notes}
+                    {carModel.notes}
                   </p>
                 </div>
               ) : (
                 <NoteDialog
                   title="Car model note."
-                  content={<p>{carInfo?.carModel.notes}</p>}
+                  content={<p>{carModel.notes}</p>}
                   className=" absolute right-5 top-7"
                 />
               )}

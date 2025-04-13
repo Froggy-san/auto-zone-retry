@@ -31,20 +31,19 @@ const CarMakerList = () => {
       behavior: "smooth",
     },
   });
-  const { carMakersData, isLoading, pageCount, countError } =
-    useCarMakers(page);
+  const { data, isLoading, error, pageCount } = useCarMakers(page);
 
-  const carmakers: CarMaker[] = carMakersData?.data || [];
+  const carMakers: CarMaker[] = data ? data : [];
 
   function handleClose() {
     setCarMakerToEdit(undefined);
   }
 
   const handleResetPage = useCallback(() => {
-    if (carmakers.length === 1) {
+    if (carMakers.length === 1) {
       setPage((page) => page - 1);
     }
-  }, [carmakers.length, setPage]);
+  }, [carMakers.length, setPage]);
 
   function handleScrollList() {
     if (makerList.current) {
@@ -68,13 +67,13 @@ const CarMakerList = () => {
               Car makers
             </h3>
           </AccordionTrigger>
-          {carMakersData?.error ? (
-            <p>{String(carMakersData.error)}</p>
+          {error ? (
+            <p>{`${error}`}</p>
           ) : (
             <AccordionContent>
               {isLoading ? (
                 <Spinner className=" h-[300px]" size={25} />
-              ) : !carmakers.length ? (
+              ) : !carMakers.length ? (
                 <p className=" text-center">
                   No car maker data has been posted yet!
                 </p>
@@ -83,7 +82,7 @@ const CarMakerList = () => {
                   ref={makerList}
                   className="  grid grid-cols-2 md:grid-cols-3   overscroll-contain xl:grid-cols-4 gap-2 px-1  py-2  sm:p-4 max-h-[70vh] sm:max-h-none overflow-y-auto  "
                 >
-                  {carmakers.map((item) => (
+                  {carMakers.map((item) => (
                     <CarMakerItem
                       key={item.id}
                       carMaker={item}
@@ -98,7 +97,7 @@ const CarMakerList = () => {
               <div className=" flex  my-4 justify-end gap-3">
                 <Button
                   onClick={() => {
-                    if (isLoading || page === 1) return;
+                    if (isLoading || page === 1 || !carMakers.length) return;
                     setPage((page) => page - 1);
                     handleScroll();
                     handleScrollList();
@@ -119,7 +118,9 @@ const CarMakerList = () => {
                   }}
                   variant="secondary"
                   size="icon"
-                  disabled={isLoading || page === pageCount}
+                  disabled={
+                    isLoading || page === pageCount || !carMakers.length
+                  }
                 >
                   <MoveRight size={12} />
                 </Button>

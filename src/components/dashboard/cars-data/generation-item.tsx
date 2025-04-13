@@ -21,7 +21,7 @@ import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
-import useDeleteCarGenerations from "@lib/queries/useDeleteCarGenerations";
+import useDeleteCarGenerations from "@lib/queries/car-generation/useDeleteCarGenerations";
 import { CarGenerationProps } from "@lib/types";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { NotepadText } from "lucide-react";
@@ -63,7 +63,7 @@ function DeleteBtn({
   item: CarGenerationProps;
 }) {
   const { toast } = useToast();
-  const { deleteCargeneration, isDeleting } = useDeleteCarGenerations();
+  const { deleteGeneration, isDeleting } = useDeleteCarGenerations();
   const [open, setOpen] = useState(false);
 
   return (
@@ -96,7 +96,7 @@ function DeleteBtn({
             variant="destructive"
             size="sm"
             onClick={async () => {
-              deleteCargeneration(item.id, {
+              deleteGeneration(item.id, {
                 onSuccess: () => {
                   setOpen(false);
                   handleResetPage?.();

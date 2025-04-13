@@ -3,6 +3,7 @@ import React from "react";
 import EditSoldForm from "./edit-sold-form";
 import { getProductToSellById } from "@lib/actions/product-sold-actions";
 import { getProductsAction } from "@lib/actions/productsActions";
+import { getServiceById } from "@lib/actions/serviceActions";
 
 const ProductSoldManagement = async ({
   editSold,
@@ -14,7 +15,7 @@ const ProductSoldManagement = async ({
   let proById;
   let products;
   if (editSold) {
-    const data = await getProductToSellById(editSold);
+    const { data, error } = await getProductToSellById(editSold);
     proById = data;
   }
 
@@ -22,6 +23,8 @@ const ProductSoldManagement = async ({
     const data = await getProductsAction({});
     products = data;
   }
+  const serivceId = proById ? proById.serviceId : addSoldId;
+  const { data, error } = await getServiceById(serivceId);
 
   //   const { data: fee, error } = feesToEdit;
   //   const { data: CategoriesData, error: categoriesErorr } = categories;
@@ -31,10 +34,11 @@ const ProductSoldManagement = async ({
   //   if (!fee) return <div />;
   return (
     <EditSoldForm
-      open={proById?.data || addSoldId ? true : false}
-      proSold={proById?.data}
+      open={proById || addSoldId ? true : false}
+      proSold={proById}
       products={products?.data || []}
       addSoldId={addSoldId}
+      service={data}
     />
   );
 };

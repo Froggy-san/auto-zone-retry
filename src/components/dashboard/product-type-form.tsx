@@ -19,7 +19,8 @@ const ProductTypeForm = () => {
   const disabled = value.trim() === "";
   async function handleSubmit() {
     try {
-      await createProductTypeAction(value);
+      const { error } = await createProductTypeAction(value);
+      if (error) throw new Error(error);
       setValue("");
       toast({
         className: "bg-primary  text-primary-foreground",

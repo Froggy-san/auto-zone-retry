@@ -17,23 +17,34 @@ import ErrorMessage from "@components/error-message";
 import ModelItem from "./model-item";
 import { PILL_SIZE } from "@lib/constants";
 import useScrollToPoint from "@hooks/use-scroll-to-point";
+import useLocalPagination from "@hooks/use-local-pagination";
 
-const CarModelsList = () => {
+const CarModelsList = ({
+  models,
+  error,
+}: {
+  models: CarModelProps[];
+  error: string;
+}) => {
   const [page, setPage] = useState(1);
-
-  const { isLoading, data, apiError, error } = useCarModels(page);
+  console.log("MODELS:", models);
+  // const { isLoading, data, apiError, error } = useCarModels(page);
   const ref = useRef<HTMLDivElement>(null);
   const handleScroll = useScrollToPoint({ ref });
-  const carModels: CarModelProps[] = data?.models || [];
-  const pageCount = data?.count ? Math.ceil(Number(data.count) / PILL_SIZE) : 0;
-
+  // const carModels: CarModelProps[] = data?.models || [];
+  // const pageCount = data?.count ? Math.ceil(Number(data.count) / PILL_SIZE) : 0;
+  const { result, totalPages, totalItems } = useLocalPagination({
+    currPage: page,
+    pageSize: PILL_SIZE,
+    arr: models,
+  });
   const handleResetPage = useCallback(() => {
-    if (carModels.length === 1) {
+    if (result.length === 1) {
       setPage((page) => page - 1);
     }
-  }, [carModels.length, setPage]);
+  }, [result.length, setPage]);
 
-  if (apiError) return <ErrorMessage>{apiError}</ErrorMessage>;
+  // if (apiError) return <ErrorMessage>{apiError}</ErrorMessage>;
 
   return (
     <>
@@ -50,15 +61,13 @@ const CarModelsList = () => {
             <p>{String(error)}</p>
           ) : (
             <AccordionContent>
-              {isLoading ? (
-                <Spinner className=" h-[300px]" size={25} />
-              ) : !carModels.length ? (
+              {!result.length ? (
                 <p>No car generation data has been posted yet!</p>
               ) : (
                 <ul className=" flex flex-wrap gap-2 p-4 max-h-[45vh] overflow-y-auto  ">
-                  {carModels.map((item, index) => (
+                  {result.map((item, index) => (
                     <ModelItem
-                      key={index}
+                      key={item.id}
                       item={item}
                       handleResetPage={handleResetPage}
                     />
@@ -69,26 +78,26 @@ const CarModelsList = () => {
               <div className=" flex  my-4 justify-end gap-3">
                 <Button
                   onClick={() => {
-                    if (isLoading || page === 1) return;
+                    if (page === 1) return;
                     setPage((page) => page - 1);
                     handleScroll();
                   }}
                   size="icon"
                   variant="secondary"
-                  disabled={isLoading || page === 1}
+                  disabled={page === 1 || !result.length}
                 >
                   <MoveLeft size={12} />
                 </Button>
                 <Button
                   onClick={() => {
-                    if (isLoading || page === pageCount) return;
+                    if (page === totalPages) return;
 
                     setPage((page) => page + 1);
                     handleScroll();
                   }}
                   variant="secondary"
                   size="icon"
-                  disabled={isLoading || page === pageCount}
+                  disabled={page === totalPages || !result.length}
                 >
                   <MoveRight size={12} />
                 </Button>

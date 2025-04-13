@@ -121,9 +121,11 @@ function reducer(state: ServiceStates, action: Action) {
 function ServiceFeesDialog({
   service,
   categories,
+  total,
 }: {
   service: Service;
   categories: Category[];
+  total: number;
 }) {
   const [
     {
@@ -142,7 +144,7 @@ function ServiceFeesDialog({
   const router = useRouter();
   const searchParam = useSearchParams();
 
-  let servicesArr = service.serviceFees;
+  let servicesArr = service.servicesFee;
 
   function handleOpenEdit(filter: string) {
     const params = new URLSearchParams(searchParam);
@@ -184,7 +186,7 @@ function ServiceFeesDialog({
     { totalPriceBeforeDiscount: 0, totalDiscount: 0, totalPrice: 0 }
   );
 
-  if (!service.serviceFees.length)
+  if (!service.servicesFee.length)
     return (
       <TooltipProvider delayDuration={500}>
         <Tooltip>
@@ -294,10 +296,10 @@ function ServiceFeesDialog({
               </h2>
               <div className=" text-xs   justify-end flex items-center gap-y-1 gap-x-3 flex-wrap text-muted-foreground  ">
                 <div>
-                  Car plate: <span>{service.car.plateNumber}</span>
+                  Car plate: <span>{service.cars.plateNumber}</span>
                 </div>
                 <div>
-                  Date: <span>{service.date}</span>
+                  Date: <span>{service.created_at}</span>
                 </div>
               </div>
             </div>
@@ -424,6 +426,8 @@ function ServiceFeesDialog({
       <DeleteFee
         deleteOpen={deleteOpen ? true : false}
         fee={deleteOpen}
+        serviceId={service.id}
+        total={total}
         handleClose={() => {
           dispatch({ type: "delete-open", payload: null });
           dispatch({ type: "open" });
@@ -437,14 +441,18 @@ function DeleteFee({
   deleteOpen,
   fee,
   handleClose,
+  serviceId,
+  total,
 }: {
   deleteOpen: boolean;
   fee: ServiceFee | null;
   handleClose: () => void;
+  serviceId: number;
+  total: number;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
-
+  const serviceTotalAfterDelete = fee ? total - fee.totalPriceAfterDiscount : 0;
   return (
     <Dialog open={deleteOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px] border-none">
@@ -470,7 +478,9 @@ function DeleteFee({
               try {
                 if (fee) {
                   const { error } = await deleteServiceFeeAction(
-                    String(fee.id)
+                    String(fee.id),
+                    serviceTotalAfterDelete,
+                    serviceId
                   );
 
                   if (error) throw new Error(error);

@@ -16,15 +16,15 @@ const Page = () => {
       <h2 className="  font-semibold text-4xl">INSERT RELEVANT DATA.</h2>
       <section className=" sm:pl-4  pb-24">
         <div className=" space-y-20 mt-12">
-          <Categories />
-          <ProductTypes />
-          <ProductBrands />
           <div className=" space-y-7 ">
             <StatusManagement />
             <Suspense fallback={<Spinner className=" h-[150px] " />}>
               <ServiceStatus />
             </Suspense>
           </div>
+          <Categories />
+          <ProductTypes />
+          <ProductBrands />
         </div>
       </section>
     </main>

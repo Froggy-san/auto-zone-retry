@@ -15,6 +15,7 @@ import { getProductsCountAction } from "@lib/actions/productsActions";
 import { Metadata } from "next";
 import { getCurrentUser } from "@lib/actions/authActions";
 import CategoryCarousel from "@components/products/category-carousel";
+import { createClient } from "@utils/supabase/server";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -40,6 +41,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   const productBrandId = searchParams?.productBrandId ?? "";
   const isAvailable = searchParams?.isAvailable ?? "";
 
+  // const supabase = await createClient();
   // if (productsError || categoriesError) {
   //   return <div>Error loading data</div>;
   // }
@@ -87,6 +89,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
           />
         </div>
       </div>
+
       <IntersectionProvidor>
         <div className=" flex   flex-1  w-full">
           <ProductsFilterBar
@@ -120,7 +123,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               // productBrandId={productBrandId}
               // isAvailable={isAvailable}
             />
-            {!user || user.sub !== "admin" ? null : (
+            {/* {!user || user.sub !== "admin" ? null : (
               <div className=" my-10 px-2">
                 <ProductManagement
                   categories={categoriesData}
@@ -128,7 +131,14 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
                   productTypes={brandTypesData}
                 />
               </div>
-            )}
+            )} */}
+            <div className=" my-10 px-2">
+              <ProductManagement
+                categories={categoriesData}
+                productBrands={productBrandsData}
+                productTypes={brandTypesData}
+              />
+            </div>
           </section>
         </div>
       </IntersectionProvidor>

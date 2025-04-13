@@ -5,21 +5,23 @@ import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 import CarModelForm from "@components/car-model-form";
 
 import CarGenerationList from "./car-generation-list";
-import CarModelsList from "./cars-data/car-model-list";
+import CarModelsList from "./car-model-list";
 
 const CarGenAndModelManagement = async () => {
-  const [carGenerations, carMakers] = await Promise.all([
+  const [carModels, carMakers] = await Promise.all([
     getAllCarModelsAction(),
     getAllCarMakersAction(),
     // getAllCarGenerationsAction(),
   ]);
-  const { data: carGenerationsData, error: carGenerationsError } =
-    carGenerations;
-  //   const { data: carModelsData, error: carModelsError } = carModels;
+  const { data: modelsData, error: modelsError } = carModels;
+
   const { data: carMakersData, error: carMakersError } = carMakers;
 
-  if (carGenerationsError || carMakersError)
-    return <p>{carGenerationsError}</p>;
+  const models = modelsData?.models || [];
+  const modelsCount = modelsData?.count || 0;
+
+  // if (carGenerationsError || carMakersError)
+  //   return <p>{carGenerationsError}</p>;
 
   return (
     <>
@@ -34,7 +36,7 @@ const CarGenAndModelManagement = async () => {
           </div>
         </div>
 
-        <CarModelsList />
+        <CarModelsList models={models} error={modelsError} />
       </div>
       <div className=" space-y-3">
         <div className="flex  flex-col  gap-y-2 xs:flex-row xs:items-center justify-between rounded-lg border p-3 shadow-sm gap-x-7">
@@ -45,10 +47,7 @@ const CarGenAndModelManagement = async () => {
             </p>
           </div>
           <div className=" sm:pr-2">
-            <CarGenerationForm
-              carMakers={carMakersData}
-              carModels={carGenerationsData}
-            />
+            <CarGenerationForm carMakers={carMakersData} carModels={models} />
             {/* <CarInfoForm
           carGenerations={carGenerationsData}
           carMakers={carMakersData}

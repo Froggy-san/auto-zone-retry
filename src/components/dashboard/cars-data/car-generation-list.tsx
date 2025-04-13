@@ -1,7 +1,7 @@
 "use client";
-import useCarGenerations from "@lib/queries/useCarGenerations";
+import useCarGenerations from "@lib/queries/car-generation/useCarGenerations";
 import React, { useCallback, useRef, useState } from "react";
-import GenerationItem from "./generation-item";
+
 import { CarGenerationProps } from "@lib/types";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
@@ -13,16 +13,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import useScrollToPoint from "@hooks/use-scroll-to-point";
+import GenerationItem from "./generation-item";
 
 const CarGenerationList = () => {
   const [page, setPage] = useState(1);
 
-  const { isLoading, data, pageCount, error } = useCarGenerations(page);
+  const { isLoading, carGenerations, pageCount, error } =
+    useCarGenerations(page);
   const ref = useRef<HTMLDivElement>(null);
   const handleScroll = useScrollToPoint({ ref });
 
-  const carGenerationData: CarGenerationProps[] =
-    data?.carGenerationsData || [];
+  const carGenerationData: CarGenerationProps[] = carGenerations || [];
 
   const handleResetPage = useCallback(() => {
     if (carGenerationData.length === 1) {
@@ -70,7 +71,7 @@ const CarGenerationList = () => {
                 }}
                 size="icon"
                 variant="secondary"
-                disabled={isLoading || page === 1}
+                disabled={isLoading || page === 1 || !carGenerationData.length}
               >
                 <MoveLeft size={12} />
               </Button>
@@ -83,7 +84,9 @@ const CarGenerationList = () => {
                 }}
                 variant="secondary"
                 size="icon"
-                disabled={isLoading || page === pageCount}
+                disabled={
+                  isLoading || page === pageCount || !carGenerationData.length
+                }
               >
                 <MoveRight size={12} />
               </Button>

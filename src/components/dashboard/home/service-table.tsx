@@ -1,5 +1,5 @@
 "use client";
-import React, { SetStateAction, useEffect, useState } from "react";
+import React, { SetStateAction, useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -14,8 +14,6 @@ import {
   CarItem,
   Category,
   ClientWithPhoneNumbers,
-  PhoneNumber,
-  ProductBoughtData,
   Service,
   ServiceStatus,
 } from "@lib/types";
@@ -111,13 +109,8 @@ const ServiceTable = ({
 
   const currPageSize = services.length;
 
-  const fees = services.flatMap((service) => service.serviceFees);
+  const fees = services.flatMap((service) => service.servicesFee);
   const soldProducts = services.flatMap((service) => service.productsToSell);
-  const totals = services.reduce((acc, item) => {
-    acc += item.totalPriceAfterDiscount;
-
-    return acc;
-  }, 0);
 
   const totalFees = fees.reduce((acc, item) => {
     acc += item.totalPriceAfterDiscount;
@@ -130,6 +123,8 @@ const ServiceTable = ({
 
     return acc;
   }, 0);
+
+  const totals = totalFees + totalSoldProducts;
   return (
     <Table className=" mt-10">
       <TableCaption>
@@ -212,7 +207,18 @@ function Row({
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const total = useMemo(() => {
+    const totalFees = service.servicesFee.reduce((sum, curr) => {
+      sum += curr.totalPriceAfterDiscount;
+      return sum;
+    }, 0);
+    const totalSold = service.productsToSell.reduce((sum, curr) => {
+      sum += curr.totalPriceAfterDiscount;
+      return sum;
+    }, 0);
+    const total = totalSold + totalFees;
+    return total;
+  }, [service]);
   function handleClose() {
     setOpen(false);
   }
@@ -224,7 +230,9 @@ function Row({
       >
         <TableCell className="font-medium">{service.id}</TableCell>
 
-        <TableCell className=" whitespace-nowrap">{service.date}</TableCell>
+        <TableCell className=" whitespace-nowrap">
+          {service.created_at}
+        </TableCell>
 
         <TableCell>
           <ClientDialog service={service} />
@@ -235,19 +243,23 @@ function Row({
         </TableCell>
 
         <TableCell>
-          <StatusBadge status={service.status} />
+          <StatusBadge status={service.serviceStatuses} />
         </TableCell>
 
         <TableCell>
-          <ServiceFeesDialog categories={categories} service={service} />
+          <ServiceFeesDialog
+            categories={categories}
+            service={service}
+            total={total}
+          />
         </TableCell>
 
         <TableCell className=" min-w-[100px]">
-          <ProductSoldDialog service={service} />
+          <ProductSoldDialog service={service} total={total} />
         </TableCell>
 
         <TableCell className=" min-w-[120px] max-w-[170px] break-all ">
-          {formatCurrency(service.totalPriceAfterDiscount)}
+          {formatCurrency(total)}
         </TableCell>
 
         <TableCell className=" w-[80px] ">
@@ -352,7 +364,10 @@ function TableActions({
     setIsLoading(true);
     try {
       const response = await fetch(`/api/pdf?id=${service.id}`);
+      // const data = await response.json();
 
+      console.log(response);
+      // console.log("DATA:", data);
       if (!response.ok) {
         const error = await response.json();
         console.error(error.error);
@@ -394,6 +409,52 @@ function TableActions({
       });
     }
   };
+  // const handlePdf = async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await fetch(`/api/pdf?id=${service.id}`);
+
+  //     if (!response.ok) {
+  //       const error = await response.json();
+  //       console.error(error.error);
+  //       setIsLoading(false);
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Failed to download.",
+  //         description: <ErorrToastDescription error={error.error} />,
+  //       });
+  //       return;
+  //     }
+
+  //     const blob = await response.blob();
+  //     const url = window.URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = `service_receipt_${service.id}.pdf`;
+  //     document.body.appendChild(a);
+  //     a.click();
+  //     a.remove();
+  //     window.URL.revokeObjectURL(url);
+  //     setIsLoading(false);
+  //     toast({
+  //       className: "bg-primary  text-primary-foreground",
+  //       title: `Done.`,
+  //       description: (
+  //         <SuccessToastDescription
+  //           message={`Receipt data is ready to be downloaded as a PDF.`}
+  //         />
+  //       ),
+  //     });
+  //   } catch (error: any) {
+  //     console.error(error);
+  //     setIsLoading(false);
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Failed to download.",
+  //       description: <ErorrToastDescription error={error.message} />,
+  //     });
+  //   }
+  // };
 
   if (isLoading)
     return (
@@ -478,7 +539,7 @@ function TableActions({
                     className=" gap-2 justify-between"
                     onClick={async () => {
                       // setChosenStatus(status.id)
-                      if (status.id === service.status.id) return;
+                      if (status.id === service.serviceStatuses.id) return;
                       await handleChangeStatus(status.id);
                     }}
                   >
@@ -487,7 +548,7 @@ function TableActions({
                       status={status}
                       className=" py-[.1rem]"
                     />
-                    {service.status.id === status.id && (
+                    {service.serviceStatuses.id === status.id && (
                       <Check className=" w-3 h-3" />
                     )}
                   </DropdownMenuItem>
@@ -543,7 +604,7 @@ function TableActions({
       />
 
       <NoteDialog
-        description={`Note related to a car with the plate number '${service.car.plateNumber}' belonging to '${service.client.name}', with a service date of '2024-11-06.'`}
+        description={`Note related to a car with the plate number '${service.cars.plateNumber}' belonging to '${service.clients.name}', with a service date of '2024-11-06.'`}
         className="hidden"
         open={open === "note"}
         onOpenChange={() => setOpen("")}
@@ -619,7 +680,7 @@ function DeleteService({
         <DialogHeader>
           <DialogTitle>Delete service receipt.</DialogTitle>
           <DialogDescription>
-            {`You are about to delete a receipt dated '${service.date}', issued to the client '${service.client.name}', along with all its associated data.`}
+            {`You are about to delete a receipt dated '${service.created_at}', issued to the client '${service.clients.name}', along with all its associated data.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -722,7 +783,7 @@ function DeleteDialog({
         <DialogHeader>
           <DialogTitle>Delete service.</DialogTitle>
           <DialogDescription>
-            {`You are about to delete a service receipt dated '${service.date}', isussed to the cutomer '${service.client.name}', along with all it's related data.`}
+            {`You are about to delete a service receipt dated '${service.created_at}', isussed to the cutomer '${service.clients.name}', along with all it's related data.`}
           </DialogDescription>
         </DialogHeader>
 

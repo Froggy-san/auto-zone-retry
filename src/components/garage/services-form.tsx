@@ -200,8 +200,13 @@ const ServicesForm = ({
   }
 
   async function onSubmit(data: CreateService) {
+    const totalFeesAfterDis = totalFees.totalPrice - totalFees.totalDiscount;
+    const totalSoldAfterDis =
+      totalProductSoldAmounts.totalPrice -
+      totalProductSoldAmounts.totalDiscount;
+    const totalPrice = totalFeesAfterDis + totalSoldAfterDis;
     try {
-      const { error } = await createServiceAction(data);
+      const { error } = await createServiceAction({ ...data, totalPrice });
       if (error) throw new Error(error);
       toast({
         className: "bg-primary  text-primary-foreground",
@@ -870,7 +875,7 @@ const ServicesForm = ({
                             )}
                           </div>
                           <div className="  py-2 border-y w-fit text-xs">
-                            Products sold net:{" "}
+                            Net products sold:{" "}
                             <span className="text-indigo-800 dark:text-dashboard-indigo">
                               {" "}
                               {formatCurrency(

@@ -35,7 +35,7 @@ interface CarsListProps {
   carGenerationId: string;
   pageNumber: string;
   carGeneration: CarGenerationProps[];
-  clietns: ClientWithPhoneNumbers[];
+  clients: ClientWithPhoneNumbers[];
   carModels: CarModelProps[];
   carMakers: CarMaker[];
   // We want the filter to disapear in the case of the page count i more than 3 pages and the pageSize i more than 2 cars in a single page.
@@ -53,7 +53,7 @@ const GarageFilter: React.FC<CarsListProps> = ({
   motorNumber,
   clientId,
   carGenerationId,
-  clietns,
+  clients,
   carGeneration,
   count,
 }) => {
@@ -156,7 +156,7 @@ const GarageFilter: React.FC<CarsListProps> = ({
             <label className=" text-sm">Clients</label>
             <ClientsComboBox
               value={chosenClient}
-              options={clietns}
+              options={clients}
               setValue={setChosenClient}
             />
           </div>
@@ -267,7 +267,7 @@ const GarageFilter: React.FC<CarsListProps> = ({
                     <label>Clients</label>
                     <ClientsComboBox
                       value={chosenClient}
-                      options={clietns}
+                      options={clients}
                       setValue={setChosenClient}
                     />
                   </div>

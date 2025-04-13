@@ -34,7 +34,12 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   const restockingBillId = searchParams.reStockingBillId ?? "";
 
   const key =
-    shopName + dateOfOrderFrom + dateOfOrderTo + minTotalPrice + pageNumber;
+    shopName +
+    dateOfOrderFrom +
+    dateOfOrderTo +
+    minTotalPrice +
+    pageNumber +
+    name;
   const pageKey = shopName + dateOfOrderFrom + dateOfOrderTo + minTotalPrice;
   return (
     <main className=" relative">
@@ -57,6 +62,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
         <SearchDialog
           currPage={pageNumber}
           shopName={shopName}
+          name={name}
           dateOfOrderFrom={dateOfOrderFrom}
           dateOfOrderTo={dateOfOrderTo}
           minTotalPrice={minTotalPrice}
@@ -75,7 +81,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
           />
         </Suspense>
 
-        <Suspense
+        {/* <Suspense
           key={pageKey}
           fallback={<Spinner className=" h-fit" size={15} />}
         >
@@ -87,7 +93,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
             minTotalPrice={minTotalPrice}
             maxTotalPrice={maxTotalPrice}
           />
-        </Suspense>
+        </Suspense> */}
       </section>
     </main>
   );

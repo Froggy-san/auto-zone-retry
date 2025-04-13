@@ -68,10 +68,10 @@ const EditServiceForm = ({
   const { toast } = useToast();
 
   const defaultValues = {
-    date: new Date(service.date),
-    clientId: service.client.id || 0,
-    carId: service.car.id || 0,
-    serviceStatusId: service.status.id || 0,
+    created_at: new Date(service.created_at),
+    clientId: service.clients.id || 0,
+    carId: service.cars.id || 0,
+    serviceStatusId: service.serviceStatuses.id || 0,
     note: service.note || "",
   };
   const form = useForm<EditService>({
@@ -98,7 +98,7 @@ const EditServiceForm = ({
     // format(value, "yyyy-MM-dd")
     const editedData = {
       ...data,
-      date: format(data.date, "yyyy-MM-dd"),
+      created_at: data.created_at.toISOString(),
       id: service.id,
     };
 
@@ -190,7 +190,7 @@ const EditServiceForm = ({
               <FormField
                 disabled={isLoading}
                 control={form.control}
-                name="date"
+                name="created_at"
                 render={({ field }) => (
                   <FormItem className=" w-full mb-auto">
                     <FormLabel>Date</FormLabel>
@@ -284,7 +284,7 @@ const EditServiceForm = ({
                 disabled={isLoading || isEqual}
                 className=" w-full sm:w-[unset]"
               >
-                {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                {isLoading ? <Spinner className=" h-full" /> : "Update"}
               </Button>
             </DialogComponent.Footer>
           </form>

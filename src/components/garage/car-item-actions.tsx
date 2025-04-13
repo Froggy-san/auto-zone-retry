@@ -32,6 +32,8 @@ export default function CarAction({
   const router = useRouter();
   const pathname = usePathname();
   const currPage = searchParam.get("page") ?? "1";
+
+  const imagesToDelete = car.carImages.map((image) => image.imagePath);
   const checkIfLastItem = useCallback(() => {
     const params = new URLSearchParams(searchParam);
     if (pageSize !== undefined && pageSize === 1) {
@@ -106,6 +108,8 @@ export default function CarAction({
         setIsLoading={setIsLoading}
         open={open}
         setOpen={setOpen}
+        imagePaths={imagesToDelete}
+        clientId={car.clientId}
         carId={car.id}
       />
     </div>

@@ -40,14 +40,11 @@ import {
   editProductToSellAction,
 } from "@lib/actions/product-sold-actions";
 import { ProductsComboBox } from "@components/proudcts-combo-box";
-
-export const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
-    value
-  );
+import { formatCurrency } from "@lib/client-helpers";
 
 interface ProById extends ProductSold {
   id: number;
+  totalPriceAfterDiscount: number;
 }
 
 const EditSoldForm = ({
@@ -55,11 +52,13 @@ const EditSoldForm = ({
   proSold,
   addSoldId,
   products,
+  service,
 }: {
   open: boolean;
   proSold: ProById;
   addSoldId?: string;
   products: ProductWithCategory[];
+  service: { id: number; totalPrice: number } | null;
 }) => {
   const { toast } = useToast();
   const router = useRouter();
@@ -112,21 +111,45 @@ const EditSoldForm = ({
     productId,
     serviceId,
   }: ProductSold) {
-    const editData = { pricePerUnit, discount, count, isReturned, note };
+    if (!service)
+      throw new Error(`Something went wrong, please refresh the page.`);
+    const totalPriceAfterDiscount = (pricePerUnit - discount) * count;
+
+    const editData = {
+      pricePerUnit,
+      discount,
+      count,
+      isReturned,
+      note,
+      totalPriceAfterDiscount,
+    };
     const addSoldProduct = { ...editData, productId, serviceId };
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
 
       if (addSoldId) {
-        const { error } = await createProductToSellAction(addSoldProduct);
+        const newSerivceAmount = service.totalPrice + totalPriceAfterDiscount;
+        const { error } = await createProductToSellAction(
+          addSoldProduct,
+          newSerivceAmount
+        );
         if (error) throw new Error(error);
       }
 
       if (proSold) {
-        const { error } = await editProductToSellAction({
-          productToSell: editData,
-          id: proSold.id,
-        });
+        const newSerivceAmount =
+          service.totalPrice +
+          totalPriceAfterDiscount -
+          proSold.totalPriceAfterDiscount;
+        const isEqual =
+          proSold.totalPriceAfterDiscount === totalPriceAfterDiscount;
+        const { error } = await editProductToSellAction(
+          {
+            productToSell: editData,
+            id: proSold.id,
+          },
+          { id: service.id, totalPrice: newSerivceAmount, isEqual }
+        );
         if (error) throw new Error(error);
       }
       handleClose();
@@ -365,7 +388,13 @@ const EditSoldForm = ({
                 disabled={isLoading || isEqual}
                 className=" w-full sm:w-[unset]"
               >
-                {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                {isLoading ? (
+                  <Spinner className=" h-full" />
+                ) : addSoldId ? (
+                  "Add"
+                ) : (
+                  "Update"
+                )}
               </Button>
             </DialogComponent.Footer>
           </form>

@@ -19,11 +19,11 @@ import NoteDialog from "@components/garage/note-dialog";
 const CarDialog = ({ service }: { service: Service }) => {
   const [noteOpen, setNoteOpen] = useState(false);
 
-  const car = service.car;
+  const car = service.cars;
 
   const carImages = car.carImages.map((image) => image.imagePath);
 
-  const carInfo = car.carInfo;
+  // const carInfo = car.carInfo;
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -65,10 +65,10 @@ const CarDialog = ({ service }: { service: Service }) => {
 
           <Link
             prefetch={false}
-            href={`/garage/${service.client.id}?car=${car.id}`}
+            href={`/garage/${service.clients.id}?car=${car.id}`}
             className="  space-y-1 text-sm text-muted-foreground "
           >
-            <div className=" line-clamp-1 ">Client: {service.client.name}</div>
+            <div className=" line-clamp-1 ">Client: {service.clients.name}</div>
 
             <div className=" line-clamp-2 ">
               Plate number: {car.plateNumber}

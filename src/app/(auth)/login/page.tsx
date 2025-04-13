@@ -49,8 +49,9 @@ const Page = () => {
 
   async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
     try {
-      await loginUser(values, redirect);
+      const error = await loginUser(values, redirect);
 
+      if (error) throw new Error(error.message);
       toast({
         className: "bg-primary  text-primary-foreground",
         title: "Welcome back.",

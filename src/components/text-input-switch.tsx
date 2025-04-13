@@ -18,10 +18,12 @@ export default function TextInputSwitch({
   item,
   ItemType,
   setLoading,
+  isLoading,
 }: {
   setLoading: React.Dispatch<SetStateAction<boolean>>;
   item: Category;
   ItemType: ItemType;
+  isLoading: boolean;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(item.name);
@@ -115,7 +117,10 @@ export default function TextInputSwitch({
         />
       ) : (
         <span
-          onClick={() => setIsEditing(true)}
+          onClick={() => {
+            if (isLoading) return;
+            setIsEditing(true);
+          }}
           className=" cursor-pointer truncate"
         >
           {item.name}

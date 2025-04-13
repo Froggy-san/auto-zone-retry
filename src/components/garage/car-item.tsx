@@ -1,6 +1,5 @@
 import ProductImages from "@components/products/product-images";
 import { Card } from "@components/ui/card";
-
 import { CarItem as CarItemProps } from "@lib/types";
 import React from "react";
 import CarAction from "./car-item-actions";
@@ -19,6 +18,12 @@ const CarItem = ({
   const carImages = car.carImages.map((image) => image.imagePath);
 
   const viewedImages = carImages.length ? carImages : [];
+  const carInfo = car.carGenerations;
+  const carModel = carInfo.carModels;
+  const carMaker = carModel.carMakers;
+  // console.log("Car info", carInfo);
+  // console.log("Car model", carModel);
+  // console.log("Car maker", carMaker);
   return (
     <Card className="   border    min-h-[250px]">
       <Link
@@ -43,11 +48,11 @@ const CarItem = ({
           <div className=" flex items-center gap-2  ">
             <span className="">- Make: </span>{" "}
             <span className=" text-muted-foreground  break-all">
-              {car.carInfo.carMaker.name}
+              {carMaker.name}
             </span>
-            {car.carInfo.carMaker.logo ? (
+            {carMaker.logo ? (
               <img
-                src={car.carInfo.carMaker.logo}
+                src={carMaker.logo}
                 className=" h-7 w-7 rounded-md  object-cover"
               />
             ) : null}
@@ -55,13 +60,13 @@ const CarItem = ({
           <div className="">
             <span>- Model: </span>{" "}
             <span className=" text-muted-foreground  break-all">
-              {car.carInfo.carModel.name}
+              {carModel.name}
             </span>
           </div>
           <div className="">
             <span>- Generation: </span>{" "}
             <span className=" text-muted-foreground  break-all">
-              {car.carInfo.carGeneration.name}
+              {carInfo.name}
             </span>
           </div>{" "}
           <div className="">

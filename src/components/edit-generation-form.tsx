@@ -32,10 +32,11 @@ import SuccessToastDescription, {
 import useObjectCompare from "@hooks/use-compare-objs";
 import { editCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { useQueryClient } from "@tanstack/react-query";
-import useDeleteCarGenerations from "@lib/queries/useDeleteCarGenerations";
+import useDeleteCarGenerations from "@lib/queries/car-generation/useDeleteCarGenerations";
 import { CarGenerationProps, EditNameAndNote } from "@lib/types";
 import { cloneElement, useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import useEditGeneration from "@lib/queries/car-generation/useEditGeneration";
 
 export function EditCarGenerationForm({
   item,
@@ -45,11 +46,13 @@ export function EditCarGenerationForm({
   openBtn?: React.ReactElement;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { editGeneration } = useEditGeneration();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+
   const defaultValues = {
     name: item.name || "",
     notes: item.notes || "",
+    carModelId: item.carModelId || 0,
   };
   const form = useForm<z.infer<typeof EditNameAndNote>>({
     resolver: zodResolver(EditNameAndNote),
@@ -69,11 +72,8 @@ export function EditCarGenerationForm({
   async function onSubmit(generation: z.infer<typeof EditNameAndNote>) {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
-      await editCarGenerationAction({ generation, id: item.id });
+      await editGeneration({ generation: generation, id: item.id });
       handleClose();
-
-      queryClient.invalidateQueries({ queryKey: ["carModels"] });
-      queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
 
       toast({
         className: "bg-primary  text-primary-foreground",

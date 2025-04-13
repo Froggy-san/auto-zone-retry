@@ -36,7 +36,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
   const [open, setOpen] = React.useState(false);
   // const [value, setValue] = React.useState(0);
 
-  const selectedItem = options.find((option) => option.id === value);
+  const selectedItem = options?.find((option) => option.id === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
