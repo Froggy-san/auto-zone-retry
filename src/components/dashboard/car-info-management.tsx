@@ -31,7 +31,7 @@ const CarInfoManagement = async () => {
         <CarInfoForm
           carGenerations={carGenerationsData?.carGenerationsData}
           carMakers={carMakersData}
-          carModels={carModelsData}
+          carModels={carModelsData?.models}
         />
       </div>
     </div>

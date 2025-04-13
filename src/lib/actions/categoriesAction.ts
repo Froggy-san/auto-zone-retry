@@ -4,8 +4,8 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function getAllCategoriesAction() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
   const response = await fetch(`${supabaseUrl}/rest/v1/categories`, {
     method: "GET",
     headers: {
@@ -30,8 +30,8 @@ export async function getAllCategoriesAction() {
 }
 
 export async function createCategoryAction(category: string) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
   // const token = getToken();
   // if (!token) redirect("/login");
   console.log(supabaseKey, supabaseUrl);
@@ -68,8 +68,8 @@ export async function editCategoryAction({
   category: string;
   id: number;
 }) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
   // const token = getToken();
   // if (!token) redirect("/login");
 
@@ -102,8 +102,8 @@ export async function editCategoryAction({
 }
 
 export async function deleteCategoryAction(id: number) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
   // const token = getToken();
   // if (!token) redirect("/login");
 
