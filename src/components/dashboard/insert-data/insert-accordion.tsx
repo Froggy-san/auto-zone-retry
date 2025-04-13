@@ -1,7 +1,8 @@
 import { Accordion } from "@components/ui/accordion";
 import React from "react";
-import CarGenerationList from "../car-generation-list";
+
 import CarMakerList from "../cars-data/car-makers-list";
+import CarGenerationList from "../cars-data/car-generation-list";
 
 const InsetAccorion = ({ className }: { className?: string }) => {
   return (
