@@ -21,10 +21,12 @@ import { useState } from "react";
 import DeleteProductDialog from "./delete-product-dialog";
 
 export function ProdcutAction({
+  imagesToDelete,
   productId,
   currPage,
   pageSize,
 }: {
+  imagesToDelete: string[];
   pageSize: number;
   currPage: string;
   productId: number;
@@ -89,6 +91,7 @@ export function ProdcutAction({
         setIsLoading={setIsLoading}
         open={open}
         setOpen={setOpen}
+        imagesToDelete={imagesToDelete}
         productId={productId}
       />
     </div>

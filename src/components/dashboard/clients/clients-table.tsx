@@ -171,7 +171,7 @@ function ClientsTableActions({
 function PhoneNumbersDialog({ client }: { client: ClientWithPhoneNumbers }) {
   const [open, setOpen] = useState(false);
 
-  if (!client.phoneNumbers.length)
+  if (!client.phones.length)
     return (
       <TooltipProvider delayDuration={500}>
         <Tooltip>
@@ -187,8 +187,7 @@ function PhoneNumbersDialog({ client }: { client: ClientWithPhoneNumbers }) {
       </TooltipProvider>
     );
 
-  if (client.phoneNumbers.length === 1)
-    return <span>{client.phoneNumbers[0].number}</span>;
+  if (client.phones.length === 1) return <span>{client.phones[0].number}</span>;
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Button
@@ -209,8 +208,8 @@ function PhoneNumbersDialog({ client }: { client: ClientWithPhoneNumbers }) {
           </DialogDescription>
         </DialogHeader>
         <main className=" space-y-2">
-          {client.phoneNumbers.length
-            ? client.phoneNumbers.map((phone, i) => (
+          {client.phones.length
+            ? client.phones.map((phone, i) => (
                 <div
                   key={i}
                   className="flex text-sm  text-muted-foreground  items-center gap-2"
@@ -234,7 +233,7 @@ function PhoneNumbersDialog({ client }: { client: ClientWithPhoneNumbers }) {
 function ShowCars({ client }: { client: ClientWithPhoneNumbers }) {
   const router = useRouter();
 
-  if (!client.carsCount)
+  if (!client.cars[0].count)
     return (
       <TooltipProvider delayDuration={500}>
         <Tooltip>
@@ -250,9 +249,9 @@ function ShowCars({ client }: { client: ClientWithPhoneNumbers }) {
 
   return (
     <Button
-      disabled={!client.carsCount}
+      disabled={!client.cars[0].count}
       onClick={() => {
-        if (client.carsCount) router.push(`/garage?clientId=${client.id}`);
+        if (client.cars[0].count) router.push(`/garage?clientId=${client.id}`);
       }}
       size="sm"
       className="   h-6 px-2 py-3 text-xs"

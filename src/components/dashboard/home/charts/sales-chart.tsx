@@ -84,12 +84,12 @@ const SalesCharts = () => {
   // Extract unique years
   if (selected === "all")
     dates = Array.from(
-      new Set(allServices.map((item) => item.date.split("-")[0]))
+      new Set(allServices.map((item) => item.created_at.split("-")[0]))
     ).sort((a, b) => Number(a) - Number(b));
 
   if (selected === "year")
     dates = Array.from(
-      new Set(allServices.map((item) => item.date.split("-")[1]))
+      new Set(allServices.map((item) => item.created_at.split("-")[1]))
     ).sort((a, b) => Number(a) - Number(b));
 
   if (typeof selected === "number") {
@@ -106,9 +106,10 @@ const SalesCharts = () => {
         allServices.filter((items) => {
           // Get all the services made in each year.
           if (selected === "all" && typeof date === "string")
-            return items.date.startsWith(date);
-          if (selected === "year") return items.date.split("-")[1] === date;
-          return isSameDay(items.date, date);
+            return items.created_at.startsWith(date);
+          if (selected === "year")
+            return items.created_at.split("-")[1] === date;
+          return isSameDay(items.created_at, date);
         })
       );
 
@@ -129,7 +130,7 @@ const SalesCharts = () => {
           );
 
           // Get the totals of the services for each date.
-          const servicesProvided = currItem.serviceFees.reduce(
+          const servicesProvided = currItem.servicesFee.reduce(
             (serAcc, currService) => {
               serAcc.totalPrice += currService.price;
               serAcc.totalDiscount += currService.discount;

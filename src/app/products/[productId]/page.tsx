@@ -52,10 +52,9 @@ const ProductView = async ({
   // const { data: images, error: productImagesError } = productImages;
   // const { data: productData, error: producError } = product;
 
-  if (error)
-    return <p>Something went wrong while searching for the product&rsquo;</p>;
+  if (error) return <p>{error.message}</p>;
 
-  const imageUrls = productData?.productImages?.map(
+  const imageUrls = productData?.productImages.map(
     (image: ProductImage) => image.imageUrl
   );
 
@@ -72,7 +71,7 @@ const ProductView = async ({
 
   return (
     <div>
-      {imageUrls.length ? (
+      {imageUrls?.length ? (
         <FullImagesGallery
           images={imageUrls}
           productId={productData.productId}

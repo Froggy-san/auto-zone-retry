@@ -1,13 +1,7 @@
 "use client";
 
 import Spinner from "@components/Spinner";
-import React, {
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { SetStateAction, useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -45,6 +39,7 @@ const PillITem = ({
       <TextInputSwitch
         item={item}
         ItemType={itemType}
+        isLoading={loading}
         setLoading={setLoading}
       />
       <div className=" flex items-center  gap-2">

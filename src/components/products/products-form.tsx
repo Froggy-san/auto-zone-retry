@@ -29,6 +29,8 @@ import Spinner from "@components/Spinner";
 import {
   createProductAction,
   editProductAction,
+  revalidateProductById,
+  revalidateProducts,
 } from "@lib/actions/productsActions";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
@@ -41,6 +43,9 @@ import useObjectCompare from "@hooks/use-compare-objs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import DialogComponent from "@components/dialog-component";
 import { Trash2 } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_URL } from "@lib/constants";
+import { createProduct, editProdcut } from "@lib/services/products-services";
 
 interface ProductFormProps {
   categories: Category[];
@@ -85,9 +90,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   const pro = {
     name: productToEdit?.name,
-    categoryId: productToEdit?.category.id,
-    productTypeId: productToEdit?.productType.id,
-    productBrandId: productToEdit?.productBrand.id,
+    categoryId: productToEdit?.categories.id,
+    productTypeId: productToEdit?.productTypes.id,
+    productBrandId: productToEdit?.productBrands.id,
     description: productToEdit?.description,
     listPrice: productToEdit?.listPrice,
     carinfoId: 1, //! Removed from the back end
@@ -102,7 +107,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     name: pro.name || "",
     categoryId: pro.categoryId || 0,
     productTypeId: pro.productTypeId || 0,
-    productBrandId: productToEdit?.productBrand.id || 0,
+    productBrandId: pro.productBrandId || 0,
     description: pro.description || "",
     listPrice: pro.listPrice || 0,
     carinfoId: 0, //! Removed from the back end
@@ -167,7 +172,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   function handleDeleteMedia(productImage?: ProductImage) {
     if (productImage) setDeletedMedia((arr) => [...arr, productImage]);
   }
-
+  console.log(isMainImage);
   async function onSubmit({
     name,
     categoryId,
@@ -184,25 +189,37 @@ const ProductForm: React.FC<ProductFormProps> = ({
   }: z.infer<typeof ProductsSchema>) {
     try {
       const isMainEdited = isMainImage && typeof isMainImage !== "number";
+      const imagesToUpload = images.map((img, i) => {
+        const name = `${Math.random()}-${img.name}`.replace(/\//g, "");
+        const path = `${SUPABASE_URL}/storage/v1/object/public/product/${name}`;
 
+        return {
+          name,
+          path,
+          isMain: typeof isMainImage === "number" && isMainImage === i,
+          file: img,
+        };
+      });
       if (productToEdit) {
-        const imagesToUpload = images.map((image, i) => {
-          const formData = new FormData();
-          formData.append("image", image);
-          formData.append("productId", String(productToEdit.id));
-          formData.append(
-            "isMain",
-            typeof isMainImage === "number" && isMainImage === i
-              ? "true"
-              : "false"
-          );
-          return formData;
-        });
+        // const imagesToUpload = images.map((image, i) => {
+        //   const formData = new FormData();
+        //   formData.append("image", image);
+        //   formData.append("productId", String(productToEdit.id));
+        //   formData.append(
+        //     "isMain",
+        //     typeof isMainImage === "number" && isMainImage === i
+        //       ? "true"
+        //       : "false"
+        //   );
+        //   return formData;
+        // });
 
         const productToEditData = {
           id: productToEdit.id,
           name,
           categoryId,
+          productBrandId,
+          productTypeId,
           description,
           listPrice,
           salePrice,
@@ -210,32 +227,41 @@ const ProductForm: React.FC<ProductFormProps> = ({
           isAvailable,
         };
         // Edit the product.
-        const { error } = await editProductAction({
+        await editProdcut({
           productToEdit: productToEditData,
           imagesToUpload,
           imagesToDelete: deletedMedia,
           isMain: isMainEdited ? isMainImage : null,
+          prevIsMian: isMainChange,
           isEqual,
         });
-        if (error) throw new Error(error);
+        await revalidateProductById(productToEdit.id);
+        // const { error } = await editProductAction({
+        //   productToEdit: productToEditData,
+        //   imagesToUpload,
+        //   imagesToDelete: deletedMedia,
+        //   isMain: isMainEdited ? isMainImage : null,
+        //   isEqual,
+        // });
+        // if (error) throw new Error(error);
         handleClose();
         setDeletedMedia([]);
       } else {
-        const imagesToUpload = images.length
-          ? images.map((image, i) => {
-              const formData = new FormData();
-              formData.append("image", image);
-              formData.append(
-                "isMain",
-                typeof isMainImage === "number" && isMainImage === i
-                  ? "true"
-                  : "false"
-              );
-              return formData;
-            })
-          : [];
+        // const imagesToUpload = images.length
+        //   ? images.map((image, i) => {
+        //       const formData = new FormData();
+        //       formData.append("image", image);
+        //       formData.append(
+        //         "isMain",
+        //         typeof isMainImage === "number" && isMainImage === i
+        //           ? "true"
+        //           : "false"
+        //       );
+        //       return formData;
+        //     })
+        //   : [];
 
-        const { error } = await createProductAction({
+        const product = await createProduct({
           name,
           categoryId,
           productTypeId,
@@ -249,7 +275,60 @@ const ProductForm: React.FC<ProductFormProps> = ({
           images: imagesToUpload,
         });
 
-        if (error) throw new Error(error);
+        await revalidateProducts();
+
+        // const { error } = await createProductAction({
+        //   name,
+        //   categoryId,
+        //   productTypeId,
+        //   productBrandId,
+        //   description,
+        //   listPrice,
+        //   carinfoId,
+        //   salePrice,
+        //   stock,
+        //   isAvailable,
+        //   images: imagesToUpload,
+        // });
+        // const { data, error } = await supabase.from("product").insert([
+        //   {
+        //     name,
+        //     categoryId,
+        //     productTypeId,
+        //     productBrandId,
+        //     description,
+        //     listPrice,
+        //     salePrice,
+        //     stock,
+        //     isAvailable,
+        //   },
+        // ]);
+        // if (error) throw new Error(error.message);
+        // console.log(data);
+        // console.log(images);
+        // // if (!data) return;
+
+        // // if (!images.length) return { data, error: "" };
+        // const uploadPromises = images.map(async (img) => {
+        //   try {
+        //     const { data, error } = await supabase.storage
+        //       .from("product")
+        //       .upload(img.name, img);
+
+        //     if (error) {
+        //       console.log("ERROR:", error.message);
+        //       throw new Error(error.message);
+        //     }
+
+        //     console.log("UPLOAD SUCCESS:", data);
+        //     return data;
+        //   } catch (err: any) {
+        //     console.log("UPLOAD ERROR:", err);
+        //   }
+        // });
+
+        // await Promise.all(uploadPromises);
+
         handleClose();
       }
 

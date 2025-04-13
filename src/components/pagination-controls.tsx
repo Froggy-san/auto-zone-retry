@@ -7,7 +7,7 @@ import React, { useEffect } from "react";
 
 interface PaginationControlProps {
   currPage: string;
-  count: number;
+  count: number | string;
 }
 
 const PaginationControl = ({ count, currPage }: PaginationControlProps) => {

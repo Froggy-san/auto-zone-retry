@@ -34,9 +34,26 @@ const ProductsList: React.FC<ProductsListProps> = async ({
     isAvailable,
   });
 
-  if (productsError) return <p>{productsError}</p>;
+  if (productsError)
+    return (
+      <ErrorMessage
+        icon={<ShoppingBasket className="  w-10 h-10" />}
+        className=" px-2 my-7 "
+      >
+        {" "}
+        {productsError}.
+      </ErrorMessage>
+    );
   if (!products)
-    return <p>Something went wrong while grabing the products data</p>;
+    return (
+      <ErrorMessage
+        icon={<ShoppingBasket className="  w-10 h-10" />}
+        className=" px-2 my-7"
+      >
+        {" "}
+        Something went wrong while grabbing the products.
+      </ErrorMessage>
+    );
   if (!products.length)
     return (
       <ErrorMessage
@@ -51,7 +68,7 @@ const ProductsList: React.FC<ProductsListProps> = async ({
     <>
       <ul className=" grid  grid-cols-1 xs:grid-cols-2  p-3   xl:grid-cols-3 gap-3">
         {products && products.length
-          ? products.map((product: ProductWithCategory, i: number) => (
+          ? products.map((product: Product, i: number) => (
               <ProductItem
                 user={user}
                 currPage={pageNumber}

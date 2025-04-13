@@ -1,10 +1,11 @@
 import EditFeesManagement from "@components/dashboard/home/edit-fees-management";
-import ProductSoldManagement from "@components/dashboard/home/edit-product-sold";
+
 import ServiceList from "@components/dashboard/home/service-list";
 import ServicePagination from "@components/dashboard/home/service-pagination";
 import Spinner from "@components/Spinner";
 import React, { Suspense } from "react";
 import SalesCharts from "@components/dashboard/home/charts/sales-chart";
+import ProductSoldManagement from "@components/dashboard/home/product-sold-management";
 
 // import dynamic from "next/dynamic";
 // const Charts = dynamic(
@@ -48,9 +49,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   return (
     <main className=" relative">
       <h2 className="  font-semibold text-4xl">SALES OVERVIEW.</h2>
-
       <SalesCharts />
-
       <section className=" sm:pl-4">
         <Suspense
           fallback={
@@ -81,7 +80,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
           />
         </Suspense>
 
-        <Suspense
+        {/* <Suspense
           key={pageKey}
           fallback={<Spinner className=" h-fit" size={15} />}
         >
@@ -95,7 +94,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
             maxPrice={maxPrice}
             serviceStatusId={serviceStatusId}
           />
-        </Suspense>
+        </Suspense> */}
       </section>
     </main>
   );

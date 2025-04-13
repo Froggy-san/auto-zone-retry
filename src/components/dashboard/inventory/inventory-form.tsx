@@ -148,7 +148,7 @@ const InventoryForm = ({
 
   const total = productBoughtArr.reduce(
     (acc, item) => {
-      acc.totalDiscount += item.discount;
+      acc.totalDiscount += item.discount * item.count;
       acc.totalpriceAfter += (item.pricePerUnit - item.discount) * item.count;
 
       return acc;
@@ -161,20 +161,57 @@ const InventoryForm = ({
       const pro = productBought[0];
 
       if (proBoughtToEdit) {
-        const { error } = await editProductBoughtAction({
-          pricePerUnit: pro.pricePerUnit,
-          discount: pro.discount,
-          count: pro.count,
-          isReturned: isReturned,
-          note: pro.note,
-          id: proBoughtToEdit.id,
-        });
+        const originalTotal =
+          proBoughtToEdit.productsRestockingBills?.totalPrice || 0;
+
+        const newTotal =
+          originalTotal -
+          proBoughtToEdit.totalPriceAfterDiscount +
+          total.totalpriceAfter;
+
+        const productStocks =
+          products.find((product) => product.id === pro.productId)?.stock || 0;
+        const newStockNum = productStocks - proBoughtToEdit.count + pro.count;
+        console.log(
+          productStocks,
+          pro.count,
+          proBoughtToEdit.count,
+          newStockNum
+        );
+        const { error } = await editProductBoughtAction(
+          {
+            pricePerUnit: pro.pricePerUnit,
+            discount: pro.discount,
+            count: pro.count,
+            note: pro.note,
+            productsRestockingBillId: proBoughtToEdit.productsRestockingBillId,
+            id: proBoughtToEdit.id,
+            productId: pro.productId,
+            newStockNum,
+            isReturned,
+          },
+          newTotal
+        );
         if (error) throw new Error(error);
       } else {
+        const totalPrice = total.totalpriceAfter;
+
+        // When ever the shop buys new inventory we want the product stock to increase.
+        const stocksToUpdate = productBought.map((pro) => {
+          const productStockNum =
+            products.find((product) => product.id === pro.productId)?.stock ||
+            0;
+          const newStockNum = productStockNum + pro.count;
+          console.log(productStockNum, newStockNum);
+          return { id: pro.productId, stock: newStockNum };
+        });
+
         const { error } = await createProductBoughtBulkAction({
           shopName,
           data: productBought,
+          stocksToUpdate,
           reStockingBillId: reStockingBillId ? Number(reStockingBillId) : null,
+          totalPrice,
         });
         if (error) throw new Error(error);
       }
@@ -397,21 +434,6 @@ const InventoryForm = ({
                         />
                       </div>
 
-                      <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>Returned</FormLabel>
-                          <FormDescription>
-                            Has this product been returned?
-                          </FormDescription>
-                        </div>
-
-                        <Switch
-                          checked={isReturned}
-                          onClick={() => setIsReturned((is) => !is)}
-                          aria-readonly
-                        />
-                      </div>
-
                       <FormField
                         disabled={isLoading}
                         control={form.control}
@@ -430,6 +452,20 @@ const InventoryForm = ({
                         )}
                       />
 
+                      <div className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Returned</FormLabel>
+                          <FormDescription>
+                            Has this product been returned?
+                          </FormDescription>
+                        </div>
+
+                        <Switch
+                          checked={isReturned}
+                          onClick={() => setIsReturned((is) => !is)}
+                          aria-readonly
+                        />
+                      </div>
                       <div>
                         Total amount spent:
                         <span className=" ml-3">

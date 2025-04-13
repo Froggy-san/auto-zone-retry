@@ -73,7 +73,7 @@ const ProdcutViewDetials = ({
                 </h2>
               </div>
               <p className="   decoration-clone  break-all">
-                &bull; {product.category.name}
+                &bull; {product.categories.name}
               </p>
             </Card>
 
@@ -88,7 +88,7 @@ const ProdcutViewDetials = ({
                 </h2>
               </div>
               <p className="   decoration-clone  break-all">
-                &bull; {product.productType.name}
+                &bull; {product.productTypes.name}
               </p>
             </Card>
 
@@ -103,7 +103,7 @@ const ProdcutViewDetials = ({
                 </h2>
               </div>
               <p className="   decoration-clone  break-all">
-                &bull; {product.productBrand.name}
+                &bull; {product.productBrands.name}
               </p>
             </Card>
 

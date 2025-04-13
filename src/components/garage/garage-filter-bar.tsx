@@ -16,7 +16,7 @@ interface CarsListProps {
   clientId: string;
   carGenerationId: string;
   carGenerations: CarGenerationProps[] | null;
-  clients: ClientWithPhoneNumbers[] | null;
+  clients: ClientWithPhoneNumbers[];
   carMakers: CarMaker[];
   carModels: CarModelProps[];
   pageNumber: string;
@@ -32,7 +32,7 @@ const GarageFilterbar: React.FC<CarsListProps> = async ({
   return (
     <aside className={`sm:w-[200px]   sm:p-2 sm:border-t sm:border-r `}>
       <GarageFilter
-        clietns={clients || []}
+        clients={clients}
         carGeneration={carGenerations || []}
         {...props}
       />

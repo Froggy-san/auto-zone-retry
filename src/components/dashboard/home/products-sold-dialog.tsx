@@ -144,7 +144,13 @@ function reducer(state: ServiceStates, action: Action) {
   }
 }
 
-const ProductSoldDialog = ({ service }: { service: Service }) => {
+const ProductSoldDialog = ({
+  service,
+  total,
+}: {
+  service: Service;
+  total: number;
+}) => {
   const [
     {
       deleteOpen,
@@ -361,12 +367,12 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
               <div className=" text-xs   justify-end flex items-center gap-y-1 gap-x-3 flex-wrap text-muted-foreground  ">
                 <Link
                   prefetch={false}
-                  href={`/dashboard/customers?name=${service.client.name}`}
+                  href={`/dashboard/customers?name=${service.clients.name}`}
                 >
-                  Client: <span>{service.client.name}</span>
+                  Client: <span>{service.clients.name}</span>
                 </Link>
                 <div>
-                  Date: <span>{service.date}</span>
+                  Date: <span>{service.created_at}</span>
                 </div>
               </div>
             </div>
@@ -504,6 +510,8 @@ const ProductSoldDialog = ({ service }: { service: Service }) => {
       <DeleteProSold
         deleteOpen={deleteOpen ? true : false}
         proSold={deleteOpen}
+        serviceId={service.id}
+        total={total}
         handleClose={() => {
           dispatch({ type: "delete-open", payload: null });
           dispatch({ type: "open" });
@@ -517,10 +525,14 @@ function DeleteProSold({
   deleteOpen,
   proSold,
   handleClose,
+  total,
+  serviceId,
 }: {
   deleteOpen: boolean;
   proSold: ProductToSell | null;
   handleClose: () => void;
+  total: number;
+  serviceId: number;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const { toast } = useToast();
@@ -550,7 +562,9 @@ function DeleteProSold({
               try {
                 if (proSold) {
                   const { error } = await deleteProductToSellAction(
-                    String(proSold.id)
+                    String(proSold.id),
+                    serviceId,
+                    total - proSold.totalPriceAfterDiscount
                   );
                   if (error) throw new Error(error);
                 }

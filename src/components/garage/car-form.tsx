@@ -40,6 +40,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ComboBox } from "@components/combo-box";
 import { MakerCombobox } from "@components/maker-combobox";
 import { ModelCombobox } from "@components/model-combobox";
+import { SUPABASE_URL } from "@lib/constants";
+import { createCar, editCar } from "@lib/services/car-services";
 
 const CarForm = ({
   useParams,
@@ -64,15 +66,13 @@ const CarForm = ({
   const router = useRouter();
   const pathname = usePathname();
   const edit = searchParam.get("edit") ?? "";
-
+  const carInfo = carToEdit?.carGenerations;
   const [isOpen, setIsOpen] = useState(edit ? true : false);
   const [deletedMedia, setDeletedMedia] = useState<CarImage[]>([]);
   const [carMakerId, setCarMakerId] = useState(
-    carToEdit?.carInfo.carMaker.id || 0
+    carInfo?.carModels.carMakerId || 0
   );
-  const [carModelId, setCarModelId] = useState(
-    carToEdit?.carInfo.carModel.id || 0
-  );
+  const [carModelId, setCarModelId] = useState(carInfo?.carModelId || 0);
   const { toast } = useToast();
 
   const mediaUrls = useMemo(() => {
@@ -94,7 +94,7 @@ const CarForm = ({
     motorNumber: carToEdit?.motorNumber || "",
     notes: carToEdit?.notes || "",
     clientId: clientId || 0,
-    carGenerationId: carToEdit?.carInfo.carGeneration.id || 0,
+    carGenerationId: carInfo?.id || 0,
     images: [],
   };
   const form = useForm<CreateCar>({
@@ -126,8 +126,8 @@ const CarForm = ({
 
   function handleReset() {
     form.reset(defaultValues);
-    setCarMakerId(carToEdit?.carInfo.carMaker.id || 0);
-    setCarModelId(carToEdit?.carInfo.carModel.id || 0);
+    setCarMakerId(carInfo?.carModels.carMakerId || 0);
+    setCarModelId(carInfo?.carModelId || 0);
     setDeletedMedia([]);
   }
 
@@ -158,14 +158,17 @@ const CarForm = ({
     images,
   }: CreateCar) {
     try {
-      const imagesToUpload = images.length
-        ? images.map((image) => {
-            const formData = new FormData();
-            formData.append("image", image);
-            formData.append("isMain", "false");
-            return formData;
-          })
-        : [];
+      const imagesToUpload = images.map((img, i) => {
+        const name = `${Math.random()}-${img.name}`.replace(/\//g, "");
+        const path = `${SUPABASE_URL}/storage/v1/object/carImages/${name}`;
+
+        return {
+          name,
+          path,
+          isMain: i === 0,
+          file: img,
+        };
+      });
       const car = {
         color,
         plateNumber,
@@ -176,22 +179,19 @@ const CarForm = ({
         chassisNumber,
       };
       if (carToEdit) {
-        const { error } = await editCarAction({
+        await editCar({
           car,
           imagesToDelete: deletedMedia,
           imagesToUpload,
           isEqual,
           id: carToEdit.id.toString(),
         });
-
-        if (error) throw new Error(error);
       } else {
-        const { error } = await createCarAction({
+        await createCar({
           car,
           images: imagesToUpload,
         });
 
-        if (error) throw new Error(error);
         // queryClient.invalidateQueries({ queryKey: ["carCount"] });
       }
       handleClose();

@@ -45,16 +45,18 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
     value
   );
-const EditFeesForm = ({
+const FeesForm = ({
   open,
   feesToEdit,
   addFeeId,
   categories,
+  service,
 }: {
   open: boolean;
   feesToEdit: ServiceFee;
   addFeeId?: string;
   categories: Category[];
+  service: { id: number; totalPrice: number } | null;
 }) => {
   const { toast } = useToast();
   const router = useRouter();
@@ -108,30 +110,53 @@ const EditFeesForm = ({
     try {
       // If the user hasn't changed anything about the form values.
       if (isEqual) throw new Error("You haven't changed anything.");
+      if (!service)
+        throw new Error(`Something went wrong please refresh the page.`);
+
+      const totalPriceAfterDiscount = price - discount;
 
       // In case of adding a new service fee.
       if (addFeeId) {
-        const { error } = await createServiceFeeAction({
-          price,
-          discount,
-          categoryId,
-          notes,
-          serviceId: Number(addFeeId),
-        });
+        const { error } = await createServiceFeeAction(
+          {
+            price,
+            discount,
+            categoryId,
+            notes,
+            totalPriceAfterDiscount,
+            serviceId: Number(addFeeId),
+          },
+          {
+            id: service.id,
+            totalPrice: service.totalPrice + totalPriceAfterDiscount,
+          }
+        );
         if (error) throw new Error(error);
       }
       // In the case of editting a serivce fee.
       if (feesToEdit) {
-        const { error } = await editServiceFeeAction({
-          serviceFee: {
-            price,
-            discount,
-            categoryId,
-            isReturned,
-            notes,
+        const newSerivceTotal =
+          service.totalPrice +
+          totalPriceAfterDiscount -
+          feesToEdit.totalPriceAfterDiscount;
+        // Check if the user changed the total price of the fee before updating the total service amount.
+        const isEqual =
+          feesToEdit.totalPriceAfterDiscount === totalPriceAfterDiscount;
+        console.log("isEqual", isEqual);
+        const { error } = await editServiceFeeAction(
+          {
+            serviceFee: {
+              price,
+              discount,
+              categoryId,
+              isReturned,
+              notes,
+              totalPriceAfterDiscount: price - discount,
+            },
+            id: feesToEdit.id,
           },
-          id: feesToEdit.id,
-        });
+          { id: service.id, totalPrice: newSerivceTotal, isEqual }
+        );
 
         if (error) throw new Error(error);
       }
@@ -169,7 +194,7 @@ const EditFeesForm = ({
       <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14">
         <DialogComponent.Header>
           <DialogComponent.Title>
-            {addFeeId ? `Add more service fees` : "Edit service fee"}
+            {addFeeId ? `Add More Service Fees` : "Edit Service Fee"}
           </DialogComponent.Title>
           <DialogComponent.Description className=" hidden"></DialogComponent.Description>
         </DialogComponent.Header>
@@ -286,11 +311,11 @@ const EditFeesForm = ({
                       <FormControl>
                         <div className="flex  justify-end items-center space-x-2">
                           <Switch
-                            id="airplane-mode"
+                            id="returned-switch"
                             checked={field.value}
                             onClick={() => field.onChange(!field.value)}
                           />
-                          <Label htmlFor="airplane-mode">is it returned?</Label>
+                          <Label htmlFor="returned-switch">Is Returned?</Label>
                         </div>
                       </FormControl>
 
@@ -320,7 +345,13 @@ const EditFeesForm = ({
                 disabled={isLoading || isEqual}
                 className=" w-full sm:w-[unset]"
               >
-                {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                {isLoading ? (
+                  <Spinner className=" h-full" />
+                ) : addFeeId ? (
+                  "add"
+                ) : (
+                  "Update"
+                )}
               </Button>
             </DialogComponent.Footer>
           </form>
@@ -330,4 +361,4 @@ const EditFeesForm = ({
   );
 };
 
-export default EditFeesForm;
+export default FeesForm;

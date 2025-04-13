@@ -9,8 +9,10 @@ import Spinner from "@components/Spinner";
 import { getAllCarGenerationsAction } from "@lib/actions/carGenerationsActions";
 import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 import { getAllCarModelsAction } from "@lib/actions/carModelsActions";
-import { getCarsCountAction } from "@lib/actions/carsAction";
-import { getClientsDataAction } from "@lib/actions/clientActions";
+import { getCarsAction, getCarsCountAction } from "@lib/actions/carsAction";
+import { getClientsAction } from "@lib/actions/clientActions";
+import { createClient } from "@utils/supabase/server";
+// import { getClientsDataAction } from "@lib/actions/clientActions";
 import { Metadata } from "next";
 import React, { Suspense } from "react";
 
@@ -50,29 +52,47 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
     carMakerId +
     carModelId;
 
-  const [carGenerations, clients, carMakers, count, carModels] =
+  const supabase = await createClient();
+  const [carGenerations, clients, carMakers, carModels, carsData] =
     await Promise.all([
       getAllCarGenerationsAction(),
-      getClientsDataAction(),
+      getClientsAction({}),
       getAllCarMakersAction(),
-      getCarsCountAction({
+      // getCarsCountAction({
+      //   chassisNumber,
+      //   motorNumber,
+      //   plateNumber,
+      //   clientId,
+      //   carInfoId: carGenerationId,
+      //   carMakerId,
+      //   carModelId,
+      // }),
+      getAllCarModelsAction(),
+      getCarsAction({
+        pageNumber,
+        plateNumber,
         chassisNumber,
         motorNumber,
-        plateNumber,
         clientId,
-        carInfoId: carGenerationId,
+        carGenerationId,
+        color,
         carMakerId,
         carModelId,
+        supabase,
       }),
-      getAllCarModelsAction(),
     ]);
 
   const { data: clientsData, error: clientsDataError } = clients;
   const { data: carGenerationsData, error: carGenerationError } =
     carGenerations;
   const { data: carMakersData, error: carMakerError } = carMakers;
-  const { data: countData, error: countError } = count;
+  // const { data: countData, error: countError } = count;
   const { data: carModelsData, error: carModelsError } = carModels;
+  const { data, error } = carsData;
+
+  const cars = data?.cars;
+  const carsCount = data?.count;
+
   return (
     <main
       data-vaul-drawer-wrapper
@@ -82,11 +102,11 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
       <IntersectionProvidor>
         <div className=" flex   flex-1  w-full">
           <GarageFilterbar
-            count={countData || 0}
+            count={carsCount || 0}
             carMakers={carMakersData}
-            carModels={carModelsData}
+            carModels={carModelsData?.models}
             carGenerations={carGenerationsData?.carGenerationsData}
-            clients={clientsData}
+            clients={clientsData?.clients || []}
             color={color}
             chassisNumber={chassisNumber}
             motorNumber={motorNumber}
@@ -102,24 +122,14 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               fallback={<Spinner className=" h-[300px]" size={30} />}
               key={key}
             >
-              <CarsList
-                pageNumber={pageNumber}
-                plateNumber={plateNumber}
-                motorNumber={motorNumber}
-                chassisNumber={chassisNumber}
-                clientId={clientId}
-                carGenerationId={carGenerationId}
-                carMakerId={carMakerId}
-                carModelId={carModelId}
-                color={color}
-              />
+              <CarsList cars={cars} error={error} />
             </Suspense>
 
-            {countError ? (
-              <ErrorMessage>{countError} </ErrorMessage>
+            {error ? (
+              <ErrorMessage>{error} </ErrorMessage>
             ) : (
               <GaragePagination
-                count={countData}
+                count={carsCount || 0}
                 // key={paginationKey}
                 // color={color}
                 // plateNumber={plateNumber}
@@ -133,7 +143,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               <CarManagement
                 carMakers={carMakersData}
                 carGenerations={carGenerationsData?.carGenerationsData}
-                clients={clientsData}
+                clients={clientsData?.clients}
               />
             </div>
             {/* <ProductPagenation

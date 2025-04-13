@@ -16,23 +16,29 @@ import SuccessToastDescription, {
 } from "@components/toast-items";
 import { deleteCarAction } from "@lib/actions/carsAction";
 import { useQueryClient } from "@tanstack/react-query";
-const CarDeleteDialog = ({
-  checkIfLastItem,
-  open,
-  setOpen,
-  carId,
-  isLoading,
-  setIsLoading,
-}: {
+
+interface Props {
   checkIfLastItem: () => void;
   carId: number;
   setIsLoading?: React.Dispatch<SetStateAction<boolean>>;
   isLoading?: boolean;
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>;
-}) => {
+  imagePaths: string[];
+  clientId: number;
+}
+
+const CarDeleteDialog = ({
+  checkIfLastItem,
+  open,
+  setOpen,
+  imagePaths,
+  carId,
+  isLoading,
+  setIsLoading,
+  clientId,
+}: Props) => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     return () => {
@@ -44,10 +50,10 @@ const CarDeleteDialog = ({
   async function handleDelete() {
     try {
       setIsLoading?.(true);
-      const { error } = await deleteCarAction(carId?.toString());
+      const { error } = await deleteCarAction(clientId, carId, imagePaths);
       if (error) throw new Error(error);
       checkIfLastItem();
-      queryClient.invalidateQueries({ queryKey: ["carCount"] });
+      // queryClient.invalidateQueries({ queryKey: ["carCount"] });
       setOpen(false);
       setIsLoading?.(false);
       toast({

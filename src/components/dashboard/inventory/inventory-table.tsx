@@ -68,6 +68,17 @@ import { Switch } from "@components/ui/switch";
 import { Label } from "@components/ui/label";
 import { Checkbox } from "@components/ui/checkbox";
 import { deleteProductsBoughtByIdAction } from "@lib/actions/productBoughtActions";
+import { format, isEqual } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@components/ui/popover";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
@@ -140,7 +151,9 @@ function Row({
       >
         <TableCell className="font-medium">{proBought.id}</TableCell>
         <TableCell>{proBought.shopName}</TableCell>
-        <TableCell className="text-right ">{proBought.dateOfOrder}</TableCell>
+        <TableCell className="text-right ">
+          {format(proBought.created_at, "PPP")}
+        </TableCell>
 
         <TableCell>
           {" "}
@@ -368,83 +381,87 @@ function ProductsDialog({
                 Shop: <span>{proBought.shopName}</span>
               </div>
               <div>
-                Date: <span>{proBought.dateOfOrder}</span>
+                Date: <span>{format(proBought.created_at, "PPP")}</span>
               </div>
             </div>
           </div>
           {productsArr.length ? (
-            productsArr.map((product, i) => (
-              <div
-                key={i}
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground px-4 py-2"
-              >
-                <Link
-                  href={`/products/${product.productId}`}
-                  className="flex text-sm  h-fit flex-wrap  font-semibold !text-green-400  !justify-start  items-center  max-w-full    gap-x-6 gap-y-3"
-                >
-                  <div className=" ">
-                    Product name:{" "}
-                    <span className=" text-xs text-muted-foreground  break-all whitespace-normal">{` ${product.productName}`}</span>{" "}
-                  </div>
-                  <div className=" ">
-                    Price:{" "}
-                    <span className=" text-xs text-muted-foreground">{` ${formatCurrency(
-                      product.pricePerUnit
-                    )}`}</span>{" "}
-                  </div>
-                  <div>
-                    {" "}
-                    Discount:{" "}
-                    <span className="text-xs text-muted-foreground">{` ${formatCurrency(
-                      product.discount
-                    )}`}</span>
-                  </div>
-                  <div>
-                    Count:{" "}
-                    <span className="text-xs text-muted-foreground">{` ${product.count}`}</span>
-                  </div>
-                  <div>
-                    Has it been returned?:{" "}
-                    <span className="text-xs text-muted-foreground">
-                      {` ${product.isReturned ? "Yes" : "No"}`}
-                    </span>
-                  </div>
-                  <div>
-                    Total price after discount:{" "}
-                    <span className="text-xs text-muted-foreground   break-all whitespace-normal">{` ${formatCurrency(
-                      product.totalPriceAfterDiscount
-                    )}`}</span>
-                  </div>
-                  <div className=" break-all  whitespace-normal">{`Note: ${product.note}`}</div>
+            productsArr.map((product, i) => {
+              console.log(product);
 
-                  <div className=" flex items-center gap-2 ml-auto">
-                    <Button
-                      variant="outline"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleOpenEdit(String(product.id));
-                        setOpen(false);
-                      }}
-                      className=" p-0 w-8 h-8"
-                    >
-                      <Pencil className=" h-4 w-4" />
-                    </Button>
-                    <Button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setDeleteOpen(product.id);
-                        setOpen(false);
-                      }}
-                      variant="destructive"
-                      size="sm"
-                      className=" p-0 w-8 h-8"
-                    >
-                      <PackageMinus className=" h-4 w-4" />
-                    </Button>
-                  </div>
-                </Link>
-              </div>
-            ))
+              return (
+                <div
+                  key={i}
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground px-4 py-2"
+                >
+                  <Link
+                    href={`/products/${product.productId}`}
+                    className="flex text-sm  h-fit flex-wrap  font-semibold !text-green-400  !justify-start  items-center  max-w-full    gap-x-6 gap-y-3"
+                  >
+                    <div className=" ">
+                      Product name:{" "}
+                      <span className=" text-xs text-muted-foreground  break-all whitespace-normal">{` ${product.product?.name}`}</span>{" "}
+                    </div>
+                    <div className=" ">
+                      Price:{" "}
+                      <span className=" text-xs text-muted-foreground">{` ${formatCurrency(
+                        product.pricePerUnit
+                      )}`}</span>{" "}
+                    </div>
+                    <div>
+                      {" "}
+                      Discount:{" "}
+                      <span className="text-xs text-muted-foreground">{` ${formatCurrency(
+                        product.discount
+                      )}`}</span>
+                    </div>
+                    <div>
+                      Count:{" "}
+                      <span className="text-xs text-muted-foreground">{` ${product.count}`}</span>
+                    </div>
+                    <div>
+                      Has it been returned?:{" "}
+                      <span className="text-xs text-muted-foreground">
+                        {` ${product.isReturned ? "Yes" : "No"}`}
+                      </span>
+                    </div>
+                    <div>
+                      Total price after discount:{" "}
+                      <span className="text-xs text-muted-foreground   break-all whitespace-normal">{` ${formatCurrency(
+                        product.totalPriceAfterDiscount
+                      )}`}</span>
+                    </div>
+                    <div className=" break-all  whitespace-normal">{`Note: ${product.note}`}</div>
+
+                    <div className=" flex items-center gap-2 ml-auto">
+                      <Button
+                        variant="outline"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleOpenEdit(String(product.id));
+                          setOpen(false);
+                        }}
+                        className=" p-0 w-8 h-8"
+                      >
+                        <Pencil className=" h-4 w-4" />
+                      </Button>
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setDeleteOpen(product.id);
+                          setOpen(false);
+                        }}
+                        variant="destructive"
+                        size="sm"
+                        className=" p-0 w-8 h-8"
+                      >
+                        <PackageMinus className=" h-4 w-4" />
+                      </Button>
+                    </div>
+                  </Link>
+                </div>
+              );
+            })
           ) : (
             <p className=" text-center  py-3">No Products.</p>
           )}
@@ -575,18 +592,6 @@ function TableActions({
   );
 }
 
-import { format, isEqual } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-
-import { cn } from "@/lib/utils";
-
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@components/ui/popover";
-
 function EditReceipt({
   open,
   handleClose,
@@ -602,7 +607,7 @@ function EditReceipt({
 }) {
   const { toast } = useToast();
 
-  const billDate = new Date(restockingBill.dateOfOrder);
+  const billDate = new Date(restockingBill.created_at);
   const [shopName, setShopName] = useState(restockingBill.shopName);
   const [dateOfOrder, setSetDateOfOrder] = useState<Date | undefined>(billDate);
   const [errors, setErrors] = useState({
@@ -613,10 +618,12 @@ function EditReceipt({
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   };
 
-  // Just to note, here we are not deleting anything but we are still using the isdeleting as an isLoading state.
+  // Check if the user changed anything about the original data.
   const hasNotChange =
     isEqual(stripTime(billDate), stripTime(dateOfOrder || new Date())) &&
     restockingBill.shopName === shopName;
+
+  // Just to note, here we are not deleting anything but we are still using the isdeleting as an isLoading state.
   const disabled =
     hasNotChange ||
     errors.dateOfOrderError.trim() !== "" ||
@@ -627,13 +634,13 @@ function EditReceipt({
     e.preventDefault();
     try {
       setIsDeleting(true);
-
+      const restockingToEdit: { shopName: string; created_at?: Date } = {
+        shopName,
+      };
+      if (dateOfOrder) restockingToEdit.created_at = dateOfOrder;
       await editRestockingBillAction({
-        restockingToEdit: {
-          shopName: shopName,
-          dateOfOrder: dateOfOrder ? format(dateOfOrder, "yyyy-MM-dd") : "",
-        },
-        id: restockingBill.id.toString(),
+        restockingToEdit,
+        id: restockingBill.id,
       });
 
       setIsDeleting(false);
@@ -667,7 +674,8 @@ function EditReceipt({
 
   useEffect(() => {
     const body = document.querySelector("body");
-    setSetDateOfOrder(new Date(restockingBill.dateOfOrder));
+    // Reset form's data every time we open or close the dialog.
+    setSetDateOfOrder(new Date(restockingBill.created_at));
     setShopName(restockingBill.shopName);
     if (body) {
       body.style.pointerEvents = "auto";
@@ -819,7 +827,7 @@ function DeleteRestockingDialog({
         <DialogHeader>
           <DialogTitle>Delete receipt.</DialogTitle>
           <DialogDescription>
-            {`You are about to delete a receipt dated '${restockingBill.dateOfOrder}', made at a shop called '${restockingBill.shopName}', along with all its associated data.`}
+            {`You are about to delete a receipt dated '${restockingBill.created_at}', made at a shop called '${restockingBill.shopName}', along with all its associated data.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -891,7 +899,7 @@ function DeleteDialog({
 }) {
   const { toast } = useToast();
 
-  const proTodelete = productBoughtId
+  const proToDelete = productBoughtId
     ? proBought.productsBought.find((pro) => pro.id === productBoughtId)
     : null;
 
@@ -919,7 +927,7 @@ function DeleteDialog({
         <DialogHeader>
           <DialogTitle>Delete inventory bought.</DialogTitle>
           <DialogDescription>
-            {`You are about to delete the product '${proTodelete?.productName}' from a receipt dated '${proBought.dateOfOrder}', purchased from the shop '${proBought.shopName}'`}
+            {`You are about to delete the product '${proToDelete?.productName}' from a receipt dated '${proBought.created_at}', purchased from the shop '${proBought.shopName}'`}
           </DialogDescription>
         </DialogHeader>
 
@@ -935,9 +943,17 @@ function DeleteDialog({
             size="sm"
             onClick={async () => {
               try {
+                if (!proToDelete) throw new Error(`Something went wrong.`);
                 setIsDeleting(true);
-                if (proTodelete)
-                  await deleteProductsBoughtByIdAction(proTodelete.id);
+                const newStock = proToDelete.product.stock - proToDelete.count;
+                const total =
+                  proBought.totalPrice - proToDelete.totalPriceAfterDiscount;
+                await deleteProductsBoughtByIdAction(
+                  proToDelete.id,
+                  total,
+                  proBought.id,
+                  { id: proToDelete.productId, stock: newStock }
+                );
                 // checkIfLastItem();
                 setIsDeleting(false);
                 setOpen(null);

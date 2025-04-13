@@ -13,6 +13,7 @@ import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
 import useLocalPagination from "@hooks/use-local-pagination";
 import PillITem from "./PillItem";
+import ErrorMessage from "@components/error-message";
 type ItemType = "category" | "productType" | "productBrand";
 const PillList = ({
   itemType,
@@ -30,12 +31,24 @@ const PillList = ({
   });
 
   const handleResetPage = useCallback(() => {
-    if (result.length === 1) {
+    if (result.length === 1 && page > 1) {
       setPage((page) => page - 1);
     }
   }, [result.length, setPage]);
+
+  if (!items.length)
+    return (
+      <ErrorMessage className=" !my-10  ">
+        No product types were found.
+      </ErrorMessage>
+    );
   return (
-    <Accordion type="single" collapsible defaultValue="item-1">
+    <Accordion
+      key={items.length}
+      type="single"
+      collapsible
+      defaultValue="item-1"
+    >
       <AccordionItem value="item-1" className=" border-none">
         <AccordionTrigger>
           {" "}
@@ -48,7 +61,7 @@ const PillList = ({
 
         <AccordionContent>
           <ul className=" flex gap-2  max-h-[50Vh] overflow-y-auto  flex-wrap">
-            {result.map((item, index) => (
+            {result.map((item) => (
               <PillITem
                 itemType={itemType}
                 key={item.id}
@@ -65,7 +78,7 @@ const PillList = ({
               }}
               size="icon"
               variant="secondary"
-              disabled={page === 1}
+              disabled={page === 1 || !totalPages}
             >
               <MoveLeft size={12} />
             </Button>
@@ -77,7 +90,7 @@ const PillList = ({
               }}
               variant="secondary"
               size="icon"
-              disabled={page === totalPages}
+              disabled={page === totalPages || !totalPages}
             >
               <MoveRight size={12} />
             </Button>

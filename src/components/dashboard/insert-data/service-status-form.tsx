@@ -63,7 +63,6 @@ const ServiceStatusForm = ({ statusToEdit, setOpen, open }: Props) => {
   const isLoading = form.formState.isSubmitting;
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
 
-  console.log(colorDark, "DARRRK");
   useEffect(() => {
     form.reset(defaultValues);
   }, [open]);

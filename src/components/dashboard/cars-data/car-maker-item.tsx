@@ -35,6 +35,7 @@ import {
 import Spinner from "@components/Spinner";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteCarMakerAction } from "@lib/actions/carMakerActions";
+import useDeleteCarMaker from "@lib/queries/useDeleteCarMakers";
 interface CarMakerItem {
   className?: string;
   carMaker: CarMaker;
@@ -177,18 +178,18 @@ function DeleteDialog({
   carMaker: CarMaker | null;
   handleResetPage: () => void;
 }) {
+  const { deleteMaker } = useDeleteCarMaker();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+
   async function handleDelete() {
     try {
       setLoading(true);
       if (carMaker) {
-        const res = await deleteCarMakerAction(carMaker.id.toString());
-        if (res?.error) throw new Error(res.error);
+        await deleteMaker(carMaker);
       }
       handleResetPage();
       setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["carMakers"] });
+
       toast({
         className: "bg-primary  text-primary-foreground",
         title: `Car maker deleted!`,

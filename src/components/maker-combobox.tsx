@@ -36,7 +36,7 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
   const [open, setOpen] = React.useState(false);
   // const [value, setValue] = React.useState(0);
 
-  const selectedItem = options.find((option) => option.id === value);
+  const selectedItem = options?.find((option) => option.id === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -78,9 +78,7 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
               {options?.map((option) => (
                 <CommandItem
                   key={option.id}
-                  value={
-                    option.name + option.carModels.name + String(option.id)
-                  } // to avoid selecting two or more items that has the same name proprty.
+                  value={option.name + String(option.id)} // to avoid selecting two or more items that has the same name proprty.
                   onSelect={() => {
                     setValue(option.id === value ? 0 : option.id);
                     setOpen(false);

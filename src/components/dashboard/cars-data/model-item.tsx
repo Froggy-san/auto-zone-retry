@@ -16,14 +16,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CarGenerationProps, CarModelProps } from "@lib/types";
+import { CarModelProps } from "@lib/types";
 import { useToast } from "@hooks/use-toast";
 import Spinner from "@components/Spinner";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { ListCollapse, NotepadText } from "lucide-react";
+import { NotepadText } from "lucide-react";
 import CarModelForm from "@components/car-model-form";
 import { GiTumbleweed } from "react-icons/gi";
-import { CgDetailsLess, CgDetailsMore } from "react-icons/cg";
+import { CgDetailsLess } from "react-icons/cg";
 
 import {
   Accordion,
@@ -31,7 +31,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import GenerationItem from "../generation-item";
+import GenerationItem from "./generation-item";
 import { deleteCarModelAction } from "@lib/actions/carModelsActions";
 import SuccessToastDescription, {
   ErorrToastDescription,
@@ -157,8 +157,8 @@ function DeleteBtn({
   const handleDelete = useCallback(async () => {
     try {
       setIsDeleting(true);
-      const data = await deleteCarModelAction(item.id);
-      if (data?.error) throw new Error(data.error);
+      const error = await deleteCarModelAction(item.id);
+      if (error) throw new Error(error);
       setOpen(false);
       handleResetPage();
       queryClient.invalidateQueries({ queryKey: ["carModels"] });

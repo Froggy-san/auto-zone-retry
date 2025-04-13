@@ -1,9 +1,6 @@
 import React from "react";
 
-import {
-  getClientsAction,
-  getClientsDataAction,
-} from "@lib/actions/clientActions";
+import { getClientsAction } from "@lib/actions/clientActions";
 
 import ServiceTable from "./service-table";
 import { getServicesAction } from "@lib/actions/serviceActions";
@@ -11,6 +8,8 @@ import { getServiceStatusAction } from "@lib/actions/serviceStatusAction";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getCarsAction } from "@lib/actions/carsAction";
 import SearchDialog from "./search-dialog";
+import { createClient } from "@utils/supabase/server";
+import PaginationControl from "@components/pagination-controls";
 
 interface Props {
   pageNumber: string;
@@ -32,35 +31,46 @@ const ServiceList = async ({
   minPrice,
   maxPrice,
 }: Props) => {
-  const { data, error } = await getServicesAction({
-    pageNumber,
-    dateFrom,
-    dateTo,
-    clientId,
-    carId,
-    serviceStatusId,
-    minPrice,
-    maxPrice,
-  });
+  const supabase = await createClient();
+  // const { data, error } = await getServicesAction({
+  //   pageNumber,
+  //   dateFrom,
+  //   dateTo,
+  //   clientId,
+  //   carId,
+  //   serviceStatusId,
+  //   minPrice,
+  //   maxPrice,
+  // });
 
-  const [statusData, categoriesData, clientsData, carsData] = await Promise.all(
-    [
+  const [servicesData, statusData, categoriesData, clientsData, carsData] =
+    await Promise.all([
+      getServicesAction({
+        pageNumber,
+        dateFrom,
+        dateTo,
+        clientId,
+        carId,
+        serviceStatusId,
+        minPrice,
+        maxPrice,
+      }),
       getServiceStatusAction(),
       getAllCategoriesAction(),
-      getClientsDataAction(),
-      getCarsAction({}),
-    ]
-  );
+      getClientsAction({}),
+      getCarsAction({ supabase }),
+    ]);
   const { data: status, error: statusError } = statusData;
   const { data: categories, error: categoriesError } = categoriesData;
   const { data: clients, error: clientsError } = clientsData;
   const { data: cars, error: carsError } = carsData;
+  const { data, error } = servicesData;
 
   return (
     <div className=" mt-10">
       <SearchDialog
-        cars={cars}
-        clients={clients || []}
+        cars={cars?.cars || []}
+        clients={clients?.clients || []}
         status={status || []}
         carId={carId}
         clientId={clientId}
@@ -71,15 +81,21 @@ const ServiceList = async ({
         minPrice={minPrice}
         currPage={pageNumber}
       />
-      {!error ? (
-        <ServiceTable
-          cars={cars}
-          clients={clients || []}
-          categories={categories || []}
-          currPage={pageNumber}
-          services={data || []}
-          status={status || []}
-        />
+      {!servicesData.error ? (
+        <>
+          <ServiceTable
+            cars={cars?.cars || []}
+            clients={clients?.clients || []}
+            categories={categories || []}
+            currPage={pageNumber}
+            services={data?.data || []}
+            status={status || []}
+          />
+          <PaginationControl
+            count={data ? Number(data.count) : 0}
+            currPage={pageNumber}
+          />
+        </>
       ) : (
         <p>{error}</p>
       )}

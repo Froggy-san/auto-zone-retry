@@ -90,7 +90,7 @@ export function ServicePie({
     "totalPriceAfterDiscount" | "totalCount"
   >("totalCount");
   const flatData = salesData.flat();
-  const services = flatData.map((item) => item.serviceFees).flat();
+  const services = flatData.map((item) => item.servicesFee).flat();
   const productIds = Array.from(
     new Set(services.map((serv) => serv.categoryId))
   );

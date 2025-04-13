@@ -86,8 +86,8 @@ export const ClientsComboBox: React.FC<ClientsComboBoxProps> = ({
             <CommandEmpty>No option found.</CommandEmpty>
             <CommandGroup>
               {options?.map((option) => {
-                const phones = option.phoneNumbers.length
-                  ? option.phoneNumbers.map((phone) => phone.number)
+                const phones = option.phones.length
+                  ? option.phones.map((phone) => phone.number)
                   : [];
                 const phoneStirng = phones.length ? phones.join(" ") : "";
 

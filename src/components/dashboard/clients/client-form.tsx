@@ -60,7 +60,7 @@ const ClientForm = ({
   const isItOpen = open !== undefined ? open : isOpen;
 
   const clientsPhone = client
-    ? client.phoneNumbers.map((phone) => {
+    ? client.phones.map((phone) => {
         return {
           id: phone.id,
           number: phone.number,
@@ -126,8 +126,8 @@ const ClientForm = ({
         });
         if (error) throw new Error(error);
       } else {
-        const { error } = await createClientAction({ name, email, phones });
-        if (error) throw new Error(error);
+        const data = await createClientAction({ name, email, phones });
+        if (data?.error) throw new Error(data.error);
       }
       handleClose();
       setDeletedPhones([]);
@@ -318,7 +318,13 @@ const ClientForm = ({
                 disabled={isLoading || isEqual}
                 className=" w-full sm:w-[unset]"
               >
-                {isLoading ? <Spinner className=" h-full" /> : "Create"}
+                {isLoading ? (
+                  <Spinner className=" h-full" />
+                ) : client ? (
+                  "Update"
+                ) : (
+                  "Create"
+                )}
               </Button>
             </div>
           </form>
