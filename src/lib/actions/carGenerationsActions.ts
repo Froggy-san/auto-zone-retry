@@ -5,8 +5,8 @@ import { getToken } from "@lib/helper";
 import { CarGeneration } from "@lib/types";
 import { revalidateTag } from "next/cache";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
 
 export async function revalidateCarGenerations() {
   revalidateTag("carGenerations");
