@@ -48,7 +48,7 @@ const Page = () => {
     try {
       const token = localStorage.getItem("auto-zone-token");
 
-      await signUp({ email, username, password, token });
+      await signUp({ email, username, password, role: "Admin", token });
       toast({
         className: "bg-primary  text-primary-foreground",
         title: "Done.",
