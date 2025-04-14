@@ -104,6 +104,7 @@ const ProductView = async ({
           />
 
           <DeleteManagement
+            imagesToDelete={imageUrls}
             pageSize={Number(pageSize)}
             currPage={Number(currPage)}
             productId={Number(params.productId)}

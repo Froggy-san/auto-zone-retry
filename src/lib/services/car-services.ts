@@ -54,7 +54,8 @@ export async function createCar({
     .insert(imagesForTable);
 
   if (imagesError) {
-    await deleteCarAction(createdCar.id);
+    const imagesToDelete = imagesForTable.map((image) => image.imagePath);
+    await deleteCarAction(car.clientId, createdCar.id, imagesToDelete);
     throw new Error(`Failed to create images: ${imagesError.message}`);
   }
   await uploadImageToBucket({ bucketName: "carImages", images });
