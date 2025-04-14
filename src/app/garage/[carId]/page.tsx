@@ -23,6 +23,7 @@ import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 import { Metadata } from "next";
 import { CarItem as CarItemType } from "@lib/types";
 import CarItem from "@components/garage/car-item";
+import ErrorMessage from "@components/error-message";
 
 export const metadata: Metadata = {
   title: "Car Details",
@@ -60,7 +61,8 @@ const Page = async ({
 
   const carGenerations = carGenerationData?.carGenerationsData;
   const car = data.cars.find((car) => car.id === Number(carId)) as CarItemType; // Client's information with client's cars.
-  console.log("CAR IN QUESTION", car);
+
+  if (!car) return <ErrorMessage>Failed to fine matching cars.</ErrorMessage>;
   const images = car.carImages.map((image) => image.imagePath);
   const carInfo = car.carGenerations;
   const carModel = carInfo.carModels;
@@ -276,7 +278,9 @@ const Page = async ({
               className=" sm:flex-col   sm:items-stretch lg:flex-row lg:items-center"
             />
             <DeleteCar
-              carId={car?.id.toString()}
+              carId={car.id}
+              clientId={client.id}
+              imagePaths={images}
               className=" sm:flex-col   sm:items-stretch lg:flex-row lg:items-center"
             />
             <ServiceManagement

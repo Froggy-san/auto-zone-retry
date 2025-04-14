@@ -20,9 +20,13 @@ import { useRouter } from "next/navigation";
 import { cn } from "@lib/utils";
 const DeleteCar = ({
   carId,
+  clientId,
+  imagePaths,
   className,
 }: {
-  carId: string | undefined;
+  carId: number;
+  clientId: number;
+  imagePaths: string[];
   className?: string;
 }) => {
   return (
@@ -37,13 +41,25 @@ const DeleteCar = ({
         <p className=" text-muted-foreground text-sm">Delete car.</p>
       </div>
       <div className=" sm:pr-2">
-        <DeleteDialog carId={carId} />
+        <DeleteDialog
+          carId={carId}
+          clientId={clientId}
+          imagePaths={imagePaths}
+        />
       </div>
     </div>
   );
 };
 
-function DeleteDialog({ carId }: { carId: string | undefined }) {
+function DeleteDialog({
+  carId,
+  clientId,
+  imagePaths,
+}: {
+  carId: number;
+  clientId: number;
+  imagePaths: string[];
+}) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -52,7 +68,7 @@ function DeleteDialog({ carId }: { carId: string | undefined }) {
     try {
       if (!carId) return;
       setIsLoading(true);
-      await deleteCarAction(carId);
+      await deleteCarAction(clientId, carId, imagePaths);
       router.back();
       //   checkIfLastItem();
       //   queryClient.invalidateQueries({ queryKey: ["carCount"] });

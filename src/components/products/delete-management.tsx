@@ -8,12 +8,14 @@ interface Props {
   currPage: number;
   productId: number | undefined;
   className?: string;
+  imagesToDelete: string[];
 }
 const DeleteManagement = ({
   pageSize,
   currPage,
   productId,
   className,
+  imagesToDelete,
 }: Props) => {
   const [isLoading, setIsloading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -46,6 +48,7 @@ const DeleteManagement = ({
         navBack
         open={open}
         setOpen={setOpen}
+        imagesToDelete={imagesToDelete}
         isLoading={isLoading}
         setIsLoading={setIsloading}
         pageSize={pageSize}
