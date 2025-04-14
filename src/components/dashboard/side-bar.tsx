@@ -26,6 +26,8 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
+import { useToast } from "@hooks/use-toast";
+import { ErorrToastDescription } from "@components/toast-items";
 
 <ArrowLeftToLine />;
 <ArrowRightToLine />;
@@ -176,43 +178,8 @@ const SideBar = () => {
           </React.Fragment>
         ))}
       </div>
-      <TooltipProvider delayDuration={150}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              onClick={async () => await logoutUser()}
-              variant="ghost"
-              className={cn(" w-full justify-start gap-3", {
-                "w-fit": collapse,
-              })}
-            >
-              <span>
-                <LogOut size={ICON_SIZE} />
-              </span>{" "}
-              {!collapse && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="  text-muted-foreground"
-                >
-                  Logout
-                </motion.span>
-              )}
-            </Button>
-          </TooltipTrigger>
-          {collapse && lock && (
-            <TooltipContent
-              avoidCollisions
-              align="center"
-              sideOffset={10}
-              side="right"
-              className="  mb-2 dark:bg-card bg-secondary-foreground  text-white rounded "
-            >
-              Log out
-            </TooltipContent>
-          )}
-        </Tooltip>
-      </TooltipProvider>
+
+      <LogoutBtn collapse={collapse} lock={lock} />
     </motion.aside>
   );
 };
@@ -248,3 +215,62 @@ export const SideBarMobile = () => {
     </div>
   );
 };
+
+function LogoutBtn({ collapse, lock }: { collapse: boolean; lock: boolean }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  async function handleLogout() {
+    setIsLoading(true);
+    const error = await logoutUser();
+
+    setIsLoading(false);
+    if (error)
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: <ErorrToastDescription error={error} />,
+      });
+  }
+
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            onClick={async () => await handleLogout()}
+            variant="ghost"
+            className={cn(" w-full justify-start gap-3", {
+              "w-fit": collapse,
+              "opacity-40": isLoading,
+            })}
+          >
+            <span>
+              <LogOut size={ICON_SIZE} />
+            </span>{" "}
+            {!collapse && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="  text-muted-foreground"
+              >
+                Logout
+              </motion.span>
+            )}
+          </Button>
+        </TooltipTrigger>
+        {collapse && lock && (
+          <TooltipContent
+            avoidCollisions
+            align="center"
+            sideOffset={10}
+            side="right"
+            className="  mb-2 dark:bg-card bg-secondary-foreground  text-white rounded "
+          >
+            Log out
+          </TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
+  );
+}

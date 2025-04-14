@@ -54,40 +54,42 @@ export async function getCurrentUser(): Promise<User | null> {
 
   return user;
 }
-export async function signUp({
-  email,
-  username,
-  password,
-  token,
-}: signUpProps) {
-  const supabase = await createClient();
-  /// something
-  // const data = await res.json();
-  redirect("/login");
+export async function signUp(
+  { email, username, password, role, token }: signUpProps,
+  direct?: string
+) {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          role,
+          username,
+        },
+      },
+    });
+
+    if (error) throw new Error(error.message);
+
+    redirect("/login");
+  } catch (error) {
+    if (error instanceof Error) {
+      return { data: null, error: error.message };
+    }
+    return { data: null, error };
+  }
 }
 
 export async function logoutUser() {
-  const getCookies = cookies();
-  const token = getCookies.get("auto-zone-token")?.value || "";
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut();
 
-  if (!token) throw new Error("The user is already logged out");
-  const response = await fetch(`${process.env.API_URL}/api/Account/logout`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
+  if (error) return error.message;
 
-  if (!response.ok)
-    return {
-      data: null,
-      error: "something went wrong with the logout process",
-    };
-  getCookies.delete("auto-zone-token");
-
+  revalidatePath("/", "layout");
   redirect("/login");
-  const data = await response.json();
 }
 
 export async function car() {

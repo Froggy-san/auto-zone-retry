@@ -60,7 +60,7 @@ const FilterBar = ({
 
             {hovered === i && (
               <motion.div
-                transition={{ duration: 0.25 }}
+                transition={{ duration: 0.2 }}
                 layoutId="tab-indicator"
                 className="w-full h-full  absolute inset-0   z-10  bg-accent dark:bg-card  rounded-md "
               />

@@ -326,6 +326,7 @@ export interface signUpProps {
   username: string;
   email: string;
   password: string;
+  role: "Admin" | "User";
   token?: string | null;
 }
 
