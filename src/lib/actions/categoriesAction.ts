@@ -3,9 +3,9 @@ import { getToken } from "@lib/helper";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 export async function getAllCategoriesAction() {
-  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
   const response = await fetch(`${supabaseUrl}/rest/v1/categories`, {
     method: "GET",
     headers: {
@@ -30,11 +30,6 @@ export async function getAllCategoriesAction() {
 }
 
 export async function createCategoryAction(category: string) {
-  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
-  // const token = getToken();
-  // if (!token) redirect("/login");
-  console.log(supabaseKey, supabaseUrl);
   const response = await fetch(`${supabaseUrl}/rest/v1/categories`, {
     method: "POST",
     headers: {
@@ -68,11 +63,6 @@ export async function editCategoryAction({
   category: string;
   id: number;
 }) {
-  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
-  // const token = getToken();
-  // if (!token) redirect("/login");
-
   const response = await fetch(
     `${supabaseUrl}/rest/v1/categories?id=eq.${id}`,
     {
@@ -102,11 +92,6 @@ export async function editCategoryAction({
 }
 
 export async function deleteCategoryAction(id: number) {
-  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
-  // const token = getToken();
-  // if (!token) redirect("/login");
-
   const response = await fetch(
     `${supabaseUrl}/rest/v1/categories?id=eq.${id}`,
     {
@@ -132,31 +117,6 @@ export async function deleteCategoryAction(id: number) {
   revalidateTag("categories");
   // const data = await response.json();
   return { data: null, error: "" };
-}
-
-export async function deleteCarAction(id: string) {
-  const token = getToken();
-  if (!token) redirect("/login");
-  const response = await fetch(`${process.env.API_URL}/api/categories/${id}`, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-type": "application/json",
-    },
-  });
-  if (!response.ok) {
-    if (response.status === 409) {
-      return { data: null, error: (await response.json()).message };
-    }
-
-    return {
-      data: null,
-      error: "Something went wrong while deleting the category.",
-    };
-  }
-
-  const data = await response.json();
-  return { data, error: "" };
 }
 
 export async function getCategoriesCountAction() {

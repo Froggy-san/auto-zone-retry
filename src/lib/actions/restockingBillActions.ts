@@ -3,11 +3,10 @@
 import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
 import { createClient } from "@utils/supabase/server";
+import { revalidateTag } from "next/cache";
 
-import { revalidatePath, revalidateTag } from "next/cache";
-import { redirect } from "next/navigation";
-const supabaseUrl = process.env.PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 interface GetRestockingProps {
   pageNumber?: string;
