@@ -61,7 +61,7 @@ export async function signUp({
   token,
 }: signUpProps) {
   const supabase = await createClient();
-
+  /// something
   // const data = await res.json();
   redirect("/login");
 }
