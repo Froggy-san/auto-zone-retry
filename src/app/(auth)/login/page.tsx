@@ -40,8 +40,8 @@ const Page = () => {
     mode: "onChange",
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      username: "admin",
-      password: "012015ssSS!",
+      username: "test@test.com",
+      password: "test123456",
     },
   });
 
@@ -51,7 +51,7 @@ const Page = () => {
     try {
       const error = await loginUser(values, redirect);
 
-      if (error) throw new Error(error.message);
+      if (error) throw new Error(error);
       toast({
         className: "bg-primary  text-primary-foreground",
         title: "Welcome back.",

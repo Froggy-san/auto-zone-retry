@@ -15,15 +15,18 @@ export async function loginUser(
 ) {
   const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
+  console.log("AYOO?", loginData, direct);
 
   const { error } = await supabase.auth.signInWithPassword({
     email: loginData.username,
     password: loginData.password,
   });
 
-  if (error) return error;
+  if (error) {
+    console.log(error.message);
+
+    return error.message;
+  }
 
   revalidatePath("/", "layout");
 
@@ -57,25 +60,7 @@ export async function signUp({
   password,
   token,
 }: signUpProps) {
-  if (!token)
-    return {
-      data: null,
-      error: "You are not authroized to do this action, Please login first.",
-    };
-  const res = await fetch(`${process.env.API_URL}/api/Account/register`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email, username, password }),
-  });
-
-  if (!res.ok)
-    return {
-      data: null,
-      error: `Something went wrong with the signup process.`,
-    };
+  const supabase = await createClient();
 
   // const data = await res.json();
   redirect("/login");
