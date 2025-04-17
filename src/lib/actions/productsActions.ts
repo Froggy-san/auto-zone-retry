@@ -39,7 +39,7 @@ export async function getProductsAction({
   const from = (Number(pageNumber) - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  let query = `${supabaseUrl}/rest/v1/product?select=*,productImages(*),categories(name)&order=created_at.asc&productImages.order=created_at.asc`;
+  let query = `${supabaseUrl}/rest/v1/product?select=*,productImages(*),categories(name)&order=created_at.desc&productImages.order=created_at.asc`;
 
   if (name)
     query = query + `&or=(name.ilike.*${name}*,description.ilike.*${name}*)`;
