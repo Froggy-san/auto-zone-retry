@@ -66,7 +66,7 @@ const ProductItem = async ({
                   ? "In stock"
                   : "Out of stock"}
               </span>
-              {!user || user.sub !== "admin" ? null : (
+              {!user ? null : (
                 <ProdcutAction
                   imagesToDelete={viewedImages}
                   currPage={currPage}
