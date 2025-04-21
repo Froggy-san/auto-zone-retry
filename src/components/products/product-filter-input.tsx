@@ -22,7 +22,7 @@ const ProductFilterInput = ({ name }: { name: string }) => {
       router.replace(`${pathname}?${params.toString()}`, {
         scroll: false,
       });
-    }, 1500),
+    }, 1000),
     [searchParams, router, pathname]
   );
 
