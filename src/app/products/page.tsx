@@ -132,13 +132,15 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
                 />
               </div>
             )} */}
-            <div className=" my-10 px-2">
-              <ProductManagement
-                categories={categoriesData}
-                productBrands={productBrandsData}
-                productTypes={brandTypesData}
-              />
-            </div>
+            {user && (
+              <div className=" my-10 px-2">
+                <ProductManagement
+                  categories={categoriesData}
+                  productBrands={productBrandsData}
+                  productTypes={brandTypesData}
+                />
+              </div>
+            )}
           </section>
         </div>
       </IntersectionProvidor>

@@ -46,17 +46,20 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
           variant="outline"
           role="CarModelComboBox"
           aria-expanded={open}
-          className=" w-full justify-between"
+          className=" w-full justify-between h-fit"
         >
           {selectedItem ? (
             <>
-              Maker: {selectedItem.name}
+              <p className="text-wrap break-all text-left pr-2">
+                {" "}
+                Maker: {selectedItem.name}
+              </p>
               <span className=" ml-auto">
                 {selectedItem.logo ? (
                   <img
                     src={selectedItem.logo}
                     alt="logo"
-                    className=" w-6 h-6 rounded-md"
+                    className="   min-w-6 min-h-6   w-6 h-6 rounded-md   object-cover"
                   />
                 ) : (
                   "Logo"

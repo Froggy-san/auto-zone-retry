@@ -149,12 +149,17 @@ export async function createClientAction({
   name,
   email,
   phones,
-}: CreateClient) {
+  user_id,
+  picture,
+}: CreateClient & {
+  user_id?: string;
+  picture?: string;
+}) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("clients")
-    .insert([{ name, email }])
+    .insert([{ name, email, user_id, picture }])
     .select();
 
   if (error) {
@@ -164,7 +169,11 @@ export async function createClientAction({
     };
   }
   const { id } = data?.[0];
-  if (!data) return;
+  if (!data)
+    return {
+      data: null,
+      error: "Something went wrong while creating a new client.",
+    };
   if (phones.length) {
     // const upload = phones.map((phone) =>
     //   createPhoneNumAction({ number: phone.number, clientId })

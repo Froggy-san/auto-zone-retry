@@ -5,9 +5,13 @@ import { LoginFormSchema, signUpProps, TokenData, User } from "../types";
 import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { checkTokenExpiration } from "@lib/helper";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@utils/supabase/server";
+import { createClientAction } from "./clientActions";
+
+export async function revalidateHomePage() {
+  revalidatePath("/", "layout");
+}
 
 export async function loginUser(
   loginData: z.infer<typeof LoginFormSchema>,
@@ -54,8 +58,31 @@ export async function getCurrentUser(): Promise<User | null> {
 
   return user;
 }
+
+export async function signinWithGoogle() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      // This parameter tells Supabase where to redirect the user after a successful login.
+      // Even though the OAuth callback happens at your Supabase project URL,
+      // this "redirectTo" parameter sends the user back to your app.
+      redirectTo: `${process.env.SITE_URL}/api/auth/callback`,
+    },
+  });
+
+  if (error) {
+    console.log("GOOGLE ERROR", error.message);
+    // return { data, error: error.message };
+  }
+  console.log("RETURNED DATA FORM GGOGLE", data);
+
+  if (data.url) redirect(data.url);
+  // return { data, error };
+}
+
 export async function signUp(
-  { email, username, password, role, token }: signUpProps,
+  { email, full_name, password, role, token }: signUpProps,
   direct?: string
 ) {
   try {
@@ -66,14 +93,27 @@ export async function signUp(
       options: {
         data: {
           role,
-          username,
+          full_name,
         },
       },
     });
 
     if (error) throw new Error(error.message);
 
-    redirect("/login");
+    console.log("DATA:", data);
+
+    if (role !== "Admin") {
+      const { error: clientActionError } = await createClientAction({
+        name: full_name,
+        email,
+        phones: [],
+      });
+
+      if (clientActionError) throw new Error(clientActionError);
+    }
+
+    if (direct) redirect(direct);
+    else redirect("/login");
   } catch (error) {
     if (error instanceof Error) {
       return { data: null, error: error.message };

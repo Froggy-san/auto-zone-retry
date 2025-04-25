@@ -323,7 +323,7 @@ export const EditServiceSchema = z.object({
 });
 
 export interface signUpProps {
-  username: string;
+  full_name: string;
   email: string;
   password: string;
   role: "Admin" | "User";

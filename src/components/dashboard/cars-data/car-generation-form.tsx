@@ -163,7 +163,7 @@ const CarGenerationForm = ({
                 control={form.control}
                 name="carModelId"
                 render={({ field }) => (
-                  <FormItem className=" w-full mb-auto">
+                  <FormItem className=" w-full mb-auto min-w-[250px]">
                     <FormLabel>Car models</FormLabel>
                     <FormControl>
                       <ModelCombobox
