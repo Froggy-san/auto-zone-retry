@@ -21,16 +21,20 @@ import Link from "next/link";
 
 import Image from "next/image";
 import Logo from "../../../../public/autozone-logo.svg";
+import { FcGoogle } from "react-icons/fc";
 
-import { loginUser } from "@/lib/actions/authActions";
+import { loginUser, signinWithGoogle } from "@/lib/actions/authActions";
 import { useToast } from "@/hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@/components/toast-items";
 import { useSearchParams } from "next/navigation";
+import { createClient } from "@utils/supabase/client";
 
 type LoginFormSchemaTypes = z.infer<typeof LoginFormSchema>;
 const Page = () => {
+  const supabase = createClient();
+
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "";
 
@@ -46,6 +50,23 @@ const Page = () => {
   });
 
   const isLoading = form.formState.isSubmitting;
+
+  // async function handleGoogleSginIn() {
+  //   const { data, error } = await supabase.auth.signInWithOAuth({
+  //     provider: "google",
+  //     options: {
+  //       redirectTo: "http://localhost:3000",
+  //     },
+  //   });
+
+  //   console.log(data);
+  //   if (error)
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Uh oh! Something went wrong.",
+  //       description: <ErorrToastDescription error={error.message} />,
+  //     });
+  // }
 
   async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
     try {
@@ -115,6 +136,15 @@ const Page = () => {
           </div>
         </form>
       </Form>
+
+      <Button
+        variant="outline"
+        className=" mt-10 w-full gap-5"
+        onClick={async () => await signinWithGoogle()}
+      >
+        <FcGoogle size={20} />
+        Sign in with Google
+      </Button>
     </div>
   );
 };

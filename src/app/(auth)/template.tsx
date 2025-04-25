@@ -8,7 +8,7 @@ const Template: React.FC<TemplateProps> = ({ children }) => {
   return (
     <div
       className="
-      h-screen
+      min-h-screen
       p-6 flex 
        items-center
       justify-center"

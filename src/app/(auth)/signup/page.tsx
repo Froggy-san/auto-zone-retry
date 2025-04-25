@@ -48,7 +48,16 @@ const Page = () => {
     try {
       const token = localStorage.getItem("auto-zone-token");
 
-      await signUp({ email, username, password, role: "Admin", token });
+      await signUp(
+        {
+          email,
+          full_name: username,
+          password,
+          role: "User",
+          token,
+        },
+        "/"
+      );
       toast({
         className: "bg-primary  text-primary-foreground",
         title: "Done.",
@@ -66,52 +75,50 @@ const Page = () => {
   }
 
   return (
-    <div className=" space-y-10  min-w-[97%px] w-[700px] max-w-[700px]">
+    <div className=" space-y-7  min-w-[97%px] w-[700px] max-w-[700px]">
       <Link href="/">
         <Image src={Logo} alt="Auto zone logo" className=" w-[200px]" />
       </Link>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            disabled={isLoading}
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="YourEmail@gmail.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>Enter a vaild email.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            disabled={isLoading}
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    placeholder="YourEmail@gmail.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  This is your public display name.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+          <div className=" flex sm:flex-row flex-col  gap-3">
+            <FormField
+              disabled={isLoading}
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className=" w-full">
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="YourEmail@gmail.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>Enter a vaild email.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              disabled={isLoading}
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem className="  w-full">
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input type="text" placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Etner your public display name.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <PasswordShowHide<sginUpSchemaTypes>
             onChange={setIsShowPass}
             disabled={isLoading}
@@ -134,10 +141,10 @@ const Page = () => {
             description="Confirm your password."
           />
           <div className=" flex flex-col  pt-10   gap-2  ">
-            <Button type="submit">
+            <Button type="submit" size="sm">
               {!isLoading ? "Sign Up" : <Spinner />}
             </Button>
-            <Button variant="secondary" asChild>
+            <Button variant="secondary" size="sm" asChild>
               <Link href="/login">Already have an account? Login</Link>
             </Button>
           </div>
