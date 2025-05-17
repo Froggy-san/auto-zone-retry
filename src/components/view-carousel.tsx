@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { ClickAwayListener } from "@mui/material";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { createPortal } from "react-dom";
 
 interface ViewCarouselProps {
   images: string[];
@@ -51,12 +52,12 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
     };
   }, [index]);
 
-  return (
+  return createPortal(
     <motion.div
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3, type: "spring" }}
       key="container"
-      className="fixed inset-0 z-10 h-full w-full bg-[rgba(0,0,0,0.3)] backdrop-blur-sm backdrop-brightness-50"
+      className="fixed inset-0 z-50 h-full w-full bg-[rgba(0,0,0,0.3)] backdrop-blur-sm backdrop-brightness-50"
     >
       <Carousel id="carousel" setApi={setApi}>
         <Button
@@ -115,7 +116,8 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
           Slide {current} of {count}
         </div> */}
       </Carousel>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 };
 

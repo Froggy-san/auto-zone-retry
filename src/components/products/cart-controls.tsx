@@ -33,8 +33,6 @@ const CartControls: FC<Props> = ({ product }) => {
   useInitializeCart();
   const relatedProduct = cart.find((pro) => pro.id === product.id);
 
-  console.log(cart, "CART");
-
   function handleAddItem() {
     dispatch(addItemToCart(product));
     toast({

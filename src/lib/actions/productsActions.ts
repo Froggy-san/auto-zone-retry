@@ -5,11 +5,20 @@ import { getAllCategories } from "@lib/data-service";
 import { getToken } from "@lib/helper";
 import { deleteImageFromBucketSr } from "@lib/services/server-helpers";
 
-import { CreateProductProps, EditProduct, ProductImage } from "@lib/types";
+import {
+  AddetionalDetailsSchema,
+  CreateProductProps,
+  EditProduct,
+  Product,
+  ProductImage,
+  ProductWithCategory,
+} from "@lib/types";
 import { createClient } from "@utils/supabase/server";
+import { compareAsc } from "date-fns";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -39,8 +48,8 @@ export async function getProductsAction({
   const from = (Number(pageNumber) - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
-  let query = `${supabaseUrl}/rest/v1/product?select=*,productImages(*),categories(name)&order=created_at.desc&productImages.order=created_at.asc`;
-
+  let query = `${supabaseUrl}/rest/v1/product?select=*,productImages(*),categories(name)&order=created_at.desc&productImages.order=id.asc`;
+  //&productImages.order=created_at.asc
   if (name)
     query = query + `&or=(name.ilike.*${name}*,description.ilike.*${name}*)`;
 
@@ -82,8 +91,16 @@ export async function getProductsAction({
     };
   }
 
-  const data = await response.json();
+  const data: ProductWithCategory[] = await response.json();
 
+  //  !!IMPORTANT::  This is a really nice way to sort things based on more than one thing, here we get a list of images that sometimes have the same date, so if that is the case this function sorts then by id as well.
+  // const productsWithSortedImages = data.map((product) => ({
+  //   ...product,
+  //   productImages: product.productImages?.sort((a, b) => {
+  //     const dateDiff = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  //     return dateDiff !== 0 ? dateDiff : a.id - b.id; // Fallback to ID
+  //   }),
+  // }));
   return { data, error: "" };
 }
 // const productsWithCategories = data.map((product) => {
@@ -93,13 +110,8 @@ export async function getProductsAction({
 //   return { ...product, category: category };
 // });
 export async function getProductByIdAction(id: string) {
-  // const token = getToken();
-
-  // if (!token)
-  //   return { data: null, error: "You are not authorized to make this action." };
-
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/product?id=eq.${id}&select=*,productImages(*),categories(*),productBrands(*),productTypes(*)&productImages.order=created_at.asc`,
+    `${supabaseUrl}/rest/v1/product?id=eq.${id}&select=*,productImages(*),categories(*),productBrands(*),productTypes(*),moreDetails(*)&productImages.order=id.asc`,
     {
       method: "GET",
       headers: {
@@ -118,8 +130,23 @@ export async function getProductByIdAction(id: string) {
   }
 
   const data = await response.json();
+  const product = data[0];
+  const moreDetails = product.moreDetails.map(
+    (item: { title: string; description: string; table: string }) => {
+      const table = JSON.parse(item.table);
+      return {
+        ...item,
+        table,
+      };
+    }
+  );
 
-  return { data: data[0], error: "" };
+  const productById = {
+    ...product,
+    moreDetails,
+  };
+
+  return { data: productById, error: "" };
 }
 
 export async function createProductAction({

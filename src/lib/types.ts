@@ -51,29 +51,64 @@ export const SignUpFormSchema = z
     path: ["confirmPassword"],
   });
 
-export const ProductsSchema = z.object({
-  name: z
+export const RowSchema = z.object({
+  title: z
     .string()
-    .min(4, { message: "Product name is too short" })
-    .max(100, { message: "Product name is too long." }),
-  categoryId: z.number(),
-  productTypeId: z.number(),
-  productBrandId: z.number(),
-  description: z.string(),
-  // .min(4, { message: "Description  is too short" })
-  // .max(100, { message: "Description  is too long." }),
-  listPrice: z.number(),
-  carinfoId: z.number(),
-  salePrice: z.number(),
-  stock: z.number().default(0),
-  isAvailable: z.boolean().default(false),
-
-  images: z.array(z.custom<FilesWithPreview>()).max(9, {
-    message: "You can only upload up to 9 images at a time.",
-  }),
-
-  isMain: z.boolean().default(false),
+    .min(3, { message: "Title is too short." })
+    .max(50, { message: "Title is too long." }),
+  description: z
+    .string()
+    .min(3, { message: "Description is too short." })
+    .max(150, { message: "Description is too long." }),
 });
+
+export const AddetionalDetailsSchema = z
+  .object({
+    id: z.number(),
+    table: z.array(RowSchema),
+    title: z.string().min(3, { message: "Title is too short." }),
+    productId: z.number(),
+    description: z.string(),
+    created_at: z.string(),
+  })
+  .partial({ id: true, productId: true, created_at: true });
+
+export const ProductsSchema = z
+  .object({
+    name: z
+      .string()
+      .min(4, { message: "Product name is too short" })
+      .max(100, { message: "Product name is too long." }),
+    categoryId: z
+      .number()
+      .min(1, { message: "Product has to have a cateogry." }),
+    productTypeId: z
+      .number()
+      .min(1, { message: "Product has to have a type." }),
+    productBrandId: z
+      .number()
+      .min(1, { message: "Product has to have a brand." }),
+    description: z.string(),
+    // .min(4, { message: "Description  is too short" })
+    // .max(100, { message: "Description  is too long." }),
+    listPrice: z
+      .number()
+      .min(5, { message: "Need to input a vaild Listing price." }),
+    salePrice: z.number(),
+    carinfoId: z.number(), // this field is removed from the supabase data base.
+    stock: z.number().default(0),
+    isAvailable: z.boolean().default(false),
+    images: z.array(z.custom<FilesWithPreview>()).max(15, {
+      message: "You can only upload up to 15 images at a time.",
+    }),
+
+    isMain: z.boolean().default(false),
+    moreDetails: z.array(AddetionalDetailsSchema),
+  })
+  .refine((data) => data.listPrice > data.salePrice, {
+    message: "Listing price must be greater than the sales price",
+    path: ["salePrice"],
+  });
 
 export const CarGenerationsSchema = z.object({
   name: z
@@ -443,11 +478,13 @@ export interface ProductImage {
   imageUrl: string;
   isMain: boolean;
   productId: number;
+  created_at: string;
 }
 
 export interface Product {
   id: number;
   categoryId: number;
+  created_at: string;
   name: string;
   dateAdded: string;
   description: string;
@@ -493,6 +530,7 @@ export interface ProductById {
   isAvailable: boolean;
   carInfos: CarInfoProps[];
   productImages: ProductImage[];
+  moreDetails: z.infer<typeof AddetionalDetailsSchema>[];
 }
 
 export interface EditProduct {
@@ -671,6 +709,18 @@ export interface Service {
     phones?: PhoneNumber[];
   };
 }
+
+export type EditDetails = {
+  table: {
+    title: string;
+    description: string;
+  }[];
+  title: string;
+  description: string;
+  id: number;
+  productId: number;
+  created_at: string;
+};
 
 export interface ServiceStatus {
   id: number;
