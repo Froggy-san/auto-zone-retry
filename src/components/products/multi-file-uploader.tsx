@@ -13,6 +13,11 @@ import {
 import React, { SetStateAction, useCallback, useEffect, useMemo } from "react";
 import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 import ProgressBar from "@components/progress-bar";
+import {
+  Progress,
+  ProgressBarContainer,
+  ProgressMeter,
+} from "@components/progress";
 
 interface MultiFileUploaderProps {
   isMainImage: ProductImage | number | null;
@@ -66,11 +71,11 @@ export function MultiFileUploader({
   }
 
   // Cleanup object URLs on component unmount
-  useEffect(() => {
-    return () => {
-      selectedFiles.forEach((file) => URL.revokeObjectURL(file.preview));
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     selectedFiles.forEach((file) => URL.revokeObjectURL(file.preview));
+  //   };
+  // }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -242,8 +247,18 @@ export function MultiFileUploader({
         <div className="  font-semibold text-xs text-muted-foreground flex items-center justify-between">
           <h3>Size</h3> <p>{totalFileSizesMB.toFixed(2)} MB</p>
         </div>
-        <ProgressBar value={totalFileSizesMB} maxValue={4} />
-
+        {/* <ProgressBar value={totalFileSizesMB} maxValue={4} /> */}
+        <Progress value={totalFileSizesMB} maxValue={4}>
+          <ProgressBarContainer>
+            <ProgressMeter
+              className={` bg-green-600  ${
+                totalFileSizesMB < 3.5 &&
+                totalFileSizesMB > 3 &&
+                "bg-yellow-600"
+              }  ${totalFileSizesMB > 3.5 && "bg-red-600"}`}
+            />
+          </ProgressBarContainer>
+        </Progress>
         <AnimatePresence>
           {totalFileSizesMB > 4 && (
             <motion.p

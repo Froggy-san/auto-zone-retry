@@ -10,6 +10,7 @@ import { TbBoxModel2 } from "react-icons/tb";
 import { VscTypeHierarchySuper } from "react-icons/vsc";
 import { MdCategory } from "react-icons/md";
 import CartControls from "./cart-controls";
+import MoreDetialsAccordion from "./more-details-accordion";
 
 const ProdcutViewDetials = ({
   product,
@@ -28,22 +29,27 @@ const ProdcutViewDetials = ({
       <section className=" mt-10 space-y-7 p-6">
         <div className=" text-xs items-center  flex justify-between">
           <div className="  flex  gap-3">
-            {user && (
-              <span>
-                Listing price:{" "}
-                <span className=" text-red-400">
-                  {" "}
-                  {formatCurrency(product.listPrice)}
-                </span>
-              </span>
-            )}
-            <span className=" ">
-              Sales price:{" "}
-              <span className=" text-green-400">
+            <span>
+              Price:{" "}
+              <span
+                className={` ${
+                  product.salePrice ? "text-red-400 " : "text-muted-foreground"
+                }`}
+              >
                 {" "}
-                {formatCurrency(product.salePrice)}
+                {formatCurrency(product.listPrice)}
               </span>
             </span>
+
+            {product.salePrice ? (
+              <span className=" ">
+                Sale price:{" "}
+                <span className=" text-green-400">
+                  {" "}
+                  {formatCurrency(product.salePrice)}
+                </span>
+              </span>
+            ) : null}
           </div>
 
           {user?.sub === "admin" && (
@@ -106,65 +112,6 @@ const ProdcutViewDetials = ({
                 &bull; {product.productBrands.name}
               </p>
             </Card>
-
-            {/* <Card className="  p-5  text-sm relative">
-              <div className=" w-14 h-14 rounded-full  bg-dashboard-green text-dashboard-text-green  flex items-center justify-center mb-3">
-                <VscTypeHierarchySuper size={30} />
-              </div>
-
-              <div>
-                Generation:{" "}
-                <span className=" text-muted-foreground break-all">
-                  {productCarInfo?.carGeneration?.name}
-                </span>
-              </div>
-
-              {productCarInfo &&
-              productCarInfo.carGeneration?.notes.length < 300 ? (
-                <div className=" mt-3 flex flex-col sm:flex-row sm:items-center gap-2">
-                  Note:{" "}
-                  <p className=" text-muted-foreground break-all">
-                    {productCarInfo?.carGeneration?.notes}
-                  </p>
-                </div>
-              ) : (
-                <NoteDialog
-                  title="Car model note."
-                  content={<p>{productCarInfo?.carGeneration?.notes}</p>}
-                  className=" absolute right-5 top-7"
-                />
-              )}
-            </Card> */}
-
-            {/* <Card className="  p-5  text-sm relative">
-              <div className=" w-14 h-14 rounded-full   bg-dashboard-blue text-dashboard-text-blue  flex items-center justify-center mb-3">
-                <Blend size={30} />
-              </div>
-
-              <div>
-                Maker:{" "}
-                <span className=" text-muted-foreground break-all">
-                  {productCarInfo?.carMaker.name}
-                </span>
-              </div>
-              <div className=" flex items-center mt-3 gap-3">
-                Logo:{" "}
-                {productCarInfo?.carMaker.logo ? (
-                  <img
-                    src={productCarInfo.carMaker.logo}
-                    alt="Car logo"
-                    className=" h-10 w-10 object-contain"
-                  />
-                ) : (
-                  <span>Logo</span>
-                )}
-              </div>
-              <NoteDialog
-                title="Car maker note."
-                content={<p>{productCarInfo?.carMaker.notes}</p>}
-                className=" absolute right-5 top-7"
-              />
-            </Card> */}
           </div>
           {/* ---- */}
           <div>
@@ -178,6 +125,12 @@ const ProdcutViewDetials = ({
           </div>
         </div>
       </section>
+      {product.moreDetails.length ? (
+        <MoreDetialsAccordion
+          additionalDetails={product.moreDetails}
+          className=" mt-14"
+        />
+      ) : null}
     </main>
   );
 };

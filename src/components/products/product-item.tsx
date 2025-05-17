@@ -22,7 +22,9 @@ const ProductItem = async ({
   const viewedImages = product.productImages?.map((imgObj) => imgObj.imageUrl);
 
   return (
-    <li className={`${!product.isAvailable && "opacity-50 "}`}>
+    <li
+      className={`${(!product.isAvailable || !product.stock) && "opacity-50 "}`}
+    >
       <Link
         prefetch={false}
         href={`/products/${product.id}?size=${pageSize}&page=${currPage}`}
@@ -52,9 +54,15 @@ const ProductItem = async ({
             {product.description}
           </h2>
           <div className=" flex justify-between  items-center text-xs">
-            <span className=" text-green-500 dark:text-green-600">
-              {formatCurrency(product.salePrice)}
-            </span>
+            {product.salePrice ? (
+              <span className=" text-green-500 dark:text-green-600">
+                {formatCurrency(product.salePrice)}
+              </span>
+            ) : (
+              <span className="text-muted-foreground">
+                {formatCurrency(product.listPrice)}
+              </span>
+            )}
             <div className=" flex gap-3 items-center">
               <span
                 className={cn("text-muted-foreground", {

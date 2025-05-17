@@ -12,12 +12,7 @@ import {
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import {
-  createPhoneNumsBulkAction,
-  deletePhoneNumByIdAction,
-  editPhoneNumAction,
-  getPhonesAction,
-} from "./phoneActions";
+import { editPhoneNumAction } from "./phoneActions";
 import { createClient } from "@utils/supabase/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -247,7 +242,6 @@ export async function editClientAction({
 
   // // Handling the editing of phone numbers
   if (phonesToEdit.length) {
-    console.log("PHONES TO EDIT:", phonesToEdit);
     const editPhones = phonesToEdit.map((phone) =>
       editPhoneNumAction({ id: phone.id, number: phone.number })
     );
