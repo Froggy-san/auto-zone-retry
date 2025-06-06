@@ -4,7 +4,7 @@ import { z } from "zod";
 import { LoginFormSchema, signUpProps, TokenData, User } from "../types";
 import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@utils/supabase/server";
 import { createClientAction } from "./clientActions";
@@ -59,6 +59,13 @@ export async function getCurrentUser(): Promise<User | null> {
   return user;
 }
 
+export async function getUserData(userId: string) {
+  const user = await getCurrentUser();
+  notFound();
+  // user.
+  //  if()
+}
+
 export async function signinWithGoogle() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -102,23 +109,27 @@ export async function signUp(
 
     console.log("DATA:", data);
 
-    if (role !== "Admin") {
+    if (role !== "Admin" && data.user) {
       const { error: clientActionError } = await createClientAction({
         name: full_name,
         email,
         phones: [],
+        provider: "email",
+        user_id: data.user.id,
       });
 
       if (clientActionError) throw new Error(clientActionError);
     }
 
-    if (direct) redirect(direct);
-    else redirect("/login");
+    // if (direct) redirect(direct);
+    // else redirect("/login");
+
+    return { data, error: "" };
   } catch (error) {
     if (error instanceof Error) {
       return { data: null, error: error.message };
     }
-    return { data: null, error };
+    return { data: null, error: "Unknown error occurred" };
   }
 }
 
@@ -132,16 +143,92 @@ export async function logoutUser() {
   redirect("/login");
 }
 
-export async function car() {
-  // const car = await fetch(
-  //   `https://mywarsha-gdgzdxdecghmfwa8.israelcentral-01.azurewebsites.net/api/cargenerations`,
-  //   {
-  //     headers: {
-  //       Authorization: `Bearer ${token.token}`,
-  //     },
-  //   }
-  // );
-  // const data = await car.json();
+interface UpdateProps {
+  id: string;
+  username?: string;
+  password?: string;
+  avatar_url: string;
+  role?: "User" | "Admin";
+}
+
+export async function getUserById(userId: string) {
+  try {
+    if (!userId) throw new Error(`invaild user id.`);
+    const supabase = await createClient(true);
+    const currUser = await getCurrentUser();
+
+    if (!currUser) throw new Error("You are not logged in."); // if there is no current user throw an error.
+    const { data, error } = await supabase.auth.admin.getUserById(userId);
+
+    if (error) throw new Error(error.message);
+    if (!data.user) throw new Error(`No user found with the id of ${userId}`);
+
+    const userById = data.user;
+    const isAdmin = userById.user_metadata?.role === "Admin";
+    const sameLoggedUser = currUser.id === userById.id;
+
+    if (!isAdmin && !sameLoggedUser)
+      throw new Error(`You are not authorized to do this action.`);
+
+    const returnedData: {
+      user: User;
+      isAdmin: boolean;
+      isCurrUser: boolean;
+    } = {
+      user: currUser,
+      isAdmin: isAdmin,
+      isCurrUser: userById.id === currUser.id,
+    };
+
+    return { data: returnedData, error: "" };
+  } catch (error) {
+    if (error instanceof Error) return { data: null, error: error.message };
+    else return { data: null, error };
+  }
+}
+
+export async function updateUserAction(formData: FormData) {
+  // https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/avatars//499916568_1268010505331789_2764471559810878394_n.jpg
+
+  const id = formData.get("id") as string;
+  const username = formData.get("username");
+  const password = formData.get("password") as string; // Assert it as string or null
+  const avatar_url = formData.get("avatar_url");
+  const role = formData.get("role");
+  const isCurrUser = formData.get("isCurrUser");
+  try {
+    const supabase = await createClient(true);
+
+    if (isCurrUser) {
+      const { data, error } = await supabase.auth.updateUser({
+        password: password ? password : undefined,
+        data: { role, avatar_url, full_name: username },
+      });
+
+      if (error) throw new Error(error.message);
+      revalidatePath(`/user/${id}`, "layout");
+      return { data, error };
+    } else {
+      // Don't allow and admin account to change the password of another user.
+      const { data, error } = await supabase.auth.admin.updateUserById(id, {
+        user_metadata: {
+          role,
+          avatar_url,
+          full_name: username,
+        },
+      });
+      if (error) throw new Error(error.message);
+      revalidatePath(`/user/${id}`, "layout");
+      return { data, error };
+    }
+  } catch (error) {
+    if (error instanceof Error) return { data: null, error: error.message };
+    else
+      return {
+        data: null,
+        error: "Something went wrong while updating the user's details.",
+      };
+  }
 }
 
 // export async function loginUser(

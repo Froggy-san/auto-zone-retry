@@ -25,12 +25,15 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@/components/toast-items";
 import { signUp } from "@/lib/actions/authActions";
+import { useRouter } from "next/navigation";
 
 type sginUpSchemaTypes = z.infer<typeof SignUpFormSchema>;
 
 const Page = () => {
   const [isShowPass, setIsShowPass] = useState(false);
   const { toast } = useToast();
+
+  const router = useRouter();
   const form = useForm<z.infer<typeof SignUpFormSchema>>({
     mode: "onChange",
     resolver: zodResolver(SignUpFormSchema),
@@ -46,18 +49,16 @@ const Page = () => {
 
   async function onSubmit({ email, username, password }: sginUpSchemaTypes) {
     try {
-      const token = localStorage.getItem("auto-zone-token");
+      // const token = localStorage.getItem("auto-zone-token");
 
-      await signUp(
-        {
-          email,
-          full_name: username,
-          password,
-          role: "User",
-          token,
-        },
-        "/"
-      );
+      const { error } = await signUp({
+        email,
+        full_name: username,
+        password,
+        role: "User",
+      });
+
+      if (error) throw new Error(error);
       toast({
         className: "bg-primary  text-primary-foreground",
         title: "Done.",
@@ -65,6 +66,7 @@ const Page = () => {
           <SuccessToastDescription message="Account created successfully." />
         ),
       });
+      router.push("/");
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -141,7 +143,7 @@ const Page = () => {
             description="Confirm your password."
           />
           <div className=" flex flex-col  pt-10   gap-2  ">
-            <Button type="submit" size="sm">
+            <Button type="submit" size="sm" className=" overflow-hidden">
               {!isLoading ? "Sign Up" : <Spinner />}
             </Button>
             <Button variant="secondary" size="sm" asChild>

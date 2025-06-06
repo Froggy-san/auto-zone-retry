@@ -44,7 +44,7 @@ const UserHeaderBtn = ({ user }: { user: UserType | null }) => {
           </Link>
         )}
 
-        <Link href="/settings">
+        <Link aria-disabled={!user} href={user ? `/user/${user.id}` : ""}>
           <DropdownMenuItem>
             Settings
             <DropdownMenuShortcut>

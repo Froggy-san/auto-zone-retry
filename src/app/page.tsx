@@ -5,8 +5,6 @@ import LinkBoxs from "@components/home/link-boxs";
 import { Button } from "@components/ui/button";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import StepperProgress from "@components/stepper-progress";
-import { ProgressBarContainer } from "@components/progress";
 
 export default function Home() {
   return (
@@ -44,7 +42,6 @@ export default function Home() {
       </div>
 
       <LinkBoxs />
-      <StepperProgress numberOfSteps={3} />
     </main>
   );
 }
