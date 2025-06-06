@@ -12,11 +12,11 @@ const Spinner = ({
   return (
     <div
       className={cn(
-        "h-screen flex items-center justify-center w-full",
+        " h-screen max-h-full flex items-center justify-center w-full",
         className
       )}
     >
-      <LoaderCircle size={size} className=" animate-spin" />
+      <LoaderCircle size={size} className="animate-spin" />
     </div>
   );
 };

@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@lib/store/store";
 import { getCart, getClient, setClient, setDate } from "./cartSlice";
 import { Cross2Icon } from "@radix-ui/react-icons";
+import FormErrorMessage from "@components/form-error-message";
 
 type Inputs = {
   name: string;
@@ -121,9 +122,9 @@ const CartClientForm = () => {
           />
           <AnimatePresence mode="wait">
             {errors.name && (
-              <ErrorMessage key={errors.name.message}>
+              <FormErrorMessage key={errors.name.message}>
                 {errors.name.message}
-              </ErrorMessage>
+              </FormErrorMessage>
             )}
           </AnimatePresence>
         </motion.div>
@@ -147,9 +148,9 @@ const CartClientForm = () => {
           />
           <AnimatePresence>
             {(errors.phone || isValid === false) && (
-              <ErrorMessage>
+              <FormErrorMessage>
                 {errors?.phone?.message || "Phone is invalid"}.
-              </ErrorMessage>
+              </FormErrorMessage>
             )}
           </AnimatePresence>
         </motion.div>
@@ -170,7 +171,7 @@ const CartClientForm = () => {
           />
           <AnimatePresence>
             {errors.email && (
-              <ErrorMessage>{errors.email.message}</ErrorMessage>
+              <FormErrorMessage>{errors.email.message}</FormErrorMessage>
             )}
           </AnimatePresence>
         </motion.div>
@@ -307,38 +308,3 @@ const PickupDate = forwardRef<HTMLDivElement, PickupDateProps>(
 );
 
 PickupDate.displayName = "PickupDate";
-
-interface ErrorMessageProps {
-  children: React.ReactNode;
-}
-
-const ErrorMessage = forwardRef<HTMLParagraphElement, ErrorMessageProps>(
-  ({ children }, ref) => {
-    return (
-      <motion.p
-        ref={ref}
-        initial={{
-          height: 0,
-          translateX: -5,
-          opacity: 0,
-        }}
-        animate={{
-          height: "auto",
-          translateX: 0,
-          opacity: 1,
-        }}
-        exit={{
-          height: 0,
-          translateX: -5,
-          opacity: 0,
-        }}
-        layout
-        className="text-xs font-semibold text-destructive "
-      >
-        {children}
-      </motion.p>
-    );
-  }
-);
-
-ErrorMessage.displayName = "ErrorMessage"; // Optional: Helps with debugging in React DevTools

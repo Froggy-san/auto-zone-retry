@@ -33,53 +33,14 @@ import { ErorrToastDescription } from "@components/toast-items";
 <ArrowRightToLine />;
 const ICON_SIZE = 22;
 
-const SUB_LINKS = [
-  {
-    icon: <House size={ICON_SIZE} />,
-    title: "Home",
-    herf: "/dashboard",
-  },
-
-  {
-    icon: <Package size={ICON_SIZE} />,
-    title: "Inventory",
-    herf: "/dashboard/inventory",
-  },
-  // {
-  //   icon: <SlidersVertical size={ICON_SIZE} />,
-  //   title: "Settings",
-  //   herf: "/dashboard/settings",
-  // },
-
-  {
-    icon: <PersonStanding size={ICON_SIZE} />,
-    title: "Customers",
-    herf: "/dashboard/customers",
-  },
-  {
-    icon: <Car size={ICON_SIZE} />,
-    title: "Cars Data",
-    herf: "/dashboard/cars-data",
-  },
-
-  // {
-  //   icon: <TbBoxModel2 size={ICON_SIZE} />,
-  //   title: "Car Models",
-  //   herf: "/dashboard/car-models",
-  // },
-  // {
-  //   icon: <VscTypeHierarchySuper size={ICON_SIZE} />,
-  //   title: "Car Generations",
-  //   herf: "/dashboard/car-generations",
-  // },
-  {
-    icon: <Grid2x2Plus size={ICON_SIZE} />,
-    title: "Products Data",
-    herf: "/dashboard/insert-data",
-  },
-];
-
-const SideBar = () => {
+interface Props {
+  links: {
+    icon: React.ReactNode;
+    title: string;
+    herf: string;
+  }[];
+}
+const SideBar = ({ links }: Props) => {
   const [collapse, setCollapse] = useState(true);
   const [lock, setLock] = useState(false);
   const pathname = usePathname();
@@ -129,9 +90,9 @@ const SideBar = () => {
         </Button>
       </div>
       <div className=" flex flex-col space-y-3 mt-7">
-        {SUB_LINKS.map((link, i) => (
+        {links.map((link, i) => (
           <React.Fragment key={i}>
-            {SUB_LINKS.length > 2 && (i === 3 || i === 6) ? (
+            {links.length > 2 && (i === 3 || i === 6) ? (
               <div className=" w-[98%]  h-[1px] rounded-full  bg-muted mx-auto " />
             ) : null}
             <TooltipProvider delayDuration={150}>
@@ -186,11 +147,11 @@ const SideBar = () => {
 
 export default SideBar;
 
-export const SideBarMobile = () => {
+export const SideBarMobile = ({ links }: Props) => {
   const pathname = usePathname();
   return (
     <div className=" w-full flex gap-x-2  justify-center pb-2 px-2 sm:hidden border-t pt-1">
-      {SUB_LINKS.map((link, i) => (
+      {links.map((link, i) => (
         <Button
           key={i}
           variant="ghost"
@@ -198,7 +159,7 @@ export const SideBarMobile = () => {
           className={`${
             pathname === link.herf && " bg-secondary dark:bg-card "
           }}`}
-          style={{ width: `calc(90% / ${SUB_LINKS.length})` }}
+          style={{ width: `calc(90% / ${links.length})` }}
         >
           <Link href={link.herf}>
             <span>{link.icon}</span>{" "}

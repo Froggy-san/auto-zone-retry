@@ -145,8 +145,10 @@ export async function createClientAction({
   email,
   phones,
   user_id,
+  provider,
   picture,
 }: CreateClient & {
+  provider: string;
   user_id?: string;
   picture?: string;
 }) {
@@ -154,7 +156,7 @@ export async function createClientAction({
 
   const { data, error } = await supabase
     .from("clients")
-    .insert([{ name, email, user_id, picture }])
+    .insert([{ name, email, user_id, picture, provider }])
     .select();
 
   if (error) {

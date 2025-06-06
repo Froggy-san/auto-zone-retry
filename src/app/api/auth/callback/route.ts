@@ -16,12 +16,14 @@ export async function GET(request: Request) {
     // Check if the client already exists.
     if (!error && data) {
       const user = data.user.user_metadata;
+
       const user_id = data.user.id;
       const newClient = {
         name: user.full_name,
         email: user.email,
         picture: user.picture,
         user_id,
+        provider: "google",
         phones: [],
       };
       const { data: clients, error } = await supabase

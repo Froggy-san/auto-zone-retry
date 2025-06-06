@@ -16,6 +16,69 @@ export const metadata: Metadata = {
   description: "Manage your business.",
 };
 
+import {
+  ArrowLeftToLine,
+  ArrowRightToLine,
+  Car,
+  FolderKanban,
+  Grid2x2Plus,
+  House,
+  LockKeyhole,
+  LockKeyholeOpen,
+  LogOut,
+  Package,
+  PersonStanding,
+  SlidersVertical,
+} from "lucide-react";
+
+const ICON_SIZE = 22;
+
+const links = [
+  {
+    icon: <House size={ICON_SIZE} />,
+    title: "Home",
+    herf: "/dashboard",
+  },
+
+  {
+    icon: <Package size={ICON_SIZE} />,
+    title: "Inventory",
+    herf: "/dashboard/inventory",
+  },
+  // {
+  //   icon: <SlidersVertical size={ICON_SIZE} />,
+  //   title: "Settings",
+  //   herf: "/dashboard/settings",
+  // },
+
+  {
+    icon: <PersonStanding size={ICON_SIZE} />,
+    title: "Customers",
+    herf: "/dashboard/customers",
+  },
+  {
+    icon: <Car size={ICON_SIZE} />,
+    title: "Cars Data",
+    herf: "/dashboard/cars-data",
+  },
+
+  // {
+  //   icon: <TbBoxModel2 size={ICON_SIZE} />,
+  //   title: "Car Models",
+  //   herf: "/dashboard/car-models",
+  // },
+  // {
+  //   icon: <VscTypeHierarchySuper size={ICON_SIZE} />,
+  //   title: "Car Generations",
+  //   herf: "/dashboard/car-generations",
+  // },
+  {
+    icon: <Grid2x2Plus size={ICON_SIZE} />,
+    title: "Products Data",
+    herf: "/dashboard/insert-data",
+  },
+];
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <main
@@ -33,14 +96,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       <div className="flex     overflow-hidden  flex-1  ">
-        <SideBar />
+        <SideBar links={links} />
 
         <div className=" flex-1 overflow-y-auto max-h-full  p-2">
           {children}
         </div>
       </div>
 
-      <SideBarMobile />
+      <SideBarMobile links={links} />
     </main>
   );
 };
