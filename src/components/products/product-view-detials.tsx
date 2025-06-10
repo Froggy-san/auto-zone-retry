@@ -52,7 +52,7 @@ const ProdcutViewDetials = ({
             ) : null}
           </div>
 
-          {user?.sub === "admin" && (
+          {user?.user_metadata.role === "Admin" && (
             <div>
               <span>
                 Created at:{" "}
