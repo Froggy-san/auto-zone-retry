@@ -126,7 +126,12 @@ const ClientForm = ({
         });
         if (error) throw new Error(error);
       } else {
-        const data = await createClientAction({ name, email, phones });
+        const data = await createClientAction({
+          name,
+          email,
+          phones,
+          provider: "Email",
+        });
         if (data?.error) throw new Error(data.error);
       }
       handleClose();
