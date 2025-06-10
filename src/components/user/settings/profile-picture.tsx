@@ -15,6 +15,7 @@ interface Image extends FileWithPath {
 interface Props {
   image: FileWithPath | null;
   disabled: boolean;
+  currPic: string;
   rejectedFiles: RejectionFiles[];
   setRejectedFiles: React.Dispatch<React.SetStateAction<RejectionFiles[]>>;
   setFile: React.Dispatch<React.SetStateAction<FileWithPath | null>>;
@@ -24,6 +25,7 @@ export default function ProfilePicture({
   image,
   disabled,
   rejectedFiles,
+  currPic,
   setRejectedFiles,
   setFile,
 }: Props) {
@@ -83,7 +85,7 @@ export default function ProfilePicture({
   //   });
   // }, 200);
 
-  const viewedImage = image ? URL.createObjectURL(image) : "";
+  const viewedImage = image ? URL.createObjectURL(image) : currPic;
   const fileType = image ? image.type.split("/")[0] : "";
 
   useEffect(() => {
@@ -136,7 +138,7 @@ export default function ProfilePicture({
           <Label>Profile image:</Label>
           <Input
             onClick={(e) => e.stopPropagation()}
-            defaultValue={image ? image.path : ""}
+            value={image ? image.path : viewedImage}
             className="flex-1 max-w-[85%]  "
           />
           <div

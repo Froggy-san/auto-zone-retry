@@ -3,7 +3,13 @@ import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import { RejectionFiles, User } from "@lib/types";
-import React, { FormEvent, useEffect, useRef, useState } from "react";
+import React, {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { FileRejection, FileWithPath } from "react-dropzone";
 import {
   Select,
@@ -38,6 +44,12 @@ interface Props {
   };
 }
 
+type DefaultValues = {
+  full_name: string;
+  role: string;
+  avatar_url: string;
+};
+
 interface Image extends FileWithPath {
   preview: string;
 }
@@ -46,7 +58,7 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
   const avatar_url = user.user_metadata?.avatar_url || "";
   const userRole = user.user_metadata?.role || "User";
 
-  const defaultValues = {
+  const defaultValues: DefaultValues = {
     full_name,
     avatar_url,
     role: userRole,
@@ -58,7 +70,6 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
   const [role, setRole] = useState(userRole);
   const [rejectedFiles, setRejectedFiles] = useState<RejectionFiles[]>([]);
   const [updateClient, setUpdateClient] = useState(false);
-  // const [errors, setErrors] = useState({});
   const { toast } = useToast();
 
   const formValues = {
@@ -81,6 +92,12 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
   //     ? file
   //     : avatar_url || "";
 
+  const handleReset = useCallback(() => {
+    setUsername(defaultValues.full_name);
+    setRole(defaultValues.role);
+    setFile(null);
+  }, [defaultValues]);
+
   async function handleUpdateUser(e: FormEvent) {
     e.preventDefault();
     // if(disabled) return
@@ -91,6 +108,7 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
     formData.append("avatar_url", file || "");
     formData.append("isCurrUser", String(isCurrUser));
     formData.append("id", String(user.id));
+    formData.append("currUserPic", avatar_url);
     setIsLoading(true);
     try {
       const { error } = await updateUserAction(formData);
@@ -159,45 +177,54 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
           </AnimatePresence>
         </div>
 
-        <div className=" flex items-center justify-between gap-5">
-          <Label htmlFor="username">Role:</Label>
-          <div className="flex  items-center justify-between gap-5  max-w-[85%]  flex-1  ">
-            <Select defaultValue="User" onValueChange={setRole}>
-              <SelectTrigger className=" flex-1 ">
-                <SelectValue placeholder="Role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="User">User</SelectItem>
-                <SelectItem value="Admin">Admin</SelectItem>
-              </SelectContent>
-            </Select>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger type="button" asChild>
-                  <div className=" inline">
-                    <Checkbox
-                      checked={updateClient}
-                      onClick={() => setUpdateClient((is) => !is)}
-                    />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Should update the client's data.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+        {isAdmin && (
+          <div className=" flex items-center justify-between gap-5">
+            <Label htmlFor="username">Role:</Label>
+            <div className="flex  items-center justify-between gap-5  max-w-[85%]  flex-1  ">
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger className=" flex-1 ">
+                  <SelectValue placeholder="Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="User">User</SelectItem>
+                  <SelectItem value="Admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger type="button" asChild>
+                    <div className=" inline">
+                      <Checkbox
+                        checked={updateClient}
+                        onClick={() => setUpdateClient((is) => !is)}
+                      />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Should update the client&apos;s data.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
-        </div>
+        )}
 
         <ProfilePicture
           image={file}
+          currPic={avatar_url}
           disabled={isLoading}
           rejectedFiles={rejectedFiles}
           setFile={setFile}
           setRejectedFiles={setRejectedFiles}
         />
         <div className=" flex items-center  justify-end gap-2">
-          <Button type="button" variant="secondary" size="sm">
+          <Button
+            onClick={handleReset}
+            disabled={disabled}
+            type="button"
+            variant="secondary"
+            size="sm"
+          >
             Reset
           </Button>
           <Button type="submit" disabled={disabled} size="sm">
@@ -205,7 +232,10 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
           </Button>
         </div>
       </form>
-      <RejectedFiles rejectedFiles={rejectedFiles} />
+      <RejectedFiles
+        rejectedFiles={rejectedFiles}
+        setRejected={setRejectedFiles}
+      />
     </section>
   );
 };

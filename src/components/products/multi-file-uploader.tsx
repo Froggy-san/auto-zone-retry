@@ -18,6 +18,7 @@ import {
   ProgressBarContainer,
   ProgressMeter,
 } from "@components/progress";
+import { byteSize } from "@lib/constants";
 
 interface MultiFileUploaderProps {
   isMainImage: ProductImage | number | null;
@@ -28,8 +29,6 @@ interface MultiFileUploaderProps {
   disabled?: boolean;
   handleDeleteMedia: (image: ProductImage) => void;
 }
-
-const byteSize = 1048576;
 
 export function MultiFileUploader({
   isMainImage,
