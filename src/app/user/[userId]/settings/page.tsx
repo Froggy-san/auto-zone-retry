@@ -17,7 +17,7 @@ const Page = async ({ params }: Props) => {
   const userId = params.userId || "";
 
   const { data, error } = await getUserById(userId);
-  console.log("USER", data);
+
   return (
     <main className=" relative" id="settings-page">
       <h2 className="  font-semibold text-4xl">SETTINGS.</h2>

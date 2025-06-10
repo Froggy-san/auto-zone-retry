@@ -8,6 +8,9 @@ import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@utils/supabase/server";
 import { createClientAction } from "./clientActions";
+import { SUPABASE_URL } from "@lib/constants";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { deleteImageFromBucketAction } from "@lib/services/server-helpers";
 
 export async function revalidateHomePage() {
   revalidatePath("/", "layout");
@@ -187,21 +190,25 @@ export async function getUserById(userId: string) {
   }
 }
 
-export async function updateUserAction(formData: FormData) {
+interface UpdateUserProps {
+  id: string;
+  username: string;
+  isCurrUser: boolean;
+  role: string;
+  avatar_url?: string;
+  password?: string;
+}
+
+async function updateUser(
+  { id, username, isCurrUser, role, avatar_url, password }: UpdateUserProps,
+  supabase: SupabaseClient
+) {
   // https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/avatars//499916568_1268010505331789_2764471559810878394_n.jpg
 
-  const id = formData.get("id") as string;
-  const username = formData.get("username");
-  const password = formData.get("password") as string; // Assert it as string or null
-  const avatar_url = formData.get("avatar_url");
-  const role = formData.get("role");
-  const isCurrUser = formData.get("isCurrUser");
   try {
-    const supabase = await createClient(true);
-
     if (isCurrUser) {
       const { data, error } = await supabase.auth.updateUser({
-        password: password ? password : undefined,
+        password,
         data: { role, avatar_url, full_name: username },
       });
 
@@ -221,6 +228,78 @@ export async function updateUserAction(formData: FormData) {
       revalidatePath(`/user/${id}`, "layout");
       return { data, error };
     }
+  } catch (error) {
+    if (error instanceof Error) return { data: null, error: error.message };
+    else
+      return {
+        data: null,
+        error: "Something went wrong while updating the user's details.",
+      };
+  }
+}
+
+export async function updateUserAction(formData: FormData) {
+  const id = formData.get("id") as string;
+  const username = formData.get("username") as string;
+  const password = formData.get("password") as string; // Assert it as string or null
+  const avatar_url = formData.get("avatar_url") as File | undefined;
+  const role = formData.get("role") as string;
+  const isCurrUser = formData.get("isCurrUser") as string;
+  const currUserPic = formData.get("currUserPic") as string;
+
+  const imageName = avatar_url
+    ? `${Math.random()}-${avatar_url.name}`.replace(/\//g, "")
+    : undefined;
+  const imagePath = imageName
+    ? `${SUPABASE_URL}/storage/v1/object/public/avatars/${imageName}`
+    : undefined;
+
+  const updatedData = {
+    id,
+    username,
+    password,
+    role,
+    avatar_url: imagePath,
+    isCurrUser: JSON.parse(isCurrUser),
+  };
+  try {
+    const supabase = await createClient(true);
+
+    // 1. Edit user details.
+    const { data, error } = await updateUser(updatedData, supabase);
+    if (error) throw new Error(error);
+
+    // 2. upload profile picture.
+
+    if (imageName && avatar_url) {
+      const { data, error } = await supabase.storage
+        .from(`avatars`)
+        .upload(imageName, avatar_url);
+
+      // In case the file failed to upload.
+      if (error) {
+        console.log(`Storage Error: ${error.message}`);
+        const { error: updateError } = await updateUser(
+          { ...updatedData, avatar_url: currUserPic },
+          supabase
+        );
+
+        if (error) throw new Error(error.message);
+      }
+    }
+
+    // 3. Delete user's picture if it exists.
+
+    if (currUserPic) {
+      const { error } = await deleteImageFromBucketAction({
+        bucketName: "avatars",
+        imagePaths: [currUserPic],
+      });
+
+      if (error) throw new Error(error.message);
+    }
+
+    return { error: "" };
   } catch (error) {
     if (error instanceof Error) return { data: null, error: error.message };
     else
