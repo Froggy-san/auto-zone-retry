@@ -21,6 +21,7 @@ interface Props {
   };
 }
 const UpdatePassword = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
+  // user.user_metadata.providor
   const [password, setPassword] = useState("");
   const [confPass, setConfPass] = useState("");
   const [isLoading, setIsLoading] = useState(false);
