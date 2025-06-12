@@ -10,7 +10,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { FileRejection, FileWithPath } from "react-dropzone";
+import { FileWithPath } from "react-dropzone";
 import {
   Select,
   SelectContent,
@@ -147,96 +147,107 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
   // }, [image]);
 
   return (
-    <section className=" space-y-5 max-w-[760px] mt-20  w-full mx-auto p-6 rounded-xl bg-card/30 border">
-      <div className=" flex items-center justify-between gap-5">
-        <Label htmlFor="email">Email:</Label>
-        <Input
-          disabled={true}
-          id="email"
-          value={user?.email}
-          className="flex-1 max-w-[85%]"
-        />
-      </div>
-
-      <form onSubmit={handleUpdateUser} ref={formRef} className=" space-y-5 ">
-        <div className=" space-y-2">
-          <div className=" flex items-center   justify-between gap-5">
-            <Label htmlFor="username">Username:</Label>
-            <Input
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="flex-1 max-w-[85%]"
-            />
-            {/* <FormErrorMessage  >adas</FormErrorMessage> */}
-          </div>
-          <AnimatePresence>
-            {errors.username && (
-              <FormErrorMessage>{errors.username}</FormErrorMessage>
-            )}
-          </AnimatePresence>
+    <>
+      <section className=" space-y-5 max-w-[760px] mt-20  w-full mx-auto p-6 rounded-xl bg-card/30 border shadow-lg">
+        <h2 className=" text-xl sm:text-base font-semibold border-b pb-2">
+          Profile details
+        </h2>
+        <div className=" flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <Label htmlFor="email">Email:</Label>
+          <Input
+            disabled={true}
+            id="email"
+            value={user?.email}
+            className=" sm:flex-1   sm:max-w-[85%]"
+          />
         </div>
 
-        {isAdmin && (
-          <div className=" flex items-center justify-between gap-5">
-            <Label htmlFor="username">Role:</Label>
-            <div className="flex  items-center justify-between gap-5  max-w-[85%]  flex-1  ">
-              <Select value={role} onValueChange={setRole}>
-                <SelectTrigger className=" flex-1 ">
-                  <SelectValue placeholder="Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="User">User</SelectItem>
-                  <SelectItem value="Admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger type="button" asChild>
-                    <div className=" inline">
-                      <Checkbox
-                        checked={updateClient}
-                        onClick={() => setUpdateClient((is) => !is)}
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Should update the client&apos;s data.
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+        <form onSubmit={handleUpdateUser} ref={formRef} className=" space-y-5 ">
+          <div className=" space-y-2">
+            <div className=" flex flex-col sm:flex-row sm:items-center   justify-between gap-5">
+              <Label htmlFor="username">Username:</Label>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="sm:flex-1 sm:max-w-[85%]"
+              />
+              {/* <FormErrorMessage  >adas</FormErrorMessage> */}
             </div>
+            <AnimatePresence>
+              {errors.username && (
+                <FormErrorMessage>{errors.username}</FormErrorMessage>
+              )}
+            </AnimatePresence>
           </div>
-        )}
 
-        <ProfilePicture
-          image={file}
-          currPic={avatar_url}
-          disabled={isLoading}
-          rejectedFiles={rejectedFiles}
-          setFile={setFile}
-          setRejectedFiles={setRejectedFiles}
-        />
-        <div className=" flex items-center  justify-end gap-2">
-          <Button
-            onClick={handleReset}
-            disabled={disabled}
-            type="button"
-            variant="secondary"
-            size="sm"
-          >
-            Reset
-          </Button>
-          <Button type="submit" disabled={disabled} size="sm">
-            {isLoading ? <Spinner /> : "Submit"}
-          </Button>
-        </div>
-      </form>
+          {isAdmin && (
+            <div className=" flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+              <Label htmlFor="role">Role:</Label>
+              <div className="flex  items-center justify-between gap-5  sm:max-w-[85%]  flex-1  ">
+                <Select value={role} onValueChange={setRole}>
+                  <SelectTrigger className=" flex-1 ">
+                    <SelectValue placeholder="Role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="User">User</SelectItem>
+                    <SelectItem value="Admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger type="button" asChild>
+                      <div className=" inline">
+                        <Checkbox
+                          checked={updateClient}
+                          onClick={() => setUpdateClient((is) => !is)}
+                        />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Should update the client&apos;s data.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+          )}
+
+          <ProfilePicture
+            image={file}
+            currPic={avatar_url}
+            disabled={isLoading}
+            rejectedFiles={rejectedFiles}
+            setFile={setFile}
+            setRejectedFiles={setRejectedFiles}
+          />
+          <div className=" flex flex-col sm:flex-row items-center  justify-end gap-2">
+            <Button
+              onClick={handleReset}
+              disabled={disabled}
+              type="button"
+              variant="secondary"
+              size="sm"
+              className=" w-full sm:w-fit"
+            >
+              Reset
+            </Button>
+            <Button
+              type="submit"
+              disabled={disabled}
+              size="sm"
+              className=" w-full sm:w-fit"
+            >
+              {isLoading ? <Spinner /> : "Submit"}
+            </Button>
+          </div>
+        </form>
+      </section>
       <RejectedFiles
         rejectedFiles={rejectedFiles}
         setRejected={setRejectedFiles}
       />
-    </section>
+    </>
   );
 };
 

@@ -6,6 +6,7 @@ import {
 } from "@supabase/supabase-js";
 import { FileRejection } from "react-dropzone";
 import { z } from "zod";
+import { MIN_PASS_LENGTH } from "./constants";
 
 export function validateEgyptianPhoneNumber(phoneNumber: string) {
   "use client";
@@ -47,11 +48,11 @@ export const SignUpFormSchema = z
     password: z
       .string()
       .describe("Password")
-      .min(6, { message: "Invaild password" }),
+      .min(MIN_PASS_LENGTH, { message: "Invaild password" }),
     confirmPassword: z
       .string()
       .describe("Confirm Password")
-      .min(6, { message: "Invaild password" }),
+      .min(MIN_PASS_LENGTH, { message: "Invaild password" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match.",

@@ -1,6 +1,7 @@
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import { downloadImage, urlToFile } from "@lib/client-helpers";
+import { maxFiles, maxSize } from "@lib/constants";
 import { RejectionFiles } from "@lib/types";
 import { cn } from "@lib/utils";
 import { debounce } from "lodash";
@@ -29,9 +30,6 @@ export default function ProfilePicture({
   setRejectedFiles,
   setFile,
 }: Props) {
-  const maxSize = 1000000;
-  const maxFiles = 1;
-
   // const [url, setUrl] = useState(profilePic || "");
 
   // const image =
@@ -134,40 +132,43 @@ export default function ProfilePicture({
     <>
       <div {...getRootProps()}>
         <input {...getInputProps()} />
-        <div className=" flex items-center gap-5 justify-between ">
+        <div className=" flex flex-col sm:flex-row sm:items-center gap-5 justify-between ">
           <Label>Profile image:</Label>
-          <Input
-            onClick={(e) => e.stopPropagation()}
-            value={image ? image.path : viewedImage}
-            className="flex-1 max-w-[85%]  "
-          />
-          <div
-            className={cn(
-              " w-14 h-14 flex mt-3  mx-auto cursor-pointer   items-center overflow-hidden  justify-center rounded-xl border",
-              {
-                " opacity-55": isDragActive,
-              }
-            )}
-          >
-            {viewedImage ? (
-              fileType === "video" ? (
-                <video
-                  src={viewedImage}
-                  autoPlay
-                  controls={false}
-                  muted
-                  loop
-                  className=" w-full h-full object-cover  object-top   "
-                />
+
+          <div className=" flex items-center gap-3 sm:flex-1 sm:max-w-[85%]  ">
+            <Input
+              onClick={(e) => e.stopPropagation()}
+              value={image ? image.path : viewedImage}
+              className="  flex-1 "
+            />
+            <div
+              className={cn(
+                " w-14 h-14 flex mt-3  mx-auto cursor-pointer   items-center overflow-hidden  justify-center rounded-xl border",
+                {
+                  " opacity-55": isDragActive,
+                }
+              )}
+            >
+              {viewedImage ? (
+                fileType === "video" ? (
+                  <video
+                    src={viewedImage}
+                    autoPlay
+                    controls={false}
+                    muted
+                    loop
+                    className=" w-full h-full object-cover  object-top   "
+                  />
+                ) : (
+                  <img
+                    src={viewedImage}
+                    className=" w-full h-full object-cover  object-top   "
+                  />
+                )
               ) : (
-                <img
-                  src={viewedImage}
-                  className=" w-full h-full object-cover  object-top   "
-                />
-              )
-            ) : (
-              <Upload size={20} />
-            )}
+                <Upload size={20} />
+              )}
+            </div>
           </div>
         </div>
       </div>

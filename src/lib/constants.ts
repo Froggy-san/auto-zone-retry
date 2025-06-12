@@ -6,6 +6,7 @@ export const PAGE_SIZE = 12;
 export const MAKER_PAGE_SIZE = 20;
 export const PILL_SIZE = 30;
 export const byteSize = 1048576;
+export const MIN_PASS_LENGTH = 6;
 export const DEFAULT_PRODUCT_PIC =
   "https://mywarsha.blob.core.windows.net/mywarshaimages/Product-inside.png";
 export const STATIC_IMAGES = [
@@ -19,5 +20,5 @@ export const STATIC_IMAGES = [
 export const SUPABASE_URL = "https://umkyoinqpknmedkowqva.supabase.co";
 
 // /app/user/[userID]
-export const maxSize = 4000000;
+export const maxSize = 1000000;
 export const maxFiles = 1;
