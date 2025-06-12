@@ -205,27 +205,30 @@ async function updateUser(
 ) {
   // https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/avatars//499916568_1268010505331789_2764471559810878394_n.jpg
 
+  const name = username.length ? username : undefined;
+  const userRole = role.length ? role : undefined;
+
   try {
     if (isCurrUser) {
       const { data, error } = await supabase.auth.updateUser({
         password,
-        data: { role, avatar_url, full_name: username },
+        data: { role: userRole, avatar_url, full_name: name },
       });
 
       if (error) throw new Error(error.message);
-      revalidatePath(`/user/${id}`, "layout");
+
       return { data, error };
     } else {
       // Don't allow and admin account to change the password of another user.
       const { data, error } = await supabase.auth.admin.updateUserById(id, {
         user_metadata: {
-          role,
+          role: userRole,
           avatar_url,
-          full_name: username,
+          full_name: name,
         },
       });
       if (error) throw new Error(error.message);
-      revalidatePath(`/user/${id}`, "layout");
+
       return { data, error };
     }
   } catch (error) {
@@ -290,7 +293,7 @@ export async function updateUserAction(formData: FormData) {
 
     // 3. Delete user's picture if it exists.
 
-    if (currUserPic) {
+    if (avatar_url && currUserPic) {
       const { error } = await deleteImageFromBucketAction({
         bucketName: "avatars",
         imagePaths: [currUserPic],
@@ -298,7 +301,7 @@ export async function updateUserAction(formData: FormData) {
 
       if (error) throw new Error(error.message);
     }
-
+    revalidatePath(`/user/${id}`, "layout");
     return { error: "" };
   } catch (error) {
     if (error instanceof Error) return { data: null, error: error.message };

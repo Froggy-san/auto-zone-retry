@@ -38,7 +38,6 @@ function RejectedFiles({
       const item = rejectedFiles[index];
       URL.revokeObjectURL(item.preview);
       const newArr = rejectedFiles.toSpliced(index, 1);
-      console.log("NEW ARRAY", newArr);
       setRejected(newArr);
     },
     [rejectedFiles, setRejected]
@@ -46,8 +45,8 @@ function RejectedFiles({
 
   return (
     <ClickAwayListener onClickAway={() => setOpen(false)}>
-      <section className="fixed left-1/2 transform -translate-x-1/2 bottom-7 z-50">
-        <div className="relative w-full">
+      <section className="  mx-auto w-fit  mt-10">
+        <div className="relative inline">
           <AnimatePresence mode="wait">
             {open && (
               <motion.div
@@ -59,7 +58,13 @@ function RejectedFiles({
                   y: 50, // Start a bit lower for a slide-up effect
                 }}
                 animate={{
-                  width: rejectedFiles.length ? (isBigScreen ? 450 : 300) : 350,
+                  width: rejectedFiles.length
+                    ? isBigScreen
+                      ? 450
+                      : 300
+                    : isBigScreen
+                    ? 350
+                    : 300,
                   opacity: 1,
                   y: 0,
                   transition: { type: "spring", stiffness: 300, damping: 15 },
@@ -71,7 +76,7 @@ function RejectedFiles({
                   y: 50,
                   transition: { duration: 0.2 },
                 }}
-                className="bg-card border  absolute bottom-full mb-2 left-1/2 !transform -translate-x-1/2 p-3 rounded-xl shadow-lg "
+                className="bg-card border  absolute bottom-[30px] mb-2 left-1/2 !transform -translate-x-1/2 p-3 rounded-xl shadow-lg "
                 // Positioned the popup above the button
               >
                 <div className=" flex items-center justify-between">
@@ -221,7 +226,7 @@ const Item = React.forwardRef<HTMLDivElement, ItemProps>(
         ref={scope}
         className=" rounded-xl   relative bg-muted-foreground/10  dark:bg-accent/50  overflow-hidden    transition-all  hover:scale-[97%] max-h-28  hover:bg-muted-foreground/20 dark:hover:bg-accent/25  flex  item  "
       >
-        <CloseButton onClick={handleDelRejected} />
+        <CloseButton onClick={handleDelRejected} className=" top-2  right-1" />
         {type === "video" ? (
           <video
             autoPlay
@@ -237,7 +242,9 @@ const Item = React.forwardRef<HTMLDivElement, ItemProps>(
         )}
 
         <div className=" p-1 pl-2 space-y-2">
-          <p className="  font-semibold line-clamp-2">{rejected.file.name}.</p>
+          <p className="  font-semibold line-clamp-2 pr-2 max-w-full ">
+            {rejected.file.name}.
+          </p>
           <p className=" text-xs text-red-600">
             {`File is larger than ${Math.round(maxSize / byteSize)}MB`}.
           </p>
