@@ -10,7 +10,7 @@ const DeleteAccount = () => {
       <div className=" flex  items-center justify-between gap-5">
         <p className=" text-muted-foreground text-sm">
           Once deleting your account all your data will be lost for ever and
-          can't be retrieved again.
+          can&apos;t be retrieved again.
         </p>{" "}
         <Button variant="destructive">Delete</Button>
       </div>
