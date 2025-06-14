@@ -36,6 +36,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import RejectedFiles from "./rejected-files";
+import { useQueryClient } from "@tanstack/react-query";
 interface Props {
   userData: {
     isAdmin: boolean;
@@ -68,6 +69,7 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
   const [username, setUsername] = useState<string>(full_name);
   const [file, setFile] = useState<FileWithPath | null>(null);
   const [role, setRole] = useState(userRole);
+  const queryClient = useQueryClient();
   const [rejectedFiles, setRejectedFiles] = useState<RejectionFiles[]>([]);
   const [updateClient, setUpdateClient] = useState(false);
   const { toast } = useToast();
@@ -114,6 +116,7 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
       const { error } = await updateUserAction(formData);
       if (error) throw new Error(error);
 
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       toast({
         className: "bg-primary  text-primary-foreground",
         title: `Done.`,

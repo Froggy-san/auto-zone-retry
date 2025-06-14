@@ -1,18 +1,57 @@
+"use client";
 import { Button } from "@components/ui/button";
 import React from "react";
-
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useSearchParams } from "next/navigation";
 const DeleteAccount = () => {
+  const searchParams = useSearchParams();
+
   return (
-    <section className="space-y-5 max-w-[760px] mt-20  w-full mx-auto p-6 rounded-xl bg-card/30 border shadow-lg">
-      <h2 className=" text-xl sm:text-base font-semibold border-b pb-2">
+    <section className="space-y-5 max-w-[760px] mt-20  w-full mx-auto p-6 rounded-xl bg-destructive/30  dark:bg-destructive/10 border border-destructive shadow-lg">
+      <h2 className=" text-xl sm:text-base font-semibold border-b border-b-destructive pb-2">
         Delete account
       </h2>
       <div className=" flex  items-center justify-between gap-5">
-        <p className=" text-muted-foreground text-sm">
+        <p className=" dark:text-muted-foreground text-sm">
           Once deleting your account all your data will be lost for ever and
           can&apos;t be retrieved again.
         </p>{" "}
-        <Button variant="destructive">Delete</Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="destructive" size="sm">
+              Delete
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Delete account</DialogTitle>
+              <DialogDescription>
+                The decision to delete your account will take effect after 30
+                days. You can cancel this deletion at any time before then.
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline" size="sm">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" size="sm" variant="destructive">
+                Save changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );

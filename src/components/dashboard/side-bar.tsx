@@ -25,9 +25,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useToast } from "@hooks/use-toast";
 import { ErorrToastDescription } from "@components/toast-items";
+import UserUi from "@components/user-ui";
 
 <ArrowLeftToLine />;
 <ArrowRightToLine />;
@@ -43,7 +44,14 @@ interface Props {
 const SideBar = ({ links }: Props) => {
   const [collapse, setCollapse] = useState(true);
   const [lock, setLock] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+
+  // useEffect(() => {
+  //   const body = document.querySelector("body");
+  //   if (!menuOpen && !collapse && !lock) setCollapse(true);
+  //   if (body) body.style.pointerEvents = "auto";
+  // }, [menuOpen, setCollapse]);
 
   return (
     <motion.aside
@@ -51,7 +59,7 @@ const SideBar = ({ links }: Props) => {
         if (collapse && !lock) setCollapse(false);
       }}
       onMouseLeave={() => {
-        if (!collapse && !lock) setCollapse(true);
+        if (!collapse && !lock && !menuOpen) setCollapse(true);
       }}
       animate={{
         width: !collapse ? 200 : 63,
@@ -139,8 +147,14 @@ const SideBar = ({ links }: Props) => {
           </React.Fragment>
         ))}
       </div>
-
-      <LogoutBtn collapse={collapse} lock={lock} />
+      <UserUi
+        open={menuOpen}
+        setOpen={setMenuOpen}
+        collapse={collapse}
+        lock={lock}
+        setCollapse={setCollapse}
+      />
+      {/* <LogoutBtn collapse={collapse} lock={lock} /> */}
     </motion.aside>
   );
 };
