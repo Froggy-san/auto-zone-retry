@@ -229,6 +229,11 @@ async function updateUser(
       });
       if (error) throw new Error(error.message);
 
+      // if the user succesfully changed their password, log them out of they account.
+      if (password) {
+        const error = await logoutUser();
+        if (error) throw new Error(error);
+      }
       return { data, error };
     }
   } catch (error) {

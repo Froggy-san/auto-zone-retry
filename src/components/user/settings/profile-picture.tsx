@@ -138,7 +138,7 @@ export default function ProfilePicture({
           <div className=" flex items-center gap-3 sm:flex-1 sm:max-w-[85%]  ">
             <Input
               onClick={(e) => e.stopPropagation()}
-              value={image ? image.path : viewedImage}
+              defaultValue={image ? image.path : viewedImage}
               className="  flex-1 "
             />
             <div
