@@ -21,7 +21,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, Props>(
     //   },
     //   [setValue, onChange]
     // );
-    console.log("Show", isShow);
+
     const handleShow = useCallback(() => {
       setIsShowPass((show) => !show);
       setShow?.((show) => !show);

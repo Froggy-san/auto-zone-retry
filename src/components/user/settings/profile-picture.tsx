@@ -132,13 +132,13 @@ export default function ProfilePicture({
     <>
       <div {...getRootProps()}>
         <input {...getInputProps()} />
-        <div className=" flex flex-col sm:flex-row sm:items-center gap-5 justify-between ">
+        <div className=" flex flex-col md:flex-row md:items-center gap-x-5 justify-between ">
           <Label>Profile image:</Label>
 
-          <div className=" flex items-center gap-3 sm:flex-1 sm:max-w-[85%]  ">
+          <div className=" flex items-center gap-3 md:flex-1 md:max-w-[85%]  ">
             <Input
               onClick={(e) => e.stopPropagation()}
-              defaultValue={image ? image.path : viewedImage}
+              value={image ? image.path : viewedImage}
               className="  flex-1 "
             />
             <div

@@ -11,23 +11,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useSearchParams } from "next/navigation";
-const DeleteAccount = () => {
-  const searchParams = useSearchParams();
 
+const DeleteAccount = () => {
   return (
-    <section className="space-y-5 max-w-[760px] mt-20  w-full mx-auto p-6 rounded-xl bg-destructive/30  dark:bg-destructive/10 border border-destructive shadow-lg">
+    <section className="space-y-5 max-w-[760px] mt-20  w-full p-6 rounded-xl bg-destructive/30  dark:bg-destructive/10 border border-destructive shadow-lg">
       <h2 className=" text-xl sm:text-base font-semibold border-b border-b-destructive pb-2">
         Delete account
       </h2>
-      <div className=" flex  items-center justify-between gap-5">
-        <p className=" dark:text-muted-foreground text-sm">
+      <div className=" flex flex-col  sm:flex-row items-center justify-between gap-5">
+        <p className=" dark:text-muted-foreground text-center sm:text-left text-sm">
           Once deleting your account all your data will be lost for ever and
           can&apos;t be retrieved again.
         </p>{" "}
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="destructive" size="sm">
+            <Button
+              variant="destructive"
+              size="sm"
+              className=" w-full sm:w-fit "
+            >
               Delete
             </Button>
           </DialogTrigger>

@@ -2,9 +2,10 @@ import ErrorMessage from "@components/error-message";
 import DeleteAccount from "@components/user/settings/delete-accont";
 import UpdatePassword from "@components/user/settings/update-password";
 import UpdateUser from "@components/user/settings/update-user";
+import User from "@components/user/settings/user";
 
 import { getUserById } from "@lib/actions/authActions";
-import { User } from "@lib/types";
+
 import React from "react";
 
 type Params = {
@@ -31,15 +32,19 @@ const Page = async ({ params }: Props) => {
           </ErrorMessage>
         ) : null}
         {data ? (
-          <>
-            <UpdateUser userData={data} />
-            <UpdatePassword userData={data} />
-          </>
+          <div className=" flex sm:flex-row flex-col-reverse sm:gap-3 lg:gap-8 ">
+            <div className=" flex-1 flex flex-col  items-end">
+              <UpdateUser userData={data} />
+              <UpdatePassword userData={data} />
+              <DeleteAccount />
+            </div>
+            <div className="  mx-auto  md:mr-2 lg:mr-5">
+              <User user={data.user} />
+            </div>
+          </div>
         ) : (
           "Couldn't find user"
         )}
-
-        <DeleteAccount />
       </section>
     </main>
   );

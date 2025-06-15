@@ -167,7 +167,7 @@ export async function getUserById(userId: string) {
     if (!data.user) throw new Error(`No user found with the id of ${userId}`);
 
     const userById = data.user;
-    const isAdmin = userById.user_metadata?.role === "Admin";
+    const isAdmin = currUser.user_metadata?.role === "Admin";
     const sameLoggedUser = currUser.id === userById.id;
 
     if (!isAdmin && !sameLoggedUser)
@@ -178,7 +178,7 @@ export async function getUserById(userId: string) {
       isAdmin: boolean;
       isCurrUser: boolean;
     } = {
-      user: currUser,
+      user: userById,
       isAdmin: isAdmin,
       isCurrUser: userById.id === currUser.id,
     };
