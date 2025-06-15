@@ -44,15 +44,18 @@ const UserUi = ({ lock, collapse, open, setOpen, setCollapse }: Props) => {
   const { isLoading, user } = useCurrUser();
   const { toast } = useToast();
   const pathname = usePathname();
-  const isSettings = pathname.endsWith("settings");
-  const isActivities = pathname.split("/").length <= 3 && pathname.endsWith("");
+  const params = useParams();
 
   if (isLoading) return <Spinner className=" h-fit mb-2" />;
   if (!user?.user) return null; // Change this line later.
-
+  const userId = params.userId;
   const userData = user.user;
   const image = userData?.user_metadata.avatar_url;
   const name = userData?.user_metadata.full_name;
+  const sameUser = userId === userData.id;
+  const isSettings = pathname.endsWith("settings") && sameUser;
+  const isActivities =
+    pathname.split("/").length <= 3 && pathname.endsWith("") && sameUser;
 
   function handleOpenMenu() {
     setOpen((isOpen) => {

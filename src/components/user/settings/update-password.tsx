@@ -21,11 +21,11 @@ interface Props {
   };
 }
 const UpdatePassword = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
-  // user.user_metadata.providor
   const [password, setPassword] = useState("");
   const [confPass, setConfPass] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const isThirdParty = user.app_metadata.provider != "email";
 
   let firstFieldError = "";
   let secondFieldError = "";
@@ -40,6 +40,7 @@ const UpdatePassword = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
     secondFieldError = "Confirm password is too short";
 
   const disabled =
+    isThirdParty ||
     isLoading ||
     !password.length ||
     !confPass.length ||
@@ -87,19 +88,20 @@ const UpdatePassword = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
   }
 
   return (
-    <section className="space-y-5 max-w-[760px] mt-20  w-full mx-auto p-6 rounded-xl bg-card/30 border shadow-lg">
+    <section className="space-y-5 max-w-[760px] mt-20  w-full  p-6 rounded-xl bg-card/30 border shadow-lg">
       <h2 className=" text-xl sm:text-base font-semibold border-b pb-2">
         Password
       </h2>
       <form onSubmit={handleSubmit} className=" space-y-5">
         <div>
-          <div className=" flex flex-col sm:flex-row sm:items-center   justify-between gap-5">
+          <div className=" flex flex-col lg:flex-row lg:items-center   justify-between gap-5">
             <Label htmlFor="password">Password:</Label>
             <PasswordInput
               id="password"
               value={password}
+              disabled={isLoading || isThirdParty}
               onChange={(e) => setPassword(e.target.value)}
-              className="sm:flex-1 sm:max-w-[80%]"
+              className="lg:flex-1 lg:max-w-[80%]"
             />
           </div>
           <AnimatePresence>
@@ -111,12 +113,13 @@ const UpdatePassword = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
           </AnimatePresence>
         </div>
         <div>
-          <div className=" flex flex-col sm:flex-row sm:items-center   justify-between gap-5">
+          <div className=" flex flex-col lg:flex-row lg:items-center   justify-between gap-5">
             <Label htmlFor="confirm">Confirm password:</Label>
             <PasswordInput
               id="confirm"
               value={confPass}
-              className="sm:flex-1 sm:max-w-[80%]"
+              className="lg:flex-1 lg:max-w-[80%]"
+              disabled={isLoading || isThirdParty}
               onChange={(e) => setConfPass(e.target.value)}
             />
           </div>
@@ -128,14 +131,14 @@ const UpdatePassword = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
             )}
           </AnimatePresence>
         </div>
-        <div className=" flex flex-col sm:flex-row items-center  justify-end gap-2">
+        <div className=" flex flex-col md:flex-row items-center  justify-end gap-2">
           <Button
             onClick={handleReset}
             disabled={disabled}
             type="button"
             variant="secondary"
             size="sm"
-            className=" w-full sm:w-fit"
+            className=" w-full md:w-fit"
           >
             Reset
           </Button>
@@ -143,7 +146,7 @@ const UpdatePassword = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
             type="submit"
             disabled={disabled}
             size="sm"
-            className=" w-full sm:w-fit"
+            className=" w-full md:w-fit"
           >
             {isLoading ? <Spinner /> : "Submit"}
           </Button>

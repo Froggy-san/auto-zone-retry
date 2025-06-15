@@ -150,30 +150,30 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
   // }, [image]);
 
   return (
-    <>
-      <section className=" space-y-5 max-w-[760px] mt-20  w-full mx-auto p-6 rounded-xl bg-card/30 border shadow-lg">
+    <div className="max-w-[760px] mt-20  w-full">
+      <section className=" space-y-5 p-6 rounded-xl bg-card/30 border shadow-lg">
         <h2 className=" text-xl sm:text-base font-semibold border-b pb-2">
           Profile details
         </h2>
-        <div className=" flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+        <div className=" flex flex-col md:flex-row md:items-center justify-between gap-5">
           <Label htmlFor="email">Email:</Label>
           <Input
             disabled={true}
             id="email"
             value={user?.email}
-            className=" sm:flex-1   sm:max-w-[85%]"
+            className=" md:flex-1   md:max-w-[85%]"
           />
         </div>
 
         <form onSubmit={handleUpdateUser} ref={formRef} className=" space-y-5 ">
           <div className=" space-y-2">
-            <div className=" flex flex-col sm:flex-row sm:items-center   justify-between gap-5">
+            <div className=" flex flex-col md:flex-row md:items-center   justify-between gap-5">
               <Label htmlFor="username">Username:</Label>
               <Input
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="sm:flex-1 sm:max-w-[85%]"
+                className="md:flex-1 md:max-w-[85%]"
               />
               {/* <FormErrorMessage  >adas</FormErrorMessage> */}
             </div>
@@ -185,9 +185,9 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
           </div>
 
           {isAdmin && (
-            <div className=" flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className=" flex flex-col   md:flex-row md:items-center justify-between gap-5">
               <Label htmlFor="role">Role:</Label>
-              <div className="flex  items-center justify-between gap-5  sm:max-w-[85%]  flex-1  ">
+              <div className="flex  items-center justify-between gap-5  md:max-w-[85%]  flex-1  ">
                 <Select value={role} onValueChange={setRole}>
                   <SelectTrigger className=" flex-1 ">
                     <SelectValue placeholder="Role" />
@@ -224,14 +224,14 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
             setFile={setFile}
             setRejectedFiles={setRejectedFiles}
           />
-          <div className=" flex flex-col sm:flex-row items-center  justify-end gap-2">
+          <div className=" flex flex-col md:flex-row items-center  justify-end gap-2">
             <Button
               onClick={handleReset}
               disabled={disabled}
               type="button"
               variant="secondary"
               size="sm"
-              className=" w-full sm:w-fit"
+              className=" w-full md:w-fit"
             >
               Reset
             </Button>
@@ -239,7 +239,7 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
               type="submit"
               disabled={disabled}
               size="sm"
-              className=" w-full sm:w-fit"
+              className=" w-full md:w-fit"
             >
               {isLoading ? <Spinner /> : "Submit"}
             </Button>
@@ -250,7 +250,7 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
         rejectedFiles={rejectedFiles}
         setRejected={setRejectedFiles}
       />
-    </>
+    </div>
   );
 };
 
