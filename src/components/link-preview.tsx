@@ -101,7 +101,7 @@ export const LinkPreview = ({
           className="[transform-origin:var(--radix-hover-card-content-transform-origin)]"
           side="top"
           align="center"
-          sideOffset={20}
+          sideOffset={19}
         >
           <AnimatePresence>
             {isOpen && (

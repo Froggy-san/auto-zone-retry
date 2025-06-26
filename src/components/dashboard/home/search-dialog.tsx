@@ -32,6 +32,7 @@ function valueText(value: any) {
 }
 
 interface SearchProps {
+  isClient?: boolean;
   currPage: string;
   carId: string;
   clientId: string;

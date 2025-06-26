@@ -7,6 +7,7 @@ import Logo from "@../public/autozone-logo.svg";
 import Image from "next/image";
 import NavDrawer from "../nav-drawer";
 import { createClient } from "@utils/supabase/server";
+import UserUi from "@components/user-ui";
 
 const Header = async () => {
   const supabase = await createClient();
@@ -27,7 +28,8 @@ const Header = async () => {
         />
       </div>
       <div className=" flex items-center gap-3">
-        <UserHeaderBtn user={user} />
+        <UserUi />
+        {/* <UserHeaderBtn user={user} /> */}
         <ModeToggle />
       </div>
     </header>

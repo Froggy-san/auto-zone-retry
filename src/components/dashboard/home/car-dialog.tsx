@@ -16,7 +16,13 @@ import { ImageOff } from "lucide-react";
 import Link from "next/link";
 import NoteDialog from "@components/garage/note-dialog";
 
-const CarDialog = ({ service }: { service: Service }) => {
+const CarDialog = ({
+  service,
+  isAdmin,
+}: {
+  service: Service;
+  isAdmin: boolean;
+}) => {
   const [noteOpen, setNoteOpen] = useState(false);
 
   const car = service.cars;
@@ -55,53 +61,96 @@ const CarDialog = ({ service }: { service: Service }) => {
         )}
 
         <div className=" p-3 relative">
-          <NoteDialog
-            title="Car note"
-            content={car.notes}
-            open={noteOpen}
-            onOpenChange={setNoteOpen}
-            className=" absolute right-4 top-3"
-          />
+          {isAdmin && (
+            <NoteDialog
+              title="Car note"
+              content={car.notes}
+              open={noteOpen}
+              onOpenChange={setNoteOpen}
+              className=" absolute right-4 top-3"
+            />
+          )}
+          {isAdmin ? (
+            <Link
+              prefetch={false}
+              href={`/garage/${service.clients.id}?car=${car.id}`}
+              className="  space-y-1 text-sm text-muted-foreground "
+            >
+              <div className=" line-clamp-1 ">
+                Client: {service.clients.name}
+              </div>
 
-          <Link
-            prefetch={false}
-            href={`/garage/${service.clients.id}?car=${car.id}`}
-            className="  space-y-1 text-sm text-muted-foreground "
-          >
-            <div className=" line-clamp-1 ">Client: {service.clients.name}</div>
+              <div className=" line-clamp-2 ">
+                Plate number: {car.plateNumber}
+              </div>
 
-            <div className=" line-clamp-2 ">
-              Plate number: {car.plateNumber}
-            </div>
+              <div className=" line-clamp-2 ">
+                Chassis number: {car.chassisNumber}
+              </div>
 
-            <div className=" line-clamp-2 ">
-              Chassis number: {car.chassisNumber}
-            </div>
+              <div className=" line-clamp-2 ">
+                Motor number: {car.motorNumber}
+              </div>
 
-            <div className=" line-clamp-2 ">
-              Motor number: {car.motorNumber}
-            </div>
-
-            {/* <div className=" line-clamp-2  flex items-center gap-3 flex-wrap">
+              {/* <div className=" line-clamp-2  flex items-center gap-3 flex-wrap">
             Make: <span>{carInfo.carMaker.name}</span>{" "}
             {carInfo.carMaker.logo ? (
                 <img src={carInfo.carMaker.logo} className="  w-7 h-7" />
                 ) : null}
                 </div> */}
-            {/* <div className=" line-clamp-2 ">Model: {carInfo.carModel.name}</div>
+              {/* <div className=" line-clamp-2 ">Model: {carInfo.carModel.name}</div>
 
 <div className=" line-clamp-2 ">
 Generation: {carInfo.carModel.name}
 </div> */}
 
-            <div className=" line-clamp-2  flex items-center gap-3">
-              color:{" "}
-              <div
-                className=" w-6 h-6 rounded-full border"
-                style={{ background: `${car.color}` }}
-              />
+              <div className=" line-clamp-2  flex items-center gap-3">
+                color:{" "}
+                <div
+                  className=" w-6 h-6 rounded-full border"
+                  style={{ background: `${car.color}` }}
+                />
+              </div>
+            </Link>
+          ) : (
+            <div className="  space-y-1 text-sm text-muted-foreground ">
+              <div className=" line-clamp-1 ">
+                Client: {service.clients.name}
+              </div>
+
+              <div className=" line-clamp-2 ">
+                Plate number: {car.plateNumber}
+              </div>
+
+              <div className=" line-clamp-2 ">
+                Chassis number: {car.chassisNumber}
+              </div>
+
+              <div className=" line-clamp-2 ">
+                Motor number: {car.motorNumber}
+              </div>
+
+              {/* <div className=" line-clamp-2  flex items-center gap-3 flex-wrap">
+            Make: <span>{carInfo.carMaker.name}</span>{" "}
+            {carInfo.carMaker.logo ? (
+                <img src={carInfo.carMaker.logo} className="  w-7 h-7" />
+                ) : null}
+                </div> */}
+              {/* <div className=" line-clamp-2 ">Model: {carInfo.carModel.name}</div>
+
+<div className=" line-clamp-2 ">
+Generation: {carInfo.carModel.name}
+</div> */}
+
+              <div className=" line-clamp-2  flex items-center gap-3">
+                color:{" "}
+                <div
+                  className=" w-6 h-6 rounded-full border"
+                  style={{ background: `${car.color}` }}
+                />
+              </div>
             </div>
-          </Link>
+          )}
           <DialogClose asChild>
             <Button
               autoFocus

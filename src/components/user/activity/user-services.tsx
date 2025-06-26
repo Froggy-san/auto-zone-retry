@@ -1,16 +1,11 @@
-import React from "react";
-
-import { getClientsAction } from "@lib/actions/clientActions";
-
-import ServiceTable from "./service-table";
+import ServiceTable from "@components/dashboard/home/service-table";
+import PaginationControl from "@components/pagination-controls";
+import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getServicesAction } from "@lib/actions/serviceActions";
 import { getServiceStatusAction } from "@lib/actions/serviceStatusAction";
-import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
-import { getCarsAction } from "@lib/actions/carsAction";
-import SearchDialog from "./search-dialog";
+import { CarItem, ClientWithPhoneNumbers } from "@lib/types";
 import { createClient } from "@utils/supabase/server";
-import PaginationControl from "@components/pagination-controls";
-
+import React from "react";
 interface Props {
   pageNumber: string;
   dateFrom: string;
@@ -20,8 +15,10 @@ interface Props {
   serviceStatusId: string;
   minPrice: string;
   maxPrice: string;
+  cars: CarItem[];
+  client: ClientWithPhoneNumbers;
 }
-const ServiceList = async ({
+const UserServices = async ({
   pageNumber,
   dateFrom,
   dateTo,
@@ -30,45 +27,33 @@ const ServiceList = async ({
   serviceStatusId,
   minPrice,
   maxPrice,
+  cars,
+  client,
 }: Props) => {
-  const supabase = await createClient();
-  // const { data, error } = await getServicesAction({
-  //   pageNumber,
-  //   dateFrom,
-  //   dateTo,
-  //   clientId,
-  //   carId,
-  //   serviceStatusId,
-  //   minPrice,
-  //   maxPrice,
-  // });
+  const [servicesData, statusData, categoriesData] = await Promise.all([
+    getServicesAction({
+      pageNumber,
+      dateFrom,
+      dateTo,
+      clientId,
+      carId,
+      serviceStatusId,
+      minPrice,
+      maxPrice,
+    }),
+    getServiceStatusAction(),
+    getAllCategoriesAction(),
+    // getClientsAction({}),
+    // getCarsAction({ supabase }),
+  ]);
 
-  const [servicesData, statusData, categoriesData, clientsData, carsData] =
-    await Promise.all([
-      getServicesAction({
-        pageNumber,
-        dateFrom,
-        dateTo,
-        clientId,
-        carId,
-        serviceStatusId,
-        minPrice,
-        maxPrice,
-      }),
-      getServiceStatusAction(),
-      getAllCategoriesAction(),
-      getClientsAction({}),
-      getCarsAction({ supabase }),
-    ]);
   const { data: status, error: statusError } = statusData;
   const { data: categories, error: categoriesError } = categoriesData;
-  const { data: clients, error: clientsError } = clientsData;
-  const { data: cars, error: carsError } = carsData;
   const { data, error } = servicesData;
 
   return (
     <div className=" mt-10">
-      <SearchDialog
+      {/* <SearchDialog
         cars={cars?.cars || []}
         clients={clients?.clients || []}
         status={status || []}
@@ -80,13 +65,13 @@ const ServiceList = async ({
         maxPrice={maxPrice}
         minPrice={minPrice}
         currPage={pageNumber}
-      />
+      /> */}
       {!servicesData.error ? (
         <>
           <ServiceTable
-            isAdmin
-            cars={cars?.cars || []}
-            clients={clients?.clients || []}
+            isAdmin={false}
+            cars={cars}
+            clients={[client]}
             categories={categories || []}
             currPage={pageNumber}
             services={data?.data || []}
@@ -104,4 +89,4 @@ const ServiceList = async ({
   );
 };
 
-export default ServiceList;
+export default UserServices;

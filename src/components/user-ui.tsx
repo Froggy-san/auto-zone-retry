@@ -1,4 +1,4 @@
-import { User } from "@lib/types";
+"use client";
 import React, { useState } from "react";
 import {
   DropdownMenu,
@@ -22,23 +22,31 @@ import { motion } from "framer-motion";
 import { useToast } from "@hooks/use-toast";
 import { ErorrToastDescription } from "./toast-items";
 import { logoutUser } from "@lib/actions/authActions";
-import { AppWindow, LogOut, PersonStanding, Settings } from "lucide-react";
+import { AppWindow, LogOut, PersonStanding } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@lib/utils";
-import { useParams, usePathname, useSearchParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 
 interface Props {
   collapse?: boolean;
   lock?: boolean;
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  open?: boolean;
+  showName?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   setCollapse?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const image =
   "https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/defualt-image//Kyoo%20Pal.jpg";
 
-const UserUi = ({ lock, collapse, open, setOpen, setCollapse }: Props) => {
+const UserUi = ({
+  showName,
+  lock,
+  collapse,
+  open,
+  setOpen,
+  setCollapse,
+}: Props) => {
   // const [open,setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
   const { isLoading, user } = useCurrUser();
@@ -58,7 +66,7 @@ const UserUi = ({ lock, collapse, open, setOpen, setCollapse }: Props) => {
     pathname.split("/").length <= 3 && pathname.endsWith("") && sameUser;
 
   function handleOpenMenu() {
-    setOpen((isOpen) => {
+    setOpen?.((isOpen) => {
       if (isOpen && !lock && !collapse) setCollapse?.(true);
 
       return !isOpen;
@@ -79,29 +87,38 @@ const UserUi = ({ lock, collapse, open, setOpen, setCollapse }: Props) => {
   return (
     <DropdownMenu open={open} onOpenChange={handleOpenMenu}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn(" w-full gap-2 mb-1 ", {
-            "w-fit": collapse,
-          })}
-        >
-          <img
-            className=" w-8 h-8 rounded-full object-cover object-top"
-            src={image}
-          />
-          {!collapse && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="  text-muted-foreground text-ellipsis text-left flex-1"
-            >
-              {name}
-            </motion.span>
-          )}
-        </Button>
+        {showName ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(" w-full gap-2 mb-1 ", {
+              "w-fit": collapse,
+            })}
+          >
+            <img
+              className=" w-8 h-8 rounded-full object-cover object-top"
+              src={image}
+            />
+            {!collapse && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="  text-muted-foreground text-ellipsis text-left flex-1"
+              >
+                {name}
+              </motion.span>
+            )}
+          </Button>
+        ) : (
+          <div className=" flex  items-center justify-center     ">
+            <img
+              className=" w-8 h-8 rounded-full object-cover object-top hover:cursor-pointer hover:contrast-75 opacity-90 transition-all"
+              src={image}
+            />
+          </div>
+        )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="start">
+      <DropdownMenuContent className="w-56" align={showName ? "start" : "end"}>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem disabled={loading || isActivities} asChild>

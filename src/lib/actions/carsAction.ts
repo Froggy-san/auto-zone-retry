@@ -180,7 +180,7 @@ export async function createCarAction({
 }
 
 export async function getCarByIdAction(id: string) {
-  const { data, error } = await getClientByIdAction(Number(id));
+  const { data, error } = await getClientByIdAction(id, "id");
 
   if (error) return { data, error };
 
