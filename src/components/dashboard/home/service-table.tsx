@@ -45,6 +45,7 @@ import {
   ArrowDownToLine,
   Check,
   CircleUser,
+  Download,
   Ellipsis,
   HandPlatter,
   LoaderCircle,
@@ -88,22 +89,37 @@ import EditServiceForm from "./edit-service-form";
 import { formatCurrency } from "@lib/client-helpers";
 import NoteDialog from "@components/garage/note-dialog";
 import dynamic from "next/dynamic";
+import { cn } from "@lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@components/ui/tooltip";
 
-const ServiceTable = ({
-  categories,
-  services,
-  currPage,
-  cars,
-  clients,
-  status,
-}: {
+interface Props {
+  isClientPage?: boolean;
+  isAdmin: boolean;
   categories: Category[];
   cars: CarItem[];
   clients: ClientWithPhoneNumbers[];
   status: ServiceStatus[];
   currPage: string;
   services: Service[];
-}) => {
+  className?: string;
+}
+
+const ServiceTable = ({
+  isClientPage,
+  isAdmin = false,
+  categories,
+  services,
+  currPage,
+  cars,
+  clients,
+  status,
+  className,
+}: Props) => {
   if (!services)
     return <p>Something went wrong while getting the services&apos;s data</p>;
 
@@ -126,68 +142,74 @@ const ServiceTable = ({
 
   const totals = totalFees + totalSoldProducts;
   return (
-    <Table className=" mt-10">
-      <TableCaption>
-        {services.length
-          ? "A list of all your services receipts."
-          : "No receipts"}
-      </TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className=" min-w-[20px]">ID</TableHead>
-          <TableHead>DATE</TableHead>
-          <TableHead>CLIENT</TableHead>
-          <TableHead>CAR</TableHead>
-          <TableHead>STATUS</TableHead>
-          <TableHead>FEES</TableHead>
-          <TableHead className=" whitespace-nowrap">SOLD PRODUCTS</TableHead>
-          {/* <TableHead className=""></TableHead> */}
-          <TableHead className="text-right" colSpan={2}>
-            TOTAL PRICE
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {services && services.length
-          ? services.map((service) => (
-              <Row
-                categories={categories}
-                status={status}
-                service={service}
-                cars={cars}
-                clients={clients}
-                key={service.id}
-                currPage={currPage}
-                currPageSize={currPageSize}
-              />
-            ))
-          : null}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={5}>Total</TableCell>
+    <div className="mt-10 p-3 border rounded-3xl shadow-lg ">
+      <Table>
+        <TableCaption>
+          {services.length
+            ? "A list of all your services receipts."
+            : "No receipts"}
+        </TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className=" min-w-[20px]">ID</TableHead>
+            <TableHead>DATE</TableHead>
+            <TableHead>CLIENT</TableHead>
+            <TableHead>CAR</TableHead>
+            <TableHead>STATUS</TableHead>
+            <TableHead>FEES</TableHead>
+            <TableHead className=" whitespace-nowrap">SOLD PRODUCTS</TableHead>
+            {/* <TableHead className=""></TableHead> */}
+            <TableHead className="text-right" colSpan={2}>
+              TOTAL PRICE
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {services && services.length
+            ? services.map((service) => (
+                <Row
+                  isClientPage={isClientPage}
+                  isAdmin={isAdmin}
+                  categories={categories}
+                  status={status}
+                  service={service}
+                  cars={cars}
+                  clients={clients}
+                  key={service.id}
+                  currPage={currPage}
+                  currPageSize={currPageSize}
+                />
+              ))
+            : null}
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={5}>Total</TableCell>
 
-          <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
-            {formatCurrency(totalFees)}
-          </TableCell>
+            <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
+              {formatCurrency(totalFees)}
+            </TableCell>
 
-          <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
-            {formatCurrency(totalSoldProducts)}
-          </TableCell>
+            <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
+              {formatCurrency(totalSoldProducts)}
+            </TableCell>
 
-          <TableCell
-            colSpan={2}
-            className=" text-right   min-w-[100px] max-w-[120px]  break-all"
-          >
-            {formatCurrency(totals)}
-          </TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+            <TableCell
+              colSpan={2}
+              className=" text-right   min-w-[100px] max-w-[120px]  break-all"
+            >
+              {formatCurrency(totals)}
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </div>
   );
 };
 
 function Row({
+  isClientPage,
+  isAdmin,
   categories,
   status,
   clients,
@@ -196,6 +218,8 @@ function Row({
   currPage,
   currPageSize,
 }: {
+  isClientPage?: boolean;
+  isAdmin: boolean;
   categories: Category[];
   clients: ClientWithPhoneNumbers[];
   cars: CarItem[];
@@ -239,7 +263,7 @@ function Row({
         </TableCell>
 
         <TableCell>
-          <CarDialog service={service} />
+          <CarDialog service={service} isAdmin={isAdmin} />
         </TableCell>
 
         <TableCell>
@@ -248,6 +272,7 @@ function Row({
 
         <TableCell>
           <ServiceFeesDialog
+            isAdmin={isAdmin}
             categories={categories}
             service={service}
             total={total}
@@ -255,7 +280,11 @@ function Row({
         </TableCell>
 
         <TableCell className=" min-w-[100px]">
-          <ProductSoldDialog service={service} total={total} />
+          <ProductSoldDialog
+            isAdmin={isAdmin}
+            service={service}
+            total={total}
+          />
         </TableCell>
 
         <TableCell className=" min-w-[120px] max-w-[170px] break-all ">
@@ -264,6 +293,8 @@ function Row({
 
         <TableCell className=" w-[80px] ">
           <TableActions
+            isClientPage={isClientPage}
+            isAdmin={isAdmin}
             cars={cars}
             clients={clients}
             status={status}
@@ -305,6 +336,8 @@ function Row({
 }
 
 function TableActions({
+  isClientPage,
+  isAdmin,
   status,
   service,
   currPageSize,
@@ -312,6 +345,8 @@ function TableActions({
   cars,
   clients,
 }: {
+  isClientPage?: boolean;
+  isAdmin?: boolean;
   cars: CarItem[];
   clients: ClientWithPhoneNumbers[];
   status: ServiceStatus[];
@@ -366,7 +401,6 @@ function TableActions({
       const response = await fetch(`/api/pdf?id=${service.id}`);
       // const data = await response.json();
 
-      console.log(response);
       // console.log("DATA:", data);
       if (!response.ok) {
         const error = await response.json();
@@ -409,6 +443,7 @@ function TableActions({
       });
     }
   };
+
   // const handlePdf = async () => {
   //   setIsLoading(true);
   //   try {
@@ -469,155 +504,179 @@ function TableActions({
       onClick={(e) => e.stopPropagation()}
       className=" flex items-center justify-end"
     >
-      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className="     p-0 h-6 w-6">
-            <Ellipsis className=" w-4 h-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className=" min-w-[200px] mr-5 ">
-          {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
-          {/* <DropdownMenuSeparator /> */}
-          <DropdownMenuItem
-            className=" gap-2"
-            onClick={() => {
-              setOpen("edit");
-            }}
-          >
-            <ReceiptText className=" w-4 h-4" /> Edit service receipt
-          </DropdownMenuItem>
+      {isAdmin ? (
+        <>
+          <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="     p-0 h-6 w-6"
+              >
+                <Ellipsis className=" w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className=" min-w-[200px] mr-5 ">
+              {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+              {/* <DropdownMenuSeparator /> */}
+              <DropdownMenuItem
+                className=" gap-2"
+                onClick={() => {
+                  setOpen("edit");
+                }}
+              >
+                <ReceiptText className=" w-4 h-4" /> Edit service receipt
+              </DropdownMenuItem>
 
-          <DropdownMenuItem
-            disabled={!service.note}
-            className=" gap-2"
-            onClick={() => {
-              setOpen("note");
-            }}
-          >
-            <NotepadTextDashed className=" w-4 h-4" /> View receipt note
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className=" gap-2"
-            onClick={() => {
-              params.set("addFeeId", service.id.toString());
-              router.push(`${pathname}?${params.toString()}`, {
-                scroll: false,
-              });
-            }}
-          >
-            <HandPlatter className=" w-4 h-4" /> Add more service fees{" "}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className=" gap-2"
-            onClick={() => {
-              const params = new URLSearchParams(searchParam);
-              params.set("addSoldId", service.id.toString());
-              router.push(`${pathname}?${params.toString()}`, {
-                scroll: false,
-              });
-            }}
-          >
-            <PackagePlus className=" w-4 h-4" /> Add more sold products
-          </DropdownMenuItem>
-          <DropdownMenuSub
-          // disabled={isLoading}
-          // className=" gap-2"
-          // onClick={() => {
-          //   setOpen("delete");
-          // }}
-          >
-            <DropdownMenuSubTrigger className=" gap-2">
-              {" "}
-              <Replace className=" w-4 h-4" /> Change status
-            </DropdownMenuSubTrigger>
+              <DropdownMenuItem
+                disabled={!service.note}
+                className=" gap-2"
+                onClick={() => {
+                  setOpen("note");
+                }}
+              >
+                <NotepadTextDashed className=" w-4 h-4" /> View receipt note
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className=" gap-2"
+                onClick={() => {
+                  params.set("addFeeId", service.id.toString());
+                  router.push(`${pathname}?${params.toString()}`, {
+                    scroll: false,
+                  });
+                }}
+              >
+                <HandPlatter className=" w-4 h-4" /> Add more service fees{" "}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className=" gap-2"
+                onClick={() => {
+                  const params = new URLSearchParams(searchParam);
+                  params.set("addSoldId", service.id.toString());
+                  router.push(`${pathname}?${params.toString()}`, {
+                    scroll: false,
+                  });
+                }}
+              >
+                <PackagePlus className=" w-4 h-4" /> Add more sold products
+              </DropdownMenuItem>
+              <DropdownMenuSub
+              // disabled={isLoading}
+              // className=" gap-2"
+              // onClick={() => {
+              //   setOpen("delete");
+              // }}
+              >
+                <DropdownMenuSubTrigger className=" gap-2">
+                  {" "}
+                  <Replace className=" w-4 h-4" /> Change status
+                </DropdownMenuSubTrigger>
 
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent className=" max-h-[170px] overflow-y-auto">
-                {status.map((status, i) => (
-                  <DropdownMenuItem
-                    key={i}
-                    className=" gap-2 justify-between"
-                    onClick={async () => {
-                      // setChosenStatus(status.id)
-                      if (status.id === service.serviceStatuses.id) return;
-                      await handleChangeStatus(status.id);
-                    }}
-                  >
-                    <StatusBadge
-                      disableToolTip
-                      status={status}
-                      className=" py-[.1rem]"
-                    />
-                    {service.serviceStatuses.id === status.id && (
-                      <Check className=" w-3 h-3" />
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-          {/* <DropdownMenuSeparator /> */}
-          <DropdownMenuItem
-            className=" gap-2  "
-            onClick={async () => {
-              await handlePdf();
-            }}
-          >
-            <ArrowDownToLine className=" w-4 h-4" />
-            Download as PDF
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className=" gap-2  !text-red-900  dark:!text-red-300 hover:!bg-destructive/70"
-            onClick={() => {
-              setOpen("delete");
-            }}
-          >
-            <Trash2 className=" w-4 h-4" />
-            Delete service receipt
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      {/* <ClientForm
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className=" max-h-[170px] overflow-y-auto">
+                    {status.map((status, i) => (
+                      <DropdownMenuItem
+                        key={i}
+                        className=" gap-2 justify-between"
+                        onClick={async () => {
+                          // setChosenStatus(status.id)
+                          if (status.id === service.serviceStatuses.id) return;
+                          await handleChangeStatus(status.id);
+                        }}
+                      >
+                        <StatusBadge
+                          disableToolTip
+                          status={status}
+                          className=" py-[.1rem]"
+                        />
+                        {service.serviceStatuses.id === status.id && (
+                          <Check className=" w-3 h-3" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+              {/* <DropdownMenuSeparator /> */}
+              <DropdownMenuItem
+                className=" gap-2  "
+                onClick={async () => {
+                  await handlePdf();
+                }}
+              >
+                <ArrowDownToLine className=" w-4 h-4" />
+                Download as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className=" gap-2  !text-red-900  dark:!text-red-300 hover:!bg-destructive/70"
+                onClick={() => {
+                  setOpen("delete");
+                }}
+              >
+                <Trash2 className=" w-4 h-4" />
+                Delete service receipt
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {/* <ClientForm
         open={open === "edit"}
         handleClose={handleClose}
         client={client}
-        /> */}
+        />  */}
 
-      <EditServiceForm
-        cars={cars}
-        clients={clients}
-        open={open === "edit"}
-        setIsLoading={setIsLoading}
-        setOpen={setOpen}
-        status={status}
-        service={service}
-      />
+          <EditServiceForm
+            cars={cars}
+            clients={clients}
+            open={open === "edit"}
+            setIsLoading={setIsLoading}
+            setOpen={setOpen}
+            status={status}
+            service={service}
+          />
 
-      <DeleteService
-        currPage={currPage}
-        pageSize={currPageSize}
-        service={service}
-        isDeleting={isLoading}
-        setIsDeleting={setIsLoading}
-        open={open === "delete"}
-        handleClose={() => setOpen("")}
-      />
+          <DeleteService
+            currPage={currPage}
+            pageSize={currPageSize}
+            service={service}
+            isDeleting={isLoading}
+            setIsDeleting={setIsLoading}
+            open={open === "delete"}
+            handleClose={() => setOpen("")}
+          />
 
-      <NoteDialog
-        description={`Note related to a car with the plate number '${service.cars.plateNumber}' belonging to '${service.clients.name}', with a service date of '2024-11-06.'`}
-        className="hidden"
-        open={open === "note"}
-        onOpenChange={() => setOpen("")}
-        content={service.note}
-      />
+          <NoteDialog
+            description={`Note related to a car with the plate number '${service.cars.plateNumber}' belonging to '${service.clients.name}', with a service date of '2024-11-06.'`}
+            className="hidden"
+            open={open === "note"}
+            onOpenChange={() => setOpen("")}
+            content={service.note}
+          />
 
-      {/* <EditReceipt
+          {/* <EditReceipt
         open={open === "edit"}
         handleClose={handleClose}
         service={service}
         isDeleting={isLoading}
         setIsDeleting={setIsLoading}
       /> */}
+        </>
+      ) : (
+        <TooltipProvider delayDuration={500}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="     p-1 h-6 w-6"
+                onClick={async () => await handlePdf()}
+              >
+                <Download className=" w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Download as pdf</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
     </div>
   );
 }

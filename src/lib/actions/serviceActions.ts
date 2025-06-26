@@ -81,6 +81,7 @@ export async function getServicesAction({
   }
   const count = response.headers.get("content-range")?.split("/")[1] || 0;
   const data: Service[] = await response.json();
+  console.log("SERVICES ", data);
 
   const services = data.map((service) => {
     // Safely sort servicesFee (if it exists)

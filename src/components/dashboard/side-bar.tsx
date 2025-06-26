@@ -153,6 +153,7 @@ const SideBar = ({ links }: Props) => {
         collapse={collapse}
         lock={lock}
         setCollapse={setCollapse}
+        showName
       />
       {/* <LogoutBtn collapse={collapse} lock={lock} /> */}
     </motion.aside>

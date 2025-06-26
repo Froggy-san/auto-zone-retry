@@ -113,9 +113,9 @@ export async function getClientsAction({
 //   return { data: ClientsData, error: "" };
 // }
 
-export async function getClientByIdAction(id: number) {
+export async function getClientByIdAction(id: string, tag: "id" | "user_id") {
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/clients?id=eq.${id}&select=*,phones(*),cars(*,carImages(*),carGenerations(*,carModels(*,carMakers(*))))&cars.carImages.order=created_at.asc`,
+    `${supabaseUrl}/rest/v1/clients?${tag}=eq.${id}&select=*,phones(*),cars(*,carImages(*),carGenerations(*,carModels(*,carMakers(*))))&cars.carImages.order=created_at.asc`,
     {
       method: "GET",
       headers: {
