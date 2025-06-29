@@ -1,10 +1,11 @@
+import SearchDialog from "@components/dashboard/home/search-dialog";
 import ServiceTable from "@components/dashboard/home/service-table";
 import PaginationControl from "@components/pagination-controls";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getServicesAction } from "@lib/actions/serviceActions";
 import { getServiceStatusAction } from "@lib/actions/serviceStatusAction";
-import { CarItem, ClientWithPhoneNumbers } from "@lib/types";
-import { createClient } from "@utils/supabase/server";
+import { CarItem, ClientWithPhoneNumbers, User } from "@lib/types";
+
 import React from "react";
 interface Props {
   pageNumber: string;
@@ -17,6 +18,7 @@ interface Props {
   maxPrice: string;
   cars: CarItem[];
   client: ClientWithPhoneNumbers;
+  user: User;
 }
 const UserServices = async ({
   pageNumber,
@@ -29,6 +31,7 @@ const UserServices = async ({
   maxPrice,
   cars,
   client,
+  user,
 }: Props) => {
   const [servicesData, statusData, categoriesData] = await Promise.all([
     getServicesAction({
@@ -43,19 +46,18 @@ const UserServices = async ({
     }),
     getServiceStatusAction(),
     getAllCategoriesAction(),
-    // getClientsAction({}),
-    // getCarsAction({ supabase }),
   ]);
 
   const { data: status, error: statusError } = statusData;
   const { data: categories, error: categoriesError } = categoriesData;
   const { data, error } = servicesData;
-
+  const isAdmin = user.user_metadata.role === "Admin";
   return (
     <div className=" mt-10">
-      {/* <SearchDialog
-        cars={cars?.cars || []}
-        clients={clients?.clients || []}
+      <SearchDialog
+        isAdmin={isAdmin}
+        cars={cars}
+        clients={[client]}
         status={status || []}
         carId={carId}
         clientId={clientId}
@@ -65,11 +67,11 @@ const UserServices = async ({
         maxPrice={maxPrice}
         minPrice={minPrice}
         currPage={pageNumber}
-      /> */}
+      />
       {!servicesData.error ? (
         <>
           <ServiceTable
-            isAdmin={false}
+            isAdmin={isAdmin}
             cars={cars}
             clients={[client]}
             categories={categories || []}

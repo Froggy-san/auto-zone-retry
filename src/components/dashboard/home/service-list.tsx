@@ -69,6 +69,7 @@ const ServiceList = async ({
   return (
     <div className=" mt-10">
       <SearchDialog
+        isAdmin
         cars={cars?.cars || []}
         clients={clients?.clients || []}
         status={status || []}
