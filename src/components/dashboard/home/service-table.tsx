@@ -145,9 +145,7 @@ const ServiceTable = ({
     <div className="mt-10 p-3 border rounded-3xl shadow-lg ">
       <Table>
         <TableCaption>
-          {services.length
-            ? "A list of all your services receipts."
-            : "No receipts"}
+          {services.length ? "A list of all service receipts." : "No receipts"}
         </TableCaption>
         <TableHeader>
           <TableRow>

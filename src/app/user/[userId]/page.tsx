@@ -1,6 +1,9 @@
 // app/user/[userId]/page.tsx
+import EditFeesManagement from "@components/dashboard/home/edit-fees-management";
+import ProductSoldManagement from "@components/dashboard/home/product-sold-management";
 import ErrorMessage from "@components/error-message";
 import Spinner from "@components/Spinner";
+import CarCarousel from "@components/user/activity/car-carousel";
 import UserServices from "@components/user/activity/user-services";
 import { getUserById } from "@lib/actions/authActions";
 import { getClientByIdAction } from "@lib/actions/clientActions";
@@ -18,11 +21,14 @@ interface SearchParams {
   dateFrom?: string;
   dateTo?: string;
   clientId?: string;
+  serviceStatusId?: string;
   carId?: string;
   minPrice?: string;
-  serviceStatusId?: string;
   maxPrice?: string;
   editFee?: string;
+  addFeeId?: string;
+  editSold?: string;
+  addSoldId?: string;
 }
 interface Props {
   searchParams: SearchParams;
@@ -31,9 +37,7 @@ interface Props {
   };
 }
 
-// 2. Destructure 'params' from the props
 const Page = async ({ params, searchParams }: Props) => {
-  // 3. (Optional but good practice) Extract userId from params
   const pageNumber = searchParams?.page ?? "1";
   const dateTo = searchParams.dateTo ?? "";
   const dateFrom = searchParams.dateFrom ?? "";
@@ -41,8 +45,12 @@ const Page = async ({ params, searchParams }: Props) => {
   const carId = searchParams.carId ?? "";
   const minPrice = searchParams.minPrice ?? "";
   const maxPrice = searchParams.maxPrice ?? "";
-  const editFee = searchParams.editFee ?? "";
   const serviceStatusId = searchParams.serviceStatusId ?? "";
+  const editFee = searchParams.editFee ?? "";
+  const addFeeId = searchParams.addFeeId ?? "";
+  const editSold = searchParams.editSold ?? "";
+  const addSoldId = searchParams.addSoldId ?? "";
+
   const key = pageNumber + dateFrom + dateTo + carId + minPrice + maxPrice;
   const { userId } = params;
   const { data, error } = await getUserById(userId);
@@ -58,6 +66,7 @@ const Page = async ({ params, searchParams }: Props) => {
     client = ClientsData;
     if (error) clientError = error;
   }
+  const user = data?.user;
 
   const clientCars = client ? client.cars : [];
   const clientId = client?.id;
@@ -69,41 +78,74 @@ const Page = async ({ params, searchParams }: Props) => {
         phones: client.phones,
       }
     : null;
-
-  console.log(clientId, "CLIENT ID");
+  const isAdmin = user?.user_metadata.role;
 
   return (
     <main className=" relative">
       <h2 className="   font-semibold text-4xl">YOUR ACTIVITIES.</h2>
 
-      <section className=" sm:pl-4">
+      <section className=" sm:pl-4 pb-10">
         {error || clientError ? (
           <ErrorMessage>
             {" "}
             <>{error || clientError || "Something went wrong"}</>{" "}
           </ErrorMessage>
-        ) : (
+        ) : client && user ? (
           <>
-            {client ? (
-              <Suspense
-                fallback={<Spinner size={30} className=" mt-10" key={key} />}
-              >
-                <UserServices
-                  serviceStatusId={serviceStatusId}
-                  pageNumber={pageNumber}
-                  dateTo={dateTo}
-                  dateFrom={dateFrom}
-                  clientId={String(clientId)}
-                  carId={carId}
-                  minPrice={minPrice}
-                  maxPrice={maxPrice}
-                  cars={clientCars}
-                  client={clientDetails as ClientWithPhoneNumbers}
+            <Suspense
+              fallback={
+                <Spinner
+                  size={30}
+                  className=" mt-10"
+                  key={editFee + addFeeId}
                 />
-              </Suspense>
+              }
+            >
+              <EditFeesManagement feesId={editFee} addFeeId={addFeeId} />
+            </Suspense>
+
+            <Suspense
+              fallback={
+                <Spinner
+                  size={30}
+                  className=" mt-10"
+                  key={editSold + addSoldId}
+                />
+              }
+            >
+              <ProductSoldManagement
+                editSold={editSold}
+                addSoldId={addSoldId}
+              />
+            </Suspense>
+
+            {clientDetails ? (
+              <CarCarousel
+                clientDetails={clientDetails}
+                isAdmin={isAdmin === "Admin"}
+                cars={clientCars}
+              />
             ) : null}
+
+            <Suspense
+              fallback={<Spinner size={30} className=" mt-10" key={key} />}
+            >
+              <UserServices
+                user={user}
+                serviceStatusId={serviceStatusId}
+                pageNumber={pageNumber}
+                dateTo={dateTo}
+                dateFrom={dateFrom}
+                clientId={String(clientId)}
+                carId={carId}
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                cars={clientCars}
+                client={clientDetails as ClientWithPhoneNumbers}
+              />
+            </Suspense>
           </>
-        )}
+        ) : null}
       </section>
     </main>
   );

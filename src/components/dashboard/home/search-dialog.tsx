@@ -22,16 +22,14 @@ import { CarItem, ClientWithPhoneNumbers, ServiceStatus } from "@lib/types";
 import { ServiceStatusCombobox } from "@components/service-status-combobox";
 import { CarsComboBox } from "@components/car-combo-box";
 import { ClientsComboBox } from "@components/clients-combobox";
+import { formatCurrency } from "@lib/client-helpers";
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
-    value
-  );
 function valueText(value: any) {
   return `price range ${value}`;
 }
 
 interface SearchProps {
+  isAdmin: boolean;
   isClient?: boolean;
   currPage: string;
   carId: string;
@@ -47,6 +45,7 @@ interface SearchProps {
 }
 
 const SearchDialog = ({
+  isAdmin,
   cars,
   clients,
   currPage,
@@ -277,6 +276,7 @@ const SearchDialog = ({
             </div>
             <div className="space-y-2 w-full">
               <ClientsComboBox
+                disabled={!isAdmin}
                 value={client}
                 setValue={setClient}
                 options={clients}

@@ -45,8 +45,14 @@ const PaginationControl = ({ count, currPage }: PaginationControlProps) => {
   }, [page, searchParam, pathname, pageCount, router]);
 
   return (
-    <div className=" flex items-center justify-between">
-      <div className=" text-xs  text-muted-foreground">{`${currPage} / ${pageCount}`}</div>
+    <div className=" flex items-center justify-between px-4">
+      {/* <div className=" text-xs  text-muted-foreground">{`${currPage} / ${pageCount}`}</div>
+       */}
+      <p className=" text-xs   mt-2 text-muted-foreground">
+        Showing <span>{(page - 1) * PAGE_SIZE + 1}</span> to{" "}
+        <span>{page === pageCount ? count : page * PAGE_SIZE}</span> of{" "}
+        <span>{count}</span> results
+      </p>
       {pageCount > 1 && (
         <div className=" flex  my-4 justify-end gap-3">
           <Button

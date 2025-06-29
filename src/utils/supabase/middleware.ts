@@ -40,7 +40,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const restrictedRoutes = ["/dashboard", "/garage"];
+  const restrictedRoutes = ["/dashboard", "/garage", "/user"];
   if (!user && !path.startsWith("/login") && restrictedRoutes.includes(path)) {
     // no user, potentially respond by redirecting the user to the login page
     // const url = request.nextUrl.clone();
