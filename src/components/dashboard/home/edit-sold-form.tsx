@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/form";
 
 import {
+  Product,
   ProductSold,
   ProductSoldSchema,
+  ProductToSell,
   ProductWithCategory,
 } from "@lib/types";
 
@@ -41,6 +43,7 @@ import {
 } from "@lib/actions/product-sold-actions";
 import { ProductsComboBox } from "@components/proudcts-combo-box";
 import { formatCurrency } from "@lib/client-helpers";
+import { cn } from "@lib/utils";
 
 interface ProById extends ProductSold {
   id: number;
@@ -55,7 +58,7 @@ const EditSoldForm = ({
   service,
 }: {
   open: boolean;
-  proSold: ProById;
+  proSold: ProductToSell | undefined | null;
   addSoldId?: string;
   products: ProductWithCategory[];
   service: { id: number; totalPrice: number } | null;
@@ -70,7 +73,7 @@ const EditSoldForm = ({
     count: proSold?.count || 0,
     isReturned: proSold?.isReturned || false,
     note: proSold?.note || "",
-    productId: proSold ? 1 : 0,
+    productId: proSold ? proSold.productId : 0,
     serviceId: addSoldId ? Number(addSoldId) : 1,
   };
   const form = useForm<ProductSold>({
@@ -111,31 +114,46 @@ const EditSoldForm = ({
     productId,
     serviceId,
   }: ProductSold) {
-    if (!service)
-      throw new Error(`Something went wrong, please refresh the page.`);
-    const totalPriceAfterDiscount = (pricePerUnit - discount) * count;
-
-    const editData = {
-      pricePerUnit,
-      discount,
-      count,
-      isReturned,
-      note,
-      totalPriceAfterDiscount,
-    };
-    const addSoldProduct = { ...editData, productId, serviceId };
     try {
+      if (!service)
+        throw new Error(`Something went wrong, please refresh the page.`);
+
       if (isEqual) throw new Error("You haven't changed anything.");
 
+      const totalPriceAfterDiscount = (pricePerUnit - discount) * count; // Calc the new total of the service.
+
+      const editData = {
+        pricePerUnit,
+        discount,
+        count,
+        isReturned,
+        note,
+        totalPriceAfterDiscount,
+      };
+      const addSoldProduct = { ...editData, productId, serviceId };
+
+      // If the admin wants to add a product sold of a service that is already performed.
       if (addSoldId) {
+        const chosenProduct = products.find((pro) => pro.id === productId); // get the data of the chosen product.
+
+        if (!chosenProduct)
+          throw new Error(`There was a problem with picking the product sold.`);
+        const { categories, productImages, ...product } = chosenProduct;
+        const proToUpdate = product as Product;
         const newSerivceAmount = service.totalPrice + totalPriceAfterDiscount;
+        const stockUpdates = {
+          ...proToUpdate,
+          stock: proToUpdate.stock - count,
+        }; // Calc the the new stock number.
         const { error } = await createProductToSellAction(
           addSoldProduct,
-          newSerivceAmount
+          newSerivceAmount,
+          stockUpdates
         );
         if (error) throw new Error(error);
       }
 
+      // If the admin wants to edit a product sold entry of a service that is already performed
       if (proSold) {
         const newSerivceAmount =
           service.totalPrice +
@@ -143,12 +161,21 @@ const EditSoldForm = ({
           proSold.totalPriceAfterDiscount;
         const isEqual =
           proSold.totalPriceAfterDiscount === totalPriceAfterDiscount;
+        // const dir = count < proSold.count ? 1 : -1
+        const product = proSold.product;
+
+        const stockUpdates = {
+          ...product,
+          stock: product.stock - count + proSold.count,
+        };
+
         const { error } = await editProductToSellAction(
           {
             productToSell: editData,
             id: proSold.id,
           },
-          { id: service.id, totalPrice: newSerivceAmount, isEqual }
+          { id: service.id, totalPrice: newSerivceAmount, isEqual },
+          stockUpdates
         );
         if (error) throw new Error(error);
       }
@@ -182,16 +209,28 @@ const EditSoldForm = ({
       <DialogComponent.Content className="  max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[1000px] sm:p-14 pb-0 sm:pb-0">
         <DialogComponent.Header>
           <DialogComponent.Title>
-            {addSoldId
-              ? "Add more product sold to the service."
-              : "Edit product sold."}
+            {!addSoldId && !proSold ? (
+              <p className=" text-destructive-foreground font-semibold">
+                Something went wrong!
+              </p>
+            ) : addSoldId ? (
+              "Add more product sold to the service."
+            ) : (
+              "Edit product sold."
+            )}
           </DialogComponent.Title>
           <DialogComponent.Description className="hidden">
             Create a new car information.
           </DialogComponent.Description>
         </DialogComponent.Header>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className={cn("space-y-8 ", {
+              " opacity-45 blur-sm pointer-events-none hover:cursor-not-allowed ":
+                !addSoldId && !proSold,
+            })}
+          >
             {addSoldId && (
               <FormField
                 disabled={isLoading}
@@ -208,8 +247,11 @@ const EditSoldForm = ({
                             (pro) => pro.id === value
                           );
                           field.onChange(value);
-                          if (product)
+
+                          if (product) {
                             form.setValue("pricePerUnit", product.salePrice);
+                            form.setValue("discount", product.listPrice);
+                          }
                         }}
                         options={products}
                         disabled={isLoading}
@@ -258,7 +300,7 @@ const EditSoldForm = ({
                 name="discount"
                 render={({ field }) => (
                   <FormItem className=" w-full mb-auto">
-                    <FormLabel>Total discount</FormLabel>
+                    <FormLabel>Discount per unit</FormLabel>
                     <FormControl>
                       <Input
                         type="text"

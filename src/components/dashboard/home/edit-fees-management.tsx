@@ -28,9 +28,6 @@ const EditFeesManagement = async ({
 
   const { data: service, error: serivceError } = serviceData;
   const { data: categories, error } = categoriesData;
-  console.log("SERIVCE DATA:", service);
-  //   const { data: fee, error } = feesToEdit;
-  //   const { data: CategoriesData, error: categoriesErorr } = categories;
 
   if (fee?.error || error) return <p>{fee?.error || error}</p>;
   //   if (!fee) return <div />;

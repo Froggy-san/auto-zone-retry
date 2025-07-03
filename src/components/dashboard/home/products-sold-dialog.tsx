@@ -549,6 +549,7 @@ function DeleteProSold({
   serviceId: number;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [shouldUpdateStock, setShouldUpdateStock] = useState(false);
   const { toast } = useToast();
 
   return (
@@ -560,7 +561,19 @@ function DeleteProSold({
             {`You are about to delete a product receipt along with all its associated data.`}
           </DialogDescription>
         </DialogHeader>
-
+        <div className="flex items-center gap-3">
+          <Checkbox
+            id="stockUpdate"
+            checked={shouldUpdateStock}
+            onClick={() => setShouldUpdateStock((is) => !is)}
+          />
+          <Label
+            htmlFor="stockUpdate"
+            className=" text-xs text-muted-foreground"
+          >
+            Update product stock
+          </Label>
+        </div>
         <DialogFooter className="gap-2 sm:gap-0">
           <DialogClose asChild>
             <Button size="sm" variant="secondary">
@@ -575,11 +588,12 @@ function DeleteProSold({
               setIsDeleting(true);
               try {
                 if (proSold) {
-                  const { error } = await deleteProductToSellAction(
-                    String(proSold.id),
+                  const { error } = await deleteProductToSellAction({
+                    proSold,
                     serviceId,
-                    total - proSold.totalPriceAfterDiscount
-                  );
+                    totalPrice: total - proSold.totalPriceAfterDiscount,
+                    shouldUpdateStock,
+                  });
                   if (error) throw new Error(error);
                 }
                 setIsDeleting(false);

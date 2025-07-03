@@ -25,6 +25,7 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 interface GetProdcutsActionProps {
   name?: string;
+  id?: number;
   categoryId?: string;
   productTypeId?: string;
   productBrandId?: string;
@@ -39,6 +40,7 @@ interface GetProdcutsActionProps {
 //   return { data: null, error: "You are not authorized to make this action." };
 export async function getProductsAction({
   pageNumber,
+  id,
   name,
   categoryId,
   productTypeId,
@@ -50,6 +52,9 @@ export async function getProductsAction({
 
   let query = `${supabaseUrl}/rest/v1/product?select=*,productImages(*),categories(name)&order=created_at.desc&productImages.order=id.asc`;
   //&productImages.order=created_at.asc
+
+  if (id) query = query + `&id=eq.${id}`;
+
   if (name)
     query = query + `&or=(name.ilike.*${name}*,description.ilike.*${name}*)`;
 
@@ -502,6 +507,37 @@ export async function getProductsCountAction({
 
   return { data: data[0].count, error: "" };
 }
+
+export async function editProductsStockAction(productsStock: Product[]) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("product")
+    .upsert(productsStock, { onConflict: "id" });
+
+  if (error) return error.message;
+  // This is the new part:
+
+  // const stocksPromises = productsStock.map((item) =>
+  //   supabase.from("product").update({ stock: item.stock }).eq("id", item.id)
+  // );
+
+  // // Execute all update promises concurrently
+  // const results = await Promise.all(stocksPromises);
+
+  // // You might want to check the results for errors
+  // const errors = results.filter(result => result.error !== null);
+  // if (errors.length > 0) {
+  //     console.error("Errors encountered during stock updates:", errors.map(e => e.error));
+  //     // You might throw an error or handle them specifically
+  //     throw new Error("Failed to update all product stocks.");
+  // }
+
+  // // Optionally, return a success message or the updated data (if you used .select() on each)
+  // console.log("All stocks updated successfully.");
+}
+
+/// OLD API
 
 /// PRODUCT IMAGES.
 

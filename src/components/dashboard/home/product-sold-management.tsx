@@ -15,7 +15,8 @@ const ProductSoldManagement = async ({
   let proById;
   let products;
   if (editSold) {
-    const { data, error } = await getProductToSellById(editSold);
+    const data = await getProductToSellById(editSold);
+    //  const relatedPro = await getProductsAction({id:data});
     proById = data;
   }
 
@@ -23,8 +24,10 @@ const ProductSoldManagement = async ({
     const data = await getProductsAction({});
     products = data;
   }
-  const serivceId = proById ? proById.serviceId : addSoldId;
-  const { data, error } = await getServiceById(serivceId);
+  const serviceId = proById?.data
+    ? proById.data.serviceId
+    : Number(addSoldId) || 0;
+  const { data, error } = await getServiceById(serviceId);
 
   //   const { data: fee, error } = feesToEdit;
   //   const { data: CategoriesData, error: categoriesErorr } = categories;
@@ -35,7 +38,7 @@ const ProductSoldManagement = async ({
   return (
     <EditSoldForm
       open={proById || addSoldId ? true : false}
-      proSold={proById}
+      proSold={proById?.data}
       products={products?.data || []}
       addSoldId={addSoldId}
       service={data}

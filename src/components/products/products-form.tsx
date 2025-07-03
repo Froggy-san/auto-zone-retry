@@ -98,6 +98,7 @@ import { formatCurrency } from "@lib/client-helpers";
 import { BsCartDash } from "react-icons/bs";
 import MoreDetailsAccordion from "./more-details-accordion";
 import _ from "lodash";
+import { cn } from "@lib/utils";
 
 // Variants for slide transitions; "direction" is passed as a custom prop.
 const slideVariants = {
@@ -590,7 +591,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
           <form
             ref={formRef}
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8  px-6 sm:px-14  relative  py-4 overflow-y-auto overflow-x-hidden"
+            className={cn(
+              "space-y-8  px-6 sm:px-14  relative  py-4 overflow-y-auto overflow-x-hidden",
+              {
+                " px-2 sm:px-6  ": step === maxNumOfSteps,
+              }
+            )}
           >
             <AnimatePresence mode="wait">
               {step === 0 && (
@@ -624,6 +630,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   currStep={[step, direction]}
                   isLoading={isLoading}
                   formValues={formValues}
+                  mediaUrls={mediaUrls}
                   categoriesArr={categories}
                   productTypesArr={productTypes}
                   productBrandsArr={productBrand}
@@ -1008,6 +1015,7 @@ function StepOne({
 interface StepThreeProps {
   currStep: number[];
   isLoading: boolean;
+  mediaUrls: ProductImage[];
   categoriesArr: Category[];
   productTypesArr: ProductType[];
   productBrandsArr: ProductBrand[];
@@ -1017,6 +1025,7 @@ interface StepThreeProps {
 function StepThree({
   currStep,
   formValues,
+  mediaUrls,
   categoriesArr,
   productBrandsArr,
   productTypesArr,
@@ -1025,6 +1034,8 @@ function StepThree({
   const [step, direction] = currStep;
 
   const images = formValues.images.map((image) => image.preview);
+  const urls = mediaUrls.map((image) => image.imageUrl);
+  const viewedImages = [...urls, ...images];
   const categories = categoriesArr.find(
     (cat) => cat.id === formValues.categoryId
   );
@@ -1035,7 +1046,7 @@ function StepThree({
     (brand) => brand.id === formValues.productBrandId
   );
 
-  const date = new Date();
+  // const date = new Date();
 
   return (
     <motion.div
@@ -1061,8 +1072,8 @@ function StepThree({
         isLoading && "pointer-events-none"
       }`}
     >
-      {images.length ? (
-        <FullImagesGallery images={images} className="  !h-[50vh]" />
+      {viewedImages.length ? (
+        <FullImagesGallery images={viewedImages} className="  !h-[50vh]" />
       ) : (
         <div className=" h-full flex items-center justify-center  bg-foreground/10  font-semibold text-xl py-5 gap-3">
           <ImageOff className=" w-10 h-10" /> No images.

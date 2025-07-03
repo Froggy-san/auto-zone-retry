@@ -519,7 +519,6 @@ export interface Product {
   categoryId: number;
   created_at: string;
   name: string;
-  dateAdded: string;
   description: string;
   listPrice: number;
   salePrice: number;
@@ -711,7 +710,9 @@ export interface ProductToSell {
   totalPriceAfterDiscount: number;
   isReturned: boolean;
   note: string;
-  product: ProductInProductToSell;
+  productId: number;
+  serviceId: number;
+  product: Product;
 }
 
 export interface ServiceFee {

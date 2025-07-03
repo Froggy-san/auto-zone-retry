@@ -85,7 +85,7 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
                     value={
                       option.name + option.categories.name + String(option.id)
                     } // to avoid selecting two or more items that has the same name proprty.
-                    disabled={!option.isAvailable}
+                    disabled={!option.isAvailable || !option.stock}
                     onSelect={() => {
                       setValue(option.id === value ? 0 : option.id);
                       setOpen(false);
