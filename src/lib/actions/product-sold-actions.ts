@@ -2,11 +2,18 @@
 
 import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
-import { EditServiceFee, ProductSold, ProductToSell } from "@lib/types";
+import {
+  EditServiceFee,
+  Product,
+  ProductSold,
+  ProductToSell,
+  ProductWithCategory,
+} from "@lib/types";
 import { createClient } from "@utils/supabase/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { editServiceAction } from "./serviceActions";
+import { editProductAction, editProductsStockAction } from "./productsActions";
 
 interface GetProps {
   pageNumber?: string;
@@ -77,27 +84,38 @@ export async function getServiceFeesAction({
 type CreateProps = ProductSold & { totalPriceAfterDiscount: number };
 export async function createProductToSellAction(
   productToSell: CreateProps,
-  totalPrice: number
+  totalPrice: number,
+  stocksUpdates: Product
 ) {
   const supabase = await createClient();
+  // 1. Add new product sold.
   const { error } = await supabase
     .from("productsToSell")
     .insert([productToSell]);
   if (error) return { data: null, error: error.message };
+
+  // 2. Update the total price after discound of the related service.
   const { data, error: serviceError } = await editServiceAction({
     id: productToSell.serviceId,
     totalPrice,
   });
+
+  // 3. Update the number of stocks available for the product sold.
+  const stockError = await editProductsStockAction([stocksUpdates]);
+  if (stockError) return { data, error: stockError };
   if (serviceError) return { data, error: serviceError };
+  revalidatePath(`/products/${stocksUpdates.id}`);
   revalidateTag("services");
 
   return { data: null, error: "" };
 }
-export async function getProductToSellById(id: string) {
+export async function getProductToSellById(
+  id: string
+): Promise<{ data: ProductToSell | null; error: string }> {
   const supabase = await createClient();
   const { data: productsToSell, error } = await supabase
     .from("productsToSell")
-    .select("*")
+    .select("*,product(*)")
     .eq("id", id);
 
   if (error) return { data: null, error: error.message };
@@ -152,9 +170,12 @@ export async function editProductToSellAction(
     productToSell: EditProps;
     id: number;
   },
-  { id: serviceId, totalPrice, isEqual }: ServiceProps
+  { id: serviceId, totalPrice, isEqual }: ServiceProps,
+  stocksUpdates: Product
 ) {
   const supabase = await createClient();
+
+  // 1. Update the product sold entry.
   const { error } = await supabase
     .from("productsToSell")
     .update(productToSell)
@@ -162,6 +183,7 @@ export async function editProductToSellAction(
 
   if (error) return { data: null, error: error.message };
 
+  // 2. Update the total service price after discount for the related song.
   if (!isEqual) {
     const { data, error } = await editServiceAction({
       id: serviceId,
@@ -169,24 +191,69 @@ export async function editProductToSellAction(
     });
     if (error) return { data, error };
   }
+
+  // 3. Update the stock availbe for the related product sold.
+  const stockError = await editProductsStockAction([stocksUpdates]);
+  if (stockError) return { data: null, error: stockError };
+  revalidatePath(`/products/${stocksUpdates.id}`);
   revalidateTag("services");
 
   return { data: null, error: "" };
 }
 
-export async function deleteProductToSellAction(
-  id: string,
-  serviceId: number,
-  totalPrice: number
-) {
+interface Delete {
+  proSold: ProductToSell;
+  serviceId: number;
+  totalPrice: number;
+  shouldUpdateStock?: boolean;
+}
+
+export async function deleteProductToSellAction({
+  proSold,
+  serviceId,
+  totalPrice,
+  shouldUpdateStock = false,
+}: Delete) {
   const supabase = await createClient();
-  const { error } = await supabase.from("productsToSell").delete().eq("id", id);
+
+  // 1. Delete the product sold entry.
+  const { error } = await supabase
+    .from("productsToSell")
+    .delete()
+    .eq("id", proSold.id);
   if (error) return { data: null, error: error.message };
   const { data, error: serviceError } = await editServiceAction({
     id: serviceId,
     totalPrice,
   });
   if (serviceError) return { data, error: serviceError };
+
+  // 2. If the user wants to update the stock of the product after deleting the product sold entry.
+  if (shouldUpdateStock) {
+    const { data: product, error } = await supabase
+      .from("product")
+      .select("*")
+      .eq("id", proSold.productId);
+
+    if (error) return { data: null, error: error.message };
+    if (!product[0])
+      return {
+        data: null,
+        error:
+          "Something went wrong while trying to update the stocks after deletion.",
+      };
+
+    const { error: updateError } = await supabase
+      .from("product")
+      .update({ stock: product[0].stock + proSold.count })
+      .eq("id", proSold.productId);
+
+    if (updateError)
+      return {
+        data: null,
+        error: `Failed to update stock: ${updateError.message}`,
+      };
+  }
   revalidateTag("services");
 
   return { data: null, error: "" };

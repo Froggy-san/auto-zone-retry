@@ -2,11 +2,17 @@
 
 import { PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
-import { CreateService, Service } from "@lib/types";
+import {
+  CreateService,
+  Product,
+  ProductWithCategory,
+  Service,
+} from "@lib/types";
 import { createClient } from "@utils/supabase/server";
 import { formatDate, format } from "date-fns";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { editProductsStockAction } from "./productsActions";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -56,7 +62,7 @@ export async function getServicesAction({
     Prefer: "count=exact",
   } as Record<string, string>;
 
-  if (!pageNumber) {
+  if (pageNumber) {
     headers.Range = `${from}-${to}`;
   }
 
@@ -81,7 +87,6 @@ export async function getServicesAction({
   }
   const count = response.headers.get("content-range")?.split("/")[1] || 0;
   const data: Service[] = await response.json();
-  console.log("SERVICES ", data);
 
   const services = data.map((service) => {
     // Safely sort servicesFee (if it exists)
@@ -121,7 +126,8 @@ export async function getServiceById(id: number, select = "*") {
 }
 
 export async function createServiceAction(
-  service: CreateService & { totalPrice: number }
+  service: CreateService & { totalPrice: number },
+  stocksUpdates: Product[]
 ) {
   const serviceData = {
     clientId: service.clientId,
@@ -133,6 +139,7 @@ export async function createServiceAction(
   };
   const supabase = await createClient();
 
+  // 1. Add the new service entry.
   const { data, error } = await supabase
     .from("services")
     .insert([serviceData])
@@ -144,6 +151,8 @@ export async function createServiceAction(
 
   let soldError = "";
   let feesError = "";
+
+  // 2. Add products sold entries and update the stocks for each relative products.
   if (service.productsToSell.length) {
     const soldProducts = service.productsToSell.map((pro) => {
       return {
@@ -152,13 +161,20 @@ export async function createServiceAction(
         totalPriceAfterDiscount: (pro.pricePerUnit - pro.discount) * pro.count,
       };
     });
+
+    // 1. Add the products sold entries.
     const { error } = await supabase
       .from("productsToSell")
       .insert(soldProducts);
 
     if (error) soldError = error.message;
+    // 2. Update the stocks of sold products.
+    const stocksError = await editProductsStockAction(stocksUpdates);
+    if (stocksError) return { data, error: stocksError };
+    revalidatePath("/products");
   }
 
+  // 3. Add the entries of service fees preformed.
   if (service.serviceFees.length) {
     const fees = service.serviceFees.map((fee) => {
       return {

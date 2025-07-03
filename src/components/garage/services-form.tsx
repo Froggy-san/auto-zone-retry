@@ -23,6 +23,7 @@ import {
   CreateService,
   CreateServiceSchema,
   PhoneNumber,
+  Product,
   ProductWithCategory,
   ServiceStatus,
 } from "@lib/types";
@@ -88,6 +89,7 @@ const ServicesForm = ({
   const [currTab, setCurrTab] = useState("item-1");
   const { toast } = useToast();
 
+  console.log(products);
   const defaultValues = {
     clientId: (client && client.id) || 0,
     carId: (car && car.id) || 0,
@@ -206,7 +208,48 @@ const ServicesForm = ({
       totalProductSoldAmounts.totalDiscount;
     const totalPrice = totalFeesAfterDis + totalSoldAfterDis;
     try {
-      const { error } = await createServiceAction({ ...data, totalPrice });
+      const soldQuantities: Map<number, number> = new Map();
+
+      if (data.productsToSell.length) {
+        data.productsToSell.forEach((pro) => {
+          const currentSold = soldQuantities.get(pro.productId) || 0;
+          soldQuantities.set(pro.productId, currentSold + pro.count);
+        });
+      }
+
+      const stocksUpdates: Product[] = [];
+      // Calculate the new stock for each unique product
+      for (const [productId, totalSoldCount] of soldQuantities.entries()) {
+        const currentProduct = products.find((prod) => prod.id === productId);
+
+        if (!currentProduct) {
+          // Handle cases where product is not found (e.g., log error, skip, or throw)
+          console.warn(
+            `Product with ID ${productId} not found. Skipping stock update.`
+          );
+          continue;
+        }
+
+        const initialStock = currentProduct.stock;
+        const newStock = initialStock - totalSoldCount;
+
+        // Ensure stock doesn't go negative if that's a business rule
+        const { categories, productImages, ...rest } = currentProduct;
+        const product = rest as Product;
+        if (newStock < 0) {
+          console.warn(
+            `Stock for product ${productId} would go negative (${newStock}). Adjusting to 0.`
+          );
+          stocksUpdates.push({ ...product, stock: 0 });
+        } else {
+          stocksUpdates.push({ ...product, stock: newStock });
+        }
+      }
+      console.log(stocksUpdates);
+      const { error } = await createServiceAction(
+        { ...data, totalPrice },
+        stocksUpdates
+      );
       if (error) throw new Error(error);
       toast({
         className: "bg-primary  text-primary-foreground",
@@ -646,11 +689,18 @@ const ServicesForm = ({
                                             const product = products.find(
                                               (product) => product.id === value
                                             );
-                                            if (product)
+                                            if (product) {
                                               form.setValue(
                                                 `productsToSell.${i}.pricePerUnit`,
                                                 product.salePrice
                                               );
+
+                                              form.setValue(
+                                                `productsToSell.${i}.discount`,
+                                                product.listPrice -
+                                                  product.salePrice
+                                              );
+                                            }
                                           }
                                         }}
                                         value={field.value}
@@ -1068,3 +1118,35 @@ const ServicesForm = ({
 };
 
 export default ServicesForm;
+
+// const stocksUpdates: { id: number; stock: number }[] = [];
+
+//     if (data.productsToSell.length) {
+//       data.productsToSell.forEach((pro, i) => {
+//         const currStock =
+//           products.find((prod) => prod.id === pro.productId)?.stock || 0;
+
+//         stocksUpdates.push({
+//           id: pro.productId,
+//           stock: currStock - pro.count,
+//         });
+//       });
+//     }
+
+//     const newStocks = stocksUpdates.reduce(
+//       (acc: { id: number; stock: number }[], curr) => {
+//         const similarItemValue = stocksUpdates
+//           .filter((item) => item.id === curr.id)
+//           .reduce(
+//             (previousValue, currItem) => {
+//               previousValue.id = currItem.id;
+//               previousValue.stock += previousValue.stock + currItem.stock;
+//               return previousValue;
+//             },
+//             { id: 0, stock: 0 }
+//           );
+
+//         return [...acc, similarItemValue];
+//       },
+//       []
+//     );
