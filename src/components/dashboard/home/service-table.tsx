@@ -166,6 +166,7 @@ const ServiceTable = ({
           {services && services.length
             ? services.map((service) => (
                 <Row
+                  key={service.id}
                   isClientPage={isClientPage}
                   isAdmin={isAdmin}
                   categories={categories}
@@ -173,7 +174,6 @@ const ServiceTable = ({
                   service={service}
                   cars={cars}
                   clients={clients}
-                  key={service.id}
                   currPage={currPage}
                   currPageSize={currPageSize}
                 />

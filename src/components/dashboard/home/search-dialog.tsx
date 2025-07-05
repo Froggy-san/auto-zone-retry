@@ -218,7 +218,7 @@ const SearchDialog = ({
         </DialogComponent.Header>
         <form action={handleSub}>
           <div className=" flex flex-wrap   justify-between gap-2 gap-y-3">
-            <div className=" space-y-2 mb-auto w-full   sm:w-[48%]">
+            <div className=" space-y-2 mb-auto w-full    sm:w-[48%]">
               <ServiceStatusCombobox
                 value={statusId}
                 setValue={setStatusId}
