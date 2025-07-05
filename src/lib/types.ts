@@ -578,9 +578,13 @@ export interface EditProduct {
 
 export interface Client {
   id: number;
+  created_at: string;
   name: string;
-  cars: { count: number }[];
   email: string;
+  user_id: string | null;
+  picture: string | null;
+  provider: string;
+  cars: { count: number }[];
 }
 
 export interface PhoneNumber {

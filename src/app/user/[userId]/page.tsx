@@ -8,6 +8,7 @@ import UserServices from "@components/user/activity/user-services";
 import { getUserById } from "@lib/actions/authActions";
 import { getClientByIdAction } from "@lib/actions/clientActions";
 import { ClientById, ClientWithPhoneNumbers } from "@lib/types";
+import { Car } from "lucide-react";
 import { Metadata } from "next";
 import React, { Suspense } from "react";
 
@@ -125,7 +126,12 @@ const Page = async ({ params, searchParams }: Props) => {
                 isAdmin={isAdmin === "Admin"}
                 cars={clientCars}
               />
-            ) : null}
+            ) : (
+              <p className=" sm:text-xl flex flex-col text-muted-foreground justify-center items-center gap-3">
+                <Car className=" w-[50px] h-[50px]" />
+                <span>No cars found.</span>
+              </p>
+            )}
 
             <Suspense
               fallback={<Spinner size={30} className=" mt-10" key={key} />}
@@ -145,7 +151,11 @@ const Page = async ({ params, searchParams }: Props) => {
               />
             </Suspense>
           </>
-        ) : null}
+        ) : (
+          <ErrorMessage>
+            Someting went wrong, please make sure you are logged in.
+          </ErrorMessage>
+        )}
       </section>
     </main>
   );

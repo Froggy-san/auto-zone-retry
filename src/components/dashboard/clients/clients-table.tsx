@@ -15,6 +15,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -34,7 +35,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { CircleUser, Ellipsis, UserRoundMinus } from "lucide-react";
+import {
+  Ban,
+  CircleUser,
+  Ellipsis,
+  ImageOff,
+  Mail,
+  UserPen,
+  UserRoundMinus,
+} from "lucide-react";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
@@ -48,6 +57,10 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
+import { FcGoogle } from "react-icons/fc";
+import ImageView from "@components/image-view";
+import Link from "next/link";
+import BanClient from "./ban-client";
 const ClientsTable = ({
   clients,
   currPage,
@@ -60,13 +73,15 @@ const ClientsTable = ({
   const currPageSize = clients.length;
 
   return (
-    <Table className="">
+    <Table className=" shadow-lg">
       <TableCaption>
         {clients.length ? "A list of your clients." : "No clients"}
       </TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[100px]">ID</TableHead>
+          <TableHead>PICTURE</TableHead>
+          <TableHead>PROVIDER</TableHead>
           <TableHead>NAME</TableHead>
           <TableHead>EMAIL</TableHead>
           <TableHead>PHONE NUMBER</TableHead>
@@ -75,9 +90,11 @@ const ClientsTable = ({
       </TableHeader>
       <TableBody>
         {clients && clients.length
-          ? clients.map((client, i) => (
-              <TableRow key={i}>
+          ? clients.map((client) => (
+              <TableRow key={client.id}>
                 <TableCell className="font-medium">{client.id}</TableCell>
+                <ClientPic pic={client.picture} />
+                <Provider provider={client.user_id ? client.provider : null} />
                 <TableCell>{client.name}</TableCell>
                 <TableCell>{client.email}</TableCell>
                 <TableCell>
@@ -102,6 +119,70 @@ const ClientsTable = ({
   );
 };
 
+function ClientPic({ pic }: { pic: string | null }) {
+  const [viewedImg, setViewedImg] = useState<string | null>(null);
+  return (
+    <TableCell>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            {pic ? (
+              <img
+                onClick={() => setViewedImg(pic)}
+                className=" w-7 h-7 rounded-full object-cover hover:opacity-80 hover:contrast-[90%] transition-all "
+                src={pic}
+              />
+            ) : (
+              <div className=" w-7 h-7 border rounded-full flex items-center justify-center  ">
+                <ImageOff className=" h-4 w-4" />
+              </div>
+            )}
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{pic ? "Show" : "Client has no image"}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      {pic ? (
+        <ImageView image={viewedImg} handleClose={() => setViewedImg(null)} />
+      ) : null}
+    </TableCell>
+  );
+}
+
+function Provider({ provider }: { provider: string | null }) {
+  const isGoogle = provider == "google";
+  return (
+    <TableCell>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger className="  cursor-default">
+            {provider ? (
+              <div className=" w-7 h-7 border rounded-full  flex items-center justify-center ">
+                {isGoogle ? (
+                  <FcGoogle className=" h-4 w-4" />
+                ) : (
+                  <Mail className=" h-4 w-4" />
+                )}
+              </div>
+            ) : (
+              <div className="  px-2 py-[.1rem] text-xs  border rounded-full  flex items-center justify-center ">
+                None
+              </div>
+            )}
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>
+              {provider
+                ? `User registered through ${provider}`
+                : "Client has no account on the website"}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </TableCell>
+  );
+}
 function ClientsTableActions({
   client,
   currPageSize,
@@ -112,7 +193,7 @@ function ClientsTableActions({
   currPageSize: number;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [open, setOpen] = useState<"delete" | "edit" | "">("");
+  const [open, setOpen] = useState<"delete" | "edit" | "ban" | "">("");
   const [isLoading, setIsLoading] = useState(false);
 
   function handleClose() {
@@ -133,15 +214,39 @@ function ClientsTableActions({
           {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
           {/* <DropdownMenuSeparator /> */}
           <DropdownMenuItem
+            asChild
+            disabled={!client.provider || !client.user_id}
+            onClick={(e) => {
+              if (!client.provider) e.preventDefault();
+            }}
+            className={!client.user_id ? "pointer-events-none" : ""}
+          >
+            <Link
+              href={`/user/${client.user_id}`}
+              className=" flex items-center gap-2"
+            >
+              <CircleUser className=" w-4 h-4" /> View client&apos;s detials
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
             className=" gap-2"
             onClick={() => {
               setOpen("edit");
             }}
           >
-            <CircleUser className=" w-4 h-4" /> Edit client
+            <UserPen className=" w-4 h-4" /> Edit client
           </DropdownMenuItem>
           <DropdownMenuItem
-            className=" gap-2"
+            onClick={() => {
+              setOpen("ban");
+            }}
+            className=" gap-2 text-destructive-foreground"
+          >
+            <Ban className="w-4 h-4" /> Ban user
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            className=" gap-2 text-destructive-foreground"
             onClick={() => {
               setOpen("delete");
             }}
@@ -152,6 +257,11 @@ function ClientsTableActions({
       </DropdownMenu>
       <ClientForm
         open={open === "edit"}
+        handleClose={handleClose}
+        client={client}
+      />
+      <BanClient
+        open={open === "ban"}
         handleClose={handleClose}
         client={client}
       />
