@@ -81,8 +81,13 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
           className={cn("w-full   justify-between   h-fit ", className)}
         >
           {selected ? (
-            <div className=" flex items-center gap-2">
-              Status: <StatusBadge status={selected} className=" py-[.1rem]" />
+            <div className=" flex max-w-full   items-center gap-2">
+              Status:{" "}
+              <StatusBadge
+                status={selected}
+                className=" py-[.1rem] text-wrap"
+                key={selected.id}
+              />
             </div>
           ) : (
             "Select status..."
