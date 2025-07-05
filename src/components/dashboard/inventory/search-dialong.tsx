@@ -121,8 +121,6 @@ const SearchDialog = ({
       }
     }
   };
-  console.log("PRO NAME", proName);
-  console.log("shopName", shopName);
 
   async function handleSub() {
     const name = nameValue.trim();

@@ -1,10 +1,12 @@
 import SearchDialog from "@components/dashboard/home/search-dialog";
 import ServiceTable from "@components/dashboard/home/service-table";
+import ErrorMessage from "@components/error-message";
 import PaginationControl from "@components/pagination-controls";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getServicesAction } from "@lib/actions/serviceActions";
 import { getServiceStatusAction } from "@lib/actions/serviceStatusAction";
 import { CarItem, ClientWithPhoneNumbers, User } from "@lib/types";
+import { HandPlatter } from "lucide-react";
 
 import React from "react";
 interface Props {
@@ -52,6 +54,12 @@ const UserServices = async ({
   const { data: categories, error: categoriesError } = categoriesData;
   const { data, error } = servicesData;
   const isAdmin = user.user_metadata.role === "Admin";
+  const errors = statusError || categoriesError || error;
+
+  if (errors) return <ErrorMessage className=" mt-7">{errors}</ErrorMessage>;
+  if (!data)
+    return <ErrorMessage className=" mt-7">Something went wrong</ErrorMessage>;
+
   return (
     <div className=" mt-10">
       <SearchDialog
@@ -68,7 +76,7 @@ const UserServices = async ({
         minPrice={minPrice}
         currPage={pageNumber}
       />
-      {!servicesData.error ? (
+      {data?.data.length ? (
         <>
           <ServiceTable
             isAdmin={isAdmin}
@@ -85,7 +93,10 @@ const UserServices = async ({
           />
         </>
       ) : (
-        <p>{error}</p>
+        <p className=" sm:text-xl flex flex-col text-muted-foreground justify-center items-center gap-3">
+          <HandPlatter className=" w-[30px] h-[30px]" />
+          <span>No services were found.</span>
+        </p>
       )}
     </div>
   );
