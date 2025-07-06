@@ -89,7 +89,6 @@ const ServicesForm = ({
   const [currTab, setCurrTab] = useState("item-1");
   const { toast } = useToast();
 
-  console.log(products);
   const defaultValues = {
     clientId: (client && client.id) || 0,
     carId: (car && car.id) || 0,
@@ -245,7 +244,7 @@ const ServicesForm = ({
           stocksUpdates.push({ ...product, stock: newStock });
         }
       }
-      console.log(stocksUpdates);
+
       const { error } = await createServiceAction(
         { ...data, totalPrice },
         stocksUpdates
@@ -287,7 +286,7 @@ const ServicesForm = ({
         </Button>
       )}
 
-      <DialogComponent.Content className="   max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:px-12">
+      <DialogComponent.Content className="   max-h-[76vh]    overflow-y-auto max-w-[1000px]  sm:px-12">
         <DialogComponent.Header>
           <DialogComponent.Title className=" text-2xl">
             Service
@@ -640,6 +639,12 @@ const ServicesForm = ({
                   <div className=" py-10 space-y-8">
                     <ul className=" space-y-10">
                       {productsToSellFields.map((item, i) => {
+                        const maxAmount =
+                          products.find(
+                            (product) =>
+                              product.id === productsToSell[i]?.productId
+                          )?.stock || 0;
+
                         return (
                           <motion.li
                             initial={{
@@ -683,6 +688,7 @@ const ServicesForm = ({
                                     <FormLabel>Product</FormLabel>
                                     <FormControl>
                                       <ProductsComboBox
+                                        productToSell={productsToSell}
                                         setValue={(value) => {
                                           field.onChange(value);
                                           if (value) {
@@ -790,7 +796,22 @@ const ServicesForm = ({
                                           value={field.value}
                                           onChange={(e) => {
                                             const inputValue = e.target.value;
-                                            if (/^\d*$/.test(inputValue)) {
+                                            if (!/^\d*$/.test(inputValue))
+                                              return;
+
+                                            if (
+                                              Number(inputValue) > maxAmount
+                                            ) {
+                                              toast({
+                                                variant: "destructive",
+                                                title: "Maximum amount.",
+                                                description: (
+                                                  <ErorrToastDescription
+                                                    error={`Count number must be lower than ${maxAmount}`}
+                                                  />
+                                                ),
+                                              });
+                                            } else {
                                               field.onChange(
                                                 Number(inputValue)
                                               );
