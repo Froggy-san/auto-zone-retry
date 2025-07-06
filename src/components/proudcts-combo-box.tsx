@@ -26,6 +26,13 @@ interface ComboBoxProps {
   value: number;
   options: ProductWithCategory[];
   disabled?: boolean;
+  productToSell?: {
+    note: string;
+    pricePerUnit: number;
+    discount: number;
+    count: number;
+    productId: number;
+  }[];
 }
 
 export const ProductsComboBox: React.FC<ComboBoxProps> = ({
@@ -33,6 +40,7 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
   value,
   options,
   disabled,
+  productToSell,
 }) => {
   const [open, setOpen] = React.useState(false);
   // const [value, setValue] = React.useState(0);
@@ -54,7 +62,10 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
           {selected ? (
             <div className=" flex flex-1 break-all   justify-center gap-5 items-center">
               <p className=" text-wrap  text-left ">
-                Name: {selected.name} / Category : {selected.categoryId}
+                Name: {selected.name} / Category : {selected.categoryId}{" "}
+                <span className=" text-xs  text-muted-foreground text-nowrap ">
+                  Stock: {selected.stock}
+                </span>
               </p>
               <img
                 src={seletedImg}
@@ -79,29 +90,47 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
                   ? option.productImages.find((image) => image.isMain)
                       ?.imageUrl || option.productImages[0].imageUrl
                   : DEFAULT_PRODUCT_PIC;
+
+                const isSelected = productToSell?.some(
+                  (item) =>
+                    item.productId === option.id && selected?.id !== option.id
+                );
+
                 return (
                   <CommandItem
                     key={option.id}
                     value={
                       option.name + option.categories.name + String(option.id)
                     } // to avoid selecting two or more items that has the same name proprty.
-                    disabled={!option.isAvailable || !option.stock}
+                    disabled={
+                      !option.isAvailable || !option.stock || isSelected
+                    }
                     onSelect={() => {
+                      if (isSelected) return;
                       setValue(option.id === value ? 0 : option.id);
                       setOpen(false);
                     }}
                     className="gap-2 justify-between"
                   >
-                    <div className=" flex items-center ">
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          value === option.id ? "opacity-100" : "opacity-0"
-                        )}
-                      />
+                    <div className=" flex gap-2 items-center ">
+                      {!isSelected && (
+                        <Check
+                          className={cn(
+                            " h-4 w-4 shrink-0",
+                            value === option.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                      )}
+
+                      {isSelected && (
+                        <span className="  rounded-full w-2 h-2 shrink-0 bg-green-500" />
+                      )}
                       <p className=" text-wrap  text-left ">
                         Name: {option.name} / Category :{" "}
-                        {option.categories.name}
+                        {option.categories.name}{" "}
+                        <span className=" text-xs  text-muted-foreground text-nowrap ">
+                          Stock: {option.stock}
+                        </span>
                       </p>
                     </div>
                     <img
