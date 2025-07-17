@@ -104,7 +104,7 @@ const Search = ({ className }: Props) => {
             className="absolute w-full flex p-2 max-h-72  flex-col-reverse md:flex-row  overscroll-contain overflow-y-scroll bg-card z-40 rounded-xl border"
           >
             <CommandList className=" overflow-visible md:h-full max-h-full flex-1">
-              {isLoading ? (
+              {isLoadingg ? (
                 <p className=" text-center">Loading...</p>
               ) : (
                 <CommandEmpty>No results found.</CommandEmpty>
