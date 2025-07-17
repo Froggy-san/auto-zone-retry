@@ -26,6 +26,66 @@ body {
 }
 
 @layer utilities {
+  /* Base styles for the command palette */
+  .cmdk-palette {
+    background-color: var(--background);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 20px auto;
+    overflow: hidden; /* To contain potential scrollbars */
+  }
+
+  /* Input field */
+  .cmdk-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 1.1em;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid #eee;
+    box-sizing: border-box; /* Include padding in width */
+  }
+
+  /* List container */
+  .cmdk-list {
+    max-height: 300px; /* Limit height to enable scrolling */
+    overflow-y: auto;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Individual items */
+  .cmdk-item {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.1s ease;
+  }
+
+  .cmdk-item:last-child {
+    border-bottom: none;
+  }
+
+  .cmdk-item:hover {
+    background-color: #f0f0f0;
+  }
+
+  /* Styles for the focused item (via keyboard navigation) */
+  .cmdk-item[aria-selected="true"] {
+    background-color: #e0e0e0; /* Different background for focused item */
+    outline: none; /* Remove default focus outline */
+  }
+
+  /* !!! Crucial for filtering: HIDE items with this attribute !!! */
+  .cmdk-item[data-cmdk-hidden="true"] {
+    display: none;
+  }
+
   .text-balance {
     text-wrap: balance;
   }
