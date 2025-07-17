@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 
-import Header from "@components/home/header";
+import Header from "@components/header";
 import ProductsList from "@components/products/products-list";
 import Spinner from "@components/Spinner";
 import ProductPagenation from "@components/products/product-pagenation";
@@ -9,13 +9,11 @@ import IntersectionProvidor from "@components/products/intersection-providor";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
 import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
-
 import ProductManagement from "@components/products-management";
 import { getProductsCountAction } from "@lib/actions/productsActions";
 import { Metadata } from "next";
 import { getCurrentUser } from "@lib/actions/authActions";
 import CategoryCarousel from "@components/products/category-carousel";
-import { createClient } from "@utils/supabase/server";
 
 export const metadata: Metadata = {
   title: "Products",

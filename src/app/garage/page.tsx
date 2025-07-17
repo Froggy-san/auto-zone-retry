@@ -3,7 +3,7 @@ import CarManagement from "@components/garage/car-management";
 import CarsList from "@components/garage/cars-list";
 import GarageFilterbar from "@components/garage/garage-filter-bar";
 import GaragePagination from "@components/garage/garage-pagination";
-import Header from "@components/home/header";
+import Header from "@components/header";
 import IntersectionProvidor from "@components/products/intersection-providor";
 import Spinner from "@components/Spinner";
 import { getAllCarGenerationsAction } from "@lib/actions/carGenerationsActions";

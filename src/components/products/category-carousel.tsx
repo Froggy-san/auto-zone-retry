@@ -19,16 +19,20 @@ type PropType = {
   categories: Category[];
   slides?: number[];
   options?: EmblaOptionsType;
+  asLinks?: boolean;
 };
 
 const CategoryCarousel: React.FC<PropType> = (props) => {
-  const { slides, options, categories } = props;
+  const { slides, options, categories, asLinks = false } = props;
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
+
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
   const params = new URLSearchParams(searchParams);
   const currCategory = searchParams.get("categoryId") ?? "";
+  const handleNext = emblaApi?.scrollNext;
+  const handlePrev = emblaApi?.scrollPrev;
 
   function handleCategoryClick(category: Category) {
     if (Number(currCategory) === category.id) {
@@ -38,6 +42,10 @@ const CategoryCarousel: React.FC<PropType> = (props) => {
       params.set("categoryId", String(category.id));
     }
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }
+
+  function handleNavTo(category: Category) {
+    router.push(`/products?${params.toString()}`, { scroll: false });
   }
 
   useEffect(() => {
@@ -66,7 +74,10 @@ const CategoryCarousel: React.FC<PropType> = (props) => {
             <div className=" relative" key={index}>
               <div className="embla__slide">
                 <button
-                  onClick={() => handleCategoryClick(category)}
+                  onClick={() => {
+                    if (asLinks) handleNavTo(category);
+                    else handleCategoryClick(category);
+                  }}
                   className={cn(
                     "select-none px-2 py-1  text-xs  whitespace-nowrap  font-bold rounded-[.5rem] bg-secondary hover:bg-muted-foreground/20   dark:bg-card dark:hover:bg-accent  transition-colors duration-200",
                     {

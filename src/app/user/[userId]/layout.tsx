@@ -4,24 +4,8 @@ import NavDrawer from "@components/nav-drawer";
 import { ModeToggle } from "@components/theme-switch";
 import { Metadata } from "next";
 import Link from "next/link";
-import React, { cloneElement } from "react";
-import {
-  ArrowLeftToLine,
-  ArrowRightToLine,
-  Car,
-  FolderKanban,
-  Grid2x2Plus,
-  House,
-  KeySquare,
-  LockKeyhole,
-  LockKeyholeOpen,
-  LogOut,
-  Package,
-  PersonStanding,
-  SlidersVertical,
-  UserCog,
-  Users,
-} from "lucide-react";
+import React from "react";
+import { KeySquare, PersonStanding, Users } from "lucide-react";
 import { TbMessageReport } from "react-icons/tb";
 import { createClient } from "@utils/supabase/server";
 

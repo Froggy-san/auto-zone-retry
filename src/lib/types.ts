@@ -774,6 +774,29 @@ export interface CartItem extends ProductById {
   totalPrice: number;
 }
 
+export interface categoryResult {
+  id: number;
+  created_at: string;
+  name: string;
+
+  product: {
+    categoryId: number;
+    created_at: string;
+    description: string;
+    id: number;
+    isAvailable: boolean;
+    listPrice: number;
+    makerId: number | null;
+    name: string;
+    productBrandId: number;
+    productBrands: { name: string };
+    productImages: { imageUrl: string; isMain: boolean };
+    productTypeId: number;
+    salePrice: number;
+    stock: number;
+  }[];
+}
+
 export type ImgData = {
   path: string;
   name: string;
