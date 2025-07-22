@@ -14,7 +14,7 @@ export async function searchCategories(searchTerm: string): Promise<{
   // ,product.name.ilike.%${searchTerm}%,product.description.ilike.%${searchTerm}%,product.productBrands.name.ilike.%${searchTerm}%
   if (searchTerm) {
     query = query.ilike("name", `%${searchTerm}%`);
-    let { data: product, error } = await supabase
+    const { data: product, error } = await supabase
       .from("product")
       .select("*,productImages(isMain,imageUrl),productBrands(name)")
       .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
@@ -28,5 +28,5 @@ export async function searchCategories(searchTerm: string): Promise<{
   const { data: categories, error } = await query;
   if (error) errors = error.message;
 
-  return { categories, products, error: error?.message || "" };
+  return { categories, products, error: errors || "" };
 }
