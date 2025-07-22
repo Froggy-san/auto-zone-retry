@@ -55,7 +55,12 @@ const UserUi = ({
   const params = useParams();
 
   if (isLoading) return <Spinner className=" h-fit mb-2" />;
-  if (!user?.user) return null; // Change this line later.
+  if (!user?.user)
+    return (
+      <Button size="sm" asChild>
+        <Link href="/login">Login</Link>
+      </Button>
+    ); // Change this line later.
   const userId = params.userId;
   const userData = user.user;
   const image = userData?.user_metadata.avatar_url;
@@ -80,7 +85,7 @@ const UserUi = ({
     if (error)
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
+        title: "Something went wrong.",
         description: <ErorrToastDescription error={error} />,
       });
   }
