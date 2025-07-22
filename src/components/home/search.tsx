@@ -1,30 +1,40 @@
 "use client";
-import React, { useState } from "react";
-import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  PackageSearch,
-  Settings,
-  Smile,
-  User,
-} from "lucide-react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { PackageSearch } from "lucide-react";
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
+
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+
 import { Input } from "@components/ui/input";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@components/ui/button";
 import { cn } from "@lib/utils";
 import useSearchCategories from "@lib/queries/categories/useSearchCategory";
-import { Product } from "@lib/types";
+import { categoryResult, Product } from "@lib/types";
+import { useMediaQuery } from "@mui/material";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import CloseButton from "@components/close-button";
 
 interface Props {
   className?: string;
@@ -32,19 +42,111 @@ interface Props {
 
 const Search = ({ className }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [focused, setFocused] = useState(false);
+  const [show, setShow] = useState(false);
+  const isSmallScreen = useMediaQuery("(max-width: 739px)");
+  const divRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  console.log(isSmallScreen, "SSSS");
+
   const { categories, products, error, isLoading } =
     useSearchCategories(searchTerm);
 
-  console.log(products, "PRO");
-  const show = focused && searchTerm.length > 0;
+  function handleCategory(category: categoryResult) {
+    router.push(`/products?page=1&categoryId=${category.id}`);
+  }
+
+  // const show = focused && searchTerm.length > 0;
+
+  return (
+    <>
+      <div
+        className={cn(
+          "  absolute  transition-all duration-300 lg:absolute left-1/2  px-2 sm:px-6   top-14  w-full   mid:w-[400px]  lg:w-[500px] z-50  flex-1 -translate-x-1/2  mid:-translate-x-1/3 mid:left-1/2  mid:top-[unset]   lg:left-1/2 lg:top-[unset] lg:-translate-x-1/2",
+          { "mid:w-full mid:-translate-x-1/2": show }
+        )}
+      >
+        {isSmallScreen ? (
+          <SearchBarOnSmScreens
+            isLoading={isLoading}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            show={show}
+            setShow={setShow}
+            categories={categories}
+            products={products}
+            handleCategory={handleCategory}
+          />
+        ) : (
+          <SearchBarOnBigScreens
+            isLoading={isLoading}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            show={show}
+            setShow={setShow}
+            categories={categories}
+            products={products}
+            handleCategory={handleCategory}
+          />
+        )}
+      </div>
+    </>
+  );
+};
+
+interface SearchProps {
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  className?: string;
+  isLoading: boolean;
+  show: boolean;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  categories: categoryResult[] | undefined | null;
+  products: Product[] | undefined | null;
+  handleCategory: (category: categoryResult) => void;
+}
+
+function SearchBarOnBigScreens({
+  searchTerm,
+  setSearchTerm,
+  isLoading,
+  show,
+  setShow,
+  categories,
+  products,
+  className,
+  handleCategory,
+}: SearchProps) {
+  const divRef = useRef<HTMLDivElement>(null);
+
+  //! There was an issue with making the element scroll it's height when we have the flex direction set to "flex-col-reverse" becasue we were calling the "scrollTo(x:0,y:0) thinking it would scorll to the top just like it normally would if the flex direction was not set, but that was wrong when it's set to "flex-col-reverse" it reverses the whole element upside down, which means in order to scroll to the top of the element in question you need to scroll all the way down.
+  useLayoutEffect(() => {
+    if (divRef.current) {
+      console.log("SCrolled to top because searchTerm changed!");
+      const element = divRef.current;
+
+      // Check if there's actual scrollable content
+      if (element.scrollHeight > element.clientHeight) {
+        // Determine scroll position based on flex direction
+        element.scrollTo(0, 0);
+        // if (!isSmallScreen) {
+        //   // This corresponds to flex-col-reverse
+        //   // For flex-col-reverse, "scrolling to top" visually means scrolling to max position
+        //   element.scrollTo(0, -element.scrollHeight);
+        // } else {
+        //   // This corresponds to md:flex-row
+        //   // For flex-row, "scrolling to top" visually means scrolling to 0
+        // }
+      }
+    }
+  }, [searchTerm]);
   return (
     <Command
       // value={searchTerm}
+
       onValueChange={setSearchTerm}
       shouldFilter={false}
       className={cn(
-        "rounded-lg border shadow-md w-full my-2  overflow-visible  relative mx-auto max-w-[450px]",
+        "rounded-lg border shadow-md w-full my-2  overflow-visible  relative ",
         className,
 
         { "animate-pulse": isLoading }
@@ -53,8 +155,14 @@ const Search = ({ className }: Props) => {
       {/* <CommandInput placeholder="Type a command or search..." /> */}
       <div className=" relative ">
         <Input
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
+          onFocus={() => {
+            // if (isSmallScreen) return;
+            setShow(true);
+          }}
+          onBlur={() => {
+            // if (isSmallScreen) return;
+            setShow(false);
+          }}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="    w-full pr-4 focus-visible:ring-2"
@@ -68,8 +176,9 @@ const Search = ({ className }: Props) => {
       </div>
 
       <AnimatePresence>
-        {true && (
+        {show && (
           <motion.div
+            ref={divRef}
             initial={{
               y: 70,
               left: "50%",
@@ -101,17 +210,25 @@ const Search = ({ className }: Props) => {
               opacity: 0,
               transition: { duration: 0.2 },
             }}
-            className="absolute w-full flex p-2 max-h-72  flex-col-reverse md:flex-row  overscroll-contain overflow-y-scroll bg-card z-40 rounded-xl border"
+            className="absolute w-full flex p-2    gap-2 flex-row  overscroll-contain overflow-y-scroll bg-card z-40 rounded-xl border"
           >
-            <CommandList className=" overflow-visible md:h-full max-h-full flex-1">
-              {isLoadingg ? (
+            <CommandList className=" overflow-visible max-h-full  flex-1">
+              <h3 className=" text-sm text-muted-foreground mb-3">
+                Categories
+              </h3>
+              {isLoading ? (
                 <p className=" text-center">Loading...</p>
               ) : (
                 <CommandEmpty>No results found.</CommandEmpty>
               )}
 
-              {categories?.map((cat, i) => (
-                <CommandItem key={cat.id} value={cat.name}>
+              {categories?.map((cat) => (
+                <CommandItem
+                  key={cat.id}
+                  value={cat.name}
+                  onClick={() => handleCategory(cat)}
+                  onSelect={() => handleCategory(cat)}
+                >
                   <span>{cat.name}</span>
                 </CommandItem>
               ))}
@@ -122,15 +239,137 @@ const Search = ({ className }: Props) => {
       </AnimatePresence>
     </Command>
   );
-};
+}
 
-function ProductList({ products }: { products: Product[] }) {
+function SearchBarOnSmScreens({
+  searchTerm,
+  setSearchTerm,
+  isLoading,
+  show,
+  setShow,
+  categories,
+  products,
+  className,
+  handleCategory,
+}: SearchProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [handleOnly, setHandleOnly] = useState(false);
+  console.log("handleOnly", handleOnly);
+  const handleDisableDrag = () => {
+    setHandleOnly(true);
+  };
+
+  const handleEnableDrag = () => setHandleOnly(false);
+
+  useEffect(() => {
+    let focusTimeout: NodeJS.Timeout;
+    if (show) {
+      // Set a timeout to allow the drawer's open animation to complete
+      focusTimeout = setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          console.log("Input focused after drawer open.");
+        }
+      }, 300); // Adjust this delay (milliseconds) based on your drawer's animation duration
+    } else {
+      // Optional: blur on close if you want, but often not necessary
+      if (inputRef.current) {
+        inputRef.current.blur();
+      }
+    }
+
+    return () => {
+      clearTimeout(focusTimeout); // Clean up the timeout
+    };
+  }, [show]); // Only re-run when the 'show' prop changes;
+
   return (
-    <ul className=" flex   h-[350px]  md:h-full max-h-full max-w-full overflow-x-auto border-l  p-2  md:flex-col    md:w-[40%]   md:overflow-hidden gap-4  ">
-      {products.map((pro) => (
-        <ProductItem key={pro.id} product={pro} />
-      ))}
-    </ul>
+    <Drawer
+      handleOnly={handleOnly}
+      open={show}
+      onOpenChange={setShow}
+      direction="right"
+    >
+      <DrawerTrigger asChild>
+        <div className=" relative  hover:cursor-pointer  bg-popover hover:bg-popover/80  mt-2 transition-all rounded-lg ">
+          <Input className="   pointer-events-none    w-full  " />
+          <Button
+            size="sm"
+            className=" absolute right-2 top-1/2  p-0 h-7 w-7  -translate-y-1/2"
+          >
+            <PackageSearch className=" h-4 w-4  " />
+          </Button>
+        </div>
+      </DrawerTrigger>
+      <DrawerContent className=" h-full">
+        <DrawerHeader className=" bg-primary py-1 ">
+          <DrawerTitle className=" flex items-center justify-between text-sm text-primary-foreground ">
+            SEARCH
+            <CloseButton onClick={() => setShow(false)} className="  static " />
+          </DrawerTitle>
+          <DrawerDescription className=" hidden">
+            This action cannot be undone.
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className=" p-2 space-y-6 ">
+          <Input
+            ref={inputRef}
+            id="Search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search..."
+            className=" w-full bg-popover"
+          />
+          <div className=" space-y-3 max-h-full  overflow-y-scroll overflow-x-hidden">
+            {products && products.length ? (
+              <ProductList
+                onMouseEnter={handleDisableDrag}
+                onMouseLeave={handleEnableDrag}
+                onTouchStart={handleDisableDrag}
+                onTouchEnd={handleEnableDrag}
+                products={products}
+              />
+            ) : null}
+            <ul>
+              {categories?.map((cat) => (
+                <li
+                  key={cat.id}
+                  onClick={() => handleCategory(cat)}
+                  className=" relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none hover:bg-accent hover::text-accent-foreground data-[disabled=true]:opacity-50"
+                >
+                  {cat.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <DrawerFooter>
+          <DrawerClose>
+            <Button variant="outline">Cancel</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+interface ProductListProps extends React.HTMLAttributes<HTMLUListElement> {
+  products: Product[];
+}
+
+function ProductList({ products, className, ...props }: ProductListProps) {
+  return (
+    <div className=" flex-shrink-0 w-full   sm:w-[50%] overflow-hidden h-full max-h-full max-w-full sm:border-l p-2">
+      <h3 className=" text-muted-foreground text-sm  mb-3 ">Products</h3>
+      <ul
+        className="flex   flex-row pb-3 sm:pb-0  overflow-x-auto sm:overflow-hidden  w-full max-w-full  sm:flex-col   gap-y-3 gap-x-4"
+        {...props}
+      >
+        {products.map((pro) => (
+          <ProductItem key={pro.id} product={pro} />
+        ))}
+      </ul>
+    </div>
   );
 }
 function ProductItem({ product }: { product: Product }) {
@@ -139,15 +378,20 @@ function ProductItem({ product }: { product: Product }) {
       product.productImages[0].imageUrl
     : null;
   return (
-    <li className=" relative flex cursor-default gap-2 select-none  shrink-0 max-w-40 w-fit items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent hover:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 h-12 ">
-      {image && (
-        <img
-          src={image}
-          alt={`${product.name} image`}
-          className=" h-full w-11"
-        />
-      )}{" "}
-      <p className="  line-clamp-2 ">{product.name}</p>
+    <li className=" relative select-none w-fit bg-accent shadow-md flex items-center  shrink-0 sm:w-full  rounded-sm px-3 py-3  text-sm outline-none  hover:bg-accent/50  hover:text-accent-foreground transition-all  ">
+      <Link
+        href={`/products/${product.id}`}
+        className=" flex cursor-default gap-2   justify-center   items-center"
+      >
+        {image && (
+          <img
+            src={image}
+            alt={`${product.name} image`}
+            className="  h-10 w-11"
+          />
+        )}{" "}
+        <p className="  line-clamp-2 ">{product.name}</p>
+      </Link>
     </li>
   );
 }

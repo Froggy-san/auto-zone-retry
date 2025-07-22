@@ -16,6 +16,9 @@
   transition: opacity 0.3s; /* Add transition for smooth effect */
 }
 
+::-webkit-scrollbar:horizontal {
+  height: 6px;
+}
 /* ::-webkit-scrollbar-thumb:hover {
   background-color: hsla(var(--accent-foreground), 0.9);
 } */

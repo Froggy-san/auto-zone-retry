@@ -12,6 +12,7 @@ const config: Config = {
       screens: {
         xxs: "355px",
         xs: "450px",
+        mid: "860px",
         "1xs": "500px",
         "3xl": "1600px",
         "4xl": "2200px",

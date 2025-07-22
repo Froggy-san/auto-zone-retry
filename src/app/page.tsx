@@ -31,6 +31,7 @@ export default async function Home() {
     >
       <div className=" border-b">
         <Header />
+
         <div className="  px-2 mb-4  space-y-2 ">
           <h3 className=" text-md font-semibold">Categories</h3>
           <CategoryCarousel
