@@ -1,6 +1,7 @@
 import CartClientForm from "@components/cart/cart-client-form";
 import CartList from "@components/cart/cart-list";
-import Header from "@components/home/header";
+import Header from "@components/header";
+
 import React from "react";
 
 const Page = () => {
