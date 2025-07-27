@@ -53,7 +53,7 @@ const ProductView = async ({
   // const { data: productData, error: producError } = product;
 
   if (error) return <p>{error}</p>;
-  if (!productData) return <div>Couldn't find the product.</div>;
+  if (!productData) return <div>Couldn&apos;t find the product.</div>;
 
   const prevPro = productData.pages?.prevPro || null;
   const nextPro = productData.pages?.nextPro || null;
