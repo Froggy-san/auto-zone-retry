@@ -13,7 +13,7 @@ import {
   uploadImageToBucket,
 } from "./helper-services";
 import { z } from "zod";
-
+const supabase = createClient();
 interface CreateProductProps {
   name: string;
   categoryId: number;
@@ -21,14 +21,22 @@ interface CreateProductProps {
   productBrandId: number;
   description: string;
   listPrice: number;
-  carinfoId: number;
   salePrice: number;
   stock: number;
   isAvailable: boolean;
   images: ImgData[];
   moreDetails: z.infer<typeof AddetionalDetailsSchema>[];
+  makerId: number | null;
+  modelId: number | null;
+  generationsArr: number[] | null;
 }
-
+interface insert
+  extends Omit<
+    CreateProductProps,
+    "images" | "generationsArr" | "moreDetails"
+  > {
+  generationsArr?: string;
+}
 export async function createProduct({
   name,
   categoryId,
@@ -36,30 +44,38 @@ export async function createProduct({
   productBrandId,
   description,
   listPrice,
-  carinfoId,
   salePrice,
   stock,
   isAvailable,
   images,
   moreDetails,
+  makerId,
+  modelId,
+  generationsArr,
 }: CreateProductProps) {
-  const supabase = createClient();
+  let insert: insert = {
+    name,
+    categoryId,
+    productTypeId,
+    productBrandId,
+    description,
+    listPrice,
+    salePrice,
+    stock,
+    isAvailable,
+    makerId,
+    modelId,
+  };
+  if (generationsArr?.length) {
+    insert = {
+      ...insert,
+      generationsArr: JSON.stringify(generationsArr),
+    };
+  }
 
   const { data, error } = await supabase
     .from("product")
-    .insert([
-      {
-        name,
-        categoryId,
-        productTypeId,
-        productBrandId,
-        description,
-        listPrice,
-        salePrice,
-        stock,
-        isAvailable,
-      },
-    ])
+    .insert([insert])
     .select();
 
   if (error) throw new Error(error.message);
@@ -123,8 +139,6 @@ export async function editProdcut({
   moreDetails: z.infer<typeof AddetionalDetailsSchema>[];
   deletedDetails: number[];
 }) {
-  const supabase = createClient();
-
   /// 1. Edit the products data.
   if (!isEqual) {
     const { error } = await supabase

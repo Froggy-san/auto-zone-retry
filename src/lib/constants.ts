@@ -17,6 +17,27 @@ export const STATIC_IMAGES = [
   "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.4160722142697284-FB_IMG_1715907147440.jpg",
 ];
 
+// Variants for slide transitions; "direction" is passed as a custom prop.
+export const ProFormSlideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 300 : -300, // Adjust these values as needed
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -300 : 300,
+    opacity: 0,
+  }),
+};
+
+export const ProFormTransition = {
+  x: { type: "spring", stiffness: 300, damping: 26, duration: 4 },
+  opacity: { duration: 0.5 },
+};
+
 export const SUPABASE_URL = "https://umkyoinqpknmedkowqva.supabase.co";
 
 // /app/user/[userID]

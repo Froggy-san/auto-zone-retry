@@ -36,6 +36,20 @@ function DialogComponent({
   const [isOpen, setIsOpen] = useState(false);
 
   const isDialogOpen = open !== undefined ? open : isOpen;
+  const handleOpenChange = () => {
+    setIsOpen((is) => !is);
+    if (open !== undefined) {
+      onOpenChange?.(!open);
+    }
+  };
+
+  useEffect(() => {
+    const escKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleOpenChange();
+    };
+    document.addEventListener("keydown", escKey);
+    return () => document.removeEventListener("keydown", escKey);
+  }, []);
 
   useEffect(() => {
     const body = document.querySelector("body");
@@ -51,13 +65,6 @@ function DialogComponent({
       if (body) body.style.overflow = "visible";
     };
   }, [isDialogOpen]);
-
-  const handleOpenChange = () => {
-    setIsOpen((is) => !is);
-    if (open !== undefined) {
-      onOpenChange?.(!open);
-    }
-  };
 
   return (
     <DialogContext.Provider

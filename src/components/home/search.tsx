@@ -46,7 +46,6 @@ const Search = ({ className }: Props) => {
   const isSmallScreen = useMediaQuery("(max-width: 739px)");
   const divRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  console.log(isSmallScreen, "SSSS");
 
   const { categories, products, error, isLoading } =
     useSearchCategories(searchTerm);
@@ -121,7 +120,6 @@ function SearchBarOnBigScreens({
   //! There was an issue with making the element scroll it's height when we have the flex direction set to "flex-col-reverse" becasue we were calling the "scrollTo(x:0,y:0) thinking it would scorll to the top just like it normally would if the flex direction was not set, but that was wrong when it's set to "flex-col-reverse" it reverses the whole element upside down, which means in order to scroll to the top of the element in question you need to scroll all the way down.
   useLayoutEffect(() => {
     if (divRef.current) {
-      console.log("SCrolled to top because searchTerm changed!");
       const element = divRef.current;
 
       // Check if there's actual scrollable content
@@ -254,7 +252,7 @@ function SearchBarOnSmScreens({
 }: SearchProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [handleOnly, setHandleOnly] = useState(false);
-  console.log("handleOnly", handleOnly);
+
   const handleDisableDrag = () => {
     setHandleOnly(true);
   };
@@ -268,7 +266,6 @@ function SearchBarOnSmScreens({
       focusTimeout = setTimeout(() => {
         if (inputRef.current) {
           inputRef.current.focus();
-          console.log("Input focused after drawer open.");
         }
       }, 300); // Adjust this delay (milliseconds) based on your drawer's animation duration
     } else {
