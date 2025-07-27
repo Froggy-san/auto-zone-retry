@@ -281,4 +281,8 @@ export function useTagsInput() {
 TagsInput.TagsContainer = TagsContainer;
 TagsInput.TagsInputField = TagsInputField;
 TagsInput.SendBtn = SendBtn;
+
+TagsContainer.displayName = "TagsContainer"
+TagsInputField.displayName = "TagsInputField"
+SendBtn.displayName = "SendBtn"
 export default TagsInput;

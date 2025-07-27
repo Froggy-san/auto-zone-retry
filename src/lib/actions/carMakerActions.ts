@@ -144,27 +144,27 @@ export async function getCarMakerCountAction() {
   return { data, error: "" };
 }
 
-export async function getAllCarBrandsAction(pageNumber?: number) {
-  let query = `${supabaseUrl}?/carMakers?select=*,carModels(*,carGenerations(*))`;
+// export async function getAllCarBrandsAction(pageNumber?: number) {
+//   let query = `${supabaseUrl}?/carMakers?select=*,carModels(*,carGenerations(*))`;
 
-  let headers;
+//   let headers;
 
-  if (pageNumber) {
-    const from = (Number(pageNumber) - 1) * MAKER_PAGE_SIZE; // (1-1) * 10 = 0
+//   if (pageNumber) {
+//     const from = (Number(pageNumber) - 1) * MAKER_PAGE_SIZE; // (1-1) * 10 = 0
 
-    const to = from + MAKER_PAGE_SIZE - 1; // 0 + 10 - 1 = 9
-    headers = {
-      apiKey: `${supabaseKey}`,
-      Authorization: `Bearer ${supabaseKey}`,
-      Range: `${from}-${to}`,
-    };
-  } else {
-    headers = {
-      apiKey: `${supabaseKey}`,
-      Authorization: `Bearer ${supabaseKey}`,
-    };
-  }
-}
+//     const to = from + MAKER_PAGE_SIZE - 1; // 0 + 10 - 1 = 9
+//     headers = {
+//       apiKey: `${supabaseKey}`,
+//       Authorization: `Bearer ${supabaseKey}`,
+//       Range: `${from}-${to}`,
+//     };
+//   } else {
+//     headers = {
+//       apiKey: `${supabaseKey}`,
+//       Authorization: `Bearer ${supabaseKey}`,
+//     };
+//   }
+// }
 
 /*
 

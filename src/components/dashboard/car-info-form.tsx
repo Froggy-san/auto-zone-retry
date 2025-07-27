@@ -31,7 +31,7 @@ import SuccessToastDescription, {
 
 import { MakerCombobox } from "@components/maker-combobox";
 import { ModelCombobox } from "@components/model-combobox";
-import { GenerationComboBox } from "@components/generation-combobox";
+
 import { createCarInfoAction } from "@lib/actions/carInfoActions";
 import useObjectCompare from "@hooks/use-compare-objs";
 import DialogComponent from "@components/dialog-component";
@@ -167,7 +167,7 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
                 )}
               />
             </div>
-            <FormField
+            {/* <FormField
               control={form.control}
               name="carGenerationId"
               render={({ field }) => (
@@ -185,7 +185,7 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <DialogComponent.Footer>
               <Button

@@ -48,7 +48,10 @@ const GenerationsTagInput = ({
             (gen) => gen.id === id
           ) as CarGenerationProps;
           return (
-            <li className="flex items-center gap-3 bg-primary px-2 py-1  text-primary-foreground text-xs font-semibold  rounded-xl">
+            <li
+              className="flex items-center gap-3 bg-primary px-2 py-1  text-primary-foreground text-xs font-semibold  rounded-xl"
+              key={id}
+            >
               {generation?.name}{" "}
               <CloseButton
                 onClick={() => handleRemove(generation.id)}
