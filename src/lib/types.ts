@@ -105,6 +105,9 @@ export const ProductsSchema = z
     salePrice: z.number(),
     carinfoId: z.number(), // this field is removed from the supabase data base.
     stock: z.number().default(0),
+    makerId: z.number().nullable(),
+    modelId: z.number().nullable(),
+    generationsArr: z.array(z.number()),
     isAvailable: z.boolean().default(false),
     images: z.array(z.custom<FilesWithPreview>()).max(15, {
       message: "You can only upload up to 15 images at a time.",
@@ -430,7 +433,7 @@ export interface ProductType {
   name: string;
 }
 
-interface CarMakerData {
+export interface CarMakerData {
   id: number;
   name: string;
   notes: string;
@@ -468,21 +471,21 @@ export interface CarMaker {
   logo: null | string;
 }
 
-export interface CarModelProps {
+export interface CarModelProps extends CarModel {
   id: number;
-  name: string;
-  notes: string;
-  carMaker: any;
-  carMakerId: number;
   carGenerations: CarGenerationProps[];
 }
-
-export interface CarGenerationProps {
+export interface CarGenerationProps extends CarGeneration {
   id: number;
+}
+
+export interface CarBrand {
+  created_at: string;
+  id: number;
+  logo: string;
   name: string;
   notes: string;
-  carModel: any;
-  carModelId: number;
+  carModels: CarModelProps[];
 }
 
 export interface CreateProductProps {
@@ -559,6 +562,11 @@ export interface ProductById {
   listPrice: number;
   salePrice: number;
   stock: number;
+  makerId: number | null;
+  modelId: number | null;
+  carMakers: CarMakerData;
+  carModels: CarModelProps;
+  generationsArr: CarGenerationProps[];
   isAvailable: boolean;
   carInfos: CarInfoProps[];
   productImages: ProductImage[];
@@ -574,6 +582,9 @@ export interface EditProduct {
   salePrice: number;
   stock: number;
   isAvailable: boolean;
+  makerId: number | null;
+  modelId: number | null;
+  generationsArr: string | null;
 }
 
 export interface Client {
@@ -807,6 +818,7 @@ export type ImgData = {
 export interface RejectionFiles extends FileRejection {
   preview: string;
 }
+
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
 export type CarGeneration = z.infer<typeof CarGenerationsSchema>;
 export type CarInfo = z.infer<typeof CarInfoSchema>;

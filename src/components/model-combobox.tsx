@@ -22,7 +22,7 @@ import { CarModelProps } from "@lib/types";
 
 interface CarModelComboBoxProps {
   setValue: (carModel: number) => void;
-  value: number;
+  value: number | null;
   disabled?: boolean;
   options: CarModelProps[];
 }
@@ -53,7 +53,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
               Model name: {selectedItem.name}
             </p>
           ) : (
-            "Select option..."
+            "Select model..."
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

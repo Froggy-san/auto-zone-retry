@@ -24,21 +24,8 @@ import { z } from "zod";
 import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "@lib/utils";
 import { ClickAwayListener } from "@mui/material";
-import { transition } from "./products-form";
-const slideVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 300 : -300, // Adjust these values as needed
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction > 0 ? -300 : 300,
-    opacity: 0,
-  }),
-};
+import { ProFormSlideVariants, ProFormTransition } from "@lib/constants";
+
 interface StepTwoProps {
   control: Control<z.infer<typeof ProductsSchema>>;
   moreDetails: z.infer<typeof AddetionalDetailsSchema>[];
@@ -81,11 +68,11 @@ function StepTwo({
   return (
     <motion.div
       custom={direction}
-      variants={slideVariants}
+      variants={ProFormSlideVariants}
       initial="enter"
       animate="center"
       exit="exit"
-      transition={transition}
+      transition={ProFormTransition}
       className=""
     >
       {/* <ul className=" space-y-20 ">

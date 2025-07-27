@@ -30,11 +30,11 @@ import SuccessToastDescription, {
 } from "@/components/toast-items";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@utils/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 type LoginFormSchemaTypes = z.infer<typeof LoginFormSchema>;
 const Page = () => {
-  const supabase = createClient();
-
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") ?? "";
 
@@ -73,17 +73,18 @@ const Page = () => {
       const error = await loginUser(values, redirect);
 
       if (error) throw new Error(error);
-      toast({
-        className: "bg-primary  text-primary-foreground",
-        title: "Welcome back.",
-        description: (
-          <SuccessToastDescription message="Glad to see you again." />
-        ),
-      });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      // toast({
+      //   className: "bg-primary  text-primary-foreground",
+      //   title: "Welcome back.",
+      //   description: (
+      //     <SuccessToastDescription message="Glad to see you again." />
+      //   ),
+      // });
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
+        // title: "Uh oh! Something went wrong.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }

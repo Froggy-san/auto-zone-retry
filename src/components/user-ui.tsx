@@ -26,6 +26,7 @@ import { AppWindow, LogOut, PersonStanding } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@lib/utils";
 import { useParams, usePathname } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   collapse?: boolean;
@@ -53,6 +54,7 @@ const UserUi = ({
   const { toast } = useToast();
   const pathname = usePathname();
   const params = useParams();
+  const queryClient = useQueryClient();
 
   if (isLoading) return <Spinner className=" h-fit mb-2" />;
   if (!user?.user)
@@ -80,7 +82,7 @@ const UserUi = ({
   async function handleLogout() {
     setLoading(true);
     const error = await logoutUser();
-
+    queryClient.invalidateQueries({ queryKey: ["user"] });
     setLoading(false);
     if (error)
       toast({

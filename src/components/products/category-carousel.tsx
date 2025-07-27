@@ -14,6 +14,9 @@ import { setWith } from "lodash";
 import { Badge } from "@components/ui/badge";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@lib/utils";
+import { Button } from "@components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { usePrevNextButtons } from "@hooks/use-prev-next-buttons";
 
 type PropType = {
   categories: Category[];
@@ -31,8 +34,14 @@ const CategoryCarousel: React.FC<PropType> = (props) => {
   const router = useRouter();
   const params = new URLSearchParams(searchParams);
   const currCategory = searchParams.get("categoryId") ?? "";
-  const handleNext = emblaApi?.scrollNext;
-  const handlePrev = emblaApi?.scrollPrev;
+
+  const {
+    prevBtnDisabled,
+    nextBtnDisabled,
+    onPrevButtonClick,
+    onNextButtonClick,
+  } = usePrevNextButtons(emblaApi);
+
 
   function handleCategoryClick(category: Category) {
     if (Number(currCategory) === category.id) {
@@ -67,7 +76,27 @@ const CategoryCarousel: React.FC<PropType> = (props) => {
   //   }, [slidesRef.current, emblaApi]);
 
   return (
-    <section className="embla">
+    <section className="embla relative ">
+      {!prevBtnDisabled && (
+        <Button
+          onClick={onPrevButtonClick}
+          disabled={prevBtnDisabled}
+          size="icon"
+          className="  absolute left-0 top-1/2   -translate-y-1/2  z-40"
+        >
+          <ChevronLeft className=" h-4 w-4" />
+        </Button>
+      )}
+      {!nextBtnDisabled && (
+        <Button
+          size="icon"
+          onClick={onNextButtonClick}
+          disabled={nextBtnDisabled}
+          className="  absolute right-0 top-1/2    -translate-y-1/2  z-30"
+        >
+          <ChevronRight className=" h-4 w-4" />
+        </Button>
+      )}
       <div className="embla__viewport" ref={emblaRef}>
         <div className="embla__container">
           {categories.map((category, index) => (

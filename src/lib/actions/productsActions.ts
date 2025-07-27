@@ -7,9 +7,11 @@ import { deleteImageFromBucketSr } from "@lib/services/server-helpers";
 
 import {
   AddetionalDetailsSchema,
+  CarGeneration,
   CreateProductProps,
   EditProduct,
   Product,
+  ProductById,
   ProductImage,
   ProductWithCategory,
 } from "@lib/types";
@@ -114,9 +116,15 @@ export async function getProductsAction({
 //   ).name;
 //   return { ...product, category: category };
 // });
-export async function getProductByIdAction(id: string) {
+
+interface ReturnedById extends ProductById {
+  pages: { prevPro: number | null; nextPro: number | null } | null;
+}
+export async function getProductByIdAction(
+  id: string
+): Promise<{ data: ReturnedById | null; error: string }> {
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/product?id=eq.${id}&select=*,productImages(*),categories(*),productBrands(*),productTypes(*),moreDetails(*)&productImages.order=id.asc`,
+    `${supabaseUrl}/rest/v1/product?id=eq.${id}&select=*,productImages(*),categories(*),productBrands(*),productTypes(*),moreDetails(*),carMakers(*),carModels(*)&productImages.order=id.asc`,
     {
       method: "GET",
       headers: {
@@ -146,12 +154,144 @@ export async function getProductByIdAction(id: string) {
     }
   );
 
+  // let errors = "";
+  // let generationsArr: CarGeneration[] = [];
+  const { generations, error } = await fetchProductGenerations(product);
+  const { pages, error: pagesError } = await getNextAndPrevPros(product.id);
+
   const productById = {
     ...product,
     moreDetails,
+    generationsArr: generations || [],
+    pages,
   };
 
-  return { data: productById, error: "" };
+  return { data: productById, error: error || "" };
+}
+
+interface FetchedProductData {
+  generations: CarGeneration[] | null;
+  error?: string; // Optional error message
+}
+
+async function getNextAndPrevPros(currId: number) {
+  const supabase = await createClient();
+  const { data: nextPro, error: nextError } = await supabase
+    .from("product")
+    .select("id")
+    .order("id", { ascending: true })
+    .gt("id", currId)
+    .limit(1)
+    .single();
+
+  if (nextError) {
+    if (nextError.code === "PGRST116") {
+      console.error("Prev Error Message :", nextError.message);
+    } else {
+      return { data: null, error: nextError.message };
+    }
+  }
+  const { data: prevPro, error: prevError } = await supabase
+    .from("product")
+    .select("id")
+    .order("id", { ascending: false })
+    .lt("id", currId)
+    .limit(1)
+    .single();
+  if (prevError) {
+    if (nextError) {
+      if (nextError.code === "PGRST116") {
+        console.error("Prev Error Message :", nextError.message);
+      } else {
+        return { data: null, error: prevError.message };
+      }
+    }
+  }
+  const pages = {
+    prevPro: prevPro ? prevPro.id : null,
+    nextPro: nextPro ? nextPro.id : null,
+  };
+  console.log("PAGES", pages);
+  return { pages, error: "" };
+}
+
+async function fetchProductGenerations(
+  product: ProductById
+): Promise<FetchedProductData> {
+  const supabase = await createClient(); // Get your Supabase client instance
+
+  let generationsArr: CarGeneration[] = [];
+  let error: string | undefined;
+
+  // Safely parse the generationsArr string
+  let genIds: number[] | null = null;
+  if (product.generationsArr && typeof product.generationsArr === "string") {
+    try {
+      const parsed = JSON.parse(product.generationsArr);
+      if (
+        Array.isArray(parsed) &&
+        parsed.every((id) => typeof id === "number")
+      ) {
+        genIds = parsed;
+      } else {
+        console.warn(
+          "Parsed generationsArr is not an array of numbers:",
+          product.generationsArr
+        );
+        error = "Invalid generations data format.";
+      }
+    } catch (e) {
+      console.error(
+        "Error parsing generationsArr JSON:",
+        product.generationsArr,
+        e
+      );
+      error = "Failed to process generations data.";
+    }
+  }
+
+  if (genIds && genIds.length > 0) {
+    // Only fetch if we have valid IDs
+    const generationPromises = genIds.map(
+      (genId: number) =>
+        supabase.from("carGenerations").select("*").eq("id", genId).single() // Use .single() if you expect one result per ID
+    );
+
+    try {
+      const results = await Promise.all(generationPromises);
+
+      // Check for individual errors within the results
+      const hasErrorsInResults = results.some((res) => res.error);
+      if (hasErrorsInResults) {
+        // Log individual errors for debugging
+        results.forEach((res, index) => {
+          if (res.error) {
+            console.error(
+              `Error fetching generation ID ${genIds[index]}:`,
+              res.error
+            );
+          }
+        });
+        error = error || "Failed to fetch some generation details."; // Prioritize existing error if any
+      }
+
+      // Filter out null/undefined data and ensure correct type
+      generationsArr = results
+        .map((res) => res.data) // data will be null if .single() didn't find a match
+        .filter((data): data is CarGeneration => data !== null); // Type guard for filtering
+
+      // Optional: If you strictly need all generations to be found,
+      // and want an error if some are missing:
+      if (generationsArr.length !== genIds.length && !error) {
+        console.warn("Some generations IDs did not return data.");
+        error = error || "Some associated generations could not be found.";
+      }
+    } catch (e) {
+      console.error("Promise.all error during generations fetch:", e);
+      error = "An unexpected error occurred during generations fetch.";
+    }
+  }
+  return { generations: generationsArr, error };
 }
 
 export async function createProductAction({

@@ -30,9 +30,9 @@ export default async function Home() {
       className=" min-h-[100vh] bg-background relative"
     >
       <div className=" border-b">
-        <Header />
+        <Header showSearch />
 
-        <div className="  px-2 mb-4  space-y-2 ">
+        <div className="  px-2 mb-4  space-y-2 mt-1">
           <h3 className=" text-md font-semibold">Categories</h3>
           <CategoryCarousel
             asLinks

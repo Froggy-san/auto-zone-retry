@@ -7,7 +7,7 @@ import { ProductImage } from "@lib/types";
 import Link from "next/link";
 import React from "react";
 import { getCurrentUser } from "@lib/actions/authActions";
-import { ImageOff } from "lucide-react";
+import { ArrowBigLeftDash, ArrowBigRightDash, ImageOff } from "lucide-react";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
 import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
@@ -52,8 +52,11 @@ const ProductView = async ({
   // const { data: images, error: productImagesError } = productImages;
   // const { data: productData, error: producError } = product;
 
-  if (error) return <p>{error.message}</p>;
+  if (error) return <p>{error}</p>;
+  if (!productData) return <div>Couldn't find the product.</div>;
 
+  const prevPro = productData.pages?.prevPro || null;
+  const nextPro = productData.pages?.nextPro || null;
   const imageUrls = productData?.productImages.map(
     (image: ProductImage) => image.imageUrl
   );
@@ -70,12 +73,28 @@ const ProductView = async ({
     );
 
   return (
-    <div>
+    <div className=" relative">
+      {nextPro && (
+        <div className=" fixed -left-10 top-0  hover:left-0 z-30  hover:backdrop-blur-sm  transition-all  h-full w-16 flex items-center justify-center">
+          <Button asChild variant="secondary">
+            <Link href={`/products/${nextPro}`} replace>
+              <ArrowBigLeftDash className=" w-5 h-5" />
+            </Link>
+          </Button>
+        </div>
+      )}
+
+      {prevPro && (
+        <div className=" fixed -right-10 hover:right-0 hover:backdrop-blur-sm transition-all top-0 z-30  h-full w-16 flex items-center justify-center">
+          <Button asChild variant="secondary">
+            <Link href={`/products/${prevPro}`} replace>
+              <ArrowBigRightDash className=" h-5 w-5" />
+            </Link>
+          </Button>
+        </div>
+      )}
       {imageUrls?.length ? (
-        <FullImagesGallery
-          images={imageUrls}
-          productId={productData.productId}
-        />
+        <FullImagesGallery images={imageUrls} productId={productData.id} />
       ) : (
         <div className=" h-full flex items-center justify-center  bg-foreground/10  font-semibold text-xl py-5 gap-3">
           <ImageOff className=" w-10 h-10" /> No images.

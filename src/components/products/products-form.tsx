@@ -7,26 +7,12 @@ import React, {
   useState,
 } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Control,
-  useFieldArray,
-  UseFieldArrayRemove,
-  useForm,
-} from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  CarInfoProps,
   Category,
   ProductBrand,
   ProductById,
@@ -34,12 +20,9 @@ import {
   ProductsSchema,
   ProductType,
 } from "@lib/types";
-import { Textarea } from "@components/ui/textarea";
-import { Switch } from "@components/ui/switch";
+
 import Spinner from "@components/Spinner";
 import {
-  createProductAction,
-  editProductAction,
   revalidateProductById,
   revalidateProducts,
 } from "@lib/actions/productsActions";
@@ -48,73 +31,27 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
 
-import { ComboBox } from "@components/combo-box";
-import { MultiFileUploader } from "./multi-file-uploader";
 import useObjectCompare from "@hooks/use-compare-objs";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import DialogComponent from "@components/dialog-component";
-import {
-  ArrowBigLeft,
-  ArrowBigRight,
-  ImageOff,
-  Minus,
-  Plus,
-  Trash2,
-} from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
+import { ArrowBigLeft, ArrowBigRight } from "lucide-react";
+
 import { SUPABASE_URL } from "@lib/constants";
 import { createProduct, editProdcut } from "@lib/services/products-services";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+
 import {
   Progress,
   ProgressBarContainer,
   ProgressMeter,
 } from "@components/progress";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import {
-  AnimatePresence,
-  motion,
-  useAnimate,
-  usePresence,
-} from "framer-motion";
-import StepTwo from "./product-step-two";
-import { duration } from "@mui/material";
-import FullImagesGallery from "@components/full-images-gallery";
-import ProdcutViewDetials from "./product-view-detials";
-import Collapse, {
-  CollapseButton,
-  CollapseContant,
-} from "@components/collapse";
-import { TbBoxModel2 } from "react-icons/tb";
-import { Card } from "@components/ui/card";
-import { VscTypeHierarchySuper } from "react-icons/vsc";
-import { MdCategory } from "react-icons/md";
-import { formatCurrency } from "@lib/client-helpers";
-import { BsCartDash } from "react-icons/bs";
-import MoreDetailsAccordion from "./more-details-accordion";
+import { AnimatePresence, motion } from "framer-motion";
+import StepTwo from "./form-step-two";
+
 import _ from "lodash";
 import { cn } from "@lib/utils";
-
-// Variants for slide transitions; "direction" is passed as a custom prop.
-const slideVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 300 : -300, // Adjust these values as needed
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction > 0 ? -300 : 300,
-    opacity: 0,
-  }),
-};
+import StepOne from "./form-step-one";
+import StepThree from "./form-step-three";
 
 interface ProductFormProps {
   categories: Category[];
@@ -173,6 +110,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
     [step, setStep]
   );
 
+  const carMaker = productToEdit?.carMakers;
+  const carModel = productToEdit?.carModels;
+  const generationsArr = productToEdit?.generationsArr;
   const isMainChange =
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
 
@@ -194,6 +134,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
     description: productToEdit?.description,
     listPrice: productToEdit?.listPrice,
     carinfoId: 1, //! Removed from the back end
+    makerId: productToEdit?.makerId,
+    modelId: productToEdit?.modelId,
+    generationsArr: productToEdit?.generationsArr,
     salePrice: productToEdit?.salePrice,
     stock: productToEdit?.stock,
     isAvailable: productToEdit?.isAvailable,
@@ -210,21 +153,27 @@ const ProductForm: React.FC<ProductFormProps> = ({
     description: pro.description || "",
     listPrice: pro.listPrice || 0,
     carinfoId: 0, //! Removed from the back end
+    makerId: pro.makerId || null,
+    modelId: pro.modelId || null,
+    generationsArr: pro.generationsArr
+      ? pro.generationsArr.map((gen) => gen.id)
+      : [],
     salePrice: pro.salePrice || 0,
     stock: pro.stock || 0,
     isAvailable: pro.isAvailable !== undefined ? pro.isAvailable : true,
     images: [],
     moreDetails: pro.moreDetails || [],
+
     isMain: false,
   };
   const form = useForm<z.infer<typeof ProductsSchema>>({
     mode: "onChange",
     resolver: zodResolver(ProductsSchema),
-    defaultValues: defaultValues,
+    defaultValues,
     // shouldUnregister: true,
   });
 
-  const { images, moreDetails } = form.watch();
+  const { images, moreDetails, makerId, modelId } = form.watch();
 
   const formValues = form.getValues();
   const formErrors = form.formState.errors;
@@ -347,6 +296,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
     salePrice,
     stock,
     isAvailable,
+    makerId,
+    modelId,
+    generationsArr,
     // isMain,
     images,
     moreDetails,
@@ -394,9 +346,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
           salePrice,
           stock,
           isAvailable,
+          makerId,
+          modelId,
+          generationsArr: generationsArr.length
+            ? JSON.stringify(generationsArr)
+            : null,
         };
 
         // Edit the product.
+
         await editProdcut({
           productToEdit: productToEditData,
           imagesToUpload,
@@ -442,12 +400,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
           productBrandId,
           description,
           listPrice,
-          carinfoId,
           salePrice,
           stock,
           isAvailable,
           images: imagesToUpload,
           moreDetails,
+          makerId,
+          modelId,
+          generationsArr,
         });
 
         await revalidateProducts();
@@ -592,7 +552,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             ref={formRef}
             onSubmit={form.handleSubmit(onSubmit)}
             className={cn(
-              "space-y-8  px-6 sm:px-14  relative  py-4 overflow-y-auto overflow-x-hidden",
+              "space-y-8  px-6 sm:px-14  relative  py-4 overflow-y-auto overscroll-contain overflow-x-hidden",
               {
                 " px-2 sm:px-6  ": step === maxNumOfSteps,
               }
@@ -613,6 +573,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   mediaUrls={mediaUrls}
                   productToEdit={productToEdit}
                   setDeletedMedia={setDeletedMedia}
+                  makerId={makerId}
+                  modelId={modelId}
+                  carMaker={carMaker}
                 />
               )}
 
@@ -691,573 +654,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
     </DialogComponent>
   );
 };
-
-/// Step one Products details. --------------------------------------
-
-export const transition = {
-  x: { type: "spring", stiffness: 300, damping: 26, duration: 4 },
-  opacity: { duration: 0.5 },
-};
-
-interface StepOneProps {
-  control: Control<z.infer<typeof ProductsSchema>>;
-  isLoading: boolean;
-  categories: Category[];
-  productTypes: ProductType[];
-  productBrand: ProductBrand[];
-  isMainImage: number | ProductImage | null;
-  mediaUrls: ProductImage[];
-  productToEdit?: ProductById;
-  currStep: number[];
-  handleDeleteMedia(productImage?: ProductImage): void;
-  setIsMainImage: React.Dispatch<
-    React.SetStateAction<number | ProductImage | null>
-  >;
-  setDeletedMedia: React.Dispatch<React.SetStateAction<ProductImage[]>>;
-}
-
-function StepOne({
-  currStep,
-  control,
-  isLoading,
-  categories,
-  productBrand,
-  productTypes,
-  isMainImage,
-  setIsMainImage,
-  handleDeleteMedia,
-  mediaUrls,
-  setDeletedMedia,
-  productToEdit,
-}: StepOneProps) {
-  const [step, direction] = currStep;
-  return (
-    <motion.div
-      custom={direction}
-      variants={slideVariants}
-      initial="enter"
-      animate="center"
-      exit="exit"
-      transition={transition}
-      className="  space-y-7"
-    >
-      <FormField
-        disabled={isLoading}
-        control={control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Name</FormLabel>
-            <FormControl>
-              <Input disabled={isLoading} placeholder="name" {...field} />
-            </FormControl>
-            <FormDescription>Enter the name of the product.</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className=" flex  flex-col gap-2 sm:flex-row">
-        <FormField
-          disabled={isLoading}
-          control={control}
-          name="listPrice"
-          render={({ field }) => (
-            <FormItem className=" w-full">
-              <FormLabel>List price</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  disabled={isLoading}
-                  value={field.value}
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    if (/^\d*$/.test(inputValue)) {
-                      field.onChange(Number(inputValue));
-                    }
-                  }}
-                  placeholder="List price..."
-                  // {...field}
-                />
-              </FormControl>
-              <FormDescription>Enter the listing price.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          disabled={isLoading}
-          control={control}
-          name="salePrice"
-          render={({ field }) => (
-            <FormItem className=" w-full">
-              <FormLabel>Sale price</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  disabled={isLoading}
-                  value={field.value}
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    if (/^\d*$/.test(inputValue)) {
-                      field.onChange(Number(inputValue));
-                    }
-                  }}
-                  placeholder="Sale price"
-                  // {...field}
-                />
-              </FormControl>
-              <FormDescription>Enter the discounted price.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <div className=" flex  flex-col gap-2 sm:flex-row">
-        <FormField
-          disabled={isLoading}
-          control={control}
-          name="stock"
-          render={({ field }) => (
-            <FormItem className=" w-full">
-              <FormLabel>Stock available</FormLabel>
-              <FormControl>
-                <Input
-                  type="text"
-                  disabled={isLoading}
-                  value={field.value}
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    if (/^\d*$/.test(inputValue)) {
-                      field.onChange(Number(inputValue));
-                    }
-                  }}
-                  placeholder="Stock"
-                  // {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Enter the amount of stock available.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          disabled={isLoading || !categories.length}
-          control={control}
-          name="categoryId"
-          render={({ field }) => (
-            <FormItem className=" w-full ">
-              <FormLabel>category</FormLabel>
-              <FormControl className=" ">
-                <ComboBox
-                  disabled={isLoading || !categories.length}
-                  options={categories}
-                  value={field.value}
-                  setValue={field.onChange}
-                />
-              </FormControl>
-              <FormDescription>
-                Enter what category does the product belong to.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      <div className=" flex  flex-col gap-2 sm:flex-row">
-        <FormField
-          disabled={isLoading || !productBrand.length}
-          control={control}
-          name="productBrandId"
-          render={({ field }) => (
-            <FormItem className=" w-full">
-              <FormLabel>Product brand</FormLabel>
-              <FormControl>
-                <ComboBox
-                  disabled={isLoading || !productBrand.length}
-                  options={productBrand}
-                  value={field.value}
-                  setValue={field.onChange}
-                />
-              </FormControl>
-              <FormDescription>Enter the brand of the product.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          disabled={isLoading || !productTypes.length}
-          control={control}
-          name="productTypeId"
-          render={({ field }) => (
-            <FormItem className=" w-full">
-              <FormLabel>Product type</FormLabel>
-              <FormControl>
-                <ComboBox
-                  disabled={isLoading || !productTypes.length}
-                  options={productTypes}
-                  value={field.value}
-                  setValue={field.onChange}
-                />
-              </FormControl>
-              <FormDescription>
-                Enter what type of product it is.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-      <FormField
-        disabled={isLoading}
-        control={control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Description</FormLabel>
-            <FormControl>
-              <Textarea
-                disabled={isLoading}
-                cols={6}
-                placeholder="Description"
-                {...field}
-              />
-            </FormControl>
-            <FormDescription>Describe the product.</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        disabled={isLoading}
-        control={control}
-        name="images"
-        render={({ field }) => (
-          <FormItem className=" w-full">
-            <FormLabel>Product images</FormLabel>
-            <FormControl>
-              <MultiFileUploader
-                isMainImage={isMainImage}
-                setIsMainImage={setIsMainImage}
-                disabled={isLoading}
-                handleDeleteMedia={handleDeleteMedia}
-                selectedFiles={field.value}
-                fieldChange={field.onChange}
-                mediaUrl={mediaUrls}
-              />
-            </FormControl>
-            <FormDescription className=" flex items-center justify-between">
-              <span> Add images related to the product.</span>{" "}
-              <div className=" flex items-center gap-2">
-                <span className=" text-xs ">
-                  Images: {field.value.length + mediaUrls?.length}
-                </span>
-                <Button
-                  disabled={
-                    (!field.value.length && !mediaUrls.length) || isLoading
-                  }
-                  onClick={() => {
-                    field.onChange([]);
-                    setIsMainImage(null);
-                    if (productToEdit)
-                      setDeletedMedia(productToEdit.productImages);
-                  }}
-                  type="button"
-                  variant="destructive"
-                  className=" p-0 w-6 h-6"
-                >
-                  {" "}
-                  <Trash2 className=" w-4 h-4 shrink-0" />
-                </Button>
-              </div>
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        disabled={isLoading}
-        control={control}
-        name="isAvailable"
-        render={({ field }) => (
-          <FormItem className="flex flex-row h-fit  items-center justify-between rounded-lg border p-3 shadow-sm w-full">
-            <div className="space-y-0.5 ">
-              <FormLabel>Availability</FormLabel>
-              <FormDescription>Is the product available?.</FormDescription>
-            </div>
-            <FormControl>
-              <Switch
-                disabled={isLoading}
-                checked={field.value}
-                onCheckedChange={field.onChange}
-                aria-readonly
-              />
-            </FormControl>
-          </FormItem>
-        )}
-      />
-    </motion.div>
-  );
-}
-
-/// Step 2 ---------------------------------------------------------------------------
-
-/// Step 3
-
-interface StepThreeProps {
-  currStep: number[];
-  isLoading: boolean;
-  mediaUrls: ProductImage[];
-  categoriesArr: Category[];
-  productTypesArr: ProductType[];
-  productBrandsArr: ProductBrand[];
-  formValues: z.infer<typeof ProductsSchema>;
-}
-
-function StepThree({
-  currStep,
-  formValues,
-  mediaUrls,
-  categoriesArr,
-  productBrandsArr,
-  productTypesArr,
-  isLoading,
-}: StepThreeProps) {
-  const [step, direction] = currStep;
-
-  const images = formValues.images.map((image) => image.preview);
-  const urls = mediaUrls.map((image) => image.imageUrl);
-  const viewedImages = [...urls, ...images];
-  const categories = categoriesArr.find(
-    (cat) => cat.id === formValues.categoryId
-  );
-  const productTypes = productTypesArr.find(
-    (type) => type.id === formValues.productTypeId
-  );
-  const productBrands = productBrandsArr.find(
-    (brand) => brand.id === formValues.productBrandId
-  );
-
-  // const date = new Date();
-
-  return (
-    <motion.div
-      custom={direction}
-      variants={slideVariants}
-      initial="enter"
-      animate="center"
-      exit="exit"
-      transition={transition}
-      // initial={{
-      //   opacity: 0,
-      //   x: direction < 0 ? -350 : 350,
-      // }}
-      // animate={{
-      //   opacity: 1,
-      //   x: 0,
-      // }}
-      // exit={{
-      //   opacity: 0,
-      //   x: direction < 0 ? -350 : 350,
-      // }}
-      className={` relative border-2 p-4  rounded-xl border-dashed ${
-        isLoading && "pointer-events-none"
-      }`}
-    >
-      {viewedImages.length ? (
-        <FullImagesGallery images={viewedImages} className="  !h-[50vh]" />
-      ) : (
-        <div className=" h-full flex items-center justify-center  bg-foreground/10  font-semibold text-xl py-5 gap-3">
-          <ImageOff className=" w-10 h-10" /> No images.
-        </div>
-      )}
-
-      <div className=" text-xs  text-muted-foreground my-4 text-right px-3">
-        {formValues.stock ? (
-          <i>
-            Stock: <span>{formValues.stock}</span>
-          </i>
-        ) : (
-          <i>Out of stock</i>
-        )}
-      </div>
-
-      <main className=" my-10">
-        <h1 className=" text-center text-3xl font-semibold tracking-wide">
-          {formValues.name}
-        </h1>
-        <section className=" mt-10 space-y-7 p-6">
-          <div className=" text-xs items-center  flex justify-between">
-            <div className="  flex  gap-3">
-              <span>
-                Listing price:{" "}
-                <span className=" text-red-400">
-                  {" "}
-                  {formatCurrency(formValues.listPrice)}
-                </span>
-              </span>
-
-              <span className=" ">
-                Sales price:{" "}
-                <span className=" text-green-400">
-                  {" "}
-                  {formatCurrency(formValues.salePrice)}
-                </span>
-              </span>
-            </div>
-          </div>
-          <CartDummy stock={formValues.stock} />
-
-          <div className=" space-y-14">
-            <h2 className=" text-xl font-semibold">Product information</h2>
-            <div className=" grid  gap-3 grid-cols-1 sm:grid-cols-2  md:grid-cols-3 ">
-              <Card className=" p-5 h-fit">
-                <div className=" flex items-center gap-2">
-                  <div className=" w-14 h-14 rounded-full    bg-dashboard-orange  text-dashboard-text-orange  flex items-center justify-center mb-3">
-                    <MdCategory size={30} />
-                  </div>
-                  <h2 className=" text-2xl font-semibold  text-dashboard-text-orange">
-                    {" "}
-                    Category
-                  </h2>
-                </div>
-                <p className="   decoration-clone  break-all">
-                  &bull; {categories?.name}
-                </p>
-              </Card>
-
-              <Card className=" p-5 h-fit">
-                <div className=" flex items-center gap-2">
-                  <div className=" w-14 h-14 rounded-full    bg-dashboard-indigo  text-dashboard-text-indigo  flex items-center justify-center mb-3">
-                    <VscTypeHierarchySuper size={30} />
-                  </div>
-                  <h2 className=" text-2xl font-semibold  text-dashboard-text-indigo">
-                    {" "}
-                    Type
-                  </h2>
-                </div>
-                <p className="   decoration-clone  break-all">
-                  &bull; {productTypes?.name}
-                </p>
-              </Card>
-
-              <Card className=" p-5 h-fit">
-                <div className=" flex items-center gap-2">
-                  <div className=" w-14 h-14 rounded-full    bg-dashboard-green  text-dashboard-text-green  flex items-center justify-center mb-3">
-                    <TbBoxModel2 size={30} />
-                  </div>
-                  <h2 className=" text-2xl font-semibold  text-dashboard-text-green">
-                    {" "}
-                    Brand
-                  </h2>
-                </div>
-                <p className="   decoration-clone  break-all">
-                  &bull; {productBrands?.name}
-                </p>
-              </Card>
-            </div>
-            {/* ---- */}
-            <div>
-              <h2 className=" text-xl font-semibold">Description</h2>
-              <Collapse textLenght={1200}>
-                <CollapseContant className="mt-16 text-lg ">
-                  {formValues.description}
-                </CollapseContant>
-                <CollapseButton arrowPositionX="right" />
-              </Collapse>
-            </div>
-          </div>
-          <MoreDetailsAccordion additionalDetails={formValues.moreDetails} />
-        </section>
-      </main>
-    </motion.div>
-  );
-}
-
-function CartDummy({ stock }: { stock: number }) {
-  const [value, setValue] = useState(0);
-  return (
-    <motion.div className=" flex item-center justify-end gap-2 ">
-      <motion.div layout>
-        <AnimatePresence>
-          {value ? (
-            <div className=" flex items-center  transition-opacity overflow-hidden duration-300   gap-2">
-              <Button
-                onClick={() => setValue((value) => value - 1)}
-                size="sm"
-                className="  p-2 h-fit "
-                type="button"
-              >
-                <Minus size={17} />
-              </Button>
-
-              <motion.span
-                key={value}
-                initial={{ opacity: 0, translateY: -7 }}
-                animate={{
-                  opacity: 1,
-                  translateY: 0,
-                }}
-                exit={{
-                  opacity: 0,
-                  translateY: 7,
-                }}
-              >
-                {value}
-              </motion.span>
-
-              <Button
-                disabled={value === stock}
-                onClick={() => setValue((value) => value + 1)}
-                size="sm"
-                className="  p-2 h-fit "
-                type="button"
-              >
-                <Plus size={17} />
-              </Button>
-            </div>
-          ) : (
-            <motion.button
-              onClick={() => setValue(1)}
-              className={
-                "inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 rounded-md px-3 text-xs "
-              }
-              type="button"
-            >
-              Add to cart
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      <AnimatePresence mode="popLayout">
-        {value && (
-          <motion.button
-            layout
-            type="button"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setValue(0)}
-            className=" inline-flex items-center justify-center whitespace-nowrap font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground shadow hover:bg-secondary/90 h-8 rounded-md px-3 text-xs"
-          >
-            <BsCartDash size={19} />
-          </motion.button>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
-// Progress bar
 
 interface ProgressBarProps {
   currStep: number;

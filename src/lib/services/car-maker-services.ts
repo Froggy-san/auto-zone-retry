@@ -5,8 +5,8 @@ import {
   uploadSingleImgToBucket,
 } from "./helper-services";
 import { revalidateMakers } from "@lib/actions/carMakerActions";
-import { CarMaker } from "@lib/types";
-
+import { CarBrand, CarMaker } from "@lib/types";
+const supabase = createClient();
 export async function getCarMakers(page: number) {
   const supabase = createClient();
   const from = (page - 1) * MAKER_PAGE_SIZE; // (1-1) * 10 = 0
@@ -24,6 +24,24 @@ export async function getCarMakers(page: number) {
 
   if (error) throw new Error(error.message);
   return { data: carMakers, count };
+}
+
+export async function getAllCarBrands(
+  searchTerm: string
+): Promise<CarBrand[] | null> {
+  // let { data: carMakers, error } = await
+
+  let query = supabase
+    .from("carMakers")
+    .select("*,carModels(*,carGenerations(*))");
+
+  if (searchTerm.length) query = query.ilike("name", `%${searchTerm}%`);
+  if (!searchTerm.length) query = query.range(0, 7);
+
+  const { data: carMakers, error } = await query;
+  if (error) throw new Error(`Car detials error: ${error.message}`);
+
+  return carMakers;
 }
 
 interface CreateProps {
