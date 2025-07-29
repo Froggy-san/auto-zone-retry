@@ -33,7 +33,9 @@ import useCarBrands from "@lib/queries/useCarBrands";
 import { useState } from "react";
 import { ModelCombobox } from "@components/model-combobox";
 import GenerationsTagInput from "@components/generations-tag-input";
-
+import InputMask from "react-input-mask";
+import CurrencyInput from "react-currency-input-field";
+import CurrencyField from "@components/currency-input";
 interface StepOneProps {
   control: Control<z.infer<typeof ProductsSchema>>;
   isLoading: boolean;
@@ -114,9 +116,24 @@ function StepOne({
           name="listPrice"
           render={({ field }) => (
             <FormItem className=" w-full">
-              <FormLabel>List price</FormLabel>
+              <FormLabel htmlFor="listPrice">List price</FormLabel>
               <FormControl>
-                <Input
+                <CurrencyField onChange={field.onChange} />
+
+                {/* <CurrencyInput
+                  id="priceInput"
+                  name="price"
+                  placeholder="E.g., 1,234.56"
+                  decimalsLimit={2} // Max number of decimal places
+                  prefix="EGP " // Currency symbol (e.g., Egyptian Pound)
+                  decimalSeparator="." // Use dot for decimal
+                  groupSeparator="," // Use comma for thousands
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  className="input-field "
+                /> */}
+
+                {/* <Input
                   type="text"
                   disabled={isLoading}
                   value={field.value}
@@ -128,7 +145,7 @@ function StepOne({
                   }}
                   placeholder="List price..."
                   // {...field}
-                />
+                /> */}
               </FormControl>
               <FormDescription>Enter the listing price.</FormDescription>
               <FormMessage />

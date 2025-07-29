@@ -14,6 +14,7 @@ import { getProductsCountAction } from "@lib/actions/productsActions";
 import { Metadata } from "next";
 import { getCurrentUser } from "@lib/actions/authActions";
 import CategoryCarousel from "@components/products/category-carousel";
+import PhoneNumberInputManual from "@components/phone-number-input";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -141,6 +142,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             )}
           </section>
         </div>
+        <PhoneNumberInputManual />
       </IntersectionProvidor>
     </main>
   );
