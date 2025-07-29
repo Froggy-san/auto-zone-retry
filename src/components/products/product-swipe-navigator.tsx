@@ -12,8 +12,8 @@ interface ProductSwipeNavigatorProps {
   children: React.ReactNode; // The content that the user will swipe
 }
 
-const SWIPE_THRESHOLD = 150; // Minimum pixels to count as a swipe
-const HUE_MAX = 160;
+const SWIPE_THRESHOLD = 70; // Minimum pixels to count as a swipe
+const HUE_MAX = 130;
 const ARROW_MAX_MOVEMENT = 300; // Max pixels the arrow will move during a swipe
 
 export function ProductSwipeNavigator({
@@ -41,12 +41,12 @@ export function ProductSwipeNavigator({
     if (deltaX > 0) {
       // Swiping right
       leftArrowTranslateX = Math.min(deltaX, SWIPE_THRESHOLD); // Move left arrow to the right
-      leftArrowHue = Math.min(deltaX, HUE_MAX);
+      leftArrowHue = Math.min(deltaX + 70, HUE_MAX);
       //   rightArrowTranslateX = Math.max(0, -deltaX + SWIPE_THRESHOLD); // Keep right arrow at 0 or push it slightly left then back
     } else if (deltaX < 0) {
       // Swiping left
       rightArrowTranslateX = Math.max(deltaX, -SWIPE_THRESHOLD); // Move right arrow to the left
-      rightArrowHue = Math.max(deltaX, -HUE_MAX);
+      rightArrowHue = Math.max(deltaX - 70, -HUE_MAX);
       //   leftArrowTranslateX = Math.min(0, -deltaX - SWIPE_THRESHOLD); // Keep left arrow at 0 or push it slightly right then back
     }
   }
@@ -131,7 +131,7 @@ export function ProductSwipeNavigator({
       {/* BIG SCREEN BUTTONS */}
       {prevProductId !== null && (
         <div
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10  transition-transform duration-500 ease-out" // Added transition
+          className=" fixed left-0 top-1/2 -translate-y-1/2 z-50  transition-transform duration-500 ease-out" // Added transition
           style={{
             transform: `translateY(-50%) translateX(${leftArrowTranslateX}px)`,
           }} // Use inline style for dynamic movement
@@ -155,7 +155,7 @@ export function ProductSwipeNavigator({
       {/* Next Button */}
       {nextProductId !== null && (
         <div
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10  transition-transform duration-500 ease-out" // Added transition
+          className="fixed right-0 top-1/2 -translate-y-1/2 z-50  transition-transform duration-500 ease-out" // Added transition
           style={{
             transform: `translateY(-50%) translateX(${rightArrowTranslateX}px)`,
           }} // Use inline style for dynamic movement

@@ -120,7 +120,7 @@ function SearchBar({
         className=" h-5   "
       />
       {open ? (
-        <CommandList className=" absolute  left-1/2 -translate-x-1/2 top-8 w-full bg-card p-1 border rounded-xl ">
+        <CommandList className=" absolute  left-1/2 -translate-x-1/2 z-20 top-8 w-full bg-card p-1 border rounded-xl ">
           <CommandEmpty>No results found.</CommandEmpty>
 
           {generations.map((generation) => (
