@@ -25,6 +25,7 @@ interface CarModelComboBoxProps {
   value: number | null;
   disabled?: boolean;
   options: CarModelProps[];
+  className?: string;
 }
 
 export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
@@ -32,6 +33,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
   value,
   disabled,
   options,
+  className,
 }) => {
   const [open, setOpen] = React.useState(false);
   // const [value, setValue] = React.useState(0);
@@ -46,7 +48,10 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
           variant="outline"
           role="CarModelComboBox"
           aria-expanded={open}
-          className=" w-full justify-between  h-fit"
+          className={cn(
+            " w-full justify-between select-none  h-fit",
+            className
+          )}
         >
           {selectedItem ? (
             <p className=" text-wrap break-all text-left">

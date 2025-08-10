@@ -2,7 +2,7 @@
 import { ComboBox } from "@components/combo-box";
 
 import { Category, ProductBrand, ProductType } from "@lib/types";
-import { Filter } from "lucide-react";
+import { Filter, UndoIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import ProdcutFilterInput from "./product-filter-input";
@@ -20,6 +20,9 @@ import {
 import { Label } from "@components/ui/label";
 import { Checkbox } from "@components/ui/checkbox";
 import { PAGE_SIZE } from "@lib/constants";
+import useCarBrands from "@lib/queries/useCarBrands";
+import CarBrandsCombobox from "@components/car-brands-combobox";
+import { ModelCombobox } from "@components/model-combobox";
 
 interface ProdcutFilterContentProps {
   categories: Category[];
@@ -31,6 +34,10 @@ interface ProdcutFilterContentProps {
   productBrandId?: string;
   isAvailable?: string;
   count: number;
+  makerId: string;
+  modelId: string;
+  generationId: string;
+  carBrand?: string;
 }
 const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   categories,
@@ -42,8 +49,19 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   productTypeId,
   productBrandId,
   count,
+  makerId,
+  modelId,
+  generationId,
+  carBrand,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // const [makerId, setMakerId] = useState<number | null>(
+  //   maker ? Number(maker) : null
+  // );
+  // const [modelId, setModelId] = useState<number | null>(
+  //   model ? Number(model) : null
+  // );
+  // const [generationId, setGenerationId] = useState(gen ? Number(gen) : 0);
   const { inView } = useIntersectionProvidor();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -52,9 +70,9 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
 
   const disappear = count > 2 && Math.ceil(count / PAGE_SIZE) > 3;
 
-  function handleChange(number: number, name: string, initalValue: number) {
+  function handleChange(number: number, name: string, initalValue?: number) {
     const params = new URLSearchParams(searchParams);
-    if (number === initalValue) {
+    if (!number || number === initalValue) {
       params.delete(`${name}`);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     } else {
@@ -68,7 +86,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   return (
     <>
       {isBigScreen && (
-        <section className=" space-y-5  sticky top-[50px]  sm:block ">
+        <section className=" space-y-5  sticky top-[5px] max-h-[100vh]  overflow-y-auto  px-2 pt-5 pb-7  sm:block ">
           <h1 className=" font-semibold text-2xl flex items-center ">
             Filters{" "}
             <span>
@@ -76,6 +94,15 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
               <Filter size={20} />
             </span>
           </h1>
+          <CarFilter
+            className=" space-y-5"
+            makerId={Number(makerId)}
+            modelId={Number(modelId)}
+            generationId={Number(generationId)}
+            carBrand={carBrand}
+            handleChange={handleChange}
+          />
+
           <div className=" space-y-2">
             <label>Categories</label>
             <ComboBox
@@ -258,5 +285,91 @@ function AvailableSwitch({
     </div>
   );
 }
+interface Props {
+  className?: string;
+  makerId: number;
+  modelId: number;
+  generationId: number;
+  carBrand?: string;
+  // setMakerId: React.Dispatch<React.SetStateAction<number | null>>;
+  // setModelId: React.Dispatch<React.SetStateAction<number | null>>;
+  // setGenerationId: React.Dispatch<React.SetStateAction<number>>;
+  handleChange: (number: number, name: string, initalValue?: number) => void;
+}
+
+const CarFilter = ({
+  className,
+  makerId,
+  modelId,
+  generationId,
+  // setMakerId,
+  // setModelId,
+  // setGenerationId,
+  carBrand,
+  handleChange,
+}: Props) => {
+  const [searchTerm, setSearchTerm] = useState(carBrand || "");
+  const searchParams = useSearchParams();
+  const pathName = usePathname();
+  const router = useRouter();
+  const { carBrands, isLoading: searching, error } = useCarBrands(searchTerm);
+  const carModels =
+    makerId && carBrands?.find((car) => car.id === makerId)?.carModels;
+  const carGenerations =
+    modelId &&
+    carModels &&
+    carModels.find((model) => model.id === modelId)?.carGenerations;
+
+  function handleBrandParam(value?: number) {
+    const params = new URLSearchParams(searchParams);
+    if (!value || makerId === value) {
+      params.delete("makerId");
+      params.delete("carBrand");
+      router.replace(`${pathName}?${params.toString()}`, { scroll: false });
+    } else {
+      params.set("page", "1");
+      params.set("makerId", String(value));
+      params.set("carBrand", searchTerm);
+      router.push(`${pathName}?${params.toString()}`, { scroll: false });
+    }
+  }
+  return (
+    <section className={className}>
+      <div className=" space-y-2">
+        <label>Car Brand</label>
+        <CarBrandsCombobox
+          options={carBrands || []}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          value={makerId}
+          setValue={handleBrandParam}
+        />
+      </div>
+
+      <div className=" space-y-2">
+        <label>Car Model</label>
+        <ModelCombobox
+          disabled={!carModels || !carModels.length}
+          options={carModels || []}
+          value={modelId}
+          setValue={(value) => {
+            handleChange(value, "modelId", makerId);
+          }}
+        />
+      </div>
+      <div className=" space-y-2">
+        <label>Car Generation</label>
+        <ComboBox
+          placeholder="Select generation..."
+          disabled={!carModels}
+          options={carGenerations || []}
+          setParam={handleChange}
+          paramName="generationId"
+          value={generationId}
+        />
+      </div>
+    </section>
+  );
+};
 
 export default ProductsFilterContent;

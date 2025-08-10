@@ -24,6 +24,11 @@ interface ComboBoxProps {
   value: number;
   options: { id: number; name: string }[];
   disabled?: boolean;
+  placeholder?: string;
+  searchTerm?: string;
+  setSearchTerm?: React.Dispatch<React.SetStateAction<string>>;
+  shouldFilter?: boolean;
+  className?: string;
 }
 
 export const ComboBox: React.FC<ComboBoxProps> = ({
@@ -33,9 +38,14 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
   paramName,
   options,
   disabled,
+  placeholder,
+  searchTerm,
+  setSearchTerm,
+  shouldFilter,
+  className,
 }) => {
   const [open, setOpen] = React.useState(false);
-
+  const text = placeholder ? placeholder : "Select option...";
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -44,20 +54,25 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className=" w-full  h-fit  justify-between"
+          className={cn(
+            " w-full  h-fit select-none  justify-between",
+            className
+          )}
         >
           <p className="text-wrap break-all text-left">
             {" "}
-            {value
-              ? options.find((option) => option.id === value)?.name
-              : "Select option..."}
+            {value ? options.find((option) => option.id === value)?.name : text}
           </p>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="    p-0">
-        <Command>
-          <CommandInput placeholder="Search option..." />
+        <Command shouldFilter={shouldFilter}>
+          <CommandInput
+            placeholder="Search option..."
+            value={searchTerm}
+            onValueChange={(value) => setSearchTerm?.(value)}
+          />
           <CommandList>
             <CommandEmpty>No option found.</CommandEmpty>
             <CommandGroup>

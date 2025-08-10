@@ -33,6 +33,9 @@ interface GetProdcutsActionProps {
   productBrandId?: string;
   isAvailable?: string;
   pageNumber?: string;
+  makerId?: string;
+  modelId?: string;
+  generationId?: string;
 }
 //Product?PageNumber=1&PageSize=10
 // /api/Product?Name=test&CategoryId=1&ProductTypeId=1&ProductBrandId=1&IsAvailable=true&PageNumber=1&PageSize=10
@@ -48,6 +51,9 @@ export async function getProductsAction({
   productTypeId,
   productBrandId,
   isAvailable,
+  makerId,
+  modelId,
+  generationId,
 }: GetProdcutsActionProps) {
   const from = (Number(pageNumber) - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -66,8 +72,15 @@ export async function getProductsAction({
 
   if (productBrandId) query = query + `&productBrandId=eq.${productBrandId}`;
 
+  if (makerId) query = query + `&makerId=eq.${makerId}`;
+
+  if (modelId) query = query + `&modelId=eq.${modelId}`;
+
+  if (generationId) query = query + `&generationsArr=ilike.*${generationId}*`;
+
   if (isAvailable) query = query + `&isAvailable=eq.${isAvailable === "true"}`;
   // query = query + `&productImages.order=created_at.asc`;
+  console.log("maker id", makerId);
 
   const headers = {
     apikey: `${supabaseKey}`,
@@ -211,7 +224,7 @@ async function getNextAndPrevPros(currId: number) {
     prevPro: prevPro ? prevPro.id : null,
     nextPro: nextPro ? nextPro.id : null,
   };
-  console.log("PAGES", pages);
+
   return { pages, error: "" };
 }
 
@@ -596,6 +609,9 @@ interface GetProdcutsCountActionProps {
   productTypeId?: string;
   productBrandId?: string;
   isAvailable?: string;
+  makerId?: string;
+  modelId?: string;
+  generationId?: string;
 }
 
 export async function getProductsCountAction({
@@ -604,6 +620,9 @@ export async function getProductsCountAction({
   productTypeId,
   productBrandId,
   isAvailable,
+  makerId,
+  modelId,
+  generationId,
 }: GetProdcutsCountActionProps) {
   //Product?PageNumber=1&PageSize=10
 
@@ -624,6 +643,12 @@ export async function getProductsCountAction({
   if (productTypeId) query = query + `&productTypeId=eq.${productTypeId}`;
 
   if (productBrandId) query = query + `&productBrandId=eq.${productBrandId}`;
+
+  if (makerId) query = query + `&makerId=eq.${makerId}`;
+
+  if (modelId) query = query + `&modelId=eq.${modelId}`;
+
+  if (generationId) query = query + `&generationArr=ilike.*${generationId}*"`;
 
   if (isAvailable) query = query + `&isAvailable=eq.${isAvailable === "true"}`;
 

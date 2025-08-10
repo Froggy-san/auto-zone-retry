@@ -401,7 +401,18 @@ body {
     visibility: hidden;
   } */
 
-  .item {
+  .move-div {
+    position: fixed; /* or absolute, depending on your layout */
+    left: -40px; /* or whatever your default left value is */
+    transition: left 0.3s ease; /* to match the Tailwind transition */
+  }
+  .move-div:focus-within {
+    left: 0;
+  }
+  .focus-button:focus {
+    .move-div {
+      left: 0;
+    }
   }
   .item:hover {
     transform: rotatX(20deg);

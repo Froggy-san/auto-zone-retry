@@ -51,12 +51,12 @@ export function ProdcutAction({
             <Link
               href={`products/${productId}?size=${pageSize}&page=${currPage}`}
             >
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 View
                 <DropdownMenuShortcut>
                   <Fullscreen size={18} />
                 </DropdownMenuShortcut>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </Link>
             <Link href={`/products/${productId}?edit=open`}>
               <DropdownMenuItem>

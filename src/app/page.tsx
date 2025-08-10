@@ -10,6 +10,7 @@ import MostPop from "@components/home/most-pop";
 import { HomeCarousel } from "@components/home/home-carousel";
 
 import Search from "@components/home/search";
+import StoreServices from "@components/home/store-services";
 
 export default async function Home() {
   const [categories, user] = await Promise.all([
@@ -27,7 +28,7 @@ export default async function Home() {
   return (
     <main
       data-vaul-drawer-wrapper
-      className=" min-h-[100vh] bg-background relative"
+      className=" min-h-[100vh]  overflow-x-hidden bg-background relative"
     >
       <div className=" border-b">
         <Header showSearch />
@@ -50,6 +51,9 @@ export default async function Home() {
         alt="asa"
         className=" absolute inset-0 w-full -z-[1] object-cover h-full"
       /> */}
+
+      <StoreServices className=" my-20" />
+
       <section className=" p-2">
         <MostPop />
         {/* absolute md:left-10 md:bottom-10 left-4 bottom-12 */}
