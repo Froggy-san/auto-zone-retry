@@ -430,6 +430,7 @@ export interface ProductBrand {
 
 export interface ProductType {
   id: number;
+  created_at: string;
   name: string;
 }
 
@@ -558,6 +559,7 @@ export interface ProductById {
   productTypes: ProductType;
   productBrands: ProductBrand;
   dateAdded: string;
+  created_at: string;
   description: string;
   listPrice: number;
   salePrice: number;

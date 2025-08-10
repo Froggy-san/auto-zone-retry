@@ -1,0 +1,154 @@
+"use client";
+import CarBrandsCombobox from "@components/car-brands-combobox";
+import { ComboBox } from "@components/combo-box";
+import { ModelCombobox } from "@components/model-combobox";
+import { Button } from "@components/ui/button";
+import useSearchCategories from "@lib/queries/categories/useSearchCategory";
+import useCarBrands from "@lib/queries/useCarBrands";
+import useProductTypes from "@lib/queries/useProductTypes";
+import { cn } from "@lib/utils";
+import { useRouter } from "next/navigation";
+import React, { useRef, useState } from "react";
+
+interface Props {
+  className?: string;
+}
+
+const HomeFilter = ({ className }: Props) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [makerId, setMakerId] = useState<number | null>(null);
+  const [modelId, setModelId] = useState<number | null>(null);
+  const [generationId, setGenerationId] = useState(0);
+  const [productTypeId, setProductTypeId] = useState(0);
+  const [categoryId, setCategoryId] = useState(0);
+  const router = useRouter();
+  const { carBrands, isLoading: searching, error } = useCarBrands(searchTerm);
+  const carModels =
+    makerId && carBrands?.find((car) => car.id === makerId)?.carModels;
+  const carGenerations =
+    modelId &&
+    carModels &&
+    carModels.find((model) => model.id === modelId)?.carGenerations;
+
+  const disabled =
+    !makerId && !modelId && !generationId && !productTypeId && !categoryId;
+  const first = useRef<HTMLButtonElement>(null);
+  function handleClick() {
+    if (disabled) return;
+    let url = "/products?page=1";
+    if (makerId) url = url + `&makerId=${makerId}&carBrand=${searchTerm}`;
+    if (modelId) url = url + `&modelId=${modelId}`;
+    if (generationId) url = url + `&generationId=${generationId}`;
+    if (categoryId) url = url + `&categoryId=${categoryId}`;
+    if (productTypeId) url = url + `&productTypeId=${productTypeId}`;
+    router.push(url);
+  }
+
+  return (
+    <section
+      // onKeyDown={(e) => {
+      //   if (e.code === "ArrowDown") {
+      //     console.log("ARROW PRESSED ");
+
+      //     if (first.current) first.current.focus();
+      //   }
+      // }}
+      className={cn("space-y-2  w-full ", className)}
+    >
+      <CarBrandsCombobox
+        ref={first}
+        className=" md:h-12"
+        options={carBrands || []}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        value={makerId}
+        setValue={setMakerId}
+      />
+
+      <ModelCombobox
+        className=" md:h-12"
+        disabled={!carModels || !carModels.length}
+        options={carModels || []}
+        value={modelId}
+        setValue={setModelId}
+      />
+      <ComboBox
+        className="md:h-12"
+        placeholder="Select generation..."
+        disabled={!modelId || !carModels || !carModels.length}
+        options={carGenerations || []}
+        value={generationId}
+        setValue={setGenerationId}
+      />
+      <Category categoryId={categoryId} setCategoryId={setCategoryId} />
+      <ProductTypes
+        productTypeId={productTypeId}
+        setProdcutTypeId={setProductTypeId}
+      />
+      <Button
+        disabled={disabled}
+        onClick={handleClick}
+        size="sm"
+        className=" w-full select-none "
+      >
+        Pick up
+      </Button>
+    </section>
+  );
+};
+
+function Category({
+  categoryId,
+  setCategoryId,
+}: {
+  categoryId: number;
+  setCategoryId: React.Dispatch<React.SetStateAction<number>>;
+}) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const { categories, error } = useSearchCategories(searchTerm);
+
+  if (error)
+    return <p className=" text-destructive-foreground text-sm">{error}</p>;
+  return (
+    <ComboBox
+      className=" md:h-12"
+      placeholder="Select category..."
+      shouldFilter={false}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      disabled={!categories?.length}
+      options={categories || []}
+      value={categoryId}
+      setValue={setCategoryId}
+    />
+  );
+}
+
+function ProductTypes({
+  productTypeId,
+  setProdcutTypeId,
+}: {
+  productTypeId: number;
+  setProdcutTypeId: React.Dispatch<React.SetStateAction<number>>;
+}) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const { productTypes, error } = useProductTypes(searchTerm);
+
+  if (error)
+    return <p className=" text-destructive-foreground text-sm">{error}</p>;
+  return (
+    <ComboBox
+      className=" md:h-12"
+      placeholder="Select product type..."
+      shouldFilter={false}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      disabled={!productTypes?.length}
+      options={productTypes || []}
+      value={productTypeId}
+      setValue={setProdcutTypeId}
+    />
+  );
+}
+
+export default HomeFilter;

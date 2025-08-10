@@ -50,7 +50,7 @@ const ProductManagement = async ({
         className
       )}
     >
-      <div className="space-y-0.5   ">
+      <div className="space-y-0.5  text-center sm:text-left  ">
         <label className=" font-semibold">Products</label>
         <p className=" text-muted-foreground text-sm">
           {productToEdit ? "Edit product." : "Add product."}

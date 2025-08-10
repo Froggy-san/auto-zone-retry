@@ -61,6 +61,7 @@ const ProductView = async ({
   const imageUrls = productData?.productImages.map(
     (image: ProductImage) => image.imageUrl
   );
+  const isAdmin = user?.user_metadata.role == "Admin";
 
   if (!productData)
     return (
@@ -80,25 +81,6 @@ const ProductView = async ({
       nextProductId={nextPro}
     >
       <div className=" relative">
-        {/* {nextPro && (
-        <div className=" fixed -left-10 top-0  hover:left-0 z-30  hover:backdrop-blur-sm  transition-all  h-full w-16 flex items-center justify-center">
-          <Button asChild variant="secondary">
-            <Link href={`/products/${nextPro}`} replace>
-              <ArrowBigLeftDash className=" w-5 h-5" />
-            </Link>
-          </Button>
-        </div>
-      )}
-
-      {prevPro && (
-        <div className=" fixed -right-10 hover:right-0 hover:backdrop-blur-sm transition-all top-0 z-30  h-full w-16 flex items-center justify-center">
-          <Button asChild variant="secondary">
-            <Link href={`/products/${prevPro}`} replace>
-              <ArrowBigRightDash className=" h-5 w-5" />
-            </Link>
-          </Button>
-        </div>
-      )} */}
         {imageUrls?.length ? (
           <FullImagesGallery images={imageUrls} productId={productData.id} />
         ) : (
@@ -106,36 +88,33 @@ const ProductView = async ({
             <ImageOff className=" w-10 h-10" /> No images.
           </div>
         )}
-        <div className=" text-xs  text-muted-foreground my-4 text-right px-3">
-          {productData.stock ? (
-            <i>
-              Stock: <span>{productData.stock}</span>
-            </i>
-          ) : (
-            <i>Out of stock</i>
-          )}
-        </div>
-        <ProdcutViewDetials user={user} product={productData} />
+        <main className=" py-1 px-6">
+          <ProdcutViewDetials
+            user={user}
+            isAdmin={isAdmin}
+            product={productData}
+          />
 
-        {user ? (
-          <div className=" flex flex-col mb-5 sm:flex-row items-center gap-5  px-2  sm:px-5">
-            <ProductManagement
-              useParams
-              className=" w-full"
-              categories={categoriesData}
-              productBrands={productBrandsData}
-              productTypes={brandTypesData}
-              productToEdit={productData}
-            />
+          {isAdmin ? (
+            <div className=" flex flex-col mb-5 sm:flex-row items-center gap-5  px-2  mt-28 sm:px-5">
+              <ProductManagement
+                useParams
+                className=" w-full"
+                categories={categoriesData}
+                productBrands={productBrandsData}
+                productTypes={brandTypesData}
+                productToEdit={productData}
+              />
 
-            <DeleteManagement
-              imagesToDelete={imageUrls}
-              pageSize={Number(pageSize)}
-              currPage={Number(currPage)}
-              productId={Number(params.productId)}
-            />
-          </div>
-        ) : null}
+              <DeleteManagement
+                imagesToDelete={imageUrls}
+                pageSize={Number(pageSize)}
+                currPage={Number(currPage)}
+                productId={Number(params.productId)}
+              />
+            </div>
+          ) : null}
+        </main>
       </div>
     </ProductSwipeNavigator>
   );

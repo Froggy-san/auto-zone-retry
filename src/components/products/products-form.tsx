@@ -52,6 +52,7 @@ import _ from "lodash";
 import { cn } from "@lib/utils";
 import StepOne from "./form-step-one";
 import StepThree from "./form-step-three";
+import { CurrencyInputOnChangeValues } from "react-currency-input-field";
 
 interface ProductFormProps {
   categories: Category[];
@@ -73,7 +74,6 @@ const firstStepFields: FirstStepFiedls[] = [
   "productBrandId",
   "listPrice",
 ];
-// const secondStepFields
 
 const ProductForm: React.FC<ProductFormProps> = ({
   categories,
@@ -111,8 +111,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   );
 
   const carMaker = productToEdit?.carMakers;
-  const carModel = productToEdit?.carModels;
-  const generationsArr = productToEdit?.generationsArr;
+
   const isMainChange =
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
 
@@ -126,44 +125,46 @@ const ProductForm: React.FC<ProductFormProps> = ({
     return mediaArr;
   }, [deletedMedia, productToEdit]);
 
-  const pro = {
-    name: productToEdit?.name,
-    categoryId: productToEdit?.categories.id,
-    productTypeId: productToEdit?.productTypes.id,
-    productBrandId: productToEdit?.productBrands.id,
-    description: productToEdit?.description,
-    listPrice: productToEdit?.listPrice,
-    carinfoId: 1, //! Removed from the back end
-    makerId: productToEdit?.makerId,
-    modelId: productToEdit?.modelId,
-    generationsArr: productToEdit?.generationsArr,
-    salePrice: productToEdit?.salePrice,
-    stock: productToEdit?.stock,
-    isAvailable: productToEdit?.isAvailable,
-    images: [],
-    moreDetails: productToEdit?.moreDetails,
-    isMain: false,
-  };
+  // const pro = {
+  //   name: productToEdit?.name,
+  //   categoryId: productToEdit?.categories.id,
+  //   productTypeId: productToEdit?.productTypes.id,
+  //   productBrandId: productToEdit?.productBrands.id,
+  //   description: productToEdit?.description,
+  //   listPrice: productToEdit?.listPrice,
+  //   carinfoId: 1, //! Removed from the back end
+  //   makerId: productToEdit?.makerId,
+  //   modelId: productToEdit?.modelId,
+  //   generationsArr: productToEdit?.generationsArr,
+  //   salePrice: productToEdit?.salePrice,
+  //   stock: productToEdit?.stock,
+  //   isAvailable: productToEdit?.isAvailable,
+  //   images: [],
+  //   moreDetails: productToEdit?.moreDetails,
+  //   isMain: false,
+  // };
 
   const defaultValues = {
-    name: pro.name || "",
-    categoryId: pro.categoryId || 0,
-    productTypeId: pro.productTypeId || 0,
-    productBrandId: pro.productBrandId || 0,
-    description: pro.description || "",
-    listPrice: pro.listPrice || 0,
+    name: productToEdit?.name || "",
+    categoryId: productToEdit?.categories.id || 0,
+    productTypeId: productToEdit?.productTypes.id || 0,
+    productBrandId: productToEdit?.productBrands.id || 0,
+    description: productToEdit?.description || "",
+    listPrice: productToEdit?.listPrice || 0,
     carinfoId: 0, //! Removed from the back end
-    makerId: pro.makerId || null,
-    modelId: pro.modelId || null,
-    generationsArr: pro.generationsArr
-      ? pro.generationsArr.map((gen) => gen.id)
+    makerId: productToEdit?.makerId || null,
+    modelId: productToEdit?.modelId || null,
+    generationsArr: productToEdit?.generationsArr
+      ? productToEdit?.generationsArr.map((gen) => gen.id)
       : [],
-    salePrice: pro.salePrice || 0,
-    stock: pro.stock || 0,
-    isAvailable: pro.isAvailable !== undefined ? pro.isAvailable : true,
+    salePrice: productToEdit?.salePrice || 0,
+    stock: productToEdit?.stock || 0,
+    isAvailable:
+      productToEdit?.isAvailable !== undefined
+        ? productToEdit.isAvailable
+        : true,
     images: [],
-    moreDetails: pro.moreDetails || [],
-
+    moreDetails: productToEdit?.moreDetails || [],
     isMain: false,
   };
   const form = useForm<z.infer<typeof ProductsSchema>>({
@@ -494,7 +495,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
         {productToEdit ? "Edit" : "Create"} a porduct
       </Button>
       {/* sm:p-14 pb-0 sm:pb-0 */}
-      <DialogComponent.Content className="  max-h-[85vh] overflow-hidden max-w-[1050px] border border-transparent flex flex-col gap-1   p-0">
+      <DialogComponent.Content className="  max-h-[85vh] overflow-hidden max-w-[1050px] border border-transparent  sm:rounded-none lg:rounded-lg flex flex-col gap-1   p-0">
         <DialogComponent.Header className="     border-b pb-2  px-6 pt-6 sm:px-14 sm:pt-8 sm:pb-4  bg-background ">
           <DialogComponent.Title>
             {" "}
@@ -552,7 +553,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             ref={formRef}
             onSubmit={form.handleSubmit(onSubmit)}
             className={cn(
-              "space-y-8  px-6 sm:px-14  relative  py-4 overflow-y-auto overscroll-contain overflow-x-hidden",
+              "space-y-8  px-6 sm:px-6 md:px-14  relative  py-4 overflow-y-auto overscroll-contain overflow-x-hidden",
               {
                 " px-2 sm:px-6  ": step === maxNumOfSteps,
               }
@@ -698,3 +699,45 @@ function ProgressBar({ currStep, setcurrStep }: ProgressBarProps) {
 }
 
 export default ProductForm;
+/*
+function createCurrencyInputHandler(
+    setFormattedValueState: SetFormattedValueState,
+    numericPrefix: string
+  ) {
+    return useCallback(
+      (
+        formattedValue: string | undefined,
+        name?: string,
+        values?: CurrencyInputOnChangeValues,
+        onChange?: React.Dispatch<React.SetStateAction<number>>
+      ) => {
+        if (!formattedValue || (values && !values.value)) {
+          setFormattedValueState("");
+          onChange?.(0);
+          return;
+        }
+
+        if (values && values.value === "0") {
+          // You might also check if the formattedValue is just the prefix + '0' or '0.00'
+          const isJustZero =
+            formattedValue === `${numericPrefix} 0` ||
+            formattedValue === `${numericPrefix} 0.00`; // Adjust based on your actual prefix and decimal settings
+
+          if (isJustZero) {
+            setFormattedValueState("");
+            onChange?.(0);
+            return;
+          }
+        }
+
+        // Default behavior: update states normally
+        setFormattedValueState(formattedValue);
+        if (values) {
+          onChange?.(Number(values.value)); // Store the clean numeric string
+        }
+      },
+      [setFormattedValueState, numericPrefix]
+    );
+  }
+
+*/

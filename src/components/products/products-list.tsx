@@ -13,6 +13,9 @@ interface ProductsListProps {
   productTypeId?: string;
   productBrandId?: string;
   isAvailable?: string;
+  makerId?: string;
+  modelId?: string;
+  generationId?: string;
   user: User | null;
 }
 
@@ -23,6 +26,9 @@ const ProductsList: React.FC<ProductsListProps> = async ({
   categoryId,
   productTypeId,
   productBrandId,
+  makerId,
+  modelId,
+  generationId,
   isAvailable,
 }) => {
   const { data: products, error: productsError } = await getProductsAction({
@@ -32,6 +38,9 @@ const ProductsList: React.FC<ProductsListProps> = async ({
     productTypeId,
     productBrandId,
     isAvailable,
+    makerId,
+    modelId,
+    generationId,
   });
 
   if (productsError)

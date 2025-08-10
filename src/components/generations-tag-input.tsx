@@ -37,7 +37,7 @@ const GenerationsTagInput = ({
   return (
     <ul
       className={cn(
-        " flex  gap-x-3 gap-y-2  items-start shadow-xl border  h-fit p-3 rounded-xl  flex-wrap",
+        " flex  gap-x-3 gap-y-2  items-start  border  h-fit p-3 rounded-xl  flex-wrap",
         className,
         { " pointer-events-none opacity-85": disabled }
       )}
@@ -99,7 +99,7 @@ function SearchBar({
     }
   }, []);
   return (
-    <Command className="rounded-lg relative  flex-1 min-w-[260px] max-w-[300px]  bg-card shadow-xl border-none  overflow-visible">
+    <Command className="rounded-lg relative  flex-1 min-w-[260px] max-w-[300px]  bg-card shadow-sm border-none  overflow-visible">
       <CommandInput
         ref={inputRef}
         value={term}
@@ -120,7 +120,7 @@ function SearchBar({
         className=" h-5   "
       />
       {open ? (
-        <CommandList className=" absolute  left-1/2 -translate-x-1/2 z-20 top-8 w-full bg-card p-1 border rounded-xl ">
+        <CommandList className=" absolute shadow-md  left-1/2 -translate-x-1/2 z-20 top-8 w-full bg-card p-1 border rounded-xl ">
           <CommandEmpty>No results found.</CommandEmpty>
 
           {generations.map((generation) => (

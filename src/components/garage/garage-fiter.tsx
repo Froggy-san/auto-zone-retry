@@ -186,6 +186,7 @@ const GarageFilter: React.FC<CarsListProps> = ({
           <div className=" space-y-2">
             <label className=" text-sm">Car generation</label>
             <ComboBox
+              placeholder="Select generation..."
               disabled={!chosenModel}
               value={chosenCarGenerationId}
               options={generations}

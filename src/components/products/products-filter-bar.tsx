@@ -1,6 +1,3 @@
-import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
-import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
-import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
 import React from "react";
 import ProductsFilterContent from "./product-filter-content";
 import { Category, ProductBrand, ProductType } from "@lib/types";
@@ -10,10 +7,14 @@ interface Props {
   categoryId: string;
   productTypeId?: string;
   productBrandId: string;
+  makerId: string;
+  modelId: string;
+  generationId: string;
   isAvailable: string;
   categories: Category[];
   productTypes: ProductType[];
   productBrands: ProductBrand[];
+  carBrand?: string;
   count: number;
 }
 const ProductsFilterBar: React.FC<Props> = async ({
@@ -26,9 +27,13 @@ const ProductsFilterBar: React.FC<Props> = async ({
   productBrands,
   productTypes,
   count,
+  makerId,
+  modelId,
+  generationId,
+  carBrand,
 }) => {
   return (
-    <aside className={`sm:w-[200px]  sm:p-2  sm:border-r `}>
+    <aside className={`sm:w-[200px]    sm:border-r `}>
       <ProductsFilterContent
         name={name}
         count={count || 0}
@@ -39,6 +44,10 @@ const ProductsFilterBar: React.FC<Props> = async ({
         categories={categories || []}
         productBrands={productBrands || []}
         productTypes={productTypes || []}
+        makerId={makerId}
+        modelId={modelId}
+        generationId={generationId}
+        carBrand={carBrand}
       />
     </aside>
   );

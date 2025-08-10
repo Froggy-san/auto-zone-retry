@@ -14,7 +14,6 @@ import { getProductsCountAction } from "@lib/actions/productsActions";
 import { Metadata } from "next";
 import { getCurrentUser } from "@lib/actions/authActions";
 import CategoryCarousel from "@components/products/category-carousel";
-import PhoneNumberInputManual from "@components/phone-number-input";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -30,6 +29,10 @@ interface SearchParams {
   productTypeId?: string;
   productBrandId?: string;
   isAvailable?: string;
+  makerId?: string;
+  modelId?: string;
+  generationId?: string;
+  carBrand?: string;
 }
 
 const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
@@ -39,6 +42,10 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   const productTypeId = searchParams?.productTypeId ?? "";
   const productBrandId = searchParams?.productBrandId ?? "";
   const isAvailable = searchParams?.isAvailable ?? "";
+  const makerId = searchParams?.makerId ?? "";
+  const modelId = searchParams?.modelId ?? "";
+  const generationId = searchParams?.generationId ?? "";
+  const carBrand = searchParams?.carBrand ?? "";
 
   // const supabase = await createClient();
   // if (productsError || categoriesError) {
@@ -57,6 +64,9 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
         productBrandId,
         productTypeId,
         isAvailable,
+        makerId,
+        modelId,
+        generationId,
       }),
     ]);
 
@@ -96,10 +106,14 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             categoryId={categoryId}
             productTypeId={productTypeId}
             productBrandId={productBrandId}
+            makerId={makerId}
+            modelId={modelId}
+            generationId={generationId}
             isAvailable={isAvailable}
             categories={categoriesData}
             productBrands={productBrandsData}
             productTypes={brandTypesData}
+            carBrand={carBrand}
             count={countData}
           />
           <section className=" flex-1 ">
@@ -111,6 +125,9 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
                 categoryId={categoryId}
                 productTypeId={productTypeId}
                 productBrandId={productBrandId}
+                makerId={makerId}
+                modelId={modelId}
+                generationId={generationId}
                 isAvailable={isAvailable}
               />
             </Suspense>
@@ -142,7 +159,6 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             )}
           </section>
         </div>
-        <PhoneNumberInputManual />
       </IntersectionProvidor>
     </main>
   );

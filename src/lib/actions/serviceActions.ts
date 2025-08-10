@@ -9,9 +9,8 @@ import {
   Service,
 } from "@lib/types";
 import { createClient } from "@utils/supabase/server";
-import { formatDate, format } from "date-fns";
+import { format } from "date-fns";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { redirect } from "next/navigation";
 import { editProductsStockAction } from "./productsActions";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

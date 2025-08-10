@@ -34,8 +34,17 @@ import { useState } from "react";
 import { ModelCombobox } from "@components/model-combobox";
 import GenerationsTagInput from "@components/generations-tag-input";
 import InputMask from "react-input-mask";
-import CurrencyInput from "react-currency-input-field";
+import CurrencyInput, {
+  CurrencyInputOnChangeValues,
+} from "react-currency-input-field";
 import CurrencyField from "@components/currency-input";
+
+type HandleNumber = (
+  formattedValue: string | undefined,
+  name?: string,
+  values?: CurrencyInputOnChangeValues,
+  onChange?: React.Dispatch<React.SetStateAction<number>>
+) => void;
 interface StepOneProps {
   control: Control<z.infer<typeof ProductsSchema>>;
   isLoading: boolean;
@@ -50,6 +59,7 @@ interface StepOneProps {
   modelId: number | null;
   carMaker: CarMakerData | undefined;
   handleDeleteMedia(productImage?: ProductImage): void;
+
   setIsMainImage: React.Dispatch<
     React.SetStateAction<number | ProductImage | null>
   >;
@@ -93,59 +103,121 @@ function StepOne({
       transition={ProFormTransition}
       className="  space-y-7"
     >
-      <FormField
-        disabled={isLoading}
-        control={control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Name</FormLabel>
-            <FormControl>
-              <Input disabled={isLoading} placeholder="name" {...field} />
-            </FormControl>
-            <FormDescription>Enter the name of the product.</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="  flex flex-col sm:flex-row gap-x-2 gap-y-3 ">
+        <FormField
+          disabled={isLoading}
+          control={control}
+          name="name"
+          render={({ field }) => (
+            <FormItem className=" w-full">
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input disabled={isLoading} placeholder="name" {...field} />
+              </FormControl>
+              <FormDescription>Enter the name of the product.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          disabled={isLoading || !categories.length}
+          control={control}
+          name="categoryId"
+          render={({ field }) => (
+            <FormItem className=" w-full ">
+              <FormLabel>category</FormLabel>
+              <FormControl className=" ">
+                <ComboBox
+                  placeholder="Select category..."
+                  disabled={isLoading || !categories.length}
+                  options={categories}
+                  value={field.value}
+                  setValue={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>
+                Enter what category does the product belong to.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       <div className=" flex  flex-col gap-2 sm:flex-row">
+        <FormField
+          disabled={isLoading || !productTypes.length}
+          control={control}
+          name="productTypeId"
+          render={({ field }) => (
+            <FormItem className=" w-full">
+              <FormLabel>Product type</FormLabel>
+              <FormControl>
+                <ComboBox
+                  placeholder="Select type..."
+                  disabled={isLoading || !productTypes.length}
+                  options={productTypes}
+                  value={field.value}
+                  setValue={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>
+                Enter what type of product it is.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          disabled={isLoading || !productBrand.length}
+          control={control}
+          name="productBrandId"
+          render={({ field }) => (
+            <FormItem className=" w-full">
+              <FormLabel>Product brand</FormLabel>
+              <FormControl>
+                <ComboBox
+                  placeholder="Select Brand..."
+                  disabled={isLoading || !productBrand.length}
+                  options={productBrand}
+                  value={field.value}
+                  setValue={field.onChange}
+                />
+              </FormControl>
+              <FormDescription>Enter the brand of the product.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+      <div className=" flex  gap-x-2 gap-y-3 flex-wrap flex-row">
         <FormField
           disabled={isLoading}
           control={control}
           name="listPrice"
           render={({ field }) => (
-            <FormItem className=" w-full">
+            <FormItem className=" w-full flex-1">
               <FormLabel htmlFor="listPrice">List price</FormLabel>
               <FormControl>
-                <CurrencyField onChange={field.onChange} />
+                {/* <CurrencyField onChange={field.onChange} /> */}
 
-                {/* <CurrencyInput
-                  id="priceInput"
+                <CurrencyInput
+                  id="listPrice"
                   name="price"
-                  placeholder="E.g., 1,234.56"
+                  placeholder="Original Price"
                   decimalsLimit={2} // Max number of decimal places
                   prefix="EGP " // Currency symbol (e.g., Egyptian Pound)
                   decimalSeparator="." // Use dot for decimal
                   groupSeparator="," // Use comma for thousands
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  className="input-field "
-                /> */}
+                  value={field.value || ""}
+                  onValueChange={(formattedValue, name, value) => {
+                    // setFormattedListing(formattedValue || "");
 
-                {/* <Input
-                  type="text"
-                  disabled={isLoading}
-                  value={field.value}
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    if (/^\d*$/.test(inputValue)) {
-                      field.onChange(Number(inputValue));
-                    }
+                    field.onChange(Number(value?.value) || 0);
                   }}
-                  placeholder="List price..."
-                  // {...field}
-                /> */}
+                  className="input-field "
+                />
               </FormControl>
               <FormDescription>Enter the listing price.</FormDescription>
               <FormMessage />
@@ -158,24 +230,55 @@ function StepOne({
           control={control}
           name="salePrice"
           render={({ field }) => (
-            <FormItem className=" w-full">
-              <FormLabel>Sale price</FormLabel>
+            <FormItem className=" w-full  flex-1">
+              <FormLabel htmlFor="salesInput">Sale price</FormLabel>
               <FormControl>
-                <Input
-                  type="text"
-                  disabled={isLoading}
-                  value={field.value}
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    if (/^\d*$/.test(inputValue)) {
-                      field.onChange(Number(inputValue));
-                    }
+                <CurrencyInput
+                  id="salesInput"
+                  name="price"
+                  placeholder="Discounted Price"
+                  decimalsLimit={2} // Max number of decimal places
+                  prefix="EGP " // Currency symbol (e.g., Egyptian Pound)
+                  decimalSeparator="." // Use dot for decimal
+                  groupSeparator="," // Use comma for thousands
+                  value={field.value || ""}
+                  onValueChange={(formattedValue, name, value) => {
+                    field.onChange(Number(value?.value) || 0);
                   }}
-                  placeholder="Sale price"
-                  // {...field}
+                  className="input-field   "
                 />
               </FormControl>
               <FormDescription>Enter the discounted price.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          disabled={isLoading}
+          control={control}
+          name="stock"
+          render={({ field }) => (
+            <FormItem className=" w-full basis-full sm:flex-1 ">
+              <FormLabel htmlFor="stockInput">Stock available </FormLabel>
+              <FormControl>
+                <CurrencyInput
+                  id="stockInput"
+                  name="price"
+                  placeholder="Available Stock"
+                  decimalsLimit={2} // Max number of decimal places
+                  prefix="UNITS " // Currency symbol (e.g., Egyptian Pound)
+                  decimalSeparator="." // Use dot for decimal
+                  groupSeparator="," // Use comma for thousands
+                  value={field.value || ""}
+                  onValueChange={(formattedValue, name, value) => {
+                    field.onChange(Number(value?.value) || 0);
+                  }}
+                  className="input-field  "
+                />
+              </FormControl>
+              <FormDescription>
+                Enter the amount of stock available.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -188,7 +291,12 @@ function StepOne({
           name="makerId"
           render={({ field }) => (
             <FormItem className=" w-full">
-              <FormLabel>Car brand</FormLabel>
+              <FormLabel>
+                Car brand{" "}
+                <span className=" text-xs text-muted-foreground pl-1">
+                  Optional
+                </span>
+              </FormLabel>
               <FormControl>
                 <CarBrandsCombobox
                   options={carBrands || []}
@@ -212,7 +320,12 @@ function StepOne({
           name="modelId"
           render={({ field }) => (
             <FormItem className=" w-full">
-              <FormLabel>Car model</FormLabel>
+              <FormLabel>
+                Car model{" "}
+                <span className=" text-xs text-muted-foreground pl-1">
+                  Optional
+                </span>
+              </FormLabel>
               <FormControl>
                 <ModelCombobox
                   disabled={!carModels || !carModels.length}
@@ -236,7 +349,12 @@ function StepOne({
           name="generationsArr"
           render={({ field }) => (
             <FormItem className=" w-full">
-              <FormLabel>Car model</FormLabel>
+              <FormLabel>
+                Car Generations{" "}
+                <span className=" text-xs text-muted-foreground pl-1">
+                  Optional
+                </span>
+              </FormLabel>
               <FormControl>
                 <GenerationsTagInput
                   disabled={!carGenerations || !carGenerations.length}
@@ -255,7 +373,7 @@ function StepOne({
       </div>
 
       <div className=" flex  flex-col gap-2 sm:flex-row">
-        <FormField
+        {/* <FormField
           disabled={isLoading}
           control={control}
           name="stock"
@@ -263,19 +381,23 @@ function StepOne({
             <FormItem className=" w-full">
               <FormLabel>Stock available</FormLabel>
               <FormControl>
-                <Input
-                  type="text"
-                  disabled={isLoading}
-                  value={field.value}
-                  onChange={(e) => {
-                    const inputValue = e.target.value;
-                    if (/^\d*$/.test(inputValue)) {
-                      field.onChange(Number(inputValue));
-                    }
+                <CurrencyInput
+                  id="priceInput"
+                  name="price"
+                  placeholder="UNITS, 1,234.56"
+                  decimalsLimit={2} // Max number of decimal places
+                  prefix="UNITS " // Currency symbol (e.g., Egyptian Pound)
+                  decimalSeparator="." // Use dot for decimal
+                  groupSeparator="," // Use comma for thousands
+                  value={formattedStockValue}
+                  onValueChange={(formattedValue, name, value) => {
+                    setFormattedStock(formattedValue || "");
+                    field.onChange(Number(value?.value) || 0);
                   }}
-                  placeholder="Stock"
-                  // {...field}
+                  className="input-field "
                 />
+
+     
               </FormControl>
               <FormDescription>
                 Enter the amount of stock available.
@@ -283,77 +405,9 @@ function StepOne({
               <FormMessage />
             </FormItem>
           )}
-        />
-
-        <FormField
-          disabled={isLoading || !categories.length}
-          control={control}
-          name="categoryId"
-          render={({ field }) => (
-            <FormItem className=" w-full ">
-              <FormLabel>category</FormLabel>
-              <FormControl className=" ">
-                <ComboBox
-                  disabled={isLoading || !categories.length}
-                  options={categories}
-                  value={field.value}
-                  setValue={field.onChange}
-                />
-              </FormControl>
-              <FormDescription>
-                Enter what category does the product belong to.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        /> */}
       </div>
 
-      <div className=" flex  flex-col gap-2 sm:flex-row">
-        <FormField
-          disabled={isLoading || !productBrand.length}
-          control={control}
-          name="productBrandId"
-          render={({ field }) => (
-            <FormItem className=" w-full">
-              <FormLabel>Product brand</FormLabel>
-              <FormControl>
-                <ComboBox
-                  disabled={isLoading || !productBrand.length}
-                  options={productBrand}
-                  value={field.value}
-                  setValue={field.onChange}
-                />
-              </FormControl>
-              <FormDescription>Enter the brand of the product.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          disabled={isLoading || !productTypes.length}
-          control={control}
-          name="productTypeId"
-          render={({ field }) => (
-            <FormItem className=" w-full">
-              <FormLabel>Product type</FormLabel>
-              <FormControl>
-                <ComboBox
-                  disabled={isLoading || !productTypes.length}
-                  options={productTypes}
-                  value={field.value}
-                  setValue={field.onChange}
-                />
-              </FormControl>
-              <FormDescription>
-                Enter what type of product it is.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
       <FormField
         disabled={isLoading}
         control={control}
@@ -448,3 +502,18 @@ function StepOne({
 }
 
 export default StepOne;
+{
+  /* <Input
+                  type="text"
+                  disabled={isLoading}
+                  value={field.value}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    if (/^\d*$/.test(inputValue)) {
+                      field.onChange(Number(inputValue));
+                    }
+                  }}
+                  placeholder="Sale price"
+                  // {...field}
+                /> */
+}

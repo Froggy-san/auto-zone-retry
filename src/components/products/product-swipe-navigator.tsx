@@ -5,6 +5,7 @@ import { Button } from "@components/ui/button";
 import { useRouter } from "next/navigation";
 import React, { useRef, useEffect, useState } from "react";
 import { ArrowBigLeftDash, ArrowBigRightDash, ImageOff } from "lucide-react";
+
 interface ProductSwipeNavigatorProps {
   currentProductId: number;
   prevProductId: number | null;
@@ -87,6 +88,21 @@ export function ProductSwipeNavigator({
     setTouchCurrentX(0);
   };
 
+  useEffect(() => {
+    function handleArrowClick(e: KeyboardEvent) {
+      if (e.code === "ArrowRight") {
+        if (!prevProductId) return;
+        handlePrev();
+      }
+      if (e.code === "ArrowLeft") {
+        if (!nextProductId) return;
+        handleNext();
+      }
+    }
+    document.addEventListener("keydown", handleArrowClick);
+    return () => document.removeEventListener("keydown", handleArrowClick);
+  }, []);
+
   // Attach event listeners using JSX props directly for simplicity in Client Components
   // No need for useEffect here for the direct JSX event handlers
 
@@ -103,7 +119,7 @@ export function ProductSwipeNavigator({
       {prevProductId !== null && (
         <div
           onClick={handlePrev}
-          className="  hidden sm:flex fixed cursor-pointer  z-30 -right-10 hover:right-0   top-0   backdrop-blur-sm bg-accent/15  transition-all  h-full w-14 items-center justify-center"
+          className="  hidden sm:flex fixed cursor-pointer  z-30 -right-10 focus-within:right-0 hover:right-0   top-0   backdrop-blur-sm bg-accent/15  transition-all  h-full w-14 items-center justify-center"
         >
           <Button
             size="sm"
@@ -117,19 +133,19 @@ export function ProductSwipeNavigator({
       {nextProductId !== null && (
         <div
           onClick={handleNext}
-          className=" hidden sm:flex  cursor-pointer  fixed -left-10 hover:left-0 backdrop-blur-sm bg-accent/15 transition-all top-0 z-30  h-full w-14  items-center justify-center"
+          className=" hidden sm:flex  cursor-pointer  fixed -left-10  focus:left-0    focus-within:left-0 hover:left-0 backdrop-blur-sm bg-accent/15 transition-all top-0 z-30  h-full w-14  items-center justify-center"
         >
           <Button
             size="sm"
             variant="secondary"
-            className=" relative   bg-primary text-primary-foreground shadow hover:bg-primary/90 h-8 rounded-md px-3 text-xs dark:bg-secondary dark:text-secondary-foreground dark:shadow-sm dark:hover:bg-secondary/80"
+            className="relative    bg-primary text-primary-foreground shadow  hover:bg-primary/90 h-8 rounded-md px-3 text-xs dark:bg-secondary dark:text-secondary-foreground dark:shadow-sm dark:hover:bg-secondary/80"
           >
             <ArrowBigLeftDash className=" h-5 w-5" />
           </Button>
         </div>
       )}
       {/* BIG SCREEN BUTTONS */}
-      {prevProductId !== null && (
+      {nextProductId !== null && (
         <div
           className=" fixed left-0 top-1/2 -translate-y-1/2 z-50  transition-transform duration-500 ease-out" // Added transition
           style={{
@@ -153,7 +169,7 @@ export function ProductSwipeNavigator({
       )}
       {children} {/* This is your product content */}
       {/* Next Button */}
-      {nextProductId !== null && (
+      {prevProductId !== null && (
         <div
           className="fixed right-0 top-1/2 -translate-y-1/2 z-50  transition-transform duration-500 ease-out" // Added transition
           style={{
