@@ -471,13 +471,23 @@ export interface CarMaker {
   notes: string;
   logo: null | string;
 }
+export interface CarMakersData {
+  id: number;
+  createt_at: string;
+  name: string;
+  notes: string;
+  logo: string | null;
+  carModels: CarModelProps[];
+}
 
 export interface CarModelProps extends CarModel {
   id: number;
+  crated_at: string;
   carGenerations: CarGenerationProps[];
 }
 export interface CarGenerationProps extends CarGeneration {
   id: number;
+  crated_at: string;
 }
 
 export interface CarBrand {

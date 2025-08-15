@@ -26,8 +26,8 @@ export async function createCarGeneration(generation: CarGeneration) {
   const { error } = await supabase.from("carGenerations").insert([generation]);
 
   if (error) throw new Error(error.message);
-  await revalidateCarGenerations();
-  await revalidateModels();
+  // await revalidateCarGenerations();
+  // await revalidateModels();
 }
 
 export async function editCarGeneration({
@@ -43,13 +43,13 @@ export async function editCarGeneration({
     .eq("id", id);
 
   if (error) throw new Error(error.message);
-  await revalidateCarGenerations();
-  await revalidateModels();
+  // await revalidateCarGenerations();
+  // await revalidateModels();
 }
 
 export async function deleteCarGenerations(id: number) {
   const { error } = await supabase.from("carGenerations").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  await revalidateCarGenerations();
-  await revalidateModels();
+  // await revalidateCarGenerations();
+  // await revalidateModels();
 }

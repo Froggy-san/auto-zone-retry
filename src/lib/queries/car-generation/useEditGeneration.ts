@@ -7,8 +7,7 @@ export default function useEditGeneration() {
     mutationFn: editCarGeneration,
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["carModels"] });
-      queryClient.invalidateQueries({ queryKey: ["carGenerations"] });
+      queryClient.invalidateQueries({ queryKey: ["carMakers"] });
     },
     onError: (error: any) => {
       throw new Error(error);

@@ -15,42 +15,71 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { EditCarGenerationForm } from "@components/edit-generation-form";
+
 import Spinner from "@components/Spinner";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
 import useDeleteCarGenerations from "@lib/queries/car-generation/useDeleteCarGenerations";
-import { CarGenerationProps } from "@lib/types";
+import { CarGenerationProps, CarModelProps } from "@lib/types";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { NotepadText } from "lucide-react";
 
 import React, { useState } from "react";
 import { cn } from "@lib/utils";
-
+import { GenerationForm } from "@components/generation-form";
+type DialogPage = "home" | "editGen" | "";
 const GenerationItem = ({
+  setOpen,
   className,
+  setGenToEdit,
   item,
   handleResetPage,
+  model,
+  withForm = true,
 }: {
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setGenToEdit?: React.Dispatch<
+    React.SetStateAction<CarGenerationProps | null>
+  >;
   className?: string;
   handleResetPage?: () => void;
   item: CarGenerationProps;
+  model: CarModelProps;
+  withForm?: boolean;
 }) => {
+  const [openGen, setOpenGen] = useState(false);
   return (
     <li
       className={cn(
-        "w-full  sm:w-fit px-3 py-2 flex items-center gap-2  text-sm border rounded-lg",
+        "w-full  sm:w-fit px-3 py-2 flex items-center gap-2  hover:bg-accent/30   text-sm border rounded-lg",
         className
       )}
     >
-      <EditCarGenerationForm item={item} />
+      <button
+        onClick={() => {
+          setOpen?.(false);
+          setGenToEdit?.(item);
+          if (withForm) setOpenGen(true);
+        }}
+        className=" flex items-center justify-center ring-offset-background transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+      >
+        {item.name}
+      </button>
 
       <div className=" flex items-center  gap-2">
         <NoteDialog disabled={!item.notes} item={item} />
         <DeleteBtn handleResetPage={handleResetPage} item={item} />
       </div>
+      {withForm && (
+        <GenerationForm
+          genToEdit={item}
+          open={openGen}
+          setOpen={setOpenGen}
+          model={model}
+        />
+      )}
     </li>
   );
 };

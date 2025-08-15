@@ -1,10 +1,12 @@
-import { createCarGeneration } from "@lib/services/car-generations";
+import { deleteModel as deleteModelService } from "@lib/services/car-model-services";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export default function useCreateGeneration() {
+export default function useDeleteModel() {
+  // carMakers
   const queryClient = useQueryClient();
-  const { isLoading, mutateAsync: createGeneration } = useMutation({
-    mutationFn: createCarGeneration,
+
+  const { isLoading, mutateAsync: deleteModel } = useMutation({
+    mutationFn: deleteModelService,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["carMakers"] });
     },
@@ -13,6 +15,5 @@ export default function useCreateGeneration() {
       throw new Error(error);
     },
   });
-
-  return { isLoading, createGeneration };
+  return { isLoading, deleteModel };
 }

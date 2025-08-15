@@ -33,26 +33,39 @@ import useObjectCompare from "@hooks/use-compare-objs";
 import { editCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { useQueryClient } from "@tanstack/react-query";
 import useDeleteCarGenerations from "@lib/queries/car-generation/useDeleteCarGenerations";
-import { CarGenerationProps, EditNameAndNote } from "@lib/types";
-import { cloneElement, useEffect, useState } from "react";
+import { CarGenerationProps, CarModelProps, EditNameAndNote } from "@lib/types";
+import React, { cloneElement, useCallback, useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import useEditGeneration from "@lib/queries/car-generation/useEditGeneration";
+import useCreateGeneration from "@lib/queries/car-generation/useCreateGeneration";
 
-export function EditCarGenerationForm({
-  item,
+export function GenerationForm({
+  setMainOpen,
+  open,
+  setOpen,
+  genToEdit,
+  model,
   openBtn,
 }: {
-  item: CarGenerationProps;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  open?: boolean;
+  setMainOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  genToEdit?: CarGenerationProps;
   openBtn?: React.ReactElement;
+  model: CarModelProps;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
+  // const isOpen = open === "editGen";
+
   const { editGeneration } = useEditGeneration();
+  const { createGeneration } = useCreateGeneration();
+
   const { toast } = useToast();
 
   const defaultValues = {
-    name: item.name || "",
-    notes: item.notes || "",
-    carModelId: item.carModelId || 0,
+    name: genToEdit?.name || "",
+    notes: genToEdit?.notes || "",
+    carModelId: genToEdit?.carModelId || model.id,
   };
   const form = useForm<z.infer<typeof EditNameAndNote>>({
     resolver: zodResolver(EditNameAndNote),
@@ -63,25 +76,32 @@ export function EditCarGenerationForm({
 
   useEffect(() => {
     form.reset(defaultValues);
-  }, [isOpen, form]);
+  }, [open, form]);
 
   function handleClose() {
-    setIsOpen(false);
+    setOpen?.(false);
+    setMainOpen?.(true);
   }
 
   async function onSubmit(generation: z.infer<typeof EditNameAndNote>) {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
-      await editGeneration({ generation: generation, id: item.id });
-      handleClose();
 
-      toast({
-        className: "bg-primary  text-primary-foreground",
-        title: "Done.",
-        description: (
-          <SuccessToastDescription message="Car generation as been updated." />
-        ),
-      });
+      if (genToEdit) {
+        await editGeneration({ generation: generation, id: genToEdit.id });
+        handleClose();
+
+        toast({
+          className: "bg-primary  text-primary-foreground",
+          title: "Done.",
+          description: (
+            <SuccessToastDescription message="Car generation as been updated." />
+          ),
+        });
+      } else {
+        await createGeneration(generation);
+      }
+      handleClose();
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -91,43 +111,62 @@ export function EditCarGenerationForm({
     }
   }
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <button
+    <Dialog open={open} onOpenChange={handleClose}>
+      {/* <button
         onClick={() => setIsOpen(true)}
         className=" w-full break-all text-left"
       >
         {openBtn
-          ? cloneElement(openBtn, { onClick: () => setIsOpen(true) })
+          ? cloneElement(openBtn, { onClick: () => setMainOpen?.("editGen") })
           : item.name}
-      </button>
+      </button> */}
 
-      <DialogContent className=" max-h-[76vh]  overflow-y-auto max-w-[1000px] sm:p-14">
+      <DialogContent className=" max-h-[76vh]  overflow-y-auto max-w-[450px]">
         <DialogHeader>
-          <DialogTitle>Edit Car Generation</DialogTitle>
+          <DialogTitle>
+            {genToEdit ? "Edit car Generation" : `Add a new generation`}
+          </DialogTitle>
           <DialogDescription>
-            Change the car generation&apos;s data.
+            {genToEdit
+              ? "Change the car generation's data."
+              : `Add a new generation to the car model (${model.name})`}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input disabled={isLoading} placeholder="name" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Enter the name of the product.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
+            <div className=" flex items-center gap-2">
+              <div className=" space-y-2 w-full mb-auto">
+                <FormLabel>Car model</FormLabel>
 
+                <div className="flex items-center h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-not-allowed opacity-50">
+                  {model.name}
+                </div>
+
+                <FormDescription>Current car model.</FormDescription>
+              </div>
+
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className=" w-full mb-auto">
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isLoading}
+                        placeholder="name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter the name of the product.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               disabled={isLoading}
               control={form.control}
@@ -167,7 +206,13 @@ export function EditCarGenerationForm({
                 disabled={isLoading || isEqual}
                 className=" w-full sm:w-[unset]"
               >
-                {isLoading ? <Spinner className=" h-full" /> : "Update"}
+                {isLoading ? (
+                  <Spinner className=" h-full" />
+                ) : genToEdit ? (
+                  "Update"
+                ) : (
+                  "Create"
+                )}
               </Button>
             </div>
           </form>
