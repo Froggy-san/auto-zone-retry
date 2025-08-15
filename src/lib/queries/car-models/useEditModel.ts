@@ -1,10 +1,15 @@
-import { createCarGeneration } from "@lib/services/car-generations";
+import {
+  createModel,
+  editModel as editModelService,
+} from "@lib/services/car-model-services";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export default function useCreateGeneration() {
+export default function useEditModel() {
+  // carMakers
   const queryClient = useQueryClient();
-  const { isLoading, mutateAsync: createGeneration } = useMutation({
-    mutationFn: createCarGeneration,
+
+  const { isLoading: isEditing, mutateAsync: editModel } = useMutation({
+    mutationFn: editModelService,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["carMakers"] });
     },
@@ -13,6 +18,5 @@ export default function useCreateGeneration() {
       throw new Error(error);
     },
   });
-
-  return { isLoading, createGeneration };
+  return { isEditing, editModel };
 }

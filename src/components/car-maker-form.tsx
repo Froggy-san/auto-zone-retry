@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CarMaker, CreateCarMakerScehma } from "@lib/types";
+import { CarMaker, CarMakersData, CreateCarMakerScehma } from "@lib/types";
 import { Textarea } from "@components/ui/textarea";
 
 import Spinner from "@components/Spinner";
@@ -31,10 +31,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FileUploader } from "./file-uploader";
-import {
-  createCarMakerAction,
-  editCarMakerAction,
-} from "@lib/actions/carMakerActions";
+
 import useObjectCompare from "@hooks/use-compare-objs";
 import { useQueryClient } from "@tanstack/react-query";
 import { createCarMaker, editCarMaker } from "@lib/services/car-maker-services";
@@ -44,7 +41,7 @@ const CarkMakerForm = ({
   showOpenButton = true,
   handleCloseEdit,
 }: {
-  carMakerToEdit?: CarMaker;
+  carMakerToEdit?: CarMakersData;
   showOpenButton?: boolean;
   handleCloseEdit?: () => void;
 }) => {

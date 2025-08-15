@@ -5,22 +5,24 @@ import {
   uploadSingleImgToBucket,
 } from "./helper-services";
 import { revalidateMakers } from "@lib/actions/carMakerActions";
-import { CarBrand, CarMaker } from "@lib/types";
+import { CarBrand, CarMaker, CarMakerData, CarMakersData } from "@lib/types";
 const supabase = createClient();
-export async function getCarMakers(page: number) {
+export async function getCarMakers(
+  page: number,
+  searchTerm: string
+): Promise<{ data: CarMakersData[] | null; count: number | null }> {
   const supabase = createClient();
   const from = (page - 1) * MAKER_PAGE_SIZE; // (1-1) * 10 = 0
 
   const to = from + MAKER_PAGE_SIZE - 1; // 0 + 10 - 1 = 9
-  const {
-    data: carMakers,
-    count,
-    error,
-  } = await supabase
+
+  let query = supabase
     .from("carMakers")
-    .select("*", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(from, to);
+    .select("*,carModels(*,carGenerations(*))", { count: "exact" })
+    .order("created_at", { ascending: false });
+
+  if (searchTerm) query = query.ilike("name", searchTerm);
+  const { data: carMakers, count, error } = await query.range(from, to);
 
   if (error) throw new Error(error.message);
   return { data: carMakers, count };
@@ -79,7 +81,7 @@ export async function createCarMaker({ name, notes, logo }: CreateProps) {
 
     if (bucketError) throw new Error(`Bucket error: ${bucketError.message}`);
   }
-  await revalidateMakers();
+  // await revalidateMakers();
   return data;
 }
 
@@ -115,7 +117,6 @@ export async function editCarMaker({
     insertedData.logo = path;
   }
 
-  const supabase = createClient();
   const { data, error } = await supabase
     .from("carMakers")
     .update(insertedData)
@@ -142,7 +143,7 @@ interface DeleteProps {
   carMaker: CarMaker;
 }
 
-export async function deleteCarMaker(carMaker: CarMaker) {
+export async function deleteCarMaker(carMaker: CarMakersData) {
   const supabase = createClient();
   const { error } = await supabase
     .from("carMakers")
