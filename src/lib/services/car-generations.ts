@@ -1,8 +1,13 @@
 import { revalidateCarGenerations } from "@lib/actions/carGenerationsActions";
 import { revalidateModels } from "@lib/actions/carModelsActions";
-import { PILL_SIZE } from "@lib/constants";
+import { PILL_SIZE, SUPABASE_URL } from "@lib/constants";
 import { CarGeneration } from "@lib/types";
 import { createClient } from "@utils/supabase/client";
+import {
+  deleteImageFromBucket,
+  uploadImageToBucket,
+  uploadSingleImgToBucket,
+} from "./helper-services";
 
 const supabase = createClient();
 export async function getCarGenerations(page: number) {
@@ -22,32 +27,101 @@ export async function getCarGenerations(page: number) {
   return { carGenerations, count };
 }
 
-export async function createCarGeneration(generation: CarGeneration) {
-  const { error } = await supabase.from("carGenerations").insert([generation]);
+export async function createCarGeneration({
+  name,
+  carModelId,
+  notes,
+  image,
+}: CarGeneration) {
+  //https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/generations/GyY4WwGWMAEq9nH.jpeg
 
+  let path: string | null = null;
+  // 1. Upload image.
+  if (image.length) {
+    const file = image[0];
+    const name = `${Math.random()}-${file.name}`.replace(/\//g, "");
+    path = `${SUPABASE_URL}/storage/v1/object/public/generations/${name}`;
+    const { error } = await uploadSingleImgToBucket({
+      bucketName: "generations",
+      image: { name, file },
+    });
+    if (error) throw new Error(error.message);
+  }
+
+  // 2. Upload generation data
+  const { error } = await supabase
+    .from("carGenerations")
+    .insert([{ name, notes, carModelId, image: path }]);
   if (error) throw new Error(error.message);
   // await revalidateCarGenerations();
   // await revalidateModels();
 }
 
 export async function editCarGeneration({
-  generation,
+  generation: { name, carModelId, notes, image },
+  imageToDelete,
   id,
 }: {
   generation: CarGeneration;
+  imageToDelete?: string;
   id: number;
 }) {
+  let path: string | null = null;
+  if (image.length) {
+    const file = image[0];
+    const name = `${Math.random()}-${file.name}`.replace(/\//g, "");
+    path = `${SUPABASE_URL}/storage/v1/object/public/generations/${name}`;
+    const { error } = await uploadSingleImgToBucket({
+      bucketName: "generations",
+      image: { name, file },
+    });
+    if (error) throw new Error(error.message);
+
+    // Delete the existing image.
+    if (imageToDelete) {
+      const { error } = await deleteImageFromBucket({
+        bucketName: "generations",
+        imagePaths: [imageToDelete],
+      });
+
+      if (error)
+        console.error(`Failed to delete existing image: ${error.message}`);
+    }
+  }
+
+  const insert: {
+    name: string;
+    notes: string;
+    carModelId: number;
+    image?: string;
+  } = { name, notes, carModelId };
+  if (path) insert.image = path;
   const { error } = await supabase
     .from("carGenerations")
-    .update(generation)
+    .update(insert)
     .eq("id", id);
 
   if (error) throw new Error(error.message);
+
   // await revalidateCarGenerations();
   // await revalidateModels();
 }
 
-export async function deleteCarGenerations(id: number) {
+export async function deleteCarGenerations({
+  id,
+  imageToDelete,
+}: {
+  id: number;
+  imageToDelete?: string;
+}) {
+  if (imageToDelete) {
+    const { error } = await deleteImageFromBucket({
+      bucketName: "generations",
+      imagePaths: [imageToDelete],
+    });
+
+    if (error) throw new Error(error.message);
+  }
   const { error } = await supabase.from("carGenerations").delete().eq("id", id);
   if (error) throw new Error(error.message);
   // await revalidateCarGenerations();

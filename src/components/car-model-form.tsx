@@ -35,17 +35,21 @@ import useObjectCompare from "@hooks/use-compare-objs";
 
 import useCreateModel from "@lib/queries/car-models/useCreateModel";
 import useEditModel from "@lib/queries/car-models/useEditModel";
+import { FileUploader } from "./file-uploader";
 
 const CarModelForm = ({
+  open,
+  setOpen,
   modelToEdit,
   carMaker,
   trigger,
 }: {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   modelToEdit?: CarModelProps;
   carMaker: CarMakersData;
   trigger?: React.ReactNode;
 }) => {
-  const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const { isCreating, createModel } = useCreateModel();
   const { isEditing, editModel } = useEditModel();
@@ -54,6 +58,7 @@ const CarModelForm = ({
     name: modelToEdit?.name || "",
     notes: modelToEdit?.notes || "",
     carMakerId: carMaker.id,
+    image: [],
   };
 
   const form = useForm<z.infer<typeof CreateCarModelSchema>>({
@@ -75,12 +80,13 @@ const CarModelForm = ({
 
   async function onSubmit(carModelData: z.infer<typeof CreateCarModelSchema>) {
     try {
-      if (isEqual) throw new Error("Data hasn't changed.");
+      if (isEqual) throw new Error("Model data hasn't change.");
 
       if (modelToEdit) {
-        const carModel = { name: carModelData.name, notes: carModelData.notes };
-
-        await editModel({ carModel, id: modelToEdit.id });
+        await editModel({
+          carModel: { ...carModelData, id: modelToEdit.id },
+          imageToDelete: modelToEdit.image || "",
+        });
       } else {
         await createModel(carModelData);
       }
@@ -110,7 +116,7 @@ const CarModelForm = ({
   }
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      {trigger ? (
+      {/* {trigger ? (
         <div className=" flex" onClick={() => setOpen(true)}>
           {trigger}
         </div>
@@ -118,7 +124,7 @@ const CarModelForm = ({
         <Button size="sm" className=" w-full" onClick={() => setOpen(true)}>
           Create car model
         </Button>
-      )}
+      )} */}
 
       <DialogContent className="  sm:p-7 max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto max-w-[500px] border-none ">
         <DialogHeader>
@@ -181,7 +187,24 @@ const CarModelForm = ({
                 </FormItem>
               )}
             />
-
+            <FormField
+              disabled={isLoading}
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Model image</FormLabel>
+                  <FormControl>
+                    <FileUploader
+                      mediaUrl={modelToEdit?.image ? modelToEdit.image : ""}
+                      fieldChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormDescription>Add a maker logo.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className=" flex  gap-2 flex-col-reverse">
               <Button
                 onClick={handleClose}

@@ -128,6 +128,7 @@ export const CarGenerationsSchema = z.object({
     .max(55, { message: "Name is too long." }),
   carModelId: z.number().default(0),
   notes: z.string(),
+  image: z.custom<File[]>(),
 });
 
 export const CarInfoSchema = z.object({
@@ -180,6 +181,7 @@ export const CreateCarModelSchema = z.object({
     .max(55, { message: "Too long" }),
   carMakerId: z.number(),
   notes: z.string(),
+  image: z.custom<File[]>(),
 });
 
 export const CreateCarInfoSchema = z.object({
@@ -483,10 +485,12 @@ export interface CarMakersData {
 export interface CarModelProps extends CarModel {
   id: number;
   crated_at: string;
+  image: string | null;
   carGenerations: CarGenerationProps[];
 }
-export interface CarGenerationProps extends CarGeneration {
+export interface CarGenerationProps extends Omit<CarGeneration, "image"> {
   id: number;
+  image: string | null;
   crated_at: string;
 }
 

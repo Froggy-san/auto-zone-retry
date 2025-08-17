@@ -32,7 +32,7 @@ const CarGenAndModelManagement = async () => {
             <p className=" text-muted-foreground text-sm">Add car models.</p>
           </div>
           <div className="  sm:pr-2">
-            <CarModelForm carMaker={carMakersData} />
+            {/* <CarModelForm carMaker={carMakersData} /> */}
           </div>
         </div>
 

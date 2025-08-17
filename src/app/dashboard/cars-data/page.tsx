@@ -1,4 +1,4 @@
-import CarMakerManagement from "@components/dashboard/car-makers-managment";
+import CarMakerManagement from "@components/dashboard/cars-data/car-makers-managment";
 import CarGenAndModelManagement from "@components/dashboard/cars-data/car-generation-management";
 import CarMakerList from "@components/dashboard/cars-data/car-makers-list";
 import { Metadata } from "next";

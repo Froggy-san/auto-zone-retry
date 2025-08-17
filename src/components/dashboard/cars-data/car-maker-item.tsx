@@ -65,7 +65,7 @@ const CarMakerItem = ({
   setCarMakerToEdit,
 }: CarMakerItem) => {
   const [modelId, setModelId] = useState<number | null>(null);
-
+  const [modelOpen, setModelOpen] = useState(false);
   const chosenModel = carMaker.carModels.find((model) => model.id === modelId);
   const generaitons = useMemo(() => {
     return flatMap(carMaker.carModels.map((item) => item.carGenerations));
@@ -168,7 +168,18 @@ const CarMakerItem = ({
               </p>
             </div>
             <div className="  sm:pr-2">
-              <CarModelForm carMaker={carMaker} />
+              <Button
+                size="sm"
+                className=" w-full"
+                onClick={() => setModelOpen(true)}
+              >
+                Create car model
+              </Button>
+              <CarModelForm
+                open={modelOpen}
+                setOpen={setModelOpen}
+                carMaker={carMaker}
+              />
             </div>
           </div>
         </div>
