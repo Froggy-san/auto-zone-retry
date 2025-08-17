@@ -33,11 +33,17 @@ import useObjectCompare from "@hooks/use-compare-objs";
 import { editCarGenerationAction } from "@lib/actions/carGenerationsActions";
 import { useQueryClient } from "@tanstack/react-query";
 import useDeleteCarGenerations from "@lib/queries/car-generation/useDeleteCarGenerations";
-import { CarGenerationProps, CarModelProps, EditNameAndNote } from "@lib/types";
+import {
+  CarGenerationProps,
+  CarGenerationsSchema,
+  CarModelProps,
+  EditNameAndNote,
+} from "@lib/types";
 import React, { cloneElement, useCallback, useEffect, useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../../ui/button";
 import useEditGeneration from "@lib/queries/car-generation/useEditGeneration";
 import useCreateGeneration from "@lib/queries/car-generation/useCreateGeneration";
+import { FileUploader } from "@components/file-uploader";
 
 export function GenerationForm({
   setMainOpen,
@@ -59,16 +65,16 @@ export function GenerationForm({
 
   const { editGeneration } = useEditGeneration();
   const { createGeneration } = useCreateGeneration();
-
   const { toast } = useToast();
 
   const defaultValues = {
     name: genToEdit?.name || "",
     notes: genToEdit?.notes || "",
     carModelId: genToEdit?.carModelId || model.id,
+    image: [],
   };
-  const form = useForm<z.infer<typeof EditNameAndNote>>({
-    resolver: zodResolver(EditNameAndNote),
+  const form = useForm<z.infer<typeof CarGenerationsSchema>>({
+    resolver: zodResolver(CarGenerationsSchema),
     defaultValues,
   });
   const isEqual = useObjectCompare(form.getValues(), defaultValues);
@@ -83,12 +89,16 @@ export function GenerationForm({
     setMainOpen?.(true);
   }
 
-  async function onSubmit(generation: z.infer<typeof EditNameAndNote>) {
+  async function onSubmit(generation: z.infer<typeof CarGenerationsSchema>) {
     try {
       if (isEqual) throw new Error("You haven't changed anything.");
 
       if (genToEdit) {
-        await editGeneration({ generation: generation, id: genToEdit.id });
+        await editGeneration({
+          generation,
+          id: genToEdit.id,
+          imageToDelete: genToEdit.image || "",
+        });
         handleClose();
 
         toast({
@@ -184,6 +194,25 @@ export function GenerationForm({
                   <FormDescription>
                     Enter any additional notes regarding the car maker.
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              disabled={isLoading}
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Generation image</FormLabel>
+                  <FormControl>
+                    <FileUploader
+                      mediaUrl={genToEdit?.image ? genToEdit.image : ""}
+                      fieldChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormDescription>Add a maker logo.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

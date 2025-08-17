@@ -25,11 +25,18 @@ import {
 import { useToast } from "@hooks/use-toast";
 import Spinner from "@components/Spinner";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { NotepadText } from "lucide-react";
+import { EllipsisVertical, NotepadText, SquarePen, X } from "lucide-react";
 import CarModelForm from "@components/car-model-form";
 import { GiTumbleweed } from "react-icons/gi";
 import { CgDetailsLess } from "react-icons/cg";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Accordion,
   AccordionContent,
@@ -42,8 +49,9 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
 import { useQueryClient } from "@tanstack/react-query";
-import { GenerationForm } from "@components/generation-form";
+import { GenerationForm } from "@components/dashboard/cars-data/generation-form";
 import useDeleteModel from "@lib/queries/car-models/useDeleteModel";
+import { cn } from "@lib/utils";
 
 const ModelItem = ({
   carMaker,
@@ -57,49 +65,115 @@ const ModelItem = ({
   item: CarModelProps;
 }) => {
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   return (
-    <li className=" w-full  sm:w-fit px-3 py-2 flex items-center gap-2   hover:bg-accent/30  justify-between text-sm border rounded-lg">
+    <li
+      onClick={() => setOpen(true)}
+      className={cn(
+        `relative w-[48%] h-fit  sm:w-fit px-3 py-2 flex flex-col  items-center    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm border rounded-lg `,
+        { "px-3 py-[0.4rem] ": !item.image }
+      )}
+    >
       {/* <EditCarGenerationForm item={item} /> */}
-      <CarModelForm
-        modelToEdit={item}
-        carMaker={carMaker}
-        trigger={<span className="cursor-pointer">{item.name}</span>}
-      />
+
       {/* <span className="  cursor-pointer" onClick={setModelId}>
         {item.name}
       </span> */}
       {/* {item.name} */}
-      <div className=" flex items-center  gap-2">
-        <MoreDetails item={item} />
-        {loading ? (
-          <Spinner className=" h-full ml-auto" size={10} />
-        ) : (
-          <DeleteBtn
-            isDeleting={loading}
-            setIsDeleting={setLoading}
-            handleResetPage={handleResetPage}
-            item={item}
-          />
-        )}
+      {item.image ? (
+        <img
+          src={item.image}
+          alt={`${item.name} image`}
+          className=" w-20  max-h-16 block   object-contain"
+        />
+      ) : null}
+
+      <div className=" flex items-center  w-full  justify-center gap-2">
+        <p
+          className={cn("   pr-6  text-center", {
+            "max-w-[90%]  pr-0": item.image,
+          })}
+        >
+          {item.name}
+        </p>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className={cn(
+            `flex items-center absolute right-1 top-1/2 -translate-y-1/2 `,
+            {
+              "right-1 top-[unset] -translate-y-[unset] bottom-[0.4rem]":
+                item.image,
+            }
+          )}
+        >
+          {loading ? (
+            <Spinner className=" h-full ml-auto" size={10} />
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className=" w-6 h-6 p-0">
+                  <EllipsisVertical className=" w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  onClick={() => setEditOpen(true)}
+                  className=" gap-2"
+                >
+                  <SquarePen className=" w-4 h-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setDeleteOpen(true)}
+                  className=" text-red-700 gap-2  hover:!text-red-700 hover:!bg-destructive/20"
+                >
+                  <X className=" w-4 h-4" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+      </div>
+      <DeleteBtn
+        open={deleteOpen}
+        setOpen={setDeleteOpen}
+        isDeleting={loading}
+        setIsDeleting={setLoading}
+        handleResetPage={handleResetPage}
+        item={item}
+      />
+      <MoreDetails open={open} setOpen={setOpen} item={item} />
+      <div onClick={(e) => e.stopPropagation()} className=" absolute">
+        <CarModelForm
+          open={editOpen}
+          setOpen={setEditOpen}
+          modelToEdit={item}
+          carMaker={carMaker}
+        />
       </div>
     </li>
   );
 };
 type DialogPage = "home" | "editGen" | "";
 function MoreDetails({
+  open,
+  setOpen,
   item,
   disabled = false,
 }: {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   item: CarModelProps;
   disabled?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   const [genToEdit, setGenToEdit] = useState<CarGenerationProps | null>(null);
   const [addGenOpen, setAddGenOpen] = useState(false);
   return (
-    <>
+    <div onClick={(e) => e.stopPropagation()} className=" absolute">
       <Dialog open={open} onOpenChange={setOpen}>
-        <TooltipProvider>
+        {/* <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <DialogTrigger asChild>
@@ -112,7 +186,7 @@ function MoreDetails({
               <p>View Details</p>
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
+        </TooltipProvider> */}
 
         <DialogContent
           className="max-w-[500px]  max-h-[55vh]
@@ -183,16 +257,20 @@ function MoreDetails({
 
         setMainOpen={setOpen}
       />
-    </>
+    </div>
   );
 }
 
 function DeleteBtn({
+  open,
+  setOpen,
   item,
   isDeleting,
   setIsDeleting,
   handleResetPage,
 }: {
+  open: boolean;
+  setOpen: React.Dispatch<SetStateAction<boolean>>;
   handleResetPage: () => void;
   isDeleting: boolean;
   setIsDeleting: React.Dispatch<SetStateAction<boolean>>;
@@ -200,12 +278,11 @@ function DeleteBtn({
 }) {
   const { toast } = useToast();
   const { deleteModel } = useDeleteModel();
-  const [open, setOpen] = useState(false);
 
   const handleDelete = useCallback(async () => {
     try {
       setIsDeleting(true);
-      await deleteModel(item.id);
+      await deleteModel({ id: item.id, imageToDelete: item.image || "" });
 
       setOpen(false);
       handleResetPage();
@@ -229,41 +306,33 @@ function DeleteBtn({
   }, []);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <button className="  rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground  -mr-1">
-          {isDeleting ? (
-            <Spinner className=" h-full" size={14} />
-          ) : (
-            <Cross2Icon className="h-4 w-4" />
-          )}
-          {/* <span className="sr-only">Close</span> */}
-        </button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] border-none">
-        <DialogHeader>
-          <DialogTitle>Delete car generation</DialogTitle>
-          <DialogDescription>
-            This action can&apos;t be undone.
-          </DialogDescription>
-        </DialogHeader>
+    <div onClick={(e) => e.stopPropagation()} className=" absolute">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[425px] border-none">
+          <DialogHeader>
+            <DialogTitle>Delete car generation</DialogTitle>
+            <DialogDescription>
+              This action can&apos;t be undone.
+            </DialogDescription>
+          </DialogHeader>
 
-        <DialogFooter className="   gap-2 sm:gap-0">
-          <DialogClose asChild>
-            <Button size="sm" variant="secondary">
-              Cancel
+          <DialogFooter className="   gap-2 sm:gap-0">
+            <DialogClose asChild>
+              <Button size="sm" variant="secondary">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={async () => handleDelete()}
+            >
+              {isDeleting ? <Spinner className=" h-full" /> : "Confrim"}
             </Button>
-          </DialogClose>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={async () => handleDelete()}
-          >
-            {isDeleting ? <Spinner className=" h-full" /> : "Confrim"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
 

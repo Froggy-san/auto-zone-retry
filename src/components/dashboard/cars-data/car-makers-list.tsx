@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/accordion";
 import useCarMakers from "@lib/queries/car-maker/useCarMakers";
 import CarMakerItem from "./car-maker-item";
-import CarkMakerForm from "@components/car-maker-form";
+import CarkMakerForm from "@components/dashboard/cars-data/car-maker-form";
 import useScrollToPoint from "@hooks/use-scroll-to-point";
 import { Input } from "@components/ui/input";
 

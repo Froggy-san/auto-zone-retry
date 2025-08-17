@@ -1,4 +1,4 @@
-import CarkMakerForm from "@components/car-maker-form";
+import CarkMakerForm from "@components/dashboard/cars-data/car-maker-form";
 import React from "react";
 
 const CarMakerManagement = () => {
