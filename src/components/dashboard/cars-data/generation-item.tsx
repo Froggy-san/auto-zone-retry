@@ -67,7 +67,7 @@ const GenerationItem = ({
         if (withForm) setOpenGen(true);
       }}
       className={cn(
-        `relative w-[48%] h-fit  sm:w-fit px-3 py-2 flex flex-col  items-center    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm border rounded-lg `,
+        `relative  h-fit   px-3 py-2 flex flex-col  items-center justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm border rounded-lg `,
         { "px-3 py-[0.4rem] ": !item.image }
       )}
     >
@@ -80,7 +80,7 @@ const GenerationItem = ({
       ) : null}
       <div className="flex items-center  w-full  justify-center gap-2 ">
         <p
-          className={cn("   pr-6  text-center", {
+          className={cn("    pr-6  text-center", {
             "max-w-[90%]  pr-0": item.image,
           })}
         >

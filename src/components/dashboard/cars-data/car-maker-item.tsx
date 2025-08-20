@@ -81,7 +81,7 @@ const CarMakerItem = ({
           setCarMakerToEdit={setCarMakerToEdit}
         />
       </DialogTrigger>
-      <DialogContent className="  sm:p-14 max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto  rounded-none sm:rounded-none  lg:rounded-lg  max-w-[1000px]">
+      <DialogContent className="  sm:p-14 max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto  rounded-none sm:rounded-none  lg:rounded-lg space-y-14  max-w-[1000px]">
         <DialogHeader>
           <DialogTitle className=" flex items-center gap-3 bg-card rounded-lg p-2 ">
             {modelId && (
@@ -99,8 +99,7 @@ const CarMakerItem = ({
             {carMaker.name}
           </DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
+            All car models and generations belonging to {carMaker.name}.
           </DialogDescription>
         </DialogHeader>
 
@@ -109,7 +108,7 @@ const CarMakerItem = ({
             <h3 className="sm:text-xl md:text-2xl font-semibold mb-3">
               Models
             </h3>
-            <ul className="flex items-center gap-3 flex-wrap">
+            <ul className="flex items-center justify-center  gap-3 flex-wrap">
               {carMaker.carModels.length ? (
                 carMaker.carModels.map((model, i) => (
                   <ModelItem
@@ -132,12 +131,12 @@ const CarMakerItem = ({
               <AccordionTrigger>
                 {" "}
                 <h3 className="sm:text-xl md:text-2xl font-semibold mb-3">
-                  Generations
+                  All Generations
                 </h3>
               </AccordionTrigger>
               <AccordionContent>
                 {generaitons.length ? (
-                  <ul className="flex gap-2 flex-wrap">
+                  <ul className=" grid  grid-cols-2 sm:grid-cols-3  gap-2">
                     {generaitons.map((item) => {
                       const model = carMaker.carModels.find(
                         (model) => model.id === item.carModelId

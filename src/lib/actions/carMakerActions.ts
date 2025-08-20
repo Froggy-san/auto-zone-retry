@@ -2,10 +2,31 @@
 
 import { MAKER_PAGE_SIZE } from "@lib/constants";
 import { getToken } from "@lib/helper";
+import { CarMakersData } from "@lib/types";
+import { createClient } from "@utils/supabase/server";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+export async function getCarBrandsAction(): Promise<{
+  carBrands: CarMakersData[] | null;
+  error: string;
+}> {
+  const supabase = await createClient();
+  const { data: carBrands, error } = await supabase
+    .from("carMakers")
+    .select("*,carModels(*,carGenerations(*))")
+    .order("created_at", { ascending: false })
+    .order("created_at", {
+      referencedTable: "carModels",
+      ascending: true,
+    });
+
+  if (error) return { carBrands: null, error: error.message };
+
+  return { carBrands, error: "" };
+}
 export async function getAllCarMakersAction(pageNumber?: number) {
   // const token = getToken();
 

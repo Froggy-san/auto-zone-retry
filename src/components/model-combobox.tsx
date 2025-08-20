@@ -55,7 +55,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
         >
           {selectedItem ? (
             <p className=" text-wrap break-all text-left">
-              Model name: {selectedItem.name}
+              {selectedItem.name}
             </p>
           ) : (
             "Select model..."
@@ -84,9 +84,7 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
                       value === option.id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  <span className=" break-all flex-1">
-                    Model name: {option.name}
-                  </span>{" "}
+                  <span className=" break-all flex-1">{option.name}</span>{" "}
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -1,4 +1,4 @@
-import React, { SetStateAction, useCallback, useState } from "react";
+import React, { SetStateAction, useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -72,7 +72,7 @@ const ModelItem = ({
     <li
       onClick={() => setOpen(true)}
       className={cn(
-        `relative w-[48%] h-fit  sm:w-fit px-3 py-2 flex flex-col  items-center    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm border rounded-lg `,
+        `relative w-[48%] h-fit  sm:w-fit px-3 py-2 flex flex-col  items-center    hover:bg-accent/30  transition-all duration-200  cursor-pointer  gap-2 text-sm border rounded-lg `,
         { "px-3 py-[0.4rem] ": !item.image }
       )}
     >
@@ -155,7 +155,7 @@ const ModelItem = ({
     </li>
   );
 };
-type DialogPage = "home" | "editGen" | "";
+
 function MoreDetails({
   open,
   setOpen,
@@ -170,6 +170,9 @@ function MoreDetails({
   // const [open, setOpen] = useState(false);
   const [genToEdit, setGenToEdit] = useState<CarGenerationProps | null>(null);
   const [addGenOpen, setAddGenOpen] = useState(false);
+  const generations = useMemo(() => {
+    return item.carGenerations.sort((a, b) => a.id - b.id);
+  }, [item.carGenerations]);
   return (
     <div onClick={(e) => e.stopPropagation()} className=" absolute">
       <Dialog open={open} onOpenChange={setOpen}>
@@ -212,9 +215,9 @@ function MoreDetails({
             <AccordionItem value="item-1">
               <AccordionTrigger>Related Generations</AccordionTrigger>
               <AccordionContent>
-                {item.carGenerations.length ? (
-                  <ul className=" flex  flex-wrap gap-2">
-                    {item.carGenerations.map((gen) => (
+                {generations.length ? (
+                  <ul className=" grid  grid-cols-2 sm:grid-cols-3  gap-2">
+                    {generations.map((gen) => (
                       <GenerationItem
                         key={gen.id}
                         item={gen}
