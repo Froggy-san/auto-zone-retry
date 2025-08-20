@@ -18,8 +18,12 @@ export async function getCarMakers(
 
   let query = supabase
     .from("carMakers")
-    .select("*,carModels(*,carGenerations(*))", { count: "exact" })
-    .order("created_at", { ascending: false });
+    .select("*,carModels(*,carGenerations(*))")
+    .order("created_at", { ascending: false })
+    .order("created_at", {
+      referencedTable: "carModels",
+      ascending: true,
+    });
 
   if (searchTerm) query = query.ilike("name", searchTerm);
   const { data: carMakers, count, error } = await query.range(from, to);

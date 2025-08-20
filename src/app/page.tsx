@@ -9,16 +9,19 @@ import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import MostPop from "@components/home/most-pop";
 import { HomeCarousel } from "@components/home/home-carousel";
 
-import Search from "@components/home/search";
 import StoreServices from "@components/home/store-services";
+import { getCarBrandsAction } from "@lib/actions/carMakerActions";
+import CarBrands from "@components/home/car-brands";
 
 export default async function Home() {
-  const [categories, user] = await Promise.all([
+  const [categories, user, carBrands] = await Promise.all([
     getAllCategoriesAction(),
     getCurrentUser(),
+    getCarBrandsAction(),
   ]);
 
   const { data: categoriesData, error: categoriesError } = categories;
+  const { carBrands: CarBrandsData, error } = carBrands;
 
   const isAdmin = user?.user_metadata.role == "admin";
   // const { data: productBrandsData, error: productBrandsError } = productBrands;
@@ -56,6 +59,8 @@ export default async function Home() {
 
       <section className=" p-2">
         <MostPop />
+
+        <CarBrands carBrands={CarBrandsData || []} />
         {/* absolute md:left-10 md:bottom-10 left-4 bottom-12 */}
         <div className="   max-w-[100%] md:max-w-[50%] min-w-[250px] space-y-2">
           <div className=" flex  items-center gap-4  font-semibold  text-4xl md:text-5xl lg:text-6xl pr-1">
