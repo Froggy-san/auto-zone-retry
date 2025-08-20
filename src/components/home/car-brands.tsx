@@ -329,6 +329,7 @@ function GenerationList({
           >
             {generations.map((gen, i) => (
               <motion.li
+                key={gen.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{
