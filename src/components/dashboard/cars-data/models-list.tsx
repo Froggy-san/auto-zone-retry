@@ -18,12 +18,12 @@ const ModelsList = ({
   >;
   handleResetPage: () => void;
 }) => {
-  const [selectedModelId, setSelectedModelId] = useState<Number | null>(null);
+  const [selectedModelId, setSelectedModelId] = useState<number | null>(null);
   const [genToEdit, setGenToEdit] = useState<{
-    modelId: Number;
-    genId: Number;
+    modelId: number;
+    genId: number;
   } | null>(null);
-  const [modelGenId, setModelGenId] = useState<Number | null>(null); // we are setting this state to a model id
+  const [modelGenId, setModelGenId] = useState<number | null>(null); // we are setting this state to a model id
 
   const selectedModel = carMaker?.carModels.find(
     (model) => model.id === selectedModelId
