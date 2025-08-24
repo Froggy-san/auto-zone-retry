@@ -58,11 +58,16 @@ const ModelItem = ({
   item,
   handleResetPage,
   setModelId,
+  setModelToEdit,
+
+  setSelectedModelId,
 }: {
   handleResetPage: () => void;
   setModelId: () => void;
   carMaker: CarMakersData;
+  setModelToEdit: () => void;
   item: CarModelProps;
+  setSelectedModelId: React.Dispatch<React.SetStateAction<Number | null>>;
 }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -70,18 +75,12 @@ const ModelItem = ({
   const [editOpen, setEditOpen] = useState(false);
   return (
     <li
-      onClick={() => setOpen(true)}
+      onClick={() => setSelectedModelId(item.id)}
       className={cn(
         `relative w-[48%] h-fit  sm:w-fit px-3 py-2 flex flex-col  items-center    hover:bg-accent/30  transition-all duration-200  cursor-pointer  gap-2 text-sm border rounded-lg `,
         { "px-3 py-[0.4rem] ": !item.image }
       )}
     >
-      {/* <EditCarGenerationForm item={item} /> */}
-
-      {/* <span className="  cursor-pointer" onClick={setModelId}>
-        {item.name}
-      </span> */}
-      {/* {item.name} */}
       {item.image ? (
         <img
           src={item.image}
@@ -118,10 +117,7 @@ const ModelItem = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem
-                  onClick={() => setEditOpen(true)}
-                  className=" gap-2"
-                >
+                <DropdownMenuItem onClick={setModelToEdit} className=" gap-2">
                   <SquarePen className=" w-4 h-4" /> Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -143,15 +139,15 @@ const ModelItem = ({
         handleResetPage={handleResetPage}
         item={item}
       />
-      <MoreDetails open={open} setOpen={setOpen} item={item} />
-      <div onClick={(e) => e.stopPropagation()} className=" absolute">
+      {/* <MoreDetails open={open} setOpen={setOpen} item={item} /> */}
+      {/* <div onClick={(e) => e.stopPropagation()} className=" absolute">
         <CarModelForm
           open={editOpen}
           setOpen={setEditOpen}
           modelToEdit={item}
           carMaker={carMaker}
         />
-      </div>
+      </div> */}
     </li>
   );
 };
