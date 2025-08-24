@@ -27,7 +27,7 @@ import GenerationsList from "./generations-list";
 interface Props {
   carMaker: CarMakersData | null;
   handleResetPage: () => void;
-  setCarMakerId: React.Dispatch<React.SetStateAction<Number | null>>;
+  setCarMakerId: React.Dispatch<React.SetStateAction<number | null>>;
 }
 const CarMakerDia = ({ carMaker, handleResetPage, setCarMakerId }: Props) => {
   const [model, setModel] = useState<CarModelProps | null>(null);

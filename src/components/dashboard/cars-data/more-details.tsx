@@ -36,12 +36,12 @@ export default function MoreDetails({
   disabled?: boolean;
   setGentoEdit: React.Dispatch<
     React.SetStateAction<{
-      modelId: Number;
-      genId: Number;
+      modelId: number;
+      genId: number;
     } | null>
   >;
 
-  setAddGenOpen: React.Dispatch<React.SetStateAction<Number | null>>;
+  setAddGenOpen: React.Dispatch<React.SetStateAction<number | null>>;
 }) {
   // const [open, setOpen] = useState(false);
   // const [genToEdit, setGenToEdit] = useState<CarGenerationProps | null>(null);

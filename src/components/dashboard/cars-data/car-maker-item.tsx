@@ -52,9 +52,9 @@ interface CarMakerItem {
   handleResetPage: () => void;
   carMakerToEdit?: CarMakersData;
   setCarMakerToEdit?: React.Dispatch<SetStateAction<CarMakersData | undefined>>;
-  setCarMaker: React.Dispatch<SetStateAction<Number | null>>;
+  setCarMaker: React.Dispatch<SetStateAction<number | null>>;
 
-  setNoteOpen: React.Dispatch<React.SetStateAction<Number | null>>;
+  setNoteOpen: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 const CarMakerItem = ({

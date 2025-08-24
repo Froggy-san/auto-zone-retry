@@ -19,8 +19,8 @@ const CarMakerList = () => {
   const [carMakerToEdit, setCarMakerToEdit] = useState<
     CarMakersData | undefined
   >(undefined);
-  const [carMakerId, setCarMakerId] = useState<Number | null>(null);
-  const [makerNote, setMakerNote] = useState<Number | null>(null);
+  const [carMakerId, setCarMakerId] = useState<number | null>(null);
+  const [makerNote, setMakerNote] = useState<number | null>(null);
 
   const divRef = useRef<HTMLDivElement>(null);
   const makerList = useRef<HTMLUListElement>(null);

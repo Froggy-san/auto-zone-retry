@@ -67,7 +67,7 @@ const ModelItem = ({
   carMaker: CarMakersData;
   setModelToEdit: () => void;
   item: CarModelProps;
-  setSelectedModelId: React.Dispatch<React.SetStateAction<Number | null>>;
+  setSelectedModelId: React.Dispatch<React.SetStateAction<number | null>>;
 }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
