@@ -24,6 +24,7 @@ import GenerationItem from "./generations-item";
 import { cn } from "@lib/utils";
 import { Button } from "@components/ui/button";
 import { ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const CarBrands = ({ carBrands }: { carBrands: CarMakersData[] }) => {
   const [selectedBrand, setSelectedBrand] = useState<CarMakersData | null>(
@@ -89,6 +90,7 @@ interface Dia {
 function DetailsDialog({ open, setOpen, carBrand, className }: Dia) {
   const [modelId, setModelId] = useState(0);
   const [generationId, setGenerationId] = useState(0);
+  const router = useRouter();
   const model = carBrand?.carModels.find((model) => model.id === modelId);
   const generaiton = model?.carGenerations.find(
     (gen) => gen.id === generationId
@@ -96,12 +98,24 @@ function DetailsDialog({ open, setOpen, carBrand, className }: Dia) {
 
   const models = carBrand?.carModels;
   const generations = model?.carGenerations;
+  function handleSelect() {
+    console.log("Called");
+    console.log(modelId, generationId, carBrand);
+    if (!modelId || !generationId || !carBrand) return;
+    console.log("CLICED");
+    const route = `/products?page=1&makerId=${carBrand.id}&carBrand=${carBrand.name}&modelId=${modelId}&generationId=${generationId}`;
+    setOpen(null);
+    router.push(route);
+  }
 
   const handleReset = useCallback(() => {
     setModelId(0);
     setGenerationId(0);
   }, [open]);
 
+  useEffect(() => {
+    handleSelect();
+  }, [modelId, generationId, handleSelect]);
   useEffect(() => {
     handleReset();
   }, [open]);
@@ -111,65 +125,71 @@ function DetailsDialog({ open, setOpen, carBrand, className }: Dia) {
       <DialogContent className="  max-w-[800px]  p-0 overflow-hidden">
         <div className=" relative flex flex-col   max-h-[80vh]  space-y-2  pb-2 sm:pb-6  ">
           {/* <div className=" py-5" /> */}
-          <DialogHeader className="   pt-2 sm:pt-4 pb-1 border-b bg-background w-full px-2 sm:px-6  ">
-            <DialogTitle className=" flex  items-center gap-5">
-              <Button
-                disabled={!modelId}
-                className=" w-6 h-6 p-0 shrink-0"
-                onClick={handleReset}
-              >
-                <ChevronLeft className=" w-4 h-4" />
-              </Button>
-              <div className=" flex flex-col sm:flex-row gap-y-1 gap-x-4 items-center flex-1 pr-6">
-                <h2 className=" text-sm sm:text-lg font-semibold leading-none tracking-tight ">
-                  {" "}
-                  Select your car.
-                </h2>
-                <Breadcrumb>
-                  <BreadcrumbList className=" !text-xs  sm:!text-sm">
-                    <BreadcrumbItem>
-                      <BreadcrumbLink
-                        onClick={handleReset}
-                        className=" flex items-center gap-1"
-                      >
-                        {carBrand?.logo ? (
-                          <img
-                            src={carBrand.logo}
-                            className=" h-6 object-contain"
-                          />
-                        ) : null}
-                        {carBrand?.name}
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem
-                      onClick={() => setModelId(0)}
-                      className={`${
-                        !modelId ? "text-foreground" : "text-muted-foreground"
-                      }`}
-                    >
-                      <BreadcrumbLink>
-                        {model ? model.name : "Chose a model"}
-                      </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                      <BreadcrumbPage
+          <motion.div
+            key={modelId}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <DialogHeader className="   pt-2 sm:pt-4 pb-1 border-b bg-background w-full px-2 sm:px-6  ">
+              <DialogTitle className=" flex  items-center gap-5">
+                <Button
+                  disabled={!modelId}
+                  className=" w-6 h-6 p-0 shrink-0"
+                  onClick={handleReset}
+                >
+                  <ChevronLeft className=" w-4 h-4" />
+                </Button>
+                <div className=" flex flex-col sm:flex-row gap-y-1 gap-x-4 items-center flex-1 pr-6">
+                  <h2 className=" text-sm sm:text-lg font-semibold leading-none tracking-tight ">
+                    {" "}
+                    Select your car.
+                  </h2>
+                  <Breadcrumb>
+                    <BreadcrumbList className=" !text-xs  sm:!text-sm">
+                      <BreadcrumbItem>
+                        <BreadcrumbLink
+                          onClick={handleReset}
+                          className=" flex items-center gap-1"
+                        >
+                          {carBrand?.logo ? (
+                            <img
+                              src={carBrand.logo}
+                              className=" h-6 object-contain"
+                            />
+                          ) : null}
+                          {carBrand?.name}
+                        </BreadcrumbLink>
+                      </BreadcrumbItem>
+                      <BreadcrumbSeparator />
+                      <BreadcrumbItem
+                        onClick={() => setModelId(0)}
                         className={`${
-                          modelId
-                            ? "!text-foreground"
-                            : "!text-muted-foreground pointer-events-none"
+                          !modelId ? "text-foreground" : "text-muted-foreground"
                         }`}
                       >
-                        {generaiton ? generaiton.name : "Chose generation"}
-                      </BreadcrumbPage>
-                    </BreadcrumbItem>
-                  </BreadcrumbList>
-                </Breadcrumb>
-              </div>
-            </DialogTitle>
-            <DialogDescription></DialogDescription>
-          </DialogHeader>
+                        <BreadcrumbLink>
+                          {model ? model.name : "Chose a model"}
+                        </BreadcrumbLink>
+                      </BreadcrumbItem>
+                      <BreadcrumbSeparator />
+                      <BreadcrumbItem>
+                        <BreadcrumbPage
+                          className={`${
+                            modelId
+                              ? "!text-foreground"
+                              : "!text-muted-foreground pointer-events-none"
+                          }`}
+                        >
+                          {generaiton ? generaiton.name : "Chose generation"}
+                        </BreadcrumbPage>
+                      </BreadcrumbItem>
+                    </BreadcrumbList>
+                  </Breadcrumb>
+                </div>
+              </DialogTitle>
+              <DialogDescription></DialogDescription>
+            </DialogHeader>
+          </motion.div>
           <div className=" flex-1 overflow-y-auto  overflow-x-hidden px-2 sm:px-6">
             <AnimatePresence mode="wait">
               {!modelId ? (
@@ -183,7 +203,11 @@ function DetailsDialog({ open, setOpen, carBrand, className }: Dia) {
                   setModelId={setModelId}
                 />
               ) : (
-                <GenerationList generations={generations} />
+                <GenerationList
+                  generations={generations}
+                  setGenerationId={setGenerationId}
+                  handleSelect={handleSelect}
+                />
               )}
             </AnimatePresence>
           </div>
@@ -249,7 +273,7 @@ function ModelList({
                   else setModelId(model.id);
                 }}
                 className={
-                  "relative w-[48%] h-fit  sm:w-fit px-3 py-2 flex flex-col  items-center    hover:bg-accent/30  transition-all duration-200  cursor-pointer  gap-2 text-sm  border  rounded-lg "
+                  "relative w-[48%] h-fit focus-within:bg-accent/30 focus:bg-accent/30  sm:w-fit px-3 py-2 flex flex-col  items-center    hover:bg-accent/30  transition-all duration-200  cursor-pointer  gap-2 text-sm  border  rounded-lg "
                 }
               >
                 {model.image ? (
@@ -288,7 +312,10 @@ function ModelList({
                 className="h-12 object-contain"
               />
             ) : null}
-            <p className="  text-muted-foreground text-center  font-semibold">
+            <p
+              key="no-models"
+              className="  text-muted-foreground text-center  font-semibold"
+            >
               No {carBrand.name} models were found.
             </p>
           </div>
@@ -300,8 +327,12 @@ function ModelList({
 
 function GenerationList({
   generations,
+  handleSelect,
+  setGenerationId,
 }: {
   generations: CarGenerationProps[] | undefined;
+  setGenerationId: React.Dispatch<React.SetStateAction<number>>;
+  handleSelect: () => void;
 }) {
   return (
     <motion.div
@@ -325,7 +356,7 @@ function GenerationList({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             key="generations-list"
-            className=" grid gap-2 grid-cols-3 "
+            className=" grid gap-2 grid-cols-2 sm:grid-cols-3 "
           >
             {generations.map((gen, i) => (
               <motion.li
@@ -339,8 +370,12 @@ function GenerationList({
                   // duration: 0.01,
                   delay: i * 0.03,
                 }}
+                onClick={() => {
+                  setGenerationId(gen.id);
+                  // handleSelect();
+                }}
                 className={cn(
-                  `relative  h-fit   px-3 py-2 flex flex-col  items-center justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm border rounded-lg `,
+                  `relative  h-fit  focus:bg-accent/30 focus-within:bg-accent/30     px-3 py-2 flex flex-col  items-center justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm border rounded-lg `,
                   { "px-3 py-[0.4rem] ": !gen.image }
                 )}
               >
@@ -348,14 +383,14 @@ function GenerationList({
                   <img src={gen.image} className=" w-20 object-contain" />
                 ) : null}
 
-                <p className=" text-muted-foreground font-semibold">
+                <p className=" text-muted-foreground text-center font-semibold">
                   {gen.name}
                 </p>
               </motion.li>
             ))}
           </motion.ul>
         ) : (
-          <p>no generations</p>
+          <p key="no-generations">no generations</p>
         )}
       </AnimatePresence>
     </motion.div>

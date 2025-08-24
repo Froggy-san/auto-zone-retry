@@ -1,21 +1,17 @@
 "use client";
 
 import React, { useCallback, useState, useRef } from "react";
-import { CarMaker, CarMakersData, CarModelProps } from "@lib/types";
+import { CarMakersData, CarModelProps } from "@lib/types";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
 import Spinner from "@components/Spinner";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+
 import useCarMakers from "@lib/queries/car-maker/useCarMakers";
 import CarMakerItem from "./car-maker-item";
 import CarkMakerForm from "@components/dashboard/cars-data/car-maker-form";
 import useScrollToPoint from "@hooks/use-scroll-to-point";
-import { Input } from "@components/ui/input";
+import CarMakerDia from "./can-maker-dia";
+import MakerNote from "./maker-note";
 
 const CarMakerList = () => {
   const [page, setPage] = useState(1);
@@ -23,6 +19,8 @@ const CarMakerList = () => {
   const [carMakerToEdit, setCarMakerToEdit] = useState<
     CarMakersData | undefined
   >(undefined);
+  const [carMakerId, setCarMakerId] = useState<Number | null>(null);
+  const [makerNote, setMakerNote] = useState<Number | null>(null);
 
   const divRef = useRef<HTMLDivElement>(null);
   const makerList = useRef<HTMLUListElement>(null);
@@ -34,7 +32,10 @@ const CarMakerList = () => {
     },
   });
   const { data, isLoading, error, pageCount } = useCarMakers(page, searchTerm);
-  console.log(data);
+
+  const carMaker = data?.find((car) => car.id === carMakerId);
+
+  const note = data?.find((car) => car.id === makerNote);
   const carMakers = data ? data : [];
 
   function handleClose() {
@@ -55,11 +56,6 @@ const CarMakerList = () => {
 
   return (
     <>
-      <CarkMakerForm
-        carMakerToEdit={carMakerToEdit}
-        showOpenButton={false}
-        handleCloseEdit={handleClose}
-      />
       {/* <div className=" p-2 bg-accent/20 rounded-xl backdrop-blur-2xl shadow-lg flex items-center  justify-center">
         <Input
           placeholder="Search..."
@@ -83,12 +79,14 @@ const CarMakerList = () => {
           ) : (
             <ul
               ref={makerList}
-              className="  grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4   lg:grid-cols-5   xl:grid-cols-6 gap-2 px-1  py-2  sm:p-4 max-h-[70vh] sm:max-h-none overflow-y-auto  overscroll-contain "
+              className="  grid grid-cols-3 md:grid-cols-4   lg:grid-cols-5   xl:grid-cols-6 gap-2 px-1  py-2  sm:p-4  sm:max-h-none  "
             >
               {carMakers.map((item) => (
                 <CarMakerItem
                   key={item.id}
                   carMaker={item}
+                  setNoteOpen={setMakerNote}
+                  setCarMaker={setCarMakerId}
                   carMakerToEdit={carMakerToEdit}
                   setCarMakerToEdit={setCarMakerToEdit}
                   handleResetPage={handleResetPage}
@@ -128,6 +126,22 @@ const CarMakerList = () => {
           </div>
         </div>
       )}
+      <CarkMakerForm
+        carMakerToEdit={carMakerToEdit}
+        showOpenButton={false}
+        handleCloseEdit={handleClose}
+      />
+      <CarMakerDia
+        carMaker={carMaker || null}
+        handleResetPage={handleResetPage}
+        setCarMakerId={setCarMakerId}
+      />
+
+      <MakerNote
+        open={!!note}
+        setOpen={() => setMakerNote(null)}
+        carMaker={note || null}
+      />
     </>
   );
 };

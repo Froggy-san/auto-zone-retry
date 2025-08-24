@@ -148,7 +148,6 @@ interface DeleteProps {
 }
 
 export async function deleteCarMaker(carMaker: CarMakersData) {
-  const supabase = createClient();
   const { error } = await supabase
     .from("carMakers")
     .delete()
@@ -156,7 +155,7 @@ export async function deleteCarMaker(carMaker: CarMakersData) {
 
   if (error) {
     console.log(`Unexpected error: ${error.message}`);
-    return error;
+    throw new Error(error.message);
   }
 
   if (carMaker.logo) {
@@ -167,7 +166,40 @@ export async function deleteCarMaker(carMaker: CarMakersData) {
 
     if (error) {
       console.log(`Unexpected error: ${error.message}`);
-      return error;
     }
+  }
+
+  // Get the images related to the car brand in order to delete them along side it's data.
+  const modelImages = carMaker.carModels
+    .map((model) => model.image)
+    .filter((item) => item !== null);
+
+  const generaitonImages = carMaker.carModels
+    .flatMap((item) => item.carGenerations)
+    .map((gen) => gen.image)
+    .filter((gen) => gen !== null);
+
+  console.log("MODELS", modelImages);
+  console.log("GENERATIONS", generaitonImages);
+  if (modelImages.length) {
+    const { error } = await deleteImageFromBucket({
+      bucketName: "models",
+      imagePaths: modelImages,
+    });
+    if (error)
+      throw new Error(
+        `Failed to delete some of the car model images: ${error.message}`
+      );
+  }
+
+  if (generaitonImages.length) {
+    const { error } = await deleteImageFromBucket({
+      bucketName: "generations",
+      imagePaths: generaitonImages,
+    });
+    if (error)
+      throw new Error(
+        `Failed to delete some of the car generaion images: ${error.message}`
+      );
   }
 }

@@ -58,7 +58,7 @@ export function GenerationForm({
   setMainOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   genToEdit?: CarGenerationProps;
   openBtn?: React.ReactElement;
-  model: CarModelProps;
+  model: CarModelProps | undefined;
 }) {
   // const [isOpen, setIsOpen] = useState(false);
   // const isOpen = open === "editGen";
@@ -70,7 +70,7 @@ export function GenerationForm({
   const defaultValues = {
     name: genToEdit?.name || "",
     notes: genToEdit?.notes || "",
-    carModelId: genToEdit?.carModelId || model.id,
+    carModelId: genToEdit?.carModelId || model?.id || 0,
     image: [],
   };
   const form = useForm<z.infer<typeof CarGenerationsSchema>>({
@@ -139,7 +139,7 @@ export function GenerationForm({
           <DialogDescription>
             {genToEdit
               ? "Change the car generation's data."
-              : `Add a new generation to the car model (${model.name})`}
+              : `Add a new generation to the car model (${model?.name})`}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -149,7 +149,7 @@ export function GenerationForm({
                 <FormLabel>Car model</FormLabel>
 
                 <div className="flex items-center h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-not-allowed opacity-50">
-                  {model.name}
+                  {model?.name}
                 </div>
 
                 <FormDescription>Current car model.</FormDescription>
