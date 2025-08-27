@@ -30,7 +30,10 @@ export async function getClientsAction({
   name,
   email,
   phone,
-}: GetClientsActionProps) {
+}: GetClientsActionProps): Promise<{
+  data: { clients: ClientWithPhoneNumbers[]; count: number | string } | null;
+  error: string;
+}> {
   const from = (Number(pageNumber) - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 

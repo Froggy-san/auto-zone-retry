@@ -273,7 +273,7 @@ const Page = async ({
               useParams
               carToEdit={car}
               clientId={client.id}
-              carGenerations={carGenerations}
+              // carGenerations={carGenerations}
               carMakers={carMakersData}
               className=" sm:flex-col   sm:items-stretch lg:flex-row lg:items-center"
             />

@@ -42,7 +42,6 @@ const GenerationItem = ({
   className,
   setGenToEdit,
   item,
-  handleResetPage,
   model,
   withForm = true,
 }: {
@@ -126,12 +125,7 @@ const GenerationItem = ({
           open={noteOpen}
           setOpen={setNoteOpen}
         />
-        <DeleteBtn
-          handleResetPage={handleResetPage}
-          item={item}
-          open={deleteOpen}
-          setOpen={setDeleteOpen}
-        />
+        <DeleteBtn item={item} open={deleteOpen} setOpen={setDeleteOpen} />
       </div>
       {withForm && (
         <div onClick={(e) => e.stopPropagation()} className=" absolute">
@@ -149,11 +143,10 @@ const GenerationItem = ({
 
 function DeleteBtn({
   item,
-  handleResetPage,
+
   open,
   setOpen,
 }: {
-  handleResetPage?: () => void;
   item: CarGenerationProps;
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -163,7 +156,7 @@ function DeleteBtn({
   const [isOpen, setIsOpen] = useState(false);
 
   const diaOpen = open || isOpen;
-  console.log("image", item.image);
+
   const handleClose = useCallback(() => {
     setIsOpen(false);
     setOpen?.(false);
@@ -205,7 +198,7 @@ function DeleteBtn({
                   {
                     onSuccess: () => {
                       handleClose();
-                      handleResetPage?.();
+
                       toast({
                         className: "bg-primary  text-primary-foreground",
                         title: "Deleted.",

@@ -65,7 +65,7 @@ export default function MoreDetails({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.09 }}
                   >
                     {item.name}&apos;s details.
                   </motion.span>
@@ -81,7 +81,7 @@ export default function MoreDetails({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.09 }}
                 className="grid gap-2 p-2  rounded-md bg-accent/50 overflow-hidden  text-center sm:text-left break-all"
               >
                 <h2 className=" text-md font-semibold flex items-center gap-1">
@@ -103,7 +103,7 @@ export default function MoreDetails({
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
+                      transition={{ duration: 0.09 }}
                       className=" grid  grid-cols-2 sm:grid-cols-3  gap-2"
                     >
                       {generations.map((gen) => (

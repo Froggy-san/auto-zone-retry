@@ -53,41 +53,40 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
     carModelId;
 
   const supabase = await createClient();
-  const [carGenerations, clients, carMakers, carModels, carsData] =
-    await Promise.all([
-      getAllCarGenerationsAction(),
-      getClientsAction({}),
-      getAllCarMakersAction(),
-      // getCarsCountAction({
-      //   chassisNumber,
-      //   motorNumber,
-      //   plateNumber,
-      //   clientId,
-      //   carInfoId: carGenerationId,
-      //   carMakerId,
-      //   carModelId,
-      // }),
-      getAllCarModelsAction(),
-      getCarsAction({
-        pageNumber,
-        plateNumber,
-        chassisNumber,
-        motorNumber,
-        clientId,
-        carGenerationId,
-        color,
-        carMakerId,
-        carModelId,
-        supabase,
-      }),
-    ]);
+  const [clients, carMakers, carsData] = await Promise.all([
+    // getAllCarGenerationsAction(),
+    getClientsAction({}),
+    getAllCarMakersAction(),
+    // getCarsCountAction({
+    //   chassisNumber,
+    //   motorNumber,
+    //   plateNumber,
+    //   clientId,
+    //   carInfoId: carGenerationId,
+    //   carMakerId,
+    //   carModelId,
+    // }),
+    // getAllCarModelsAction(),
+    getCarsAction({
+      pageNumber,
+      plateNumber,
+      chassisNumber,
+      motorNumber,
+      clientId,
+      carGenerationId,
+      color,
+      carMakerId,
+      carModelId,
+      supabase,
+    }),
+  ]);
 
   const { data: clientsData, error: clientsDataError } = clients;
-  const { data: carGenerationsData, error: carGenerationError } =
-    carGenerations;
+  // const { data: carGenerationsData, error: carGenerationError } =
+  //   carGenerations;
   const { data: carMakersData, error: carMakerError } = carMakers;
   // const { data: countData, error: countError } = count;
-  const { data: carModelsData, error: carModelsError } = carModels;
+  // const { data: carModelsData, error: carModelsError } = carModels;
   const { data, error } = carsData;
 
   const cars = data?.cars;
@@ -104,8 +103,8 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
           <GarageFilterbar
             count={carsCount || 0}
             carMakers={carMakersData}
-            carModels={carModelsData?.models}
-            carGenerations={carGenerationsData?.carGenerationsData}
+            // carModels={carModelsData?.models}
+            // carGenerations={carGenerationsData?.carGenerationsData}
             clients={clientsData?.clients || []}
             color={color}
             chassisNumber={chassisNumber}
@@ -122,7 +121,11 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               fallback={<Spinner className=" h-[300px]" size={30} />}
               key={key}
             >
-              <CarsList cars={cars} error={error} />
+              <CarsList
+                cars={cars}
+                error={error}
+                clients={clientsData?.clients || []}
+              />
             </Suspense>
 
             {error ? (
@@ -142,7 +145,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             <div className=" my-10 px-2">
               <CarManagement
                 carMakers={carMakersData}
-                carGenerations={carGenerationsData?.carGenerationsData}
+                // carGenerations={carGenerationsData?.carGenerationsData}
                 clients={clientsData?.clients}
               />
             </div>

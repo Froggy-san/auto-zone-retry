@@ -54,7 +54,7 @@ const getCars = async ({
         count: "exact",
       }
     )
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .order("created_at", {
       referencedTable: "carImages",
       ascending: true,

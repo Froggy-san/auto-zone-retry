@@ -52,7 +52,6 @@ import _ from "lodash";
 import { cn } from "@lib/utils";
 import StepOne from "./form-step-one";
 import StepThree from "./form-step-three";
-import { CurrencyInputOnChangeValues } from "react-currency-input-field";
 
 interface ProductFormProps {
   categories: Category[];
@@ -82,12 +81,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
   productToEdit,
   useParams = false,
 }) => {
+  const carMaker = productToEdit?.carMakers;
   const searchParam = useSearchParams();
   const edit = searchParam.get("edit") ?? "";
   const [isOpen, setIsOpen] = useState(edit ? true : false);
   const [isMainImage, setIsMainImage] = useState<ProductImage | null | number>(
     null
   );
+  const [searchTerm, setSearchTerm] = useState(carMaker?.name || "");
   const [deletedDetails, setDeletedDetails] = useState<number[]>([]);
   const [deletedMedia, setDeletedMedia] = useState<ProductImage[]>([]);
   const [[step, direction], setStep] = useState([0, 1]);
@@ -109,8 +110,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
     },
     [step, setStep]
   );
-
-  const carMaker = productToEdit?.carMakers;
 
   const isMainChange =
     productToEdit?.productImages.find((image) => image.isMain === true) || null;
@@ -174,7 +173,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     // shouldUnregister: true,
   });
 
-  const { images, moreDetails, makerId, modelId } = form.watch();
+  const { images, moreDetails } = form.watch();
 
   const formValues = form.getValues();
   const formErrors = form.formState.errors;
@@ -246,6 +245,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       productToEdit?.productImages.find((image) => image.isMain === true) ||
         null
     );
+    if (carMaker) setSearchTerm(carMaker.name);
     if (formRef.current) formRef.current.scrollTo(0, 0);
   }, [isOpen, productToEdit?.productImages]);
 
@@ -562,7 +562,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
             <AnimatePresence mode="wait">
               {step === 0 && (
                 <StepOne
+                  form={form}
                   control={form.control}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
                   isLoading={isLoading}
                   currStep={[step, direction]}
                   categories={categories}
@@ -574,8 +577,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   mediaUrls={mediaUrls}
                   productToEdit={productToEdit}
                   setDeletedMedia={setDeletedMedia}
-                  makerId={makerId}
-                  modelId={modelId}
                   carMaker={carMaker}
                 />
               )}

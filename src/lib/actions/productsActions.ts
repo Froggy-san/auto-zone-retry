@@ -592,13 +592,15 @@ export async function deleteProductsByIdAction(
 
   if (error) return { data: null, error: error.message };
 
-  const { error: bucketError } = await deleteImageFromBucketSr({
-    bucketName: "product",
-    imagePaths,
-  });
+  if (imagePaths.length) {
+    const { error: bucketError } = await deleteImageFromBucketSr({
+      bucketName: "product",
+      imagePaths,
+    });
 
-  if (bucketError) return { data: null, error: bucketError.message };
-  revalidatePath("/products");
+    if (bucketError) return { data: null, error: bucketError.message };
+  }
+  revalidatePath("products");
 
   return { data: null, error: "" };
 }

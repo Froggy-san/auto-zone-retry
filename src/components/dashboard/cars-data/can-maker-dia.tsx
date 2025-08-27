@@ -26,10 +26,10 @@ import ModelsList from "./models-list";
 import GenerationsList from "./generations-list";
 interface Props {
   carMaker: CarMakersData | null;
-  handleResetPage: () => void;
+
   setCarMakerId: React.Dispatch<React.SetStateAction<number | null>>;
 }
-const CarMakerDia = ({ carMaker, handleResetPage, setCarMakerId }: Props) => {
+const CarMakerDia = ({ carMaker, setCarMakerId }: Props) => {
   const [model, setModel] = useState<CarModelProps | null>(null);
   const [modelToEdit, setModelToEdit] = useState<CarModelProps | undefined>(
     undefined
@@ -41,8 +41,6 @@ const CarMakerDia = ({ carMaker, handleResetPage, setCarMakerId }: Props) => {
     // flatMap(carMaker.carModels.map((item) => item.carGenerations));
   }, [carMaker]);
 
-  //   if (!carMaker) return null;
-  console.log("Set Model to edot", carMaker);
   return (
     <>
       <Dialog open={!!carMaker} onOpenChange={() => setCarMakerId(null)}>
@@ -55,6 +53,7 @@ const CarMakerDia = ({ carMaker, handleResetPage, setCarMakerId }: Props) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
+                    transition={{ duration: 0.09 }}
                     key="image"
                     src={carMaker.logo}
                     alt={`${carMaker.name} logo`}
@@ -67,6 +66,7 @@ const CarMakerDia = ({ carMaker, handleResetPage, setCarMakerId }: Props) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                transition={{ duration: 0.09 }}
               >
                 {carMaker?.name}
               </motion.span>
@@ -81,13 +81,8 @@ const CarMakerDia = ({ carMaker, handleResetPage, setCarMakerId }: Props) => {
               carMaker={carMaker}
               setModel={setModel}
               setModelToEdit={setModelToEdit}
-              handleResetPage={handleResetPage}
             />
-            <GenerationsList
-              generations={generaitons}
-              carMaker={carMaker}
-              handleResetPage={handleResetPage}
-            />
+            <GenerationsList generations={generaitons} carMaker={carMaker} />
             <div className="flex  flex-col  gap-y-2 xs:flex-row xs:items-center justify-between rounded-lg border p-3 shadow-sm gap-x-7">
               <div className="space-y-0.5   ">
                 <label className=" font-semibold">Add car models</label>

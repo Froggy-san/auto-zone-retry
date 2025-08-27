@@ -8,6 +8,11 @@ import {
   uploadImageToBucket,
   uploadSingleImgToBucket,
 } from "./helper-services";
+import { revalidateMakers } from "@lib/actions/carMakerActions";
+import {
+  revalidateProductById,
+  revalidateProducts,
+} from "@lib/actions/productsActions";
 
 const supabase = createClient();
 export async function getCarGenerations(page: number) {
@@ -53,8 +58,7 @@ export async function createCarGeneration({
     .from("carGenerations")
     .insert([{ name, notes, carModelId, image: path }]);
   if (error) throw new Error(error.message);
-  // await revalidateCarGenerations();
-  // await revalidateModels();
+  await revalidateMakers();
 }
 
 export async function editCarGeneration({
@@ -102,9 +106,7 @@ export async function editCarGeneration({
     .eq("id", id);
 
   if (error) throw new Error(error.message);
-
-  // await revalidateCarGenerations();
-  // await revalidateModels();
+  await revalidateMakers();
 }
 
 export async function deleteCarGenerations({
@@ -114,6 +116,33 @@ export async function deleteCarGenerations({
   id: number;
   imageToDelete?: string;
 }) {
+  const { data: product, error: relatedProducts } = await supabase
+    .from("product")
+    .select("*")
+    .ilike("generationsArr", `%${id}%`);
+
+  if (relatedProducts) throw new Error(relatedProducts.message);
+
+  console.log(product);
+  if (product?.length) {
+    const upsert = product.map((pro) => {
+      const generations: number[] = JSON.parse(pro.generationsArr);
+      const updatedArr = generations.filter((item) => item !== id);
+      const generationsArr = updatedArr.length
+        ? JSON.stringify(updatedArr.filter((item) => item !== id))
+        : null;
+
+      return { ...pro, generationsArr };
+    });
+
+    const { error } = await supabase.from("product").upsert(upsert);
+
+    if (error) throw new Error(error.message);
+
+    await Promise.all(upsert.map((pro) => revalidateProductById(pro.id)));
+  }
+  // 2. Delete image.
+
   if (imageToDelete) {
     const { error } = await deleteImageFromBucket({
       bucketName: "generations",
@@ -122,8 +151,10 @@ export async function deleteCarGenerations({
 
     if (error) throw new Error(error.message);
   }
+
+  // 3 . Delte generation.
+
   const { error } = await supabase.from("carGenerations").delete().eq("id", id);
   if (error) throw new Error(error.message);
-  // await revalidateCarGenerations();
-  // await revalidateModels();
+  await revalidateMakers();
 }
