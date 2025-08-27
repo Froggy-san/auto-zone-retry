@@ -301,7 +301,12 @@ const Page = async ({
                 <AccordionContent>
                   <ul className=" grid  px-4  mt-10 gap-3">
                     {clientOtherCars.map((car, i) => (
-                      <CarItem clientId={client.id} car={car} key={i} />
+                      <CarItem
+                        clientId={client.id}
+                        car={car}
+                        client={undefined}
+                        key={i}
+                      />
                     ))}
                   </ul>
                 </AccordionContent>

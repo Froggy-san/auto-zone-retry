@@ -124,14 +124,14 @@ export const CarInfoForm: React.FC<CarInfoFormProps> = ({
                   <FormItem className=" w-full mb-auto">
                     <FormLabel>Car Maker</FormLabel>
                     <FormControl>
-                      <MakerCombobox
+                      {/* <MakerCombobox
                         value={field.value}
                         setValue={(id) => {
                           field.onChange(id);
                           form.setValue("carModelId", 0);
                         }}
                         options={carMakers}
-                      />
+                      /> */}
                     </FormControl>
                     <FormDescription>
                       Enter the name of the car maker.

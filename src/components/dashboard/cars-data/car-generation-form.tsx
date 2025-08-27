@@ -143,14 +143,14 @@ const CarGenerationForm = ({
               <FormItem className=" w-full mb-auto">
                 <FormLabel>Car maker</FormLabel>
                 <FormControl>
-                  <MakerCombobox
+                  {/* <MakerCombobox
                     setValue={(value) => {
                       setCarMaker(value);
                       form.setValue("carModelId", 0);
                     }}
                     value={carMaker}
                     options={carMakers}
-                  />
+                  /> */}
                 </FormControl>
                 <FormDescription>
                   Enter the name of the product.
