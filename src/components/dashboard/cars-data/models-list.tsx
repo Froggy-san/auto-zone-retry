@@ -9,14 +9,12 @@ const ModelsList = ({
   carMaker,
   setModelToEdit,
   setModel,
-  handleResetPage,
 }: {
   carMaker: CarMakersData | null;
   setModel: React.Dispatch<React.SetStateAction<CarModelProps | null>>;
   setModelToEdit: React.Dispatch<
     React.SetStateAction<CarModelProps | undefined>
   >;
-  handleResetPage: () => void;
 }) => {
   const [selectedModelId, setSelectedModelId] = useState<number | null>(null);
   const [genToEdit, setGenToEdit] = useState<{
@@ -47,7 +45,7 @@ const ModelsList = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.09 }}
             className="flex items-center justify-center  gap-3 flex-wrap"
           >
             {carMaker.carModels.map((model) => (
@@ -58,7 +56,6 @@ const ModelsList = ({
                 item={model}
                 setModelToEdit={() => setModelToEdit(model)}
                 setModelId={() => setModel(model)}
-                handleResetPage={handleResetPage}
               />
             ))}
           </motion.ul>

@@ -3,13 +3,14 @@ import {
   CarMakerData,
   CarModelProps,
   Category,
+  FilesWithPreview,
   ProductBrand,
   ProductById,
   ProductImage,
   ProductsSchema,
   ProductType,
 } from "@lib/types";
-import { Control } from "react-hook-form";
+import { Control, UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { ProFormSlideVariants, ProFormTransition } from "@lib/constants";
@@ -30,14 +31,46 @@ import { Check, ChevronsUpDown, Trash2 } from "lucide-react";
 import { Switch } from "@components/ui/switch";
 import CarBrandsCombobox from "@components/car-brands-combobox";
 import useCarBrands from "@lib/queries/useCarBrands";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ModelCombobox } from "@components/model-combobox";
 import GenerationsTagInput from "@components/generations-tag-input";
 import InputMask from "react-input-mask";
 import CurrencyInput, {
   CurrencyInputOnChangeValues,
 } from "react-currency-input-field";
-import CurrencyField from "@components/currency-input";
+
+type Form = UseFormReturn<
+  {
+    name: string;
+    description: string;
+    listPrice: number;
+    salePrice: number;
+    stock: number;
+    makerId: number | null;
+    modelId: number | null;
+    generationsArr: number[];
+    isAvailable: boolean;
+    moreDetails: {
+      table: {
+        title: string;
+        description: string;
+      }[];
+      title: string;
+      description: string;
+      id?: number | undefined;
+      created_at?: string | undefined;
+      productId?: number | undefined;
+    }[];
+    categoryId: number;
+    productTypeId: number;
+    productBrandId: number;
+    carinfoId: number;
+    images: FilesWithPreview[];
+    isMain: boolean;
+  },
+  any,
+  undefined
+>;
 
 type HandleNumber = (
   formattedValue: string | undefined,
@@ -46,7 +79,10 @@ type HandleNumber = (
   onChange?: React.Dispatch<React.SetStateAction<number>>
 ) => void;
 interface StepOneProps {
+  form: Form;
   control: Control<z.infer<typeof ProductsSchema>>;
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
   categories: Category[];
   productTypes: ProductType[];
@@ -55,8 +91,7 @@ interface StepOneProps {
   mediaUrls: ProductImage[];
   productToEdit?: ProductById;
   currStep: number[];
-  makerId: number | null;
-  modelId: number | null;
+
   carMaker: CarMakerData | undefined;
   handleDeleteMedia(productImage?: ProductImage): void;
 
@@ -67,6 +102,9 @@ interface StepOneProps {
 }
 
 function StepOne({
+  form,
+  searchTerm,
+  setSearchTerm,
   currStep,
   control,
   isLoading,
@@ -79,19 +117,25 @@ function StepOne({
   mediaUrls,
   setDeletedMedia,
   productToEdit,
-  makerId,
-  modelId,
   carMaker,
 }: StepOneProps) {
-  const [searchTerm, setSearchTerm] = useState(carMaker?.name || "");
   const [step, direction] = currStep;
   const { carBrands, isLoading: searching, error } = useCarBrands(searchTerm);
+  const { makerId, modelId, generationsArr } = form.watch();
   const carModels =
     makerId && carBrands?.find((car) => car.id === makerId)?.carModels;
   const carGenerations =
     modelId &&
     carModels &&
     carModels.find((model) => model.id === modelId)?.carGenerations;
+
+  useEffect(() => {
+    if (searching) {
+      if (makerId) form.setValue("makerId", null);
+      if (modelId) form.setValue("modelId", null);
+      if (generationsArr.length) form.setValue("generationsArr", []);
+    }
+  }, [searching, generationsArr.length, makerId, modelId, form.setValue]);
 
   return (
     <motion.div
@@ -106,7 +150,7 @@ function StepOne({
       <div className="  flex flex-col sm:flex-row gap-x-2 gap-y-3 ">
         <FormField
           disabled={isLoading}
-          control={control}
+          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem className=" w-full">
@@ -122,7 +166,7 @@ function StepOne({
 
         <FormField
           disabled={isLoading || !categories.length}
-          control={control}
+          control={form.control}
           name="categoryId"
           render={({ field }) => (
             <FormItem className=" w-full ">
@@ -148,7 +192,7 @@ function StepOne({
       <div className=" flex  flex-col gap-2 sm:flex-row">
         <FormField
           disabled={isLoading || !productTypes.length}
-          control={control}
+          control={form.control}
           name="productTypeId"
           render={({ field }) => (
             <FormItem className=" w-full">
@@ -171,7 +215,7 @@ function StepOne({
         />
         <FormField
           disabled={isLoading || !productBrand.length}
-          control={control}
+          control={form.control}
           name="productBrandId"
           render={({ field }) => (
             <FormItem className=" w-full">
@@ -194,7 +238,7 @@ function StepOne({
       <div className=" flex  gap-x-2 gap-y-3 flex-wrap flex-row">
         <FormField
           disabled={isLoading}
-          control={control}
+          control={form.control}
           name="listPrice"
           render={({ field }) => (
             <FormItem className=" w-full flex-1">
@@ -227,7 +271,7 @@ function StepOne({
 
         <FormField
           disabled={isLoading}
-          control={control}
+          control={form.control}
           name="salePrice"
           render={({ field }) => (
             <FormItem className=" w-full  flex-1">
@@ -255,7 +299,7 @@ function StepOne({
         />
         <FormField
           disabled={isLoading}
-          control={control}
+          control={form.control}
           name="stock"
           render={({ field }) => (
             <FormItem className=" w-full basis-full sm:flex-1 ">
@@ -287,7 +331,7 @@ function StepOne({
       <div className=" flex  flex-col gap-2 sm:flex-row">
         <FormField
           disabled={isLoading}
-          control={control}
+          control={form.control}
           name="makerId"
           render={({ field }) => (
             <FormItem className=" w-full">
@@ -303,7 +347,11 @@ function StepOne({
                   searchTerm={searchTerm}
                   setSearchTerm={setSearchTerm}
                   value={field.value}
-                  setValue={field.onChange}
+                  setValue={(value) => {
+                    field.onChange(value);
+                    form.setValue("modelId", null);
+                    form.setValue("generationsArr", []);
+                  }}
                 />
               </FormControl>
               <FormDescription>
@@ -316,7 +364,7 @@ function StepOne({
 
         <FormField
           disabled={isLoading}
-          control={control}
+          control={form.control}
           name="modelId"
           render={({ field }) => (
             <FormItem className=" w-full">
@@ -331,7 +379,10 @@ function StepOne({
                   disabled={!carModels || !carModels.length}
                   options={carModels || []}
                   value={field.value}
-                  setValue={field.onChange}
+                  setValue={(value) => {
+                    form.setValue("generationsArr", []);
+                    field.onChange(value);
+                  }}
                 />
               </FormControl>
               <FormDescription>
@@ -345,7 +396,7 @@ function StepOne({
       <div>
         <FormField
           disabled={isLoading}
-          control={control}
+          control={form.control}
           name="generationsArr"
           render={({ field }) => (
             <FormItem className=" w-full">
@@ -375,7 +426,7 @@ function StepOne({
       <div className=" flex  flex-col gap-2 sm:flex-row">
         {/* <FormField
           disabled={isLoading}
-          control={control}
+          control={form.control}
           name="stock"
           render={({ field }) => (
             <FormItem className=" w-full">
@@ -410,7 +461,7 @@ function StepOne({
 
       <FormField
         disabled={isLoading}
-        control={control}
+        control={form.control}
         name="description"
         render={({ field }) => (
           <FormItem>
@@ -430,7 +481,7 @@ function StepOne({
       />
       <FormField
         disabled={isLoading}
-        control={control}
+        control={form.control}
         name="images"
         render={({ field }) => (
           <FormItem className=" w-full">
@@ -478,7 +529,7 @@ function StepOne({
 
       <FormField
         disabled={isLoading}
-        control={control}
+        control={form.control}
         name="isAvailable"
         render={({ field }) => (
           <FormItem className="flex flex-row h-fit  items-center justify-between rounded-lg border p-3 shadow-sm w-full">

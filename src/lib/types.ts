@@ -264,6 +264,7 @@ export const CreateCarSchema = z.object({
   chassisNumber: z.string(),
   motorNumber: z.string(),
   notes: z.string(),
+  odometer: z.string(),
   clientId: z.number().min(1, { message: "Every car must have an owner" }),
   carGenerationId: z
     .number()
@@ -635,11 +636,13 @@ interface CarInformation {
   id: number;
   name: string;
   notes: string;
+  image: string | null;
   carModels: {
     id: number;
     name: string;
     notes: string;
     carMakers: CarMaker;
+    image: string | null;
     carMakerId: number;
     created_at: string;
   };
@@ -653,6 +656,7 @@ export interface CarItem {
   plateNumber: string;
   chassisNumber: string;
   motorNumber: string;
+  odometer: string;
   notes: string;
   carImages: CarImage[];
   clientId: number;

@@ -33,7 +33,7 @@ export async function getAllCarMakersAction(pageNumber?: number) {
   // if (!token)
   //   return { data: null, error: "You are not authorized to make this action." };
 
-  const query = `${supabaseUrl}/rest/v1/carMakers?select=*,carModels(*)&order=created_at.asc`;
+  const query = `${supabaseUrl}/rest/v1/carMakers?select=*,carModels(*,carGenerations(*))&order=created_at.asc`;
   let headers;
   if (pageNumber) {
     const from = (Number(pageNumber) - 1) * MAKER_PAGE_SIZE; // (1-1) * 10 = 0
@@ -58,13 +58,17 @@ export async function getAllCarMakersAction(pageNumber?: number) {
   });
 
   if (!response.ok) {
+    const error = (await response.json()).message;
+    console.log("Error", error);
     return {
       data: null,
-      error: "Something went wrong while trying to fetch car makers data.",
+      error:
+        error || "Something went wrong while trying to fetch car makers data.",
     };
   }
 
   const data = await response.json();
+  console.log("MAKER DATA", data);
   return { data, error: "" };
 }
 

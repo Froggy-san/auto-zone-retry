@@ -56,13 +56,11 @@ import { cn } from "@lib/utils";
 const ModelItem = ({
   carMaker,
   item,
-  handleResetPage,
   setModelId,
   setModelToEdit,
 
   setSelectedModelId,
 }: {
-  handleResetPage: () => void;
   setModelId: () => void;
   carMaker: CarMakersData;
   setModelToEdit: () => void;
@@ -136,7 +134,6 @@ const ModelItem = ({
         setOpen={setDeleteOpen}
         isDeleting={loading}
         setIsDeleting={setLoading}
-        handleResetPage={handleResetPage}
         item={item}
       />
       {/* <MoreDetails open={open} setOpen={setOpen} item={item} /> */}
@@ -266,11 +263,10 @@ function DeleteBtn({
   item,
   isDeleting,
   setIsDeleting,
-  handleResetPage,
 }: {
   open: boolean;
   setOpen: React.Dispatch<SetStateAction<boolean>>;
-  handleResetPage: () => void;
+
   isDeleting: boolean;
   setIsDeleting: React.Dispatch<SetStateAction<boolean>>;
   item: CarModelProps;
@@ -281,10 +277,9 @@ function DeleteBtn({
   const handleDelete = useCallback(async () => {
     try {
       setIsDeleting(true);
-      await deleteModel({ id: item.id, imageToDelete: item.image || "" });
+      await deleteModel(item);
 
       setOpen(false);
-      handleResetPage();
 
       toast({
         className: "bg-primary  text-primary-foreground",

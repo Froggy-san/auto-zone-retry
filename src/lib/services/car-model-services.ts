@@ -1,10 +1,12 @@
 import { SUPABASE_URL } from "@lib/constants";
-import { CreateCarModel } from "@lib/types";
+import { CarModelProps, CreateCarModel } from "@lib/types";
 import { createClient } from "@utils/supabase/client";
 import {
   deleteImageFromBucket,
   uploadSingleImgToBucket,
 } from "./helper-services";
+import { revalidateMakers } from "@lib/actions/carMakerActions";
+import { revalidateProductById } from "@lib/actions/productsActions";
 
 const supabase = createClient();
 
@@ -36,8 +38,7 @@ export async function createModel({
 
   if (error) throw new Error(error.message);
 
-  //   revalidateTag("carModels");
-
+  await revalidateMakers();
   return data;
 }
 
@@ -82,26 +83,55 @@ export async function editModel({
     .eq("id", id);
 
   if (error) throw new Error(error.message);
-
+  await revalidateMakers();
   return data;
 }
 
-export async function deleteModel({
-  id,
-  imageToDelete,
-}: {
-  id: number;
-  imageToDelete: string;
-}) {
-  if (imageToDelete) {
+export async function deleteModel(model: CarModelProps) {
+  // 1  Remove the generations array from each product that holds the id of the deleted model.
+  const { data: products, error: relatedProducts } = await supabase
+    .from("product")
+    .select("*")
+    .eq("modelId", model.id);
+  if (relatedProducts) throw new Error(relatedProducts.message);
+
+  if (products?.length) {
+    const upsert = products.map((pro) => {
+      return { ...pro, generationsArr: null };
+    });
+
+    const { error } = await supabase.from("product").upsert(upsert);
+
+    if (error) throw new Error(error.message);
+
+    await Promise.all(upsert.map((pro) => revalidateProductById(pro.id)));
+  }
+  // 2. Delete images related to the modol's generations.
+  const generationImages = model.carGenerations
+    .map((model) => model.image)
+    .filter((image) => image !== null);
+
+  if (generationImages.length) {
+    const { error } = await deleteImageFromBucket({
+      bucketName: "generations",
+      imagePaths: generationImages,
+    });
+    if (error) throw new Error(error.message);
+  }
+
+  if (model.image) {
     const { error } = await deleteImageFromBucket({
       bucketName: "models",
-      imagePaths: [imageToDelete],
+      imagePaths: [model.image],
     });
     if (error)
       throw new Error(`Failed to delete existing image: ${error.message}`);
   }
-  const { error } = await supabase.from("carModels").delete().eq("id", id);
+  const { error } = await supabase
+    .from("carModels")
+    .delete()
+    .eq("id", model.id);
 
   if (error) throw new Error(error.message);
+  await revalidateMakers();
 }

@@ -228,7 +228,7 @@ function ModelList({
   modelId: number;
   setModelId: React.Dispatch<React.SetStateAction<number>>;
 }) {
-  // const [hovered, setHovered] = useState<number | null>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
 
   return (
     <motion.div
@@ -250,6 +250,7 @@ function ModelList({
           <motion.ul
             layout
             key="model-list"
+            onMouseLeave={() => setHovered(null)}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -259,7 +260,7 @@ function ModelList({
               <motion.li
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                // onMouseEnter={() => setHovered(i)}
+                onMouseEnter={() => setHovered(i)}
                 transition={{
                   type: "spring",
                   damping: 10,
@@ -273,7 +274,7 @@ function ModelList({
                   else setModelId(model.id);
                 }}
                 className={
-                  "relative w-[48%] h-fit focus-within:bg-accent/30 focus:bg-accent/30  sm:w-fit px-3 py-2 flex flex-col  items-center    hover:bg-accent/30  transition-all duration-200  cursor-pointer  gap-2 text-sm  border  rounded-lg "
+                  "relative w-[48%] h-fit   sm:w-fit px-3 py-2 flex flex-col  items-center     cursor-pointer  gap-2 text-sm  border border-border/45  rounded-lg "
                 }
               >
                 {model.image ? (
@@ -284,13 +285,13 @@ function ModelList({
                   />
                 ) : null}
                 <p className="text-center font-semibold">{model.name}</p>
-                {/* {hovered === i && (
+                {hovered === i && (
                   <motion.div
-                    transition={{ duration: 0.25 }}
+                    transition={{ duration: 0.2 }}
                     layoutId="item-card"
-                    className=" absolute left-0 top-0 w-full h-full rounded-lg bg-accent/80 z-[-1]"
+                    className=" absolute left-0 top-0 w-full h-full rounded-lg  bg-border/70  dark:bg-card   z-[-1]"
                   />
-                )} */}
+                )}
               </motion.li>
 
               // <Model
@@ -305,13 +306,18 @@ function ModelList({
           </motion.ul>
         ) : (
           <div className=" flex flex-col-reverse items-center my-5 gap-2">
-            {carBrand.image ? (
-              <img
-                src={carBrand.image}
-                alt={carBrand.name}
-                className="h-12 object-contain"
-              />
-            ) : null}
+            <AnimatePresence>
+              {carBrand.image ? (
+                <motion.img
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  src={carBrand.image}
+                  alt={carBrand.name}
+                  className="h-12 object-contain"
+                />
+              ) : null}
+            </AnimatePresence>
             <p
               key="no-models"
               className="  text-muted-foreground text-center  font-semibold"
@@ -334,6 +340,7 @@ function GenerationList({
   setGenerationId: React.Dispatch<React.SetStateAction<number>>;
   handleSelect: () => void;
 }) {
+  const [hovered, setHovered] = useState<number | null>(null);
   return (
     <motion.div
       key="generations-list"
@@ -355,6 +362,7 @@ function GenerationList({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onMouseLeave={() => setHovered(null)}
             key="generations-list"
             className=" grid gap-2 grid-cols-2 sm:grid-cols-3 "
           >
@@ -363,6 +371,7 @@ function GenerationList({
                 key={gen.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
+                onMouseEnter={() => setHovered(i)}
                 transition={{
                   type: "spring",
                   damping: 10,
@@ -375,7 +384,7 @@ function GenerationList({
                   // handleSelect();
                 }}
                 className={cn(
-                  `relative  h-fit  focus:bg-accent/30 focus-within:bg-accent/30     px-3 py-2 flex flex-col  items-center justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm border rounded-lg `,
+                  `relative  h-fit  f   px-3 py-2 flex flex-col  items-center justify-between     cursor-pointer  gap-2 text-sm border  border-border/45 rounded-lg `,
                   { "px-3 py-[0.4rem] ": !gen.image }
                 )}
               >
@@ -386,11 +395,28 @@ function GenerationList({
                 <p className=" text-muted-foreground text-center font-semibold">
                   {gen.name}
                 </p>
+                {hovered === i && (
+                  <motion.div
+                    transition={{ duration: 0.2 }}
+                    layoutId="item-card"
+                    className=" absolute left-0 top-0 w-full h-full rounded-lg  bg-border/70  dark:bg-card   z-[-1]"
+                  />
+                )}
               </motion.li>
             ))}
           </motion.ul>
         ) : (
-          <p key="no-generations">no generations</p>
+          <AnimatePresence>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              key="no-generations"
+              className=" text-center py-5"
+            >
+              No generations
+            </motion.p>
+          </AnimatePresence>
         )}
       </AnimatePresence>
     </motion.div>

@@ -10,11 +10,9 @@ import GenerationItem from "./generation-item";
 const GenerationsList = ({
   generations,
   carMaker,
-  handleResetPage,
 }: {
   generations: CarGenerationProps[];
   carMaker: CarMakersData | null;
-  handleResetPage: () => void;
 }) => {
   return (
     <Accordion type="single" collapsible>
@@ -33,12 +31,7 @@ const GenerationsList = ({
                   (model) => model.id === item.carModelId
                 ) as CarModelProps;
                 return (
-                  <GenerationItem
-                    key={item.id}
-                    model={model}
-                    handleResetPage={handleResetPage}
-                    item={item}
-                  />
+                  <GenerationItem key={item.id} model={model} item={item} />
                 );
               })}
             </ul>

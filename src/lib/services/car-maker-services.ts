@@ -6,6 +6,7 @@ import {
 } from "./helper-services";
 import { revalidateMakers } from "@lib/actions/carMakerActions";
 import { CarBrand, CarMaker, CarMakerData, CarMakersData } from "@lib/types";
+import { revalidateProductById } from "@lib/actions/productsActions";
 const supabase = createClient();
 export async function getCarMakers(
   page: number,
@@ -25,7 +26,7 @@ export async function getCarMakers(
       ascending: true,
     });
 
-  if (searchTerm) query = query.ilike("name", searchTerm);
+  if (searchTerm) query = query.ilike("name", `%${searchTerm}%`);
   const { data: carMakers, count, error } = await query.range(from, to);
 
   if (error) throw new Error(error.message);
@@ -57,7 +58,6 @@ interface CreateProps {
 }
 
 export async function createCarMaker({ name, notes, logo }: CreateProps) {
-  console.log(name, notes);
   const imageName = logo
     ? `${Math.random()}-${logo.name}`.replace(/\//g, "")
     : null;
@@ -85,7 +85,7 @@ export async function createCarMaker({ name, notes, logo }: CreateProps) {
 
     if (bucketError) throw new Error(`Bucket error: ${bucketError.message}`);
   }
-  // await revalidateMakers();
+  await revalidateMakers();
   return data;
 }
 
@@ -121,11 +121,10 @@ export async function editCarMaker({
     insertedData.logo = path;
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("carMakers")
     .update(insertedData)
-    .eq("id", id)
-    .select();
+    .eq("id", id);
 
   if (error) throw new Error(error.message);
 
@@ -141,6 +140,8 @@ export async function editCarMaker({
         `attempt at deleting an image form the 'carMakers' has failded, Error:${error.message}`
       );
   }
+
+  await revalidateMakers();
 }
 
 interface DeleteProps {
@@ -148,6 +149,26 @@ interface DeleteProps {
 }
 
 export async function deleteCarMaker(carMaker: CarMakersData) {
+  // 1. Get products that has the same car maker id to update the value of the generaions column.
+  const { data: products, error: relatedProducts } = await supabase
+    .from("product")
+    .select("*")
+    .eq("makerId", carMaker.id);
+
+  if (relatedProducts) throw new Error(relatedProducts.message);
+
+  if (products?.length) {
+    const upsert = products.map((pro) => {
+      return { ...pro, generationsArr: null };
+    });
+
+    const { error } = await supabase.from("product").upsert(upsert);
+
+    if (error) throw new Error(error.message);
+
+    await Promise.all(upsert.map((pro) => revalidateProductById(pro.id)));
+  }
+  //  2. Delete car maker.
   const { error } = await supabase
     .from("carMakers")
     .delete()
@@ -158,6 +179,7 @@ export async function deleteCarMaker(carMaker: CarMakersData) {
     throw new Error(error.message);
   }
 
+  // 3. Delete car maker logo from the bucket.
   if (carMaker.logo) {
     const { error } = await deleteImageFromBucket({
       bucketName: "makerLogos",
@@ -169,7 +191,7 @@ export async function deleteCarMaker(carMaker: CarMakersData) {
     }
   }
 
-  // Get the images related to the car brand in order to delete them along side it's data.
+  // 4. Get the images related to the car brand in order to delete them along side it's data.
   const modelImages = carMaker.carModels
     .map((model) => model.image)
     .filter((item) => item !== null);
@@ -179,8 +201,6 @@ export async function deleteCarMaker(carMaker: CarMakersData) {
     .map((gen) => gen.image)
     .filter((gen) => gen !== null);
 
-  console.log("MODELS", modelImages);
-  console.log("GENERATIONS", generaitonImages);
   if (modelImages.length) {
     const { error } = await deleteImageFromBucket({
       bucketName: "models",
@@ -202,4 +222,5 @@ export async function deleteCarMaker(carMaker: CarMakersData) {
         `Failed to delete some of the car generaion images: ${error.message}`
       );
   }
+  await revalidateMakers();
 }

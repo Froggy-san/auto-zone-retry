@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState, useRef } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { CarMakersData, CarModelProps } from "@lib/types";
 import { Button } from "@components/ui/button";
 import { MoveLeft, MoveRight } from "lucide-react";
@@ -12,6 +12,7 @@ import CarkMakerForm from "@components/dashboard/cars-data/car-maker-form";
 import useScrollToPoint from "@hooks/use-scroll-to-point";
 import CarMakerDia from "./can-maker-dia";
 import MakerNote from "./maker-note";
+import { Input } from "@components/ui/input";
 
 const CarMakerList = () => {
   const [page, setPage] = useState(1);
@@ -45,6 +46,7 @@ const CarMakerList = () => {
   const handleResetPage = useCallback(() => {
     if (carMakers.length === 1) {
       setPage((page) => page - 1);
+      setSearchTerm("");
     }
   }, [carMakers.length, setPage]);
 
@@ -133,7 +135,7 @@ const CarMakerList = () => {
       />
       <CarMakerDia
         carMaker={carMaker || null}
-        handleResetPage={handleResetPage}
+        // handleResetPage={handleResetPage}
         setCarMakerId={setCarMakerId}
       />
 

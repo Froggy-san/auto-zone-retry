@@ -85,8 +85,8 @@ const CarMakerItem = ({
           <ImageOff className=" w-20 h-20" />
         </div>
       )}
-      <div className="   px-2 py-3">
-        <p className=" font-semibold text-sm text-muted-foreground  text-center   break-all">
+      <div className="    py-3">
+        <p className=" font-semibold text-sm text-muted-foreground  text-center px-8   break-all">
           {carMaker.name}
         </p>
 
@@ -97,7 +97,6 @@ const CarMakerItem = ({
           <div
             onClick={(e) => {
               e.stopPropagation();
-              e.preventDefault();
             }}
             className=" absolute right-2 bottom-2     "
           >
@@ -106,7 +105,7 @@ const CarMakerItem = ({
                 <Button
                   type="button"
                   variant="outline"
-                  className=" w-7 h-7 rounded-full p-0    "
+                  className=" w-6 h-6 rounded-full p-0    "
                 >
                   <EllipsisVertical className=" w-4 h-4" />
                 </Button>
