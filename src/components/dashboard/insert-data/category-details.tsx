@@ -91,17 +91,19 @@ const CategoryDetails = ({ open, setOpen, category }: Props) => {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                className=" flex gap-3 flex-wrap"
+                className=" flex gap-3 items-start justify-center flex-wrap"
               >
-                {category.productTypes.map((subCat) => (
-                  <SubCategory
-                    key={subCat.id}
-                    subCat={subCat}
-                    isDeleting={isDeleting === subCat.id}
-                    setSubCatToEdit={setSubCatToEdit}
-                    setDeleteOpen={() => setSubCatToDelete(subCat.id)}
-                  />
-                ))}
+                {category.productTypes
+                  .sort((a, b) => a.id - b.id)
+                  .map((subCat) => (
+                    <SubCategory
+                      key={subCat.id}
+                      subCat={subCat}
+                      isDeleting={isDeleting === subCat.id}
+                      setSubCatToEdit={setSubCatToEdit}
+                      setDeleteOpen={() => setSubCatToDelete(subCat.id)}
+                    />
+                  ))}
               </motion.ul>
             ) : (
               <motion.p
@@ -188,7 +190,7 @@ function SubCategory({
     <li
       onClick={() => setSubCatToEdit(subCat.id)}
       className={cn(
-        `relative   max-w-[150px]  w-fit  px-3 py-2 flex flex-col  items-center justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm   rounded-xl `,
+        `relative    w-[30%]  sm:w-fit  px-3 py-2 flex flex-col  items-center justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm   rounded-xl `,
         { "px-3 py-[0.4rem] ": !subCat.image }
       )}
     >
@@ -196,14 +198,14 @@ function SubCategory({
         <img
           src={subCat.image}
           alt={`${subCat.name} image`}
-          className="  h-24 block  object-contain"
+          className=" h-16  sm:h-20 block  object-contain"
         />
       ) : null}
 
       <div className="flex items-center  w-full  justify-center gap-2 ">
         <p
           className={cn("   w-full  pr-6  text-center", {
-            "  break-all  px-3 ": subCat.image,
+            "   w-[99%]   text-wrap   px-5 ": subCat.image,
           })}
         >
           {subCat.name}
