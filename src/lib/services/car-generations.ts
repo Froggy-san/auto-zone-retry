@@ -1,5 +1,3 @@
-import { revalidateCarGenerations } from "@lib/actions/carGenerationsActions";
-import { revalidateModels } from "@lib/actions/carModelsActions";
 import { PILL_SIZE, SUPABASE_URL } from "@lib/constants";
 import { CarGeneration } from "@lib/types";
 import { createClient } from "@utils/supabase/client";
@@ -44,13 +42,19 @@ export async function createCarGeneration({
   // 1. Upload image.
   if (image.length) {
     const file = image[0];
-    const name = `${Math.random()}-${file.name}`.replace(/\//g, "");
-    path = `${SUPABASE_URL}/storage/v1/object/public/generations/${name}`;
-    const { error } = await uploadSingleImgToBucket({
-      bucketName: "generations",
-      image: { name, file },
-    });
-    if (error) throw new Error(error.message);
+    if (file instanceof File) {
+      const name = `${Math.random()}-${file.name}`.replace(/\//g, "");
+      path = `${SUPABASE_URL}/storage/v1/object/public/generations/${name}`;
+      const { error } = await uploadSingleImgToBucket({
+        bucketName: "generations",
+        image: { name, file },
+      });
+      if (error) throw new Error(error.message);
+    }
+
+    if (typeof file === "string") {
+      path = file;
+    }
   }
 
   // 2. Upload generation data
@@ -73,16 +77,23 @@ export async function editCarGeneration({
   let path: string | null = null;
   if (image.length) {
     const file = image[0];
-    const name = `${Math.random()}-${file.name}`.replace(/\//g, "");
-    path = `${SUPABASE_URL}/storage/v1/object/public/generations/${name}`;
-    const { error } = await uploadSingleImgToBucket({
-      bucketName: "generations",
-      image: { name, file },
-    });
-    if (error) throw new Error(error.message);
+    if (file instanceof File) {
+      const name = `${Math.random()}-${file.name}`.replace(/\//g, "");
+      path = `${SUPABASE_URL}/storage/v1/object/public/generations/${name}`;
+      const { error } = await uploadSingleImgToBucket({
+        bucketName: "generations",
+        image: { name, file },
+      });
+      if (error) throw new Error(error.message);
+    }
+
+    if (typeof file === "string") {
+      path = file;
+    }
 
     // Delete the existing image.
-    if (imageToDelete) {
+    if (imageToDelete && imageToDelete.split("/storage/")[0] === SUPABASE_URL) {
+      console.log("STARTED>>>");
       const { error } = await deleteImageFromBucket({
         bucketName: "generations",
         imagePaths: [imageToDelete],

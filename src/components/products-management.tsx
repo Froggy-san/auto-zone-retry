@@ -2,6 +2,7 @@ import ProductForm from "@components/products/products-form";
 
 import {
   Category,
+  CategoryProps,
   ProductBrand,
   ProductById,
   ProductImage,
@@ -16,12 +17,10 @@ const ProductManagement = async ({
   className,
   categories,
   productBrands,
-  productTypes,
 }: {
   productToEdit?: ProductById;
   productToEditImages?: ProductImage[];
-  categories: Category[];
-  productTypes: ProductType[];
+  categories: CategoryProps[];
   productBrands: ProductBrand[];
   className?: string;
   useParams?: boolean;
@@ -62,7 +61,6 @@ const ProductManagement = async ({
           productToEdit={productToEdit}
           categories={categories || []}
           productBrand={productBrands || []}
-          productTypes={productTypes || []}
         />
       </div>
     </div>

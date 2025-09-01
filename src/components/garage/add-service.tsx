@@ -55,7 +55,7 @@ const ServiceManagement = async ({
       </div>
       <div className=" sm:pr-2">
         <ServicesForm
-          categories={categoriesData}
+          categories={categoriesData || []}
           client={client}
           car={car}
           products={products}

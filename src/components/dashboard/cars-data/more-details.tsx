@@ -50,7 +50,7 @@ export default function MoreDetails({
     return item?.carGenerations.sort((a, b) => a.id - b.id);
   }, [item?.carGenerations]);
   return (
-    <div onClick={(e) => e.stopPropagation()} className=" absolute">
+    <div className=" absolute">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           className="max-w-[500px]  max-h-[55vh]

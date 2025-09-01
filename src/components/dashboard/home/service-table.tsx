@@ -13,6 +13,7 @@ import {
 import {
   CarItem,
   Category,
+  CategoryProps,
   ClientWithPhoneNumbers,
   Service,
   ServiceStatus,
@@ -100,7 +101,7 @@ import {
 interface Props {
   isClientPage?: boolean;
   isAdmin: boolean;
-  categories: Category[];
+  categories: CategoryProps[];
   cars: CarItem[];
   clients: ClientWithPhoneNumbers[];
   status: ServiceStatus[];
@@ -218,7 +219,7 @@ function Row({
 }: {
   isClientPage?: boolean;
   isAdmin: boolean;
-  categories: Category[];
+  categories: CategoryProps[];
   clients: ClientWithPhoneNumbers[];
   cars: CarItem[];
   status: ServiceStatus[];

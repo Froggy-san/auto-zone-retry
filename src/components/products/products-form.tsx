@@ -14,6 +14,7 @@ import { Form } from "@/components/ui/form";
 
 import {
   Category,
+  CategoryProps,
   ProductBrand,
   ProductById,
   ProductImage,
@@ -54,8 +55,7 @@ import StepOne from "./form-step-one";
 import StepThree from "./form-step-three";
 
 interface ProductFormProps {
-  categories: Category[];
-  productTypes: ProductType[];
+  categories: CategoryProps[];
   productBrand: ProductBrand[];
   productToEdit?: ProductById;
   useParams?: boolean;
@@ -76,7 +76,7 @@ const firstStepFields: FirstStepFiedls[] = [
 
 const ProductForm: React.FC<ProductFormProps> = ({
   categories,
-  productTypes,
+
   productBrand,
   productToEdit,
   useParams = false,
@@ -123,25 +123,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
       : [];
     return mediaArr;
   }, [deletedMedia, productToEdit]);
-
-  // const pro = {
-  //   name: productToEdit?.name,
-  //   categoryId: productToEdit?.categories.id,
-  //   productTypeId: productToEdit?.productTypes.id,
-  //   productBrandId: productToEdit?.productBrands.id,
-  //   description: productToEdit?.description,
-  //   listPrice: productToEdit?.listPrice,
-  //   carinfoId: 1, //! Removed from the back end
-  //   makerId: productToEdit?.makerId,
-  //   modelId: productToEdit?.modelId,
-  //   generationsArr: productToEdit?.generationsArr,
-  //   salePrice: productToEdit?.salePrice,
-  //   stock: productToEdit?.stock,
-  //   isAvailable: productToEdit?.isAvailable,
-  //   images: [],
-  //   moreDetails: productToEdit?.moreDetails,
-  //   isMain: false,
-  // };
 
   const defaultValues = {
     name: productToEdit?.name || "",
@@ -569,7 +550,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   isLoading={isLoading}
                   currStep={[step, direction]}
                   categories={categories}
-                  productTypes={productTypes}
                   productBrand={productBrand}
                   isMainImage={isMainImage}
                   setIsMainImage={setIsMainImage}
@@ -597,7 +577,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   formValues={formValues}
                   mediaUrls={mediaUrls}
                   categoriesArr={categories}
-                  productTypesArr={productTypes}
                   productBrandsArr={productBrand}
                 />
               )}

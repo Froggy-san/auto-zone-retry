@@ -44,6 +44,8 @@ import { Button } from "../../ui/button";
 import useEditGeneration from "@lib/queries/car-generation/useEditGeneration";
 import useCreateGeneration from "@lib/queries/car-generation/useCreateGeneration";
 import { FileUploader } from "@components/file-uploader";
+import { Link2 } from "lucide-react";
+import { Checkbox } from "@components/ui/checkbox";
 
 export function GenerationForm({
   setMainOpen,
@@ -62,7 +64,7 @@ export function GenerationForm({
 }) {
   // const [isOpen, setIsOpen] = useState(false);
   // const isOpen = open === "editGen";
-
+  const [imageAs, setImageAs] = useState<"url" | "file">("file");
   const { editGeneration } = useEditGeneration();
   const { createGeneration } = useCreateGeneration();
   const { toast } = useToast();
@@ -81,9 +83,13 @@ export function GenerationForm({
   const isLoading = form.formState.isSubmitting;
 
   useEffect(() => {
+    setImageAs("file");
     form.reset(defaultValues);
   }, [open, form]);
 
+  useEffect(() => {
+    form.setValue("image", []);
+  }, [imageAs]);
   function handleClose() {
     setOpen?.(false);
     setMainOpen?.(true);
@@ -198,25 +204,60 @@ export function GenerationForm({
                 </FormItem>
               )}
             />
+            <div className=" space-y-4">
+              <div className=" flex justify-end items-center gap-2">
+                <FormLabel htmlFor="check">Set image as a url</FormLabel>
+                <Checkbox
+                  id="check"
+                  onCheckedChange={(checked) =>
+                    setImageAs(checked ? "url" : "file")
+                  }
+                />
+              </div>
 
-            <FormField
-              disabled={isLoading}
-              control={form.control}
-              name="image"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Generation image</FormLabel>
-                  <FormControl>
-                    <FileUploader
-                      mediaUrl={genToEdit?.image ? genToEdit.image : ""}
-                      fieldChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormDescription>Add a maker logo.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                disabled={isLoading}
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Generation image</FormLabel>
+                    <FormControl>
+                      {imageAs === "url" ? (
+                        <div className=" space-y-3 text-muted-foreground">
+                          <div className="  p-4 w-full rounded-xl h-fit border ">
+                            {typeof field.value[0] === "string" ? (
+                              <img
+                                className=" object-contain h-48 w-full "
+                                src={field.value[0]}
+                              />
+                            ) : (
+                              <p className="  flex flex-col items-center text-center   gap-2 text-md font-semibold ">
+                                Fill the input below with an image link.
+                                <Link2 className=" w-8 h-8" />
+                              </p>
+                            )}
+                          </div>
+                          <Input
+                            onChange={(e) => {
+                              field.onChange([e.target.value]);
+                            }}
+                            placeholder="Paste image url..."
+                          />
+                        </div>
+                      ) : (
+                        <FileUploader
+                          mediaUrl={genToEdit?.image ? genToEdit.image : ""}
+                          fieldChange={field.onChange}
+                        />
+                      )}
+                    </FormControl>
+                    <FormDescription>Add a maker logo.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className=" flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
               <Button

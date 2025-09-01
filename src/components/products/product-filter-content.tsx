@@ -1,7 +1,7 @@
 "use client";
 import { ComboBox } from "@components/combo-box";
 
-import { Category, ProductBrand, ProductType } from "@lib/types";
+import { Category, CategoryProps, ProductBrand, ProductType } from "@lib/types";
 import { Filter, UndoIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -25,8 +25,7 @@ import CarBrandsCombobox from "@components/car-brands-combobox";
 import { ModelCombobox } from "@components/model-combobox";
 
 interface ProdcutFilterContentProps {
-  categories: Category[];
-  productTypes: ProductType[];
+  categories: CategoryProps[];
   productBrands: ProductBrand[];
   categoryId?: string;
   name?: string;
@@ -41,7 +40,6 @@ interface ProdcutFilterContentProps {
 }
 const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   categories,
-  productTypes,
   productBrands,
   categoryId,
   name,
@@ -69,6 +67,10 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   const isBigScreen = useMediaQuery("(min-width:640px)");
 
   const disappear = count > 2 && Math.ceil(count / PAGE_SIZE) > 3;
+
+  const productTypes =
+    categoryId &&
+    categories.find((cat) => cat.id === Number(categoryId))?.productTypes;
 
   function handleChange(number: number, name: string, initalValue?: number) {
     const params = new URLSearchParams(searchParams);
@@ -127,7 +129,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
             <label>Product types</label>
             <ComboBox
               value={Number(productTypeId) || 0}
-              options={productTypes}
+              options={productTypes || []}
               paramName="productTypeId"
               setParam={handleChange}
             />
@@ -198,7 +200,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
                     <label>Product types</label>
                     <ComboBox
                       value={Number(productTypeId) || 0}
-                      options={productTypes}
+                      options={productTypes || []}
                       paramName="productTypeId"
                       setParam={handleChange}
                     />

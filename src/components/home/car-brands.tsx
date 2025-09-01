@@ -18,9 +18,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-import Model from "./model-item";
 import { AnimatePresence, motion } from "framer-motion";
-import GenerationItem from "./generations-item";
+
 import { cn } from "@lib/utils";
 import { Button } from "@components/ui/button";
 import { ChevronLeft } from "lucide-react";
@@ -31,7 +30,10 @@ const CarBrands = ({ carBrands }: { carBrands: CarMakersData[] }) => {
     null
   );
   return (
-    <div>
+    <div className="my-20 space-y-12  max-w-[1200px] mx-auto ">
+      <h2 className="  ml-2  md:ml-6 font-semibold  text-lg sm:text-2xl lg:text-3xl">
+        Select the right parts for your car
+      </h2>
       {carBrands.length ? (
         <ul className=" max-w-[1200px] mx-auto  grid   grid-cols-3  gap-2 sm:grid-cols-4   lg:grid-cols-5 xl:grid-cols-9 ">
           {carBrands.map((brand) => (
@@ -70,7 +72,7 @@ function CarBrand({
         <img
           src={carBrand.logo}
           alt={carBrand.name}
-          className="  h-16 object-contain group-hover:scale-110   transition-all duration-200 ease-out"
+          className="  h-20 object-contain group-hover:scale-110   transition-all duration-200 ease-out"
         />
       ) : null}
       <p className=" font-semibold text-sm text-muted-foreground">

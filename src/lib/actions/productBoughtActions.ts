@@ -3,7 +3,12 @@
 import { AUTH_TOEKN_NAME, PAGE_SIZE } from "@lib/constants";
 import { getAllCategories } from "@lib/data-service";
 import { getToken } from "@lib/helper";
-import { Category, Product, ProductBoughtSchema } from "@lib/types";
+import {
+  Category,
+  CategoryProps,
+  Product,
+  ProductBoughtSchema,
+} from "@lib/types";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -87,7 +92,7 @@ export async function getProductsBoughtAction({
 
   const productsWithCategories = data.map((product) => {
     const category = categories.find(
-      (cat: Category) => cat.id === product.categoryId
+      (cat: CategoryProps) => cat.id === product.categoryId
     ).name;
     return { ...product, category: category };
   });

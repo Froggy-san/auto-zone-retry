@@ -6,15 +6,17 @@ import { Button } from "@components/ui/button";
 import useSearchCategories from "@lib/queries/categories/useSearchCategory";
 import useCarBrands from "@lib/queries/useCarBrands";
 import useProductTypes from "@lib/queries/useProductTypes";
+import { CategoryProps } from "@lib/types";
 import { cn } from "@lib/utils";
 import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 
 interface Props {
   className?: string;
+  categories: CategoryProps[];
 }
 
-const HomeFilter = ({ className }: Props) => {
+const HomeFilter = ({ categories, className }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [makerId, setMakerId] = useState<number | null>(null);
   const [modelId, setModelId] = useState<number | null>(null);
@@ -30,6 +32,8 @@ const HomeFilter = ({ className }: Props) => {
     carModels &&
     carModels.find((model) => model.id === modelId)?.carGenerations;
 
+  const productTypes =
+    categories.find((cat) => cat.id === categoryId)?.productTypes || [];
   const disabled =
     !makerId && !modelId && !generationId && !productTypeId && !categoryId;
   const first = useRef<HTMLButtonElement>(null);
@@ -80,11 +84,29 @@ const HomeFilter = ({ className }: Props) => {
         value={generationId}
         setValue={setGenerationId}
       />
-      <Category categoryId={categoryId} setCategoryId={setCategoryId} />
+      <ComboBox
+        className=" md:h-12"
+        placeholder="Select category..."
+        disabled={!categories?.length}
+        options={categories || []}
+        value={categoryId}
+        setValue={setCategoryId}
+      />
+
+      <ComboBox
+        className=" md:h-12"
+        placeholder="Select product type..."
+        shouldFilter={false}
+        disabled={!productTypes?.length}
+        options={productTypes || []}
+        value={productTypeId}
+        setValue={setProductTypeId}
+      />
+      {/* <Category categories={categories} categoryId={categoryId} setCategoryId={setCategoryId} />
       <ProductTypes
         productTypeId={productTypeId}
         setProdcutTypeId={setProductTypeId}
-      />
+      /> */}
       <Button
         disabled={disabled}
         onClick={handleClick}
@@ -97,58 +119,58 @@ const HomeFilter = ({ className }: Props) => {
   );
 };
 
-function Category({
-  categoryId,
-  setCategoryId,
-}: {
-  categoryId: number;
-  setCategoryId: React.Dispatch<React.SetStateAction<number>>;
-}) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const { categories, error } = useSearchCategories(searchTerm);
+// function Category({
+//   categoryId,
+//   setCategoryId,
+//   categories,
+// }: {
+//   categoryId: number;
+//   setCategoryId: React.Dispatch<React.SetStateAction<number>>;
+//   categories: CategoryProps[];
+// }) {
+//   const [searchTerm, setSearchTerm] = useState("");
+//   // const { categories, error } = useSearchCategories(searchTerm);
 
-  if (error)
-    return <p className=" text-destructive-foreground text-sm">{error}</p>;
-  return (
-    <ComboBox
-      className=" md:h-12"
-      placeholder="Select category..."
-      shouldFilter={false}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      disabled={!categories?.length}
-      options={categories || []}
-      value={categoryId}
-      setValue={setCategoryId}
-    />
-  );
-}
+//   return (
+//     <ComboBox
+//       className=" md:h-12"
+//       placeholder="Select category..."
+//       shouldFilter={false}
+//       searchTerm={searchTerm}
+//       setSearchTerm={setSearchTerm}
+//       disabled={!categories?.length}
+//       options={categories || []}
+//       value={categoryId}
+//       setValue={setCategoryId}
+//     />
+//   );
+// }
 
-function ProductTypes({
-  productTypeId,
-  setProdcutTypeId,
-}: {
-  productTypeId: number;
-  setProdcutTypeId: React.Dispatch<React.SetStateAction<number>>;
-}) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const { productTypes, error } = useProductTypes(searchTerm);
+// function ProductTypes({
+//   productTypeId,
+//   setProdcutTypeId,
+// }: {
+//   productTypeId: number;
+//   setProdcutTypeId: React.Dispatch<React.SetStateAction<number>>;
+// }) {
+//   const [searchTerm, setSearchTerm] = useState("");
+//   const { productTypes, error } = useProductTypes(searchTerm);
 
-  if (error)
-    return <p className=" text-destructive-foreground text-sm">{error}</p>;
-  return (
-    <ComboBox
-      className=" md:h-12"
-      placeholder="Select product type..."
-      shouldFilter={false}
-      searchTerm={searchTerm}
-      setSearchTerm={setSearchTerm}
-      disabled={!productTypes?.length}
-      options={productTypes || []}
-      value={productTypeId}
-      setValue={setProdcutTypeId}
-    />
-  );
-}
+//   if (error)
+//     return <p className=" text-destructive-foreground text-sm">{error}</p>;
+//   return (
+//     <ComboBox
+//       className=" md:h-12"
+//       placeholder="Select product type..."
+//       shouldFilter={false}
+//       searchTerm={searchTerm}
+//       setSearchTerm={setSearchTerm}
+//       disabled={!productTypes?.length}
+//       options={productTypes || []}
+//       value={productTypeId}
+//       setValue={setProdcutTypeId}
+//     />
+//   );
+// }
 
 export default HomeFilter;

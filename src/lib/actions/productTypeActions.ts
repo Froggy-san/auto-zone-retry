@@ -1,6 +1,8 @@
 "use server";
 
 import { getToken } from "@lib/helper";
+import { deleteImageFromBucketAction } from "@lib/services/server-helpers";
+import { ProductType } from "@lib/types";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -95,9 +97,18 @@ export async function editProductTypeAction({
   return { data: null, error: "" };
 }
 
-export async function deleteProductTypeAction(id: number) {
+export async function deleteProductTypeAction(productType: ProductType) {
+  if (productType.image) {
+    const { error } = await deleteImageFromBucketAction({
+      bucketName: "productTpye",
+      imagePaths: [productType.image],
+    });
+    if (error) return { data: null, error: error.message };
+    revalidateTag("categories");
+  }
+
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/productTypes?id=eq.${id}`,
+    `${supabaseUrl}/rest/v1/productTypes?id=eq.${productType.id}`,
     {
       method: "DELETE",
       headers: {

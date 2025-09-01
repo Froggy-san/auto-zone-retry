@@ -20,6 +20,7 @@ import { useToast } from "@hooks/use-toast";
 import {
   CarItem,
   Category,
+  CategoryProps,
   CreateService,
   CreateServiceSchema,
   PhoneNumber,
@@ -75,7 +76,7 @@ const ServicesForm = ({
   carToEdit?: CarItem;
   car?: CarItem;
   client?: Client;
-  categories: Category[];
+  categories: CategoryProps[];
   products: ProductWithCategory[];
   serviceStatus: ServiceStatus[];
   open?: boolean;

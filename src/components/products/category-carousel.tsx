@@ -9,7 +9,7 @@ import React, {
 import { EmblaOptionsType } from "embla-carousel";
 
 import useEmblaCarousel from "embla-carousel-react";
-import { Category } from "@lib/types";
+import { CategoryProps } from "@lib/types";
 import { setWith } from "lodash";
 import { Badge } from "@components/ui/badge";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -19,7 +19,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePrevNextButtons } from "@hooks/use-prev-next-buttons";
 
 type PropType = {
-  categories: Category[];
+  categories: CategoryProps[];
   slides?: number[];
   options?: EmblaOptionsType;
   asLinks?: boolean;
@@ -42,8 +42,7 @@ const CategoryCarousel: React.FC<PropType> = (props) => {
     onNextButtonClick,
   } = usePrevNextButtons(emblaApi);
 
-
-  function handleCategoryClick(category: Category) {
+  function handleCategoryClick(category: CategoryProps) {
     if (Number(currCategory) === category.id) {
       params.delete("categoryId");
     } else {
@@ -53,7 +52,7 @@ const CategoryCarousel: React.FC<PropType> = (props) => {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
-  function handleNavTo(category: Category) {
+  function handleNavTo(category: CategoryProps) {
     router.push(`/products?${params.toString()}`, { scroll: false });
   }
 

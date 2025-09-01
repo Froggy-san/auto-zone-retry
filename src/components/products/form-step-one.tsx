@@ -3,6 +3,7 @@ import {
   CarMakerData,
   CarModelProps,
   Category,
+  CategoryProps,
   FilesWithPreview,
   ProductBrand,
   ProductById,
@@ -31,7 +32,7 @@ import { Check, ChevronsUpDown, Trash2 } from "lucide-react";
 import { Switch } from "@components/ui/switch";
 import CarBrandsCombobox from "@components/car-brands-combobox";
 import useCarBrands from "@lib/queries/useCarBrands";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ModelCombobox } from "@components/model-combobox";
 import GenerationsTagInput from "@components/generations-tag-input";
 import InputMask from "react-input-mask";
@@ -84,8 +85,8 @@ interface StepOneProps {
   searchTerm: string;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
-  categories: Category[];
-  productTypes: ProductType[];
+  categories: CategoryProps[];
+
   productBrand: ProductBrand[];
   isMainImage: number | ProductImage | null;
   mediaUrls: ProductImage[];
@@ -110,7 +111,6 @@ function StepOne({
   isLoading,
   categories,
   productBrand,
-  productTypes,
   isMainImage,
   setIsMainImage,
   handleDeleteMedia,
@@ -128,7 +128,10 @@ function StepOne({
     modelId &&
     carModels &&
     carModels.find((model) => model.id === modelId)?.carGenerations;
-
+  const { categoryId } = form.watch();
+  const productTypes = useMemo(() => {
+    return categories.find((cat) => cat.id === categoryId)?.productTypes || [];
+  }, [categoryId]);
   useEffect(() => {
     if (searching) {
       if (makerId) form.setValue("makerId", null);
@@ -170,14 +173,17 @@ function StepOne({
           name="categoryId"
           render={({ field }) => (
             <FormItem className=" w-full ">
-              <FormLabel>category</FormLabel>
+              <FormLabel>Category</FormLabel>
               <FormControl className=" ">
                 <ComboBox
                   placeholder="Select category..."
                   disabled={isLoading || !categories.length}
                   options={categories}
                   value={field.value}
-                  setValue={field.onChange}
+                  setValue={(value) => {
+                    field.onChange(value);
+                    form.setValue("productTypeId", 0);
+                  }}
                 />
               </FormControl>
               <FormDescription>
