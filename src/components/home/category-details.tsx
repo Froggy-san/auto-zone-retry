@@ -26,10 +26,10 @@ const CategoryDetails = ({ category, setSelectedCategory }: Props) => {
       open={!!category}
       onOpenChange={() => setSelectedCategory(undefined)}
     >
-      <DialogContent className="  p-3 sm:p-6 max-w-[800px]">
+      <DialogContent className="  p-3 sm:p-6  max-h-[65vh] overflow-y-auto  sm:max-h-[76vh max-w-[800px]">
         <DialogHeader>
           <AnimatePresence>
-            {category?.productTypes.length && category.name && (
+            {category?.productTypes.length && category.name ? (
               <motion.div
                 key="header"
                 variants={opacity}
@@ -43,6 +43,8 @@ const CategoryDetails = ({ category, setSelectedCategory }: Props) => {
                   {category.name}&apos;
                 </DialogTitle>
               </motion.div>
+            ) : (
+              <DialogTitle className="  hidden"></DialogTitle>
             )}
           </AnimatePresence>
           <DialogDescription className=" hidden">
@@ -98,32 +100,36 @@ function SubCategoryList({ productTypes }: { productTypes: ProductType[] }) {
       initial="hidden"
       animate="visible"
       exit="hidden"
-      className=" grid  items-start  grid-cols-2 xs:grid-cols-3  md:grid-cols-4  gap-2  xs:my-5  flex-wrap"
+      className=" grid  items-start  grid-cols-2 xs:grid-cols-3  md:grid-cols-5  gap-2  xs:my-5  flex-wrap"
       onMouseLeave={() => setHovered(null)}
     >
-      {productTypes.map((item, i) => (
-        <li
-          key={item.id}
-          onMouseEnter={() => setHovered(i)}
-          className={`relative   px-3 py-2 flex flex-col  items-center justify-between    cursor-pointer  gap-2 text-sm   rounded-xl `}
-        >
-          {item.image ? (
-            <img
-              src={item.image}
-              alt={item.name}
-              className="  h-20 block  object-contain"
-            />
-          ) : null}
-          <p className=" font-semibold text-center text-sm">{item.name}</p>
-          {hovered === i && (
-            <motion.div
-              transition={{ duration: 0.2 }}
-              layoutId="item-card"
-              className=" absolute left-0 top-0 w-full h-full rounded-lg  bg-border/70  dark:bg-card   z-[-1]"
-            />
-          )}
-        </li>
-      ))}
+      {productTypes
+        .sort((a, b) => a.id - b.id)
+        .map((item, i) => (
+          <li
+            key={item.id}
+            onMouseEnter={() => setHovered(i)}
+            className={`relative   px-3 py-2 flex flex-col  items-center justify-between    cursor-pointer  gap-2 text-sm   rounded-xl `}
+          >
+            {item.image ? (
+              <img
+                src={item.image}
+                alt={item.name}
+                className="  h-20 block  object-contain"
+              />
+            ) : null}
+            <p className=" font-semibold text-center text-xs sm:text-sm">
+              {item.name}
+            </p>
+            {hovered === i && (
+              <motion.div
+                transition={{ duration: 0.2 }}
+                layoutId="item-card"
+                className=" absolute left-0 top-0 w-full h-full rounded-lg  bg-border/70  dark:bg-card   z-[-1]"
+              />
+            )}
+          </li>
+        ))}
     </motion.ul>
   );
 }

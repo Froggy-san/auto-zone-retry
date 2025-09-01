@@ -147,12 +147,12 @@ const ProductTypeForm = ({
                 <FormItem className=" w-full mb-auto">
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <div className=" input-field  items-center gap-4  pointer-events-none">
+                    <div className=" flex  border rounded-lg text-xs p-1 min-h-9 h-fit  items-center gap-4  pointer-events-none">
                       {relatedCategory.image ? (
                         <img
                           src={relatedCategory.image}
                           alt={`${relatedCategory.name} image`}
-                          className=" h-10 object-contain"
+                          className=" h-8 object-contain"
                         />
                       ) : null}{" "}
                       <span>{relatedCategory.name}</span>

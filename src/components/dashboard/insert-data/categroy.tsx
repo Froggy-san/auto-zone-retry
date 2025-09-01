@@ -43,8 +43,8 @@ const Category = ({ category, setCatToEdit, setOpenDetails }: Props) => {
         setOpenDetails();
       }}
       className={cn(
-        `relative  h-fit   px-3 py-2 flex flex-col  items-center justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm border rounded-lg `,
-        { "px-3 py-[0.4rem]  ": !category.image }
+        `relative  h-fit   px-3 py-2 flex flex-col  items-center justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm border rounded-lg  max-w-[200px]  `,
+        { "px-3 py-[0.4rem] ": !category.image }
       )}
     >
       {category.image ? (
@@ -58,7 +58,7 @@ const Category = ({ category, setCatToEdit, setOpenDetails }: Props) => {
       <div className="flex items-center  w-full   justify-center gap-2 ">
         <p
           className={cn("    pr-6  text-center", {
-            "max-w-[98%]  break-all px-3": category.image,
+            "max-w-[98%]   text-wrap px-3": category.image,
           })}
         >
           {category.name}
