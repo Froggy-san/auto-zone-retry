@@ -12,6 +12,7 @@ import { HomeCarousel } from "@components/home/home-carousel";
 import StoreServices from "@components/home/store-services";
 import { getCarBrandsAction } from "@lib/actions/carMakerActions";
 import CarBrands from "@components/home/car-brands";
+import CategoryList from "@components/home/category-list";
 
 export default async function Home() {
   const [categories, user, carBrands] = await Promise.all([
@@ -48,7 +49,7 @@ export default async function Home() {
       {/* <SearchComponent />
        */}
       {/* <Search /> */}
-      <HomeCarousel />
+      <HomeCarousel categories={categoriesData || []} />
       {/* <Image
         src={BackgroundImage}
         alt="asa"
@@ -58,7 +59,9 @@ export default async function Home() {
       <StoreServices className=" my-20" />
 
       <section className=" p-2">
-        <MostPop />
+        <CategoryList categories={categoriesData || []} />
+
+        {/* <MostPop /> */}
 
         <CarBrands carBrands={CarBrandsData || []} />
         {/* absolute md:left-10 md:bottom-10 left-4 bottom-12 */}

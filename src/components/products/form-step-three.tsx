@@ -1,5 +1,6 @@
 import {
   Category,
+  CategoryProps,
   ProductBrand,
   ProductImage,
   ProductsSchema,
@@ -30,8 +31,7 @@ interface StepThreeProps {
   currStep: number[];
   isLoading: boolean;
   mediaUrls: ProductImage[];
-  categoriesArr: Category[];
-  productTypesArr: ProductType[];
+  categoriesArr: CategoryProps[];
   productBrandsArr: ProductBrand[];
   formValues: z.infer<typeof ProductsSchema>;
 }
@@ -42,7 +42,6 @@ function StepThree({
   mediaUrls,
   categoriesArr,
   productBrandsArr,
-  productTypesArr,
   isLoading,
 }: StepThreeProps) {
   const [step, direction] = currStep;
@@ -53,7 +52,7 @@ function StepThree({
   const categories = categoriesArr.find(
     (cat) => cat.id === formValues.categoryId
   );
-  const productTypes = productTypesArr.find(
+  const productTypes = categories?.productTypes.find(
     (type) => type.id === formValues.productTypeId
   );
   const productBrands = productBrandsArr.find(

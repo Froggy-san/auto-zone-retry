@@ -89,7 +89,7 @@ export const ProductsSchema = z
       .max(100, { message: "Product name is too long." }),
     categoryId: z
       .number()
-      .min(1, { message: "Product has to have a cateogry." }),
+      .min(1, { message: "Product has to have a categroy." }),
     productTypeId: z
       .number()
       .min(1, { message: "Product has to have a type." }),
@@ -128,9 +128,19 @@ export const CarGenerationsSchema = z.object({
     .max(55, { message: "Name is too long." }),
   carModelId: z.number().default(0),
   notes: z.string(),
+  image: z.custom<File[] | string[]>(),
+});
+
+export const CategorySchema = z.object({
+  name: z.string(),
   image: z.custom<File[]>(),
 });
 
+export const ProductTypeSchema = z.object({
+  name: z.string(),
+  categoryId: z.number(),
+  image: z.custom<File[]>(),
+});
 export const CarInfoSchema = z.object({
   carMakerId: z.number(),
   carModelId: z.number(),
@@ -421,11 +431,6 @@ export interface TokenData {
   aud: string;
 }
 
-export interface Category {
-  id: number;
-  name: string;
-}
-
 export interface ProductBrand {
   id: number;
   name: string;
@@ -433,8 +438,10 @@ export interface ProductBrand {
 
 export interface ProductType {
   id: number;
-  created_at: string;
   name: string;
+  categoryId: number | null;
+  image: string | null;
+  created_at: string;
 }
 
 export interface CarMakerData {
@@ -570,7 +577,7 @@ export interface ProductWithCategory extends Product {
 export interface ProductById {
   id: number;
   name: string;
-  categories: Category;
+  categories: CategoryProps;
   productTypes: ProductType;
   productBrands: ProductBrand;
   dateAdded: string;
@@ -835,10 +842,19 @@ export type ImgData = {
   file: FilesWithPreview | File;
 };
 
+export interface CategoryProps {
+  id: number;
+  name: string;
+  created_at: string;
+  image: string | null;
+  productTypes: ProductType[];
+}
+
 export interface RejectionFiles extends FileRejection {
   preview: string;
 }
 
+export type Category = z.infer<typeof CategorySchema>;
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
 export type CarGeneration = z.infer<typeof CarGenerationsSchema>;
 export type CarInfo = z.infer<typeof CarInfoSchema>;

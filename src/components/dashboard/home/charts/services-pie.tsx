@@ -22,7 +22,7 @@ import {
   ChartContainer,
   ChartTooltip,
 } from "@/components/ui/chart";
-import { Category, Service } from "@lib/types";
+import { Category, CategoryProps, Service } from "@lib/types";
 import { formatCurrency } from "@lib/client-helpers";
 import { cn } from "@lib/utils";
 
@@ -78,7 +78,7 @@ interface Props {
   salesData: Service[][];
   date: (string | Date | undefined)[];
   description: string;
-  categories: Category[];
+  categories: CategoryProps[];
 }
 export function ServicePie({
   salesData,

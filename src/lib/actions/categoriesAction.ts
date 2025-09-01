@@ -1,21 +1,33 @@
 "use server";
+import { SUPABASE_URL } from "@lib/constants";
 import { getToken } from "@lib/helper";
+import { deleteImageFromBucketAction } from "@lib/services/server-helpers";
+
+import { CategoryProps } from "@lib/types";
+
+import { createClient } from "@utils/supabase/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-export async function getAllCategoriesAction() {
-  const response = await fetch(`${supabaseUrl}/rest/v1/categories`, {
-    method: "GET",
-    headers: {
-      apikey: `${supabaseKey}`,
-      Authorization: `Bearer ${supabaseKey}`,
-    },
-    next: {
-      tags: ["categories"],
-    },
-  });
+export async function getAllCategoriesAction(): Promise<{
+  data: CategoryProps[] | null;
+  error: string;
+}> {
+  const response = await fetch(
+    `${supabaseUrl}/rest/v1/categories?select=*,productTypes(*)&order=created_at.asc`,
+    {
+      method: "GET",
+      headers: {
+        apikey: `${supabaseKey}`,
+        Authorization: `Bearer ${supabaseKey}`,
+      },
+      next: {
+        tags: ["categories"],
+      },
+    }
+  );
 
   if (!response.ok) {
     return {
@@ -25,11 +37,29 @@ export async function getAllCategoriesAction() {
   }
 
   const data = await response.json();
-
+  console.log("CATEGORY", data);
   return { data, error: "" };
 }
 
-export async function createCategoryAction(category: string) {
+export async function createCategoryAction(category: FormData) {
+  const supabase = await createClient();
+  const name = category.get("name") as string;
+  const file = category.get("image") as File | string;
+  // https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/category/GzcrS86aQAAY0dL.jpeg
+
+  let path: string | null = null;
+
+  if (file instanceof File) {
+    const name = `${Math.random()}-${file.name}`.replace(/\//g, "");
+
+    path = `${SUPABASE_URL}/storage/v1/object/public/category/${name}`;
+    const { error } = await supabase.storage
+      .from("category")
+      .upload(name, file);
+
+    if (error) return { data: null, error: error.message };
+  }
+
   const response = await fetch(`${supabaseUrl}/rest/v1/categories`, {
     method: "POST",
     headers: {
@@ -38,7 +68,7 @@ export async function createCategoryAction(category: string) {
       "Content-Type": "application/json",
       Prefer: "return=minimal", // Optional: Supabase-specific header
     },
-    body: JSON.stringify({ name: category }),
+    body: JSON.stringify({ name, image: path }),
   });
   if (!response.ok) {
     const error =
@@ -91,9 +121,28 @@ export async function editCategoryAction({
   return { data: null, error: "" };
 }
 
-export async function deleteCategoryAction(id: number) {
+export async function deleteCategoryAction(category: CategoryProps) {
+  const imagesToDelete = category.productTypes
+    .map((subCat) => subCat.image)
+    .filter((image) => image !== null);
+
+  if (imagesToDelete.length) {
+    const { error } = await deleteImageFromBucketAction({
+      bucketName: "productType",
+      imagePaths: imagesToDelete,
+    });
+    if (error) return { data: null, error: error.message };
+  }
+
+  if (category.image) {
+    const { error } = await deleteImageFromBucketAction({
+      bucketName: "category",
+      imagePaths: [category.image],
+    });
+    if (error) return { data: null, error: error.message };
+  }
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/categories?id=eq.${id}`,
+    `${supabaseUrl}/rest/v1/categories?id=eq.${category.id}`,
     {
       method: "DELETE",
       headers: {
@@ -140,6 +189,10 @@ export async function getCategoriesCountAction() {
 
   const data = await response.json();
   return { data, error: "" };
+}
+
+export async function revalidateCategories() {
+  revalidateTag("categories");
 }
 // import { getToken } from "@lib/helper";
 // import { revalidatePath, revalidateTag } from "next/cache";

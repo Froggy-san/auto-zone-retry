@@ -100,9 +100,8 @@ const ProductView = async ({
               <ProductManagement
                 useParams
                 className=" w-full"
-                categories={categoriesData}
+                categories={categoriesData || []}
                 productBrands={productBrandsData}
-                productTypes={brandTypesData}
                 productToEdit={productData}
               />
 

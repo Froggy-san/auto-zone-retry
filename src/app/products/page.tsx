@@ -52,27 +52,26 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   //   return <div>Error loading data</div>;
   // }
 
-  const [categories, productBrands, brandTypes, user, count] =
-    await Promise.all([
-      getAllCategoriesAction(),
-      getAllProductBrandsAction(),
-      getAllProductTypesAction(),
-      getCurrentUser(),
-      getProductsCountAction({
-        name,
-        categoryId,
-        productBrandId,
-        productTypeId,
-        isAvailable,
-        makerId,
-        modelId,
-        generationId,
-      }),
-    ]);
+  const [categories, productBrands, user, count] = await Promise.all([
+    getAllCategoriesAction(),
+    getAllProductBrandsAction(),
+    // getAllProductTypesAction(),
+    getCurrentUser(),
+    getProductsCountAction({
+      name,
+      categoryId,
+      productBrandId,
+      productTypeId,
+      isAvailable,
+      makerId,
+      modelId,
+      generationId,
+    }),
+  ]);
 
   const { data: categoriesData, error: categoriesError } = categories;
   const { data: productBrandsData, error: productBrandsError } = productBrands;
-  const { data: brandTypesData, error: brandTypesError } = brandTypes;
+  // const { data: brandTypesData, error: brandTypesError } = brandTypes;
   const { data: countData, error: countError } = count;
 
   const key =
@@ -110,9 +109,8 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             modelId={modelId}
             generationId={generationId}
             isAvailable={isAvailable}
-            categories={categoriesData}
+            categories={categoriesData || []}
             productBrands={productBrandsData}
-            productTypes={brandTypesData}
             carBrand={carBrand}
             count={countData}
           />
@@ -151,9 +149,8 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             {user && (
               <div className=" my-10 px-2">
                 <ProductManagement
-                  categories={categoriesData}
+                  categories={categoriesData || []}
                   productBrands={productBrandsData}
-                  productTypes={brandTypesData}
                 />
               </div>
             )}

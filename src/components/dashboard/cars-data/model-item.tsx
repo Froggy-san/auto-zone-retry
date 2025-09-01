@@ -90,7 +90,7 @@ const ModelItem = ({
       <div className=" flex items-center  w-full  justify-center gap-2">
         <p
           className={cn("   pr-6  text-center", {
-            "max-w-[90%]  pr-0": item.image,
+            "max-w-[90%]  break-all pr-0": item.image,
           })}
         >
           {item.name}

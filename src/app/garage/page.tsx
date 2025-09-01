@@ -145,7 +145,6 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             <div className=" my-10 px-2">
               <CarManagement
                 carMakers={carMakersData}
-                // carGenerations={carGenerationsData?.carGenerationsData}
                 clients={clientsData?.clients}
               />
             </div>

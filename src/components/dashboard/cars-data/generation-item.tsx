@@ -9,12 +9,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import Spinner from "@components/Spinner";
 import { useToast } from "@hooks/use-toast";
@@ -97,7 +91,7 @@ const GenerationItem = ({
           )}
         >
           <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
               <Button variant="ghost" className=" p-0 h-7 w-7">
                 <EllipsisVertical className=" w-4 h-4" />
               </Button>
@@ -262,7 +256,6 @@ function NoteDialog({
         </TooltipProvider> */}
 
         <DialogContent
-          onClick={(e) => e.stopPropagation()}
           className="sm:max-w-[500px]  max-h-[55vh]
         overflow-y-auto
         border-none"

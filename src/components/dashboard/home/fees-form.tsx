@@ -19,6 +19,7 @@ import {
   Category,
   EditServiceFee,
   ServiceFeeSchema,
+  CategoryProps,
 } from "@lib/types";
 
 import Spinner from "@components/Spinner";
@@ -55,7 +56,7 @@ const FeesForm = ({
   open: boolean;
   feesToEdit: ServiceFee;
   addFeeId?: string;
-  categories: Category[];
+  categories: CategoryProps[];
   service: { id: number; totalPrice: number } | null;
 }) => {
   const { toast } = useToast();
