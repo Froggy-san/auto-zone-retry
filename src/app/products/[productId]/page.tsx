@@ -14,6 +14,7 @@ import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
 import DeleteManagement from "@components/products/delete-management";
 import { Metadata } from "next";
 import { ProductSwipeNavigator } from "@components/products/product-swipe-navigator";
+import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 type AppliedFilters = {
   name: string;
   categoryId: string;
@@ -69,27 +70,29 @@ const ProductView = async ({
   const modelId = filters?.modelId ?? "";
   const generationId = filters?.generationId ?? "";
 
-  const [product, user, categories, productBrands] = await Promise.all([
-    getProductByIdAction(params.productId, {
-      name,
-      categoryId,
-      productTypeId,
-      productBrandId,
-      isAvailable,
-      makerId,
-      modelId,
-      generationId,
-    }),
-    getCurrentUser(),
-    getAllCategoriesAction(),
-    getAllProductBrandsAction(),
-    // getAllProductTypesAction(),
-  ]);
+  const [product, user, categories, productBrands, carBrands] =
+    await Promise.all([
+      getProductByIdAction(params.productId, {
+        name,
+        categoryId,
+        productTypeId,
+        productBrandId,
+        isAvailable,
+        makerId,
+        modelId,
+        generationId,
+      }),
+      getCurrentUser(),
+      getAllCategoriesAction(),
+      getAllProductBrandsAction(),
+      getAllCarMakersAction(),
+      // getAllProductTypesAction(),
+    ]);
 
   const { data: productData, error } = product;
   const { data: categoriesData, error: categoriesError } = categories;
   const { data: productBrandsData, error: productBrandsError } = productBrands;
-
+  const { data: CarBrandsData, error: carBrandError } = carBrands;
   // const { data: images, error: productImagesError } = productImages;
   // const { data: productData, error: producError } = product;
 
@@ -141,6 +144,7 @@ const ProductView = async ({
               <ProductManagement
                 useParams
                 className=" w-full"
+                carMakers={CarBrandsData || []}
                 categories={categoriesData || []}
                 productBrands={productBrandsData}
                 productToEdit={productData}

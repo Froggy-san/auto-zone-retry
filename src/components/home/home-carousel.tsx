@@ -15,9 +15,15 @@ import { usePrevNextButtons } from "@hooks/use-prev-next-buttons";
 import { Button } from "@components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import HomeFilter from "./home-filter";
-import { CategoryProps } from "@lib/types";
+import { CarMakerData, CarMakersData, CategoryProps } from "@lib/types";
 
-export function HomeCarousel({ categories }: { categories: CategoryProps[] }) {
+export function HomeCarousel({
+  categories,
+  carMakers,
+}: {
+  categories: CategoryProps[];
+  carMakers: CarMakersData[];
+}) {
   const [api, setApi] = React.useState<CarouselApi>();
   const {
     prevBtnDisabled,
@@ -28,7 +34,7 @@ export function HomeCarousel({ categories }: { categories: CategoryProps[] }) {
   return (
     <Carousel setApi={setApi} className="w-full  sm:w-[97%] mx-auto  mt-10   ">
       <CarouselContent className="   h-[450px]    ">
-        <SlideOne categories={categories} />
+        <SlideOne carMakers={carMakers} categories={categories} />
         {Array.from({ length: 5 }).map((_, index) => (
           <CarouselItem key={index} className=" h-full w-full ">
             <div className="p-1 h-full  w-full">
@@ -63,7 +69,13 @@ export function HomeCarousel({ categories }: { categories: CategoryProps[] }) {
   );
 }
 
-function SlideOne({ categories }: { categories: CategoryProps[] }) {
+function SlideOne({
+  categories,
+  carMakers,
+}: {
+  categories: CategoryProps[];
+  carMakers: CarMakersData[];
+}) {
   return (
     <CarouselItem className=" h-full w-full pl-[0.99rem]  ">
       <div className=" h-full  w-full ">
@@ -75,6 +87,7 @@ function SlideOne({ categories }: { categories: CategoryProps[] }) {
           <div className=" flex items-center  gap-5 relative h-full p-5 w-full">
             <HomeFilter
               categories={categories}
+              carMakers={carMakers}
               className=" bg-popover  w-full md:w-[500px] flex-shrink-0 z-50  mx-auto md:ml-24  my-auto  p-2 rounded-md "
             />
             {/* <p className=" text-xl font-semibold text-center select-none   ">

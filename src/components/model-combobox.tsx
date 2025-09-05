@@ -54,9 +54,16 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
           )}
         >
           {selectedItem ? (
-            <p className=" text-wrap break-all text-left">
-              {selectedItem.name}
-            </p>
+            <div className="  flex items-center gap-2 text-wrap break-all text-left">
+              {selectedItem.image ? (
+                <img
+                  src={selectedItem.image}
+                  className="  max-w-12  h-7 object-contain"
+                  alt="Car image"
+                />
+              ) : null}
+              <span> {selectedItem.name}</span>
+            </div>
           ) : (
             "Select model..."
           )}
@@ -80,10 +87,17 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "mr-2 h-4 w-4 shrink-0",
                       value === option.id ? "opacity-100" : "opacity-0"
                     )}
                   />
+                  {option.image ? (
+                    <img
+                      src={option.image}
+                      className="  max-w-12  h-7 object-contain mr-2"
+                      alt="Car image"
+                    />
+                  ) : null}
                   <span className=" break-all flex-1">{option.name}</span>{" "}
                 </CommandItem>
               ))}

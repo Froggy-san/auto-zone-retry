@@ -1,6 +1,7 @@
 import {
   CarGenerationProps,
   CarMakerData,
+  CarMakersData,
   CarModelProps,
   Category,
   CategoryProps,
@@ -82,8 +83,7 @@ type HandleNumber = (
 interface StepOneProps {
   form: Form;
   control: Control<z.infer<typeof ProductsSchema>>;
-  searchTerm: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+
   isLoading: boolean;
   categories: CategoryProps[];
 
@@ -100,12 +100,11 @@ interface StepOneProps {
     React.SetStateAction<number | ProductImage | null>
   >;
   setDeletedMedia: React.Dispatch<React.SetStateAction<ProductImage[]>>;
+  carMakers: CarMakersData[];
 }
 
 function StepOne({
   form,
-  searchTerm,
-  setSearchTerm,
   currStep,
   control,
   isLoading,
@@ -118,12 +117,13 @@ function StepOne({
   setDeletedMedia,
   productToEdit,
   carMaker,
+  carMakers,
 }: StepOneProps) {
   const [step, direction] = currStep;
-  const { carBrands, isLoading: searching, error } = useCarBrands(searchTerm);
+  // const { carBrands, isLoading: searching, error } = useCarBrands(searchTerm);
   const { makerId, modelId, generationsArr } = form.watch();
   const carModels =
-    makerId && carBrands?.find((car) => car.id === makerId)?.carModels;
+    makerId && carMakers?.find((car) => car.id === makerId)?.carModels;
   const carGenerations =
     modelId &&
     carModels &&
@@ -132,13 +132,13 @@ function StepOne({
   const productTypes = useMemo(() => {
     return categories.find((cat) => cat.id === categoryId)?.productTypes || [];
   }, [categoryId]);
-  useEffect(() => {
-    if (searching) {
-      if (makerId) form.setValue("makerId", null);
-      if (modelId) form.setValue("modelId", null);
-      if (generationsArr.length) form.setValue("generationsArr", []);
-    }
-  }, [searching, generationsArr.length, makerId, modelId, form.setValue]);
+  // useEffect(() => {
+  //   if (searching) {
+  //     if (makerId) form.setValue("makerId", null);
+  //     if (modelId) form.setValue("modelId", null);
+  //     if (generationsArr.length) form.setValue("generationsArr", []);
+  //   }
+  // }, [searching, generationsArr.length, makerId, modelId, form.setValue]);
 
   return (
     <motion.div
@@ -349,9 +349,8 @@ function StepOne({
               </FormLabel>
               <FormControl>
                 <CarBrandsCombobox
-                  options={carBrands || []}
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
+                  options={carMakers}
+                  shouldFilter={false}
                   value={field.value}
                   setValue={(value) => {
                     field.onChange(value);

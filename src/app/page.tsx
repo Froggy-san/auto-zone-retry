@@ -10,7 +10,10 @@ import MostPop from "@components/home/most-pop";
 import { HomeCarousel } from "@components/home/home-carousel";
 
 import StoreServices from "@components/home/store-services";
-import { getCarBrandsAction } from "@lib/actions/carMakerActions";
+import {
+  getAllCarMakersAction,
+  getCarBrandsAction,
+} from "@lib/actions/carMakerActions";
 import CarBrands from "@components/home/car-brands";
 import CategoryList from "@components/home/category-list";
 
@@ -18,11 +21,11 @@ export default async function Home() {
   const [categories, user, carBrands] = await Promise.all([
     getAllCategoriesAction(),
     getCurrentUser(),
-    getCarBrandsAction(),
+    getAllCarMakersAction(),
   ]);
 
   const { data: categoriesData, error: categoriesError } = categories;
-  const { carBrands: CarBrandsData, error } = carBrands;
+  const { data: CarBrandsData, error } = carBrands;
 
   const isAdmin = user?.user_metadata.role == "admin";
   // const { data: productBrandsData, error: productBrandsError } = productBrands;
@@ -49,7 +52,10 @@ export default async function Home() {
       {/* <SearchComponent />
        */}
       {/* <Search /> */}
-      <HomeCarousel categories={categoriesData || []} />
+      <HomeCarousel
+        categories={categoriesData || []}
+        carMakers={CarBrandsData || []}
+      />
       {/* <Image
         src={BackgroundImage}
         alt="asa"

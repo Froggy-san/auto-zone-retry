@@ -14,6 +14,7 @@ import { getProductsCountAction } from "@lib/actions/productsActions";
 import { Metadata } from "next";
 import { getCurrentUser } from "@lib/actions/authActions";
 import CategoryCarousel from "@components/products/category-carousel";
+import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -52,28 +53,31 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   //   return <div>Error loading data</div>;
   // }
 
-  const [categories, productBrands, user, count] = await Promise.all([
-    getAllCategoriesAction(),
-    getAllProductBrandsAction(),
-    // getAllProductTypesAction(),
-    getCurrentUser(),
-    getProductsCountAction({
-      name,
-      categoryId,
-      productBrandId,
-      productTypeId,
-      isAvailable,
-      makerId,
-      modelId,
-      generationId,
-    }),
-  ]);
+  const [categories, productBrands, user, count, carBrands] = await Promise.all(
+    [
+      getAllCategoriesAction(),
+      getAllProductBrandsAction(),
+      // getAllProductTypesAction(),
+      getCurrentUser(),
+      getProductsCountAction({
+        name,
+        categoryId,
+        productBrandId,
+        productTypeId,
+        isAvailable,
+        makerId,
+        modelId,
+        generationId,
+      }),
+      getAllCarMakersAction(),
+    ]
+  );
 
   const { data: categoriesData, error: categoriesError } = categories;
   const { data: productBrandsData, error: productBrandsError } = productBrands;
   // const { data: brandTypesData, error: brandTypesError } = brandTypes;
   const { data: countData, error: countError } = count;
-
+  const { data: CarBrandsData, error } = carBrands;
   const key =
     pageNumber +
     categoryId +
@@ -110,6 +114,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             generationId={generationId}
             isAvailable={isAvailable}
             categories={categoriesData || []}
+            carMakers={CarBrandsData || []}
             productBrands={productBrandsData}
             carBrand={carBrand}
             count={countData}
@@ -150,6 +155,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               <div className=" my-10 px-2">
                 <ProductManagement
                   categories={categoriesData || []}
+                  carMakers={CarBrandsData || []}
                   productBrands={productBrandsData}
                 />
               </div>

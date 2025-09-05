@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 
 import {
+  CarMakersData,
   Category,
   CategoryProps,
   ProductBrand,
@@ -59,6 +60,7 @@ interface ProductFormProps {
   productBrand: ProductBrand[];
   productToEdit?: ProductById;
   useParams?: boolean;
+  carMakers: CarMakersData[];
 }
 
 type FirstStepFiedls =
@@ -76,7 +78,7 @@ const firstStepFields: FirstStepFiedls[] = [
 
 const ProductForm: React.FC<ProductFormProps> = ({
   categories,
-
+  carMakers,
   productBrand,
   productToEdit,
   useParams = false,
@@ -88,7 +90,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [isMainImage, setIsMainImage] = useState<ProductImage | null | number>(
     null
   );
-  const [searchTerm, setSearchTerm] = useState(carMaker?.name || "");
+
   const [deletedDetails, setDeletedDetails] = useState<number[]>([]);
   const [deletedMedia, setDeletedMedia] = useState<ProductImage[]>([]);
   const [[step, direction], setStep] = useState([0, 1]);
@@ -226,7 +228,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       productToEdit?.productImages.find((image) => image.isMain === true) ||
         null
     );
-    if (carMaker) setSearchTerm(carMaker.name);
+
     if (formRef.current) formRef.current.scrollTo(0, 0);
   }, [isOpen, productToEdit?.productImages]);
 
@@ -545,8 +547,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 <StepOne
                   form={form}
                   control={form.control}
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
                   isLoading={isLoading}
                   currStep={[step, direction]}
                   categories={categories}
@@ -558,6 +558,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   productToEdit={productToEdit}
                   setDeletedMedia={setDeletedMedia}
                   carMaker={carMaker}
+                  carMakers={carMakers}
                 />
               )}
 

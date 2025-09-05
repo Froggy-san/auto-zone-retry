@@ -11,7 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CarBrand } from "@lib/types";
+import { CarBrand, CarMakersData } from "@lib/types";
 import { cn } from "@lib/utils";
 import React, { useState } from "react";
 
@@ -21,9 +21,10 @@ import { Check, ChevronsUpDown } from "lucide-react";
 interface Props {
   setValue: (value: number) => void;
   value: number | null;
-  searchTerm: string;
-  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-  options: CarBrand[];
+  searchTerm?: string;
+  setSearchTerm?: React.Dispatch<React.SetStateAction<string>>;
+  shouldFilter?: boolean;
+  options: CarMakersData[];
   disabled?: boolean;
   className?: string;
 }
@@ -37,6 +38,7 @@ const CarBrandsCombobox = React.forwardRef<HTMLButtonElement, Props>(
       options,
       disabled,
       className,
+      shouldFilter = true,
     }: Props,
     ref
   ) => {
@@ -59,11 +61,11 @@ const CarBrandsCombobox = React.forwardRef<HTMLButtonElement, Props>(
             )}
           >
             {selected ? (
-              <div className=" flex items-center gap-2 flex-wrap">
+              <div className=" flex items-center text-sm gap-2 flex-wrap">
                 {selected.logo ? (
                   <img
                     src={selected.logo}
-                    className="  max-w-7 max-h-[1.4rem] object-contain"
+                    className="  max-w-10  h-9 object-contain"
                     alt="Car image"
                   />
                 ) : null}
@@ -76,10 +78,10 @@ const CarBrandsCombobox = React.forwardRef<HTMLButtonElement, Props>(
           </Button>
         </PopoverTrigger>
         <PopoverContent className=" h-[30vh] sm:h-[unset]  w-[300px] sm:w-[400px]   p-0">
-          <Command shouldFilter={false}>
+          <Command shouldFilter={shouldFilter}>
             <CommandInput
               value={searchTerm}
-              onValueChange={(value) => setSearchTerm(value)}
+              onValueChange={(value) => setSearchTerm?.(value)}
               placeholder="Search for car brands..."
             />
             <CommandList>
@@ -105,7 +107,7 @@ const CarBrandsCombobox = React.forwardRef<HTMLButtonElement, Props>(
                         {option.logo ? (
                           <img
                             src={option.logo}
-                            className=" max-w-7 max-h-7 object-contain"
+                            className=" max-w-10 h-9 object-contain"
                             alt="Car image"
                           />
                         ) : null}{" "}
