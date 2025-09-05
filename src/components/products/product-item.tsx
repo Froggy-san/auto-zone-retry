@@ -8,16 +8,18 @@ import { ProdcutAction } from "./product-actions";
 import Link from "next/link";
 import { ImageOff } from "lucide-react";
 
-const ProductItem = async ({
+const ProductItem = ({
   user,
   product,
   pageSize,
   currPage,
+  appliedFilters,
 }: {
   user: User | null;
   pageSize: number;
   currPage: string;
   product: Product;
+  appliedFilters: string;
 }) => {
   const viewedImages = product.productImages?.map((imgObj) => imgObj.imageUrl);
 
@@ -27,7 +29,7 @@ const ProductItem = async ({
     >
       <Link
         prefetch={false}
-        href={`/products/${product.id}?size=${pageSize}&page=${currPage}`}
+        href={`/products/${product.id}?size=${pageSize}&page=${currPage}&filters=${appliedFilters}`}
         className="space-y-1 flex flex-col"
         // prefetch={false}
       >
