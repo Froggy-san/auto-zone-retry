@@ -6,7 +6,7 @@ import { Button } from "@components/ui/button";
 import useSearchCategories from "@lib/queries/categories/useSearchCategory";
 import useCarBrands from "@lib/queries/useCarBrands";
 import useProductTypes from "@lib/queries/useProductTypes";
-import { CategoryProps } from "@lib/types";
+import { CarMakerData, CarMakersData, CategoryProps } from "@lib/types";
 import { cn } from "@lib/utils";
 import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
@@ -14,9 +14,10 @@ import React, { useRef, useState } from "react";
 interface Props {
   className?: string;
   categories: CategoryProps[];
+  carMakers: CarMakersData[];
 }
 
-const HomeFilter = ({ categories, className }: Props) => {
+const HomeFilter = ({ categories, carMakers, className }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [makerId, setMakerId] = useState<number | null>(null);
   const [modelId, setModelId] = useState<number | null>(null);
@@ -24,9 +25,9 @@ const HomeFilter = ({ categories, className }: Props) => {
   const [productTypeId, setProductTypeId] = useState(0);
   const [categoryId, setCategoryId] = useState(0);
   const router = useRouter();
-  const { carBrands, isLoading: searching, error } = useCarBrands(searchTerm);
+  // const { carBrands, isLoading: searching, error } = useCarBrands(searchTerm);
   const carModels =
-    makerId && carBrands?.find((car) => car.id === makerId)?.carModels;
+    makerId && carMakers?.find((car) => car.id === makerId)?.carModels;
   const carGenerations =
     modelId &&
     carModels &&
@@ -62,11 +63,15 @@ const HomeFilter = ({ categories, className }: Props) => {
       <CarBrandsCombobox
         ref={first}
         className=" md:h-12"
-        options={carBrands || []}
+        options={carMakers || []}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         value={makerId}
-        setValue={setMakerId}
+        setValue={(value) => {
+          setMakerId(value);
+          setModelId(null);
+          setGenerationId(0);
+        }}
       />
 
       <ModelCombobox
@@ -74,7 +79,10 @@ const HomeFilter = ({ categories, className }: Props) => {
         disabled={!carModels || !carModels.length}
         options={carModels || []}
         value={modelId}
-        setValue={setModelId}
+        setValue={(value) => {
+          setModelId(value);
+          setGenerationId(0);
+        }}
       />
       <ComboBox
         className="md:h-12"

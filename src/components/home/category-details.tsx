@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { PiSubtract } from "react-icons/pi";
+import { useRouter } from "next/navigation";
 
 const opacity = {
   hidden: { opacity: 0 },
@@ -55,7 +56,10 @@ const CategoryDetails = ({ category, setSelectedCategory }: Props) => {
 
         <AnimatePresence mode="wait">
           {category?.productTypes.length ? (
-            <SubCategoryList productTypes={category.productTypes} />
+            <SubCategoryList
+              productTypes={category.productTypes}
+              categoryId={category.id}
+            />
           ) : (
             <motion.p
               key="paragraph"
@@ -90,9 +94,21 @@ const CategoryDetails = ({ category, setSelectedCategory }: Props) => {
   );
 };
 
-function SubCategoryList({ productTypes }: { productTypes: ProductType[] }) {
+function SubCategoryList({
+  productTypes,
+  categoryId,
+}: {
+  productTypes: ProductType[];
+  categoryId: number;
+}) {
   const [hovered, setHovered] = useState<number | null>(null);
 
+  const router = useRouter();
+  function handleSelect(prodcutTypeId: number) {
+    router.push(
+      `/products?page=1&categoryId=${categoryId}&productTypeId=${prodcutTypeId}`
+    );
+  }
   return (
     <motion.ul
       key="list"
@@ -108,6 +124,7 @@ function SubCategoryList({ productTypes }: { productTypes: ProductType[] }) {
         .map((item, i) => (
           <li
             key={item.id}
+            onClick={() => handleSelect(item.id)}
             onMouseEnter={() => setHovered(i)}
             className={`relative   px-3 py-2 flex flex-col  items-center justify-between    cursor-pointer  gap-2 text-sm   rounded-xl `}
           >

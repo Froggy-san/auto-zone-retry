@@ -1,6 +1,12 @@
 import React from "react";
 import ProductsFilterContent from "./product-filter-content";
-import { Category, CategoryProps, ProductBrand, ProductType } from "@lib/types";
+import {
+  CarMakersData,
+  Category,
+  CategoryProps,
+  ProductBrand,
+  ProductType,
+} from "@lib/types";
 
 interface Props {
   name: string;
@@ -12,7 +18,7 @@ interface Props {
   generationId: string;
   isAvailable: string;
   categories: CategoryProps[];
-
+  carMakers: CarMakersData[];
   productBrands: ProductBrand[];
   carBrand?: string;
   count: number;
@@ -30,6 +36,7 @@ const ProductsFilterBar: React.FC<Props> = async ({
   modelId,
   generationId,
   carBrand,
+  carMakers,
 }) => {
   return (
     <aside className={`sm:w-[200px]    sm:border-r `}>
@@ -42,6 +49,7 @@ const ProductsFilterBar: React.FC<Props> = async ({
         isAvailable={isAvailable}
         categories={categories || []}
         productBrands={productBrands || []}
+        carMakers={carMakers}
         makerId={makerId}
         modelId={modelId}
         generationId={generationId}

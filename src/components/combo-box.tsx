@@ -59,7 +59,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
             className
           )}
         >
-          <p className="text-wrap break-all text-left">
+          <p className="text-wrap break-all text-left ">
             {" "}
             {value ? options.find((option) => option.id === value)?.name : text}
           </p>

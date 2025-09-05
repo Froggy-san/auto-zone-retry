@@ -1,6 +1,7 @@
 import ProductForm from "@components/products/products-form";
 
 import {
+  CarMakersData,
   Category,
   CategoryProps,
   ProductBrand,
@@ -17,6 +18,7 @@ const ProductManagement = async ({
   className,
   categories,
   productBrands,
+  carMakers,
 }: {
   productToEdit?: ProductById;
   productToEditImages?: ProductImage[];
@@ -24,6 +26,7 @@ const ProductManagement = async ({
   productBrands: ProductBrand[];
   className?: string;
   useParams?: boolean;
+  carMakers: CarMakersData[];
 }) => {
   // const [categories, carInfos, productBrands, brandTypes] = await Promise.all([
   //   getAllCategoriesAction(),
@@ -60,6 +63,7 @@ const ProductManagement = async ({
           useParams={useParams}
           productToEdit={productToEdit}
           categories={categories || []}
+          carMakers={carMakers}
           productBrand={productBrands || []}
         />
       </div>
