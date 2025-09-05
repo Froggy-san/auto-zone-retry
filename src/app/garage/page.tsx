@@ -102,7 +102,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
         <div className=" flex   flex-1  w-full">
           <GarageFilterbar
             count={carsCount || 0}
-            carMakers={carMakersData}
+            carMakers={carMakersData || []}
             // carModels={carModelsData?.models}
             // carGenerations={carGenerationsData?.carGenerationsData}
             clients={clientsData?.clients || []}
@@ -144,7 +144,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
             )}
             <div className=" my-10 px-2">
               <CarManagement
-                carMakers={carMakersData}
+                carMakers={carMakersData || []}
                 clients={clientsData?.clients}
               />
             </div>

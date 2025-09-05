@@ -19,6 +19,7 @@ import {
   CarMaker,
   CarGenerationProps,
   CarInfoSchema,
+  CarMakersData,
 } from "@lib/types";
 
 import Spinner from "@components/Spinner";
@@ -38,7 +39,7 @@ import DialogComponent from "@components/dialog-component";
 
 interface CarInfoFormProps {
   carModels: CarModelProps[];
-  carMakers: CarMaker[];
+  carMakers: CarMakersData[];
   carGenerations: CarGenerationProps[];
 }
 
