@@ -20,6 +20,7 @@ import { compareAsc } from "date-fns";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { NextRequest } from "next/server";
 import { z } from "zod";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -130,11 +131,23 @@ export async function getProductsAction({
 //   return { ...product, category: category };
 // });
 
+type AppliedFilters = {
+  name: string;
+  categoryId: string;
+  productTypeId: string;
+  productBrandId: string;
+  isAvailable: string;
+  makerId: string;
+  modelId: string;
+  generationId: string;
+};
+
 interface ReturnedById extends ProductById {
   pages: { prevPro: number | null; nextPro: number | null } | null;
 }
 export async function getProductByIdAction(
-  id: string
+  id: string,
+  appliedFilters: AppliedFilters
 ): Promise<{ data: ReturnedById | null; error: string }> {
   const response = await fetch(
     `${supabaseUrl}/rest/v1/product?id=eq.${id}&select=*,productImages(*),categories(*),productBrands(*),productTypes(*),moreDetails(*),carMakers(*),carModels(*)&productImages.order=id.asc`,
@@ -170,7 +183,10 @@ export async function getProductByIdAction(
   // let errors = "";
   // let generationsArr: CarGeneration[] = [];
   const { generations, error } = await fetchProductGenerations(product);
-  const { pages, error: pagesError } = await getNextAndPrevPros(product.id);
+  const { pages, error: pagesError } = await getNextAndPrevPros(
+    product.id,
+    appliedFilters
+  );
 
   const productById = {
     ...product,
@@ -187,12 +203,74 @@ interface FetchedProductData {
   error?: string; // Optional error message
 }
 
-async function getNextAndPrevPros(currId: number) {
+async function getNextAndPrevPros(
+  currId: number,
+  {
+    name,
+    categoryId,
+    productBrandId,
+    productTypeId,
+    makerId,
+    modelId,
+    generationId,
+    isAvailable,
+  }: AppliedFilters
+) {
   const supabase = await createClient();
-  const { data: nextPro, error: nextError } = await supabase
+
+  let nextPage = supabase
     .from("product")
     .select("id")
-    .order("id", { ascending: true })
+    .order("id", { ascending: true });
+  // if (id) query = query + `&id=eq.${id}`;
+
+  let previousPage = supabase
+    .from("product")
+    .select("id")
+    .order("id", { ascending: false });
+
+  if (name) {
+    nextPage = nextPage.or(`name.ilike.*${name}*,description.ilike.*${name}*`);
+    previousPage = previousPage.or(
+      `name.ilike.*${name}*,description.ilike.*${name}*`
+    );
+  }
+
+  if (categoryId) {
+    nextPage = nextPage.eq("categoryId", categoryId);
+    previousPage = previousPage.eq("categoryId", categoryId);
+  }
+
+  if (productTypeId) {
+    nextPage = nextPage.eq("productTypeId", productTypeId);
+    previousPage = previousPage.eq("productTypeId", productTypeId);
+  }
+
+  if (productBrandId) {
+    nextPage = nextPage.eq("productBrandId", productBrandId);
+    previousPage = previousPage.eq("productBrandId", productBrandId);
+  }
+
+  if (makerId) {
+    nextPage = nextPage.eq("makerId", makerId);
+    previousPage = previousPage.eq("makerId", makerId);
+  }
+
+  if (modelId) {
+    nextPage = nextPage.eq("modelId", modelId);
+    previousPage = previousPage.eq("modelId", modelId);
+  }
+
+  if (generationId) {
+    nextPage = nextPage.ilike("generationsArr", `%${generationId}%`);
+    previousPage = previousPage.ilike("generationsArr", `%${generationId}%`);
+  }
+
+  if (isAvailable) {
+    nextPage = nextPage.eq("isAvailable", true);
+    previousPage = previousPage.eq("isAvailable", true);
+  }
+  const { data: nextPro, error: nextError } = await nextPage
     .gt("id", currId)
     .limit(1)
     .single();
@@ -204,10 +282,7 @@ async function getNextAndPrevPros(currId: number) {
       return { data: null, error: nextError.message };
     }
   }
-  const { data: prevPro, error: prevError } = await supabase
-    .from("product")
-    .select("id")
-    .order("id", { ascending: false })
+  const { data: prevPro, error: prevError } = await previousPage
     .lt("id", currId)
     .limit(1)
     .single();

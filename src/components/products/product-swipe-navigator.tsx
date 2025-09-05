@@ -11,6 +11,7 @@ interface ProductSwipeNavigatorProps {
   prevProductId: number | null;
   nextProductId: number | null;
   children: React.ReactNode; // The content that the user will swipe
+  filters: string;
 }
 
 const SWIPE_THRESHOLD = 70; // Minimum pixels to count as a swipe
@@ -22,12 +23,14 @@ export function ProductSwipeNavigator({
   prevProductId,
   nextProductId,
   children,
+  filters,
 }: ProductSwipeNavigatorProps) {
   const router = useRouter();
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchCurrentX, setTouchCurrentX] = useState(0);
   const targetElementRef = useRef<HTMLDivElement>(null);
 
+  const encondedFilters = encodeURIComponent(filters);
   // Calculate the amount the arrows should shift
   const deltaX = touchCurrentX - touchStartX;
 
@@ -62,10 +65,10 @@ export function ProductSwipeNavigator({
   };
 
   function handlePrev() {
-    router.replace(`/products/${prevProductId}`);
+    router.replace(`/products/${prevProductId}?filters=${encondedFilters}`);
   }
   function handleNext() {
-    router.replace(`/products/${nextProductId}`);
+    router.replace(`/products/${nextProductId}?filters=${encondedFilters}`);
   }
   const handleTouchEnd = () => {
     const finalDeltaX = touchCurrentX - touchStartX;

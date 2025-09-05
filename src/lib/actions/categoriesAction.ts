@@ -6,8 +6,7 @@ import { deleteImageFromBucketAction } from "@lib/services/server-helpers";
 import { CategoryProps } from "@lib/types";
 
 import { createClient } from "@utils/supabase/server";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { redirect } from "next/navigation";
+import { revalidateTag } from "next/cache";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -37,7 +36,7 @@ export async function getAllCategoriesAction(): Promise<{
   }
 
   const data = await response.json();
-  console.log("CATEGORY", data);
+
   return { data, error: "" };
 }
 

@@ -200,7 +200,7 @@ const ProdcutViewDetials = ({
                 <div className=" flex items-center gap-2">
                   {carMaker.logo ? (
                     <img
-                      className=" w-7 h-7 object-cover"
+                      className=" h-10 object-cover"
                       src={carMaker.logo}
                       alt={`${carMaker.name} Logo`}
                     />

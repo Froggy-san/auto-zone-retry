@@ -14,7 +14,16 @@ import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
 import DeleteManagement from "@components/products/delete-management";
 import { Metadata } from "next";
 import { ProductSwipeNavigator } from "@components/products/product-swipe-navigator";
-
+type AppliedFilters = {
+  name: string;
+  categoryId: string;
+  productTypeId: string;
+  productBrandId: string;
+  isAvailable: string;
+  makerId: string;
+  modelId: string;
+  generationId: string;
+};
 export const metadata: Metadata = {
   title: "Product Details",
 };
@@ -25,6 +34,16 @@ interface Params {
 interface searchParams {
   size?: string;
   page?: string;
+  name?: string;
+  categoryId?: string;
+  productTypeId?: string;
+  productBrandId?: string;
+  isAvailable?: string;
+  makerId?: string;
+  modelId?: string;
+  generationId?: string;
+  carBrand?: string;
+  filters?: string;
 }
 const ProductView = async ({
   params,
@@ -33,22 +52,43 @@ const ProductView = async ({
   params: Params;
   searchParams: searchParams;
 }) => {
-  const currPage = searchParams.page ?? "";
+  const currPage = searchParams.page ?? "1";
   const pageSize = searchParams.size ?? "";
 
-  const [product, user, categories, productBrands, brandTypes] =
-    await Promise.all([
-      getProductByIdAction(params.productId),
-      getCurrentUser(),
-      getAllCategoriesAction(),
-      getAllProductBrandsAction(),
-      getAllProductTypesAction(),
-    ]);
+  const decondedFilters = searchParams?.filters
+    ? decodeURIComponent(searchParams.filters)
+    : "{}";
+
+  const filters: AppliedFilters = JSON.parse(decondedFilters);
+  const name = filters?.name ?? "";
+  const categoryId = filters?.categoryId ?? "";
+  const productTypeId = filters?.productTypeId ?? "";
+  const productBrandId = filters?.productBrandId ?? "";
+  const isAvailable = filters?.isAvailable ?? "";
+  const makerId = filters?.makerId ?? "";
+  const modelId = filters?.modelId ?? "";
+  const generationId = filters?.generationId ?? "";
+
+  const [product, user, categories, productBrands] = await Promise.all([
+    getProductByIdAction(params.productId, {
+      name,
+      categoryId,
+      productTypeId,
+      productBrandId,
+      isAvailable,
+      makerId,
+      modelId,
+      generationId,
+    }),
+    getCurrentUser(),
+    getAllCategoriesAction(),
+    getAllProductBrandsAction(),
+    // getAllProductTypesAction(),
+  ]);
 
   const { data: productData, error } = product;
   const { data: categoriesData, error: categoriesError } = categories;
   const { data: productBrandsData, error: productBrandsError } = productBrands;
-  const { data: brandTypesData, error: brandTypesError } = brandTypes;
 
   // const { data: images, error: productImagesError } = productImages;
   // const { data: productData, error: producError } = product;
@@ -79,6 +119,7 @@ const ProductView = async ({
       currentProductId={productData.id}
       prevProductId={prevPro}
       nextProductId={nextPro}
+      filters={JSON.stringify(filters)}
     >
       <div className=" relative">
         {imageUrls?.length ? (

@@ -4,7 +4,6 @@ import ProductItem from "./product-item";
 import { getProductsAction } from "@lib/actions/productsActions";
 import ErrorMessage from "@components/error-message";
 import { ShoppingBasket } from "lucide-react";
-import { redirect } from "next/navigation";
 
 interface ProductsListProps {
   pageNumber: string;
@@ -73,6 +72,18 @@ const ProductsList: React.FC<ProductsListProps> = async ({
         No products.
       </ErrorMessage>
     );
+
+  const filters = {
+    name,
+    categoryId,
+    productTypeId,
+    productBrandId,
+    isAvailable,
+    makerId,
+    modelId,
+    generationId,
+  };
+  const encondedFilters = encodeURIComponent(JSON.stringify(filters));
   return (
     <>
       <ul className=" grid  grid-cols-1 xs:grid-cols-2  p-3   xl:grid-cols-3 gap-3">
@@ -83,6 +94,7 @@ const ProductsList: React.FC<ProductsListProps> = async ({
                 currPage={pageNumber}
                 pageSize={products.length}
                 product={product}
+                appliedFilters={encondedFilters}
                 key={i}
               />
             ))
