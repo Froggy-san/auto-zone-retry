@@ -47,7 +47,10 @@ const CarGenAndModelManagement = async () => {
             </p>
           </div>
           <div className=" sm:pr-2">
-            <CarGenerationForm carMakers={carMakersData} carModels={models} />
+            <CarGenerationForm
+              carMakers={carMakersData || []}
+              carModels={models}
+            />
             {/* <CarInfoForm
           carGenerations={carGenerationsData}
           carMakers={carMakersData}

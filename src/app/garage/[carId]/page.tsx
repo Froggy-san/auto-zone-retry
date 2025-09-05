@@ -274,7 +274,7 @@ const Page = async ({
               carToEdit={car}
               clientId={client.id}
               // carGenerations={carGenerations}
-              carMakers={carMakersData}
+              carMakers={carMakersData || []}
               className=" sm:flex-col   sm:items-stretch lg:flex-row lg:items-center"
             />
             <DeleteCar

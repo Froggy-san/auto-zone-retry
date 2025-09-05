@@ -19,6 +19,7 @@ import {
   CarGenerationsSchema,
   CarMaker,
   CarGenerationProps,
+  CarMakersData,
 } from "@lib/types";
 import { Textarea } from "@components/ui/textarea";
 import Spinner from "@components/Spinner";
@@ -41,7 +42,7 @@ const CarGenerationForm = ({
 }: {
   generationToEdit?: CarGenerationProps;
   openBtn?: React.ReactElement;
-  carMakers: CarMaker[];
+  carMakers: CarMakersData[];
   carModels: CarModelProps[];
 }) => {
   const [open, setOpen] = useState(false);
