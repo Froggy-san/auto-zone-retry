@@ -118,7 +118,6 @@ export const ServiceStatusCombobox: React.FC<ComboBoxProps> = ({
                     )}
                   />
                   <div className="  flex items-center gap-2 ">
-                    Status:{" "}
                     <StatusBadge status={option} className=" py-[.1rem]" />
                   </div>
                 </CommandItem>

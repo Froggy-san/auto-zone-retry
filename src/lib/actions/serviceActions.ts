@@ -109,6 +109,7 @@ export async function getServicesAction({
   return { data: { data: services, count }, error: "" };
 }
 
+export async function GetStats() {}
 interface ByIdProps {
   id: number;
   select?: string;
@@ -222,6 +223,17 @@ export async function deleteServiceAction(id: string) {
   const supabase = await createClient();
 
   const { error } = await supabase.from("services").delete().eq("id", id);
+
+  if (error) return { data: null, error: error.message };
+  revalidateTag("services");
+
+  return { data: null, error: "" };
+}
+
+export async function deleteMultiServicesAction(ids: number[]) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("services").delete().in("id", ids);
 
   if (error) return { data: null, error: error.message };
   revalidateTag("services");

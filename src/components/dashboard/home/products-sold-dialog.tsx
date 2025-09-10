@@ -43,6 +43,7 @@ import { formatCurrency } from "@lib/client-helpers";
 import ServiceDiaDetails from "./service-dia-details";
 import { cn } from "@lib/utils";
 import TagCarousel from "@components/tag-carousel";
+import CurrencyInput from "react-currency-input-field";
 
 interface ServiceStates {
   priceValue: string;
@@ -313,7 +314,7 @@ const ProductSoldDialog = ({
     );
 
   return (
-    <>
+    <div onClick={(e) => e.stopPropagation()} className=" w-fit">
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <Button
           onClick={handleOpenChange}
@@ -345,55 +346,89 @@ const ProductSoldDialog = ({
                     <label className=" text-xs " htmlFor="price">
                       Price per unit
                     </label>
-                    <Input
+                    <CurrencyInput
+                      autoFocus
+                      name="price"
                       id="price"
                       placeholder="Price per unit"
+                      decimalsLimit={2} // Max number of decimal places
+                      prefix="EGP " // Currency symbol (e.g., Egyptian Pound)
+                      decimalSeparator="." // Use dot for decimal
+                      groupSeparator="," // Use comma for thousands
                       value={priceValue}
-                      onChange={(e) =>
-                        dispatch({ type: "price", payload: e.target.value })
-                      }
-                    />
+                      onValueChange={(formattedValue, name, value) => {
+                        dispatch({
+                          type: "price",
+                          payload: formattedValue || "",
+                        });
+                      }}
+                      className="input-field "
+                    />{" "}
                   </div>
                   <div className=" space-y-2  w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]  mb-auto">
                     <label className=" text-xs " htmlFor="discount">
                       Discount
                     </label>
-                    <Input
+                    <CurrencyInput
+                      name="discount"
                       id="discount"
                       placeholder="Discount..."
+                      decimalsLimit={2} // Max number of decimal places
+                      prefix="EGP " // Currency symbol (e.g., Egyptian Pound)
+                      decimalSeparator="." // Use dot for decimal
+                      groupSeparator="," // Use comma for thousands
                       value={discountValue}
-                      onChange={(e) =>
-                        dispatch({ type: "discount", payload: e.target.value })
-                      }
+                      onValueChange={(formattedValue, name, value) => {
+                        dispatch({
+                          type: "discount",
+                          payload: formattedValue || "",
+                        });
+                      }}
+                      className="input-field "
                     />
                   </div>
                   <div className=" space-y-2  w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]  mb-auto">
                     <label className=" text-xs " htmlFor="count">
                       Count
                     </label>
-                    <Input
+                    <CurrencyInput
                       id="count"
-                      placeholder="Count..."
+                      name="Count"
+                      placeholder="Available Stock"
+                      decimalsLimit={2} // Max number of decimal places
+                      prefix="UNITS " // Currency symbol (e.g., Egyptian Pound)
+                      decimalSeparator="." // Use dot for decimal
+                      groupSeparator="," // Use comma for thousands
                       value={countValue}
-                      onChange={(e) =>
-                        dispatch({ type: "count", payload: e.target.value })
-                      }
+                      onValueChange={(formattedValue, name, value) => {
+                        dispatch({
+                          type: "count",
+                          payload: formattedValue || "",
+                        });
+                      }}
+                      className="input-field  "
                     />
                   </div>
                   <div className=" space-y-2  w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]  mb-auto">
                     <label className=" text-xs " htmlFor="totalPrice">
                       Total price after discount
                     </label>
-                    <Input
-                      id="totalPrice"
-                      placeholder="Total price after discount..."
+                    <CurrencyInput
+                      id="total-price-after-dis"
+                      name="discount"
+                      placeholder="Total price after discount"
+                      decimalsLimit={2}
+                      prefix="EGP "
+                      decimalSeparator="."
+                      groupSeparator=","
                       value={totalPriceAfterDiscountValue}
-                      onChange={(e) =>
+                      onValueChange={(formattedValue, name, value) => {
                         dispatch({
                           type: "total-price",
-                          payload: e.target.value,
-                        })
-                      }
+                          payload: formattedValue || "",
+                        });
+                      }}
+                      className="input-field "
                     />
                   </div>
                   <div className=" space-y-2   w-full xxs:w-[48%] sm:w-[31%]  md:w-[32%]  mb-auto">
@@ -531,7 +566,7 @@ const ProductSoldDialog = ({
           dispatch({ type: "open" });
         }}
       />
-    </>
+    </div>
   );
 };
 
@@ -775,7 +810,7 @@ function Summary({
               <div className="embla__slide">
                 {" "}
                 <div className="py-[.21rem] px-2 bg-chart-1  break-keep   hover:opacity-90 transition-opacity text-[.7rem] flex items-center gap-1 justify-center rounded-full">
-                  <span className=" h-4 w-4 bg-chart-5 rounded-full flex items-center justify-center">
+                  <span className=" inline-flex items-center   px-[0.3rem] py-0.1   shrink-0  bg-chart-5 rounded-full justify-center">
                     {totals.units}
                   </span>
                   Units

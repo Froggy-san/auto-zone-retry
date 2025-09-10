@@ -1,6 +1,7 @@
 "use client";
 import React, {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -36,20 +37,26 @@ function DialogComponent({
   const [isOpen, setIsOpen] = useState(false);
 
   const isDialogOpen = open !== undefined ? open : isOpen;
-  const handleOpenChange = () => {
+  const handleOpenChange = useCallback(() => {
     setIsOpen((is) => !is);
-    if (open !== undefined) {
-      onOpenChange?.(!open);
-    }
-  };
+    onOpenChange?.(!isDialogOpen);
+  }, [setIsOpen, onOpenChange, isDialogOpen]);
 
+  const handleClose = useCallback(
+    (key: KeyboardEvent) => {
+      if (key.code === "Escape") {
+        setIsOpen(false);
+        onOpenChange?.(false);
+      }
+    },
+    [setIsOpen, onOpenChange]
+  );
   useEffect(() => {
-    const escKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleOpenChange();
+    document.addEventListener("keydown", handleClose);
+    return () => {
+      document.removeEventListener("keydown", handleClose);
     };
-    document.addEventListener("keydown", escKey);
-    return () => document.removeEventListener("keydown", escKey);
-  }, []);
+  }, [handleClose]);
 
   useEffect(() => {
     const body = document.querySelector("body");

@@ -35,9 +35,9 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
     pageNumber + dateFrom + dateTo + clientId + carId + minPrice + maxPrice;
   const pageKey = dateFrom + dateTo + clientId + carId + minPrice + maxPrice;
   return (
-    <main className=" relative">
+    <main className=" relative  overflow-x-hidden">
       <h2 className="  font-semibold text-4xl">INVENTORY MANAGEMENT.</h2>
-      <section className=" sm:pl-4">
+      <section className=" sm:pl-4  overflow-x-hidden ">
         {/* <SearchDialog
           currPage={pageNumber}
           shopName={shopName}

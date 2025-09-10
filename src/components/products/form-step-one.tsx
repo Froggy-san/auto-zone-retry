@@ -132,13 +132,6 @@ function StepOne({
   const productTypes = useMemo(() => {
     return categories.find((cat) => cat.id === categoryId)?.productTypes || [];
   }, [categoryId]);
-  // useEffect(() => {
-  //   if (searching) {
-  //     if (makerId) form.setValue("makerId", null);
-  //     if (modelId) form.setValue("modelId", null);
-  //     if (generationsArr.length) form.setValue("generationsArr", []);
-  //   }
-  // }, [searching, generationsArr.length, makerId, modelId, form.setValue]);
 
   return (
     <motion.div
