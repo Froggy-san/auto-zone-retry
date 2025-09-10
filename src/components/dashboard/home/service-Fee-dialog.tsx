@@ -247,7 +247,7 @@ function ServiceFeesDialog({
     );
 
   return (
-    <>
+    <div onClick={(e) => e.stopPropagation()} className=" w-fit">
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <Button
           onClick={handleOpenChange}
@@ -469,7 +469,7 @@ function ServiceFeesDialog({
           dispatch({ type: "open" });
         }}
       />
-    </>
+    </div>
   );
 }
 

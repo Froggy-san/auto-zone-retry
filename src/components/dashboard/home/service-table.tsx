@@ -90,14 +90,18 @@ import EditServiceForm from "./edit-service-form";
 import { formatCurrency } from "@lib/client-helpers";
 import NoteDialog from "@components/garage/note-dialog";
 import dynamic from "next/dynamic";
-import { cn } from "@lib/utils";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@components/ui/tooltip";
-
+import StatsRow from "./stats-row";
+import SearchDialog from "./search-dialog";
+import { AnimatePresence, motion } from "framer-motion";
+import downloadAsPdf from "@lib/services/download-pdf";
+import ServiceSelectControls from "./service-select-controls";
+import { useQueryClient } from "@tanstack/react-query";
 interface Props {
   isClientPage?: boolean;
   isAdmin: boolean;
@@ -108,6 +112,14 @@ interface Props {
   currPage: string;
   services: Service[];
   className?: string;
+  dateFrom: string;
+  dateTo: string;
+  clientId: string;
+  carId: string;
+  serviceStatusId: string;
+  minPrice: string;
+  maxPrice: string;
+  pageNumber: string;
 }
 
 const ServiceTable = ({
@@ -118,16 +130,32 @@ const ServiceTable = ({
   currPage,
   cars,
   clients,
+  dateFrom,
+  dateTo,
+  carId,
+  clientId,
+  serviceStatusId,
+  minPrice,
+  maxPrice,
   status,
+  pageNumber,
   className,
 }: Props) => {
   if (!services)
     return <p>Something went wrong while getting the services&apos;s data</p>;
-
+  const [selected, setSelected] = useState<number[]>([]);
   const currPageSize = services.length;
 
-  const fees = services.flatMap((service) => service.servicesFee);
-  const soldProducts = services.flatMap((service) => service.productsToSell);
+  const nonCanceledService = services.filter(
+    (serv) => serv.serviceStatuses.name != "Canceled"
+  );
+
+  const fees = nonCanceledService
+    .flatMap((service) => service.servicesFee)
+    .filter((fee) => !fee.isReturned);
+  const soldProducts = nonCanceledService
+    .flatMap((service) => service.productsToSell)
+    .filter((pro) => !pro.isReturned);
 
   const totalFees = fees.reduce((acc, item) => {
     acc += item.totalPriceAfterDiscount;
@@ -143,70 +171,146 @@ const ServiceTable = ({
 
   const totals = totalFees + totalSoldProducts;
   return (
-    <div className="mt-10 p-3 border rounded-3xl shadow-lg ">
-      <Table>
-        <TableCaption>
-          {services.length ? "A list of all service receipts." : "No receipts"}
-        </TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className=" min-w-[20px]">ID</TableHead>
-            <TableHead>DATE</TableHead>
-            <TableHead>CLIENT</TableHead>
-            <TableHead>CAR</TableHead>
-            <TableHead>STATUS</TableHead>
-            <TableHead>FEES</TableHead>
-            <TableHead className=" whitespace-nowrap">SOLD PRODUCTS</TableHead>
-            {/* <TableHead className=""></TableHead> */}
-            <TableHead className="text-right" colSpan={2}>
-              TOTAL PRICE
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {services && services.length
-            ? services.map((service) => (
-                <Row
-                  key={service.id}
-                  isClientPage={isClientPage}
-                  isAdmin={isAdmin}
-                  categories={categories}
-                  status={status}
-                  service={service}
-                  cars={cars}
-                  clients={clients}
-                  currPage={currPage}
-                  currPageSize={currPageSize}
-                />
-              ))
-            : null}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={5}>Total</TableCell>
-
-            <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
-              {formatCurrency(totalFees)}
-            </TableCell>
-
-            <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
-              {formatCurrency(totalSoldProducts)}
-            </TableCell>
-
-            <TableCell
-              colSpan={2}
-              className=" text-right   min-w-[100px] max-w-[120px]  break-all"
+    <>
+      <div className=" flex flex-col-reverse sm:flex-row gap-x-2 gap-y-5 items-center ">
+        <ServiceSelectControls
+          selected={selected}
+          setSelected={setSelected}
+          currentPage={Number(currPage)}
+          pageSize={services.length}
+        />
+        {/* <AnimatePresence>
+          {selected.length && (
+            <motion.div
+              key="selected-controls"
+              initial={{ x: 10, opacity: 0.5 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 10, opacity: 0.5 }}
+              transition={{ ease: "easeIn", duration: 0.1 }}
+              className=" flex items-center gap-1"
             >
-              {formatCurrency(totals)}
-            </TableCell>
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </div>
+              <p className=" flex text-muted-foreground  items-center gap-1 pr-3 ">
+                SELECTED{" "}
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={selected.length}
+                    initial={{ y: 10, opacity: 0.5 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -10, opacity: 0.5 }}
+                    transition={{ ease: "linear", duration: 0.1 }}
+                    className="text-sm"
+                  >
+                    {selected.length}
+                  </motion.span>
+                </AnimatePresence>
+              </p>
+              <Button
+                variant="secondary"
+                className=" text-xs gap-1 h-fit px-2.5 py-1.5"
+              >
+                {" "}
+                Download as pdf <Download className=" w-4 h-4" />
+              </Button>
+              <Button
+                variant="destructive"
+                className=" text-xs gap-1 h-fit px-2.5 py-1.5"
+              >
+                {" "}
+                <span className=" ">{selected.length}</span> Delete{" "}
+                <Trash2 className=" w-4 h-4" />
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence> */}
+        <SearchDialog
+          isAdmin
+          cars={cars}
+          clients={clients}
+          status={status || []}
+          carId={carId}
+          clientId={clientId}
+          dateTo={dateTo}
+          dateFrom={dateFrom}
+          serviceStatusId={serviceStatusId}
+          maxPrice={maxPrice}
+          minPrice={minPrice}
+          currPage={pageNumber}
+        />
+      </div>
+      <div className="mt-10 p-3 border rounded-3xl shadow-lg ">
+        <Table>
+          <TableCaption>
+            {services.length
+              ? "A list of all service receipts."
+              : "No receipts"}
+          </TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead className=" min-w-[20px]">ID</TableHead>
+              <TableHead>DATE</TableHead>
+              <TableHead>CLIENT</TableHead>
+              <TableHead>CAR</TableHead>
+              <TableHead>STATUS</TableHead>
+              <TableHead>FEES</TableHead>
+              <TableHead className=" whitespace-nowrap">
+                SOLD PRODUCTS
+              </TableHead>
+              {/* <TableHead className=""></TableHead> */}
+              <TableHead className="text-right" colSpan={2}>
+                TOTAL PRICE
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {services && services.length
+              ? services.map((service) => (
+                  <Row
+                    key={service.id}
+                    selected={selected}
+                    setSelected={setSelected}
+                    isClientPage={isClientPage}
+                    isAdmin={isAdmin}
+                    categories={categories}
+                    status={status}
+                    service={service}
+                    cars={cars}
+                    clients={clients}
+                    currPage={currPage}
+                    currPageSize={currPageSize}
+                  />
+                ))
+              : null}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={5}>Page-Total:</TableCell>
+
+              <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
+                {formatCurrency(totalFees)}
+              </TableCell>
+
+              <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
+                {formatCurrency(totalSoldProducts)}
+              </TableCell>
+
+              <TableCell
+                colSpan={2}
+                className=" text-right   min-w-[100px] max-w-[120px]  break-all"
+              >
+                {formatCurrency(totals)}
+              </TableCell>
+            </TableRow>
+            <StatsRow />
+          </TableFooter>
+        </Table>
+      </div>
+    </>
   );
 };
 
 function Row({
+  selected,
+  setSelected,
   isClientPage,
   isAdmin,
   categories,
@@ -217,6 +321,8 @@ function Row({
   currPage,
   currPageSize,
 }: {
+  selected: number[];
+  setSelected: React.Dispatch<React.SetStateAction<number[]>>;
   isClientPage?: boolean;
   isAdmin: boolean;
   categories: CategoryProps[];
@@ -227,7 +333,6 @@ function Row({
   service: Service;
   currPageSize: number;
 }) {
-  const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const total = useMemo(() => {
@@ -242,16 +347,21 @@ function Row({
     const total = totalSold + totalFees;
     return total;
   }, [service]);
-  function handleClose() {
-    setOpen(false);
-  }
+  const item = selected.some((item) => item === service.id);
   return (
     <>
       <TableRow
-        onClick={() => setOpen(true)}
-        className={`${isLoading && "opacity-60  pointer-events-none"}`}
+        onClick={() => {
+          setSelected((selected) => {
+            if (item) return selected.filter((item) => item !== service.id);
+            return [...selected, service.id];
+          });
+        }}
+        className={`  ${isLoading && "opacity-60  pointer-events-none"} ${
+          item && "bg-accent/60 hover:bg-accent/40"
+        }`}
       >
-        <TableCell className="font-medium">{service.id}</TableCell>
+        <TableCell className="font-medium"> {service.id}</TableCell>
 
         <TableCell className=" whitespace-nowrap">
           {service.created_at}
@@ -397,32 +507,7 @@ function TableActions({
   const handlePdf = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/pdf?id=${service.id}`);
-      // const data = await response.json();
-
-      // console.log("DATA:", data);
-      if (!response.ok) {
-        const error = await response.json();
-        console.error(error.error);
-        setIsLoading(false);
-        toast({
-          variant: "destructive",
-          title: "Failed to download.",
-          description: <ErorrToastDescription error={error.error} />,
-        });
-        return;
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `service_receipt_${service.id}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-      setIsLoading(false);
+      await downloadAsPdf([service.id]);
       toast({
         className: "bg-primary  text-primary-foreground",
         title: `Done.`,
@@ -434,12 +519,14 @@ function TableActions({
       });
     } catch (error: any) {
       console.error(error);
-      setIsLoading(false);
+
       toast({
         variant: "destructive",
         title: "Failed to download.",
         description: <ErorrToastDescription error={error.message} />,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -499,10 +586,7 @@ function TableActions({
     );
 
   return (
-    <div
-      onClick={(e) => e.stopPropagation()}
-      className=" flex items-center justify-end"
-    >
+    <div onClick={(e) => e.stopPropagation()} className=" w-fit ml-auto ">
       {isAdmin ? (
         <>
           <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -701,7 +785,7 @@ function DeleteService({
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
+  const queryClient = useQueryClient();
   function checkIfLastItem() {
     const params = new URLSearchParams(searchParam);
     if (pageSize === 1) {
@@ -761,6 +845,7 @@ function DeleteService({
                 checkIfLastItem();
                 setIsDeleting(false);
                 handleClose();
+                queryClient.removeQueries(["servicesStats"]);
                 toast({
                   className: "bg-primary  text-primary-foreground",
                   title: `Data deleted!.`,

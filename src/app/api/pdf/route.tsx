@@ -84,179 +84,197 @@ const styles = StyleSheet.create({
 });
 
 // Create Document Component
-const MyDocument = ({ service }: { service: Service }) => {
-  const client = service.clients;
-  const car = service.cars;
+const MyDocument = ({ services }: { services: Service[] }) => {
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        <Image
-          source="https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/makerLogos//AutoZone-Logo.wine.png"
-          // src="https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/makerLogos//autozone-logo.svg"
-          style={styles.image}
-        />
+      {services.map((service) => {
+        const client = service.clients;
+        const car = service.cars;
+        return (
+          <Page size="A4" style={styles.page} key={service.id}>
+            <Image
+              source="https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/makerLogos//AutoZone-Logo.wine.png"
+              // src="https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/makerLogos//autozone-logo.svg"
+              style={styles.image}
+            />
 
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
-          {/* Start Client */}
-          <View style={{ display: "flex", flexDirection: "row", gap: 30 }}>
-            <View style={styles.relSections}>
-              <Text style={styles.subTitle}>ISSUED TO</Text>
-              <Text style={styles.relvInfo}>{client.name}</Text>
-              <Text style={styles.relvInfo}>{client.email}</Text>
-              <Text style={styles.relvInfo}>Plate Num: {car.plateNumber}</Text>
-              <Text style={styles.relvInfo}>
-                {client.phones && client.phones.length
-                  ? client.phones[0].number
-                  : ""}
-              </Text>
-            </View>
-            {/* End Client */}
-
-            {/* Start compony */}
-            <View style={styles.relSections}>
-              <Text style={styles.subTitle}>FROM</Text>
-              <Text style={styles.relvInfo}>Mohammed Osama</Text>
-              <Text style={styles.relvInfo}>Auto Zone</Text>
-              <Text style={styles.relvInfo}>Some addressssssssss</Text>
-              <Text style={styles.relvInfo}>01129442476</Text>
-            </View>
-            {/* End compony */}
-          </View>
-
-          {/* Invoice  */}
-          <View
-            style={{
-              maxWidth: 250,
-              // display: "flex",
-              // flexDirection: "column",
-              // justifyContent: "flex-end",
-            }}
-          >
-            <Text style={{ ...styles.subTitle, marginLeft: "auto" }}>
-              INVOICE NO.
-            </Text>
-            <Text style={{ ...styles.relvInfo, marginLeft: "auto" }}>
-              {" "}
-              #{String(service.id).padStart(2, "0")}
-            </Text>
-            <Text style={{ ...styles.relvInfo, marginLeft: "auto" }}>
-              {" "}
-              Date: {format(service.created_at, "MMMM dd, yyyy")}
-            </Text>
-          </View>
-          {/* Invoice  */}
-        </View>
-
-        {/* Details */}
-        <Text
-          style={{
-            fontSize: 12,
-            fontWeight: "bold",
-            marginTop: 50,
-            marginBottom: 7,
-          }}
-        >
-          Details
-        </Text>
-        <View style={{ marginBottom: 20 }}>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              marginBottom: 5,
-              borderBottom: 1,
-              borderBottomStyle: "solid",
-              borderBottomColor: "black",
-              paddingBottom: 1,
-            }}
-          >
-            <Text style={{ ...styles.tableCell, fontWeight: "bold" }}>
-              Description
-            </Text>
-            <Text style={{ ...styles.tableCell, fontWeight: "bold" }}>
-              Price per unit
-            </Text>
-            <Text style={{ ...styles.tableCell, fontWeight: "bold" }}>
-              Discount per unit
-            </Text>
-            <Text
-              style={{ ...styles.tableCell, fontWeight: "bold", marginLeft: 6 }}
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
             >
-              Count
-            </Text>
-            <Text style={{ ...styles.tableCell, fontWeight: "bold" }}>
-              Total
-            </Text>
-          </View>
-
-          <View>
-            {service.productsToSell.map((pro) => {
-              return (
-                <View
-                  key={pro.id}
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    marginVertical: 5,
-                  }}
-                >
-                  <Text style={{ ...styles.tableCell, paddingRight: 3 }}>
-                    ssssssssssss{pro.product.name}
+              {/* Start Client */}
+              <View style={{ display: "flex", flexDirection: "row", gap: 30 }}>
+                <View style={styles.relSections}>
+                  <Text style={styles.subTitle}>ISSUED TO</Text>
+                  <Text style={styles.relvInfo}>{client.name}</Text>
+                  <Text style={styles.relvInfo}>{client.email}</Text>
+                  <Text style={styles.relvInfo}>
+                    Plate Num: {car.plateNumber}
                   </Text>
-                  <Text style={styles.tableCell}>
-                    {formatCurrency(pro.pricePerUnit)}
-                  </Text>
-                  <Text style={styles.tableCell}>
-                    {formatCurrency(pro.discount)}
-                  </Text>
-                  <Text style={{ ...styles.tableCell, marginLeft: 6 }}>
-                    {pro.count}
-                  </Text>
-                  <Text style={styles.tableCell}>
-                    {formatCurrency(pro.totalPriceAfterDiscount)}
+                  <Text style={styles.relvInfo}>
+                    {client.phones && client.phones.length
+                      ? client.phones[0].number
+                      : ""}
                   </Text>
                 </View>
-              );
-            })}
-          </View>
-        </View>
+                {/* End Client */}
 
-        {/* Details */}
-      </Page>
+                {/* Start compony */}
+                <View style={styles.relSections}>
+                  <Text style={styles.subTitle}>FROM</Text>
+                  <Text style={styles.relvInfo}>Mohammed Osama</Text>
+                  <Text style={styles.relvInfo}>Auto Zone</Text>
+                  <Text style={styles.relvInfo}>Some addressssssssss</Text>
+                  <Text style={styles.relvInfo}>01129442476</Text>
+                </View>
+                {/* End compony */}
+              </View>
+
+              {/* Invoice  */}
+              <View
+                style={{
+                  maxWidth: 250,
+                  // display: "flex",
+                  // flexDirection: "column",
+                  // justifyContent: "flex-end",
+                }}
+              >
+                <Text style={{ ...styles.subTitle, marginLeft: "auto" }}>
+                  INVOICE NO.
+                </Text>
+                <Text style={{ ...styles.relvInfo, marginLeft: "auto" }}>
+                  {" "}
+                  #{String(service.id).padStart(2, "0")}
+                </Text>
+                <Text style={{ ...styles.relvInfo, marginLeft: "auto" }}>
+                  {" "}
+                  Date: {format(service.created_at, "MMMM dd, yyyy")}
+                </Text>
+              </View>
+              {/* Invoice  */}
+            </View>
+
+            {/* Details */}
+            <Text
+              style={{
+                fontSize: 12,
+                fontWeight: "bold",
+                marginTop: 50,
+                marginBottom: 7,
+              }}
+            >
+              Details
+            </Text>
+            <View style={{ marginBottom: 20 }}>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  marginBottom: 5,
+                  borderBottom: 1,
+                  borderBottomStyle: "solid",
+                  borderBottomColor: "black",
+                  paddingBottom: 1,
+                }}
+              >
+                <Text style={{ ...styles.tableCell, fontWeight: "bold" }}>
+                  Description
+                </Text>
+                <Text style={{ ...styles.tableCell, fontWeight: "bold" }}>
+                  Price per unit
+                </Text>
+                <Text style={{ ...styles.tableCell, fontWeight: "bold" }}>
+                  Discount per unit
+                </Text>
+                <Text
+                  style={{
+                    ...styles.tableCell,
+                    fontWeight: "bold",
+                    marginLeft: 6,
+                  }}
+                >
+                  Count
+                </Text>
+                <Text style={{ ...styles.tableCell, fontWeight: "bold" }}>
+                  Total
+                </Text>
+              </View>
+
+              <View>
+                {service.productsToSell.map((pro) => {
+                  return (
+                    <View
+                      key={pro.id}
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        marginVertical: 5,
+                      }}
+                    >
+                      <Text style={{ ...styles.tableCell, paddingRight: 3 }}>
+                        ssssssssssss{pro.product.name}
+                      </Text>
+                      <Text style={styles.tableCell}>
+                        {formatCurrency(pro.pricePerUnit)}
+                      </Text>
+                      <Text style={styles.tableCell}>
+                        {formatCurrency(pro.discount)}
+                      </Text>
+                      <Text style={{ ...styles.tableCell, marginLeft: 6 }}>
+                        {pro.count}
+                      </Text>
+                      <Text style={styles.tableCell}>
+                        {formatCurrency(pro.totalPriceAfterDiscount)}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+
+            {/* Details */}
+          </Page>
+        );
+      })}
     </Document>
   );
 };
 export async function GET(req: NextRequest, res: NextResponse) {
   const supabase = await createClient();
   const { searchParams } = new URL(req.url || "");
-  const id = searchParams.get("id");
+  const idArr = searchParams.get("ids");
+  const type = searchParams.get("type");
+
+  const ids: number[] = idArr ? JSON.parse(idArr) : [];
+
+  if (!ids.length)
+    return new NextResponse(
+      JSON.stringify({ message: "Something went wrong!" }),
+      {
+        status: 500,
+      }
+    );
   const { data: services, error } = await supabase
     .from("services")
     .select(
       "*,productsToSell(*,product(*)),servicesFee(*),clients(*,phones(*)),cars(*)"
     )
-    .eq("id", id);
-
-  console.log("Returend data>>>>", services, error);
+    .in("id", ids);
 
   if (error)
-    return new NextResponse(JSON.stringify({ error: `${error.message}` }), {
+    return new NextResponse(JSON.stringify({ message: `${error.message}` }), {
       status: 500,
     });
   if (!services || !services.length)
     return new NextResponse(
-      JSON.stringify({ error: `No matching service found` }),
+      JSON.stringify({ message: `No matching service found` }),
       { status: 500 }
     );
-  const data = services[0];
 
-  const stream = await renderToStream(<MyDocument service={data} />);
+  const stream = await renderToStream(<MyDocument services={services} />);
   return new NextResponse(stream as unknown as ReadableStream, {
     headers: {
       "Content-Type": "application/pdf",

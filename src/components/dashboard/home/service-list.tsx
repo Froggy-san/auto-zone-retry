@@ -67,8 +67,8 @@ const ServiceList = async ({
   const { data, error } = servicesData;
 
   return (
-    <div className=" mt-10">
-      <SearchDialog
+    <div className=" mt-16">
+      {/* <SearchDialog
         isAdmin
         cars={cars?.cars || []}
         clients={clients?.clients || []}
@@ -81,7 +81,7 @@ const ServiceList = async ({
         maxPrice={maxPrice}
         minPrice={minPrice}
         currPage={pageNumber}
-      />
+      /> */}
       {!servicesData.error ? (
         <>
           <ServiceTable
@@ -92,6 +92,14 @@ const ServiceList = async ({
             currPage={pageNumber}
             services={data?.data || []}
             status={status || []}
+            carId={carId}
+            clientId={clientId}
+            dateTo={dateTo}
+            dateFrom={dateFrom}
+            serviceStatusId={serviceStatusId}
+            maxPrice={maxPrice}
+            minPrice={minPrice}
+            pageNumber={pageNumber}
           />
           <PaginationControl
             count={data ? Number(data.count) : 0}

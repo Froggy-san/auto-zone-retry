@@ -50,7 +50,7 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
     <main className=" relative">
       <h2 className="  font-semibold text-4xl">SALES OVERVIEW.</h2>
       <SalesCharts />
-      <section className=" sm:pl-4">
+      <section className=" sm:pl-4 pb-28 overflow-x-hidden">
         <Suspense
           fallback={
             <Spinner size={30} className=" mt-10" key={editFee + addFeeId} />
