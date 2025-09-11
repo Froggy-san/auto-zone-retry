@@ -93,7 +93,7 @@ const FormInventoryItem = ({
   }[];
 }) => {
   return (
-    <React.Fragment key={field.id}>
+    <React.Fragment>
       <h2>{index + 1}.</h2>
       <motion.div
         initial={{

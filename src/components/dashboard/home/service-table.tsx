@@ -141,9 +141,9 @@ const ServiceTable = ({
   pageNumber,
   className,
 }: Props) => {
+  const [selected, setSelected] = useState<number[]>([]);
   if (!services)
     return <p>Something went wrong while getting the services&apos;s data</p>;
-  const [selected, setSelected] = useState<number[]>([]);
   const currPageSize = services.length;
 
   const nonCanceledService = services.filter(

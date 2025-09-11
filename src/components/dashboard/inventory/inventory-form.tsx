@@ -568,6 +568,7 @@ const InventoryForm = ({
 
                 {fields.map((field, i) => (
                   <FormInventoryItem
+                    key={field.id}
                     field={field}
                     index={i}
                     remove={remove}
