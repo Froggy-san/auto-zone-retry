@@ -86,6 +86,14 @@ const UserServices = async ({
             currPage={pageNumber}
             services={data?.data || []}
             status={status || []}
+            carId={carId}
+            clientId={clientId}
+            dateTo={dateTo}
+            dateFrom={dateFrom}
+            serviceStatusId={serviceStatusId}
+            maxPrice={maxPrice}
+            minPrice={minPrice}
+            pageNumber={pageNumber}
           />
           <PaginationControl
             count={data ? Number(data.count) : 0}
