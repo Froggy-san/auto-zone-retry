@@ -16,6 +16,7 @@ import {
 } from "@lib/actions/carMakerActions";
 import CarBrands from "@components/home/car-brands";
 import CategoryList from "@components/home/category-list";
+import Footer from "@components/home/footer";
 
 export default async function Home() {
   const [categories, user, carBrands] = await Promise.all([
@@ -99,6 +100,7 @@ export default async function Home() {
 
         {isAdmin && <LinkBoxs />}
       </section>
+      <Footer />
     </main>
   );
 }

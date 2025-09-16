@@ -73,31 +73,55 @@ export async function editCategory({
   await revalidateCategories();
 }
 
+type ProductType = {
+  id: number;
+  image: string | null;
+  name: string;
+  categoryId: number;
+};
+
 export async function searchCategories(searchTerm: string): Promise<{
   categories: categoryResult[] | null;
   products: Product[] | null;
+  productTypes: ProductType[] | null;
   error: string;
 }> {
-  let query = supabase.from("categories").select("*");
+  let categoriesQuery = supabase.from("categories").select("*");
+  const productsQuery = supabase
+    .from("product")
+    .select("*,productImages(isMain,imageUrl),productBrands(name)")
+    .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
+    .range(0, 5);
+
+  const productTypesQuery = supabase
+    .from("productTypes")
+    .select("id,image,name,categoryId")
+    .ilike("name", `%${searchTerm}%`);
 
   let products: Product[] | null = [];
+  let productTypes: ProductType[] | null = [];
   let errors = "";
-  // ,product.name.ilike.%${searchTerm}%,product.description.ilike.%${searchTerm}%,product.productBrands.name.ilike.%${searchTerm}%
+
   if (searchTerm) {
-    query = query.ilike("name", `%${searchTerm}%`);
-    const { data: product, error } = await supabase
-      .from("product")
-      .select("*,productImages(isMain,imageUrl),productBrands(name)")
-      .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`)
-      .range(0, 5);
+    categoriesQuery = categoriesQuery.ilike("name", `%${searchTerm}%`);
+
+    const [productsData, productTypesData] = await Promise.all([
+      productsQuery,
+      productTypesQuery,
+    ]);
+    const { data: product, error } = productsData;
+    const { data: productType, error: productTypesError } = productTypesData;
+    // Error handleing
     if (error) errors = error.message;
+    if (productTypesError) errors = productTypesError.message;
     products = product;
+    productTypes = productType;
   } else {
-    query = query.range(0, 10);
+    categoriesQuery = categoriesQuery.range(0, 10);
   }
 
-  const { data: categories, error } = await query;
+  const { data: categories, error } = await categoriesQuery;
   if (error) errors = error.message;
 
-  return { categories, products, error: errors || "" };
+  return { categories, productTypes, products, error: errors || "" };
 }

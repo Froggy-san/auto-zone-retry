@@ -4,10 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function useSearchCategories(searchTerm: string) {
   const value = useDebounce(searchTerm, 350);
-  const { data: { categories, products, error } = {}, isLoading } = useQuery({
+  const {
+    data: { categories, products, productTypes, error } = {},
+    isLoading,
+  } = useQuery({
     queryFn: () => searchCategories(searchTerm),
     queryKey: ["categories", value],
     // enabled: !!value
   });
-  return { categories, products, error, isLoading };
+  return { categories, products, productTypes, error, isLoading };
 }

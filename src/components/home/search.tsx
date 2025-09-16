@@ -10,6 +10,7 @@ import { PackageSearch } from "lucide-react";
 import {
   Command,
   CommandEmpty,
+  CommandGroup,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
@@ -43,15 +44,17 @@ interface Props {
 const Search = ({ className }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [show, setShow] = useState(false);
-  const isSmallScreen = useMediaQuery("(max-width: 739px)");
+  const isSmallScreen = useMediaQuery("(max-width: 839px)");
   const divRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  const { categories, products, error, isLoading } =
+  const { categories, productTypes, products, error, isLoading } =
     useSearchCategories(searchTerm);
 
-  function handleCategory(category: categoryResult) {
-    router.push(`/products?page=1&categoryId=${category.id}`);
+  console.log(productTypes, "PRoducttpy");
+
+  function handleCategory(url: string) {
+    router.push(url);
   }
 
   // const show = focused && searchTerm.length > 0;
@@ -73,6 +76,7 @@ const Search = ({ className }: Props) => {
             setShow={setShow}
             categories={categories}
             products={products}
+            productTypes={productTypes}
             handleCategory={handleCategory}
           />
         ) : (
@@ -84,6 +88,7 @@ const Search = ({ className }: Props) => {
             setShow={setShow}
             categories={categories}
             products={products}
+            productTypes={productTypes}
             handleCategory={handleCategory}
           />
         )}
@@ -100,8 +105,12 @@ interface SearchProps {
   show: boolean;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
   categories: categoryResult[] | undefined | null;
+  productTypes:
+    | { id: number; image: string | null; name: string; categoryId: number }[]
+    | undefined
+    | null;
   products: Product[] | undefined | null;
-  handleCategory: (category: categoryResult) => void;
+  handleCategory: (url: string) => void;
 }
 
 function SearchBarOnBigScreens({
@@ -112,6 +121,7 @@ function SearchBarOnBigScreens({
   setShow,
   categories,
   products,
+  productTypes,
   className,
   handleCategory,
 }: SearchProps) {
@@ -190,10 +200,10 @@ function SearchBarOnBigScreens({
               y: 50,
               left: "50%",
               translateX: "-50%",
-              width: 700,
+              width: 800,
               // scale: 1,
 
-              maxHeight: 250, // Change height to maxHeight
+              maxHeight: 300, // Change height to maxHeight
               opacity: 1,
               transition: { type: "spring", stiffness: 300, damping: 15 },
             }}
@@ -211,25 +221,75 @@ function SearchBarOnBigScreens({
             className="absolute w-full flex p-2    gap-2 flex-row  overscroll-contain overflow-y-scroll bg-card z-40 rounded-xl border"
           >
             <CommandList className=" overflow-visible max-h-full  flex-1">
-              <h3 className=" text-sm text-muted-foreground mb-3">
+              {/* <h3 className=" text-sm text-muted-foreground mb-3">
                 Categories
               </h3>
               {isLoading ? (
                 <p className=" text-center">Loading...</p>
               ) : (
                 <CommandEmpty>No results found.</CommandEmpty>
-              )}
-
-              {categories?.map((cat) => (
-                <CommandItem
-                  key={cat.id}
-                  value={cat.name}
-                  onClick={() => handleCategory(cat)}
-                  onSelect={() => handleCategory(cat)}
-                >
-                  <span>{cat.name}</span>
-                </CommandItem>
-              ))}
+              )} */}
+              <>
+                <CommandGroup heading="Categories">
+                  {categories?.length ? (
+                    categories?.map((cat) => (
+                      <CommandItem
+                        key={cat.id}
+                        value={cat.name}
+                        onClick={() =>
+                          handleCategory(
+                            `/products?page=1&categoryId=${cat.id}`
+                          )
+                        }
+                        onSelect={() =>
+                          handleCategory(
+                            `/products?page=1&categoryId=${cat.id}`
+                          )
+                        }
+                        className="  font-semibold"
+                      >
+                        <span>{cat.name}</span>
+                      </CommandItem>
+                    ))
+                  ) : (
+                    <p className="  text-sm pl-3">No categoy results found.</p>
+                  )}
+                </CommandGroup>
+                <CommandGroup heading="Sub-Categories">
+                  {productTypes?.length ? (
+                    productTypes.map((type) => (
+                      <CommandItem
+                        key={type.id}
+                        value={type.name}
+                        onClick={() =>
+                          handleCategory(
+                            `/products?page=1&categoryId=${type.categoryId}&productTypeId=${type.id}`
+                          )
+                        }
+                        onSelect={() =>
+                          handleCategory(
+                            `/products?page=1&categoryId=${type.categoryId}&productTypeId=${type.id}`
+                          )
+                        }
+                        className=" font-semibold"
+                      >
+                        {type.image ? (
+                          <img
+                            src={type.image}
+                            alt={`${type.name} image`}
+                            className="  max-w-16   h-12 pr-2 object-contain"
+                          />
+                        ) : null}{" "}
+                        <span>{type.name}</span>
+                      </CommandItem>
+                    ))
+                  ) : (
+                    <p className="  text-sm pl-3">
+                      No sub-category results found.
+                    </p>
+                  )}
+                </CommandGroup>
+              </>
             </CommandList>
             {products?.length ? <ProductList products={products} /> : null}
           </motion.div>
@@ -247,6 +307,7 @@ function SearchBarOnSmScreens({
   setShow,
   categories,
   products,
+  productTypes,
   className,
   handleCategory,
 }: SearchProps) {
@@ -331,7 +392,9 @@ function SearchBarOnSmScreens({
               {categories?.map((cat) => (
                 <li
                   key={cat.id}
-                  onClick={() => handleCategory(cat)}
+                  onClick={() =>
+                    handleCategory(`/products?page=1&categoryId=${cat.id}`)
+                  }
                   className=" relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none hover:bg-accent hover::text-accent-foreground data-[disabled=true]:opacity-50"
                 >
                   {cat.name}
@@ -384,7 +447,7 @@ function ProductItem({ product }: { product: Product }) {
           <img
             src={image}
             alt={`${product.name} image`}
-            className="  h-10 w-11"
+            className="  h-10 w-11 object-contain"
           />
         )}{" "}
         <p className="  line-clamp-2 ">{product.name}</p>

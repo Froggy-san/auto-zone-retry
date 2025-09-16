@@ -54,6 +54,7 @@ import {
 import Alert from "@components/alert";
 import { isNull } from "lodash";
 import { formatCurrency } from "@lib/client-helpers";
+import CurrencyInput from "react-currency-input-field";
 
 interface Client {
   name: string;
@@ -477,20 +478,31 @@ const ServicesForm = ({
                                 name={`serviceFees.${i}.price`}
                                 render={({ field }) => (
                                   <FormItem className="  w-full mb-auto ">
-                                    <FormLabel>Price</FormLabel>
+                                    <FormLabel htmlFor="fees-price">
+                                      Price
+                                    </FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="text"
-                                        disabled={isLoading}
-                                        value={field.value}
-                                        onChange={(e) => {
-                                          const inputValue = e.target.value;
-                                          if (/^\d*$/.test(inputValue)) {
-                                            field.onChange(Number(inputValue));
-                                          }
+                                      <CurrencyInput
+                                        id="fees-price"
+                                        name="price"
+                                        placeholder="Price"
+                                        decimalsLimit={2} // Max number of decimal places
+                                        prefix="EGP " // Currency symbol (e.g., Egyptian Pound)
+                                        decimalSeparator="." // Use dot for decimal
+                                        groupSeparator="," // Use comma for thousands
+                                        value={field.value || ""}
+                                        onValueChange={(
+                                          formattedValue,
+                                          name,
+                                          value
+                                        ) => {
+                                          // setFormattedListing(formattedValue || "");
+
+                                          field.onChange(
+                                            Number(value?.value) || 0
+                                          );
                                         }}
-                                        placeholder="Service price..."
-                                        // {...field}
+                                        className="input-field "
                                       />
                                     </FormControl>
                                     <FormDescription>
@@ -506,20 +518,31 @@ const ServicesForm = ({
                                 name={`serviceFees.${i}.discount`}
                                 render={({ field }) => (
                                   <FormItem className="  w-full mb-auto">
-                                    <FormLabel>Discount</FormLabel>
+                                    <FormLabel htmlFor="disocunt">
+                                      Discount
+                                    </FormLabel>
                                     <FormControl>
-                                      <Input
-                                        type="text"
-                                        disabled={isLoading}
-                                        value={field.value}
-                                        onChange={(e) => {
-                                          const inputValue = e.target.value;
-                                          if (/^\d*$/.test(inputValue)) {
-                                            field.onChange(Number(inputValue));
-                                          }
+                                      <CurrencyInput
+                                        id="discount"
+                                        name="discount"
+                                        placeholder="Discount"
+                                        decimalsLimit={2} // Max number of decimal places
+                                        prefix="EGP " // Currency symbol (e.g., Egyptian Pound)
+                                        decimalSeparator="." // Use dot for decimal
+                                        groupSeparator="," // Use comma for thousands
+                                        value={field.value || ""}
+                                        onValueChange={(
+                                          formattedValue,
+                                          name,
+                                          value
+                                        ) => {
+                                          // setFormattedListing(formattedValue || "");
+
+                                          field.onChange(
+                                            Number(value?.value) || 0
+                                          );
                                         }}
-                                        placeholder="Service discount..."
-                                        // {...field}
+                                        className="input-field "
                                       />
                                     </FormControl>
                                     <FormDescription>
@@ -728,21 +751,31 @@ const ServicesForm = ({
                                   name={`productsToSell.${i}.pricePerUnit`}
                                   render={({ field }) => (
                                     <FormItem className="  w-full mb-auto ">
-                                      <FormLabel>Price per unit</FormLabel>
+                                      <FormLabel htmlFor="price-per-unit">
+                                        Price per unit
+                                      </FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="text"
-                                          disabled={isLoading}
-                                          value={field.value}
-                                          onChange={(e) => {
-                                            const inputValue = e.target.value;
-                                            if (/^\d*$/.test(inputValue)) {
-                                              field.onChange(
-                                                Number(inputValue)
-                                              );
-                                            }
+                                        <CurrencyInput
+                                          id="price-per-unit"
+                                          name="price-per-unit"
+                                          placeholder="Price-per-unit"
+                                          decimalsLimit={2} // Max number of decimal places
+                                          prefix="EGP " // Currency symbol (e.g., Egyptian Pound)
+                                          decimalSeparator="." // Use dot for decimal
+                                          groupSeparator="," // Use comma for thousands
+                                          value={field.value || ""}
+                                          onValueChange={(
+                                            formattedValue,
+                                            name,
+                                            value
+                                          ) => {
+                                            // setFormattedListing(formattedValue || "");
+
+                                            field.onChange(
+                                              Number(value?.value) || 0
+                                            );
                                           }}
-                                          placeholder="Price per unit..."
+                                          className="input-field "
                                         />
                                       </FormControl>
                                       <FormDescription>
@@ -758,22 +791,31 @@ const ServicesForm = ({
                                   name={`productsToSell.${i}.discount`}
                                   render={({ field }) => (
                                     <FormItem className="  w-full mb-auto">
-                                      <FormLabel>Discount per unit</FormLabel>
+                                      <FormLabel htmlFor="discount-per-unit">
+                                        Discount per unit
+                                      </FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="text"
-                                          disabled={isLoading}
-                                          value={field.value}
-                                          onChange={(e) => {
-                                            const inputValue = e.target.value;
-                                            if (/^\d*$/.test(inputValue)) {
-                                              field.onChange(
-                                                Number(inputValue)
-                                              );
-                                            }
+                                        <CurrencyInput
+                                          id="discount-per-unit"
+                                          name="Discount-per-unit"
+                                          placeholder="Discount-per-unit"
+                                          decimalsLimit={2} // Max number of decimal places
+                                          prefix="EGP " // Currency symbol (e.g., Egyptian Pound)
+                                          decimalSeparator="." // Use dot for decimal
+                                          groupSeparator="," // Use comma for thousands
+                                          value={field.value || ""}
+                                          onValueChange={(
+                                            formattedValue,
+                                            name,
+                                            value
+                                          ) => {
+                                            // setFormattedListing(formattedValue || "");
+
+                                            field.onChange(
+                                              Number(value?.value) || 0
+                                            );
                                           }}
-                                          placeholder="Discount per unit..."
-                                          // {...field}
+                                          className="input-field "
                                         />
                                       </FormControl>
                                       <FormDescription>
@@ -791,17 +833,23 @@ const ServicesForm = ({
                                     <FormItem className=" w-full  mb-auto">
                                       <FormLabel>Count</FormLabel>
                                       <FormControl>
-                                        <Input
-                                          type="text"
-                                          disabled={isLoading}
-                                          value={field.value}
-                                          onChange={(e) => {
-                                            const inputValue = e.target.value;
-                                            if (!/^\d*$/.test(inputValue))
-                                              return;
-
+                                        <CurrencyInput
+                                          id="stockInput"
+                                          name="price"
+                                          placeholder="Available Stock"
+                                          decimalsLimit={2} // Max number of decimal places
+                                          prefix="UNITS " // Currency symbol (e.g., Egyptian Pound)
+                                          decimalSeparator="." // Use dot for decimal
+                                          groupSeparator="," // Use comma for thousands
+                                          value={field.value || ""}
+                                          onValueChange={(
+                                            formattedValue,
+                                            name,
+                                            value
+                                          ) => {
                                             if (
-                                              Number(inputValue) > maxAmount
+                                              value &&
+                                              Number(value.value) > maxAmount
                                             ) {
                                               toast({
                                                 variant: "destructive",
@@ -814,12 +862,11 @@ const ServicesForm = ({
                                               });
                                             } else {
                                               field.onChange(
-                                                Number(inputValue)
+                                                Number(value?.value) || 0
                                               );
                                             }
                                           }}
-                                          placeholder="Units to be sold..."
-                                          // {...field}
+                                          className="input-field  "
                                         />
                                       </FormControl>
                                       <FormDescription>

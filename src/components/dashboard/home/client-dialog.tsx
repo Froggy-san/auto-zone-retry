@@ -34,6 +34,7 @@ const ClientDialog = ({ service }: { service: Service }) => {
           <Link
             prefetch={false}
             href={`/dashboard/customers?name=${client.name}`}
+            className="   text-nowrap w-fit"
           >
             {client.name}
           </Link>

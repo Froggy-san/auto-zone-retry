@@ -60,7 +60,7 @@ const CategoryDetails = ({ open, setOpen, category }: Props) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="  sm:p-14 max-h-[65vh]  sm:max-h-[76vh] overflow-y-auto  rounded-none sm:rounded-none  lg:rounded-lg space-y-4  max-w-[1000px]">
+      <DialogContent className="  sm:p-14 max-h-[65vh] p-3  sm:max-h-[76vh] overflow-y-auto  rounded-none sm:rounded-none  lg:rounded-lg space-y-4  max-w-[1000px]">
         <DialogHeader>
           <DialogTitle>
             All sub-category of <span>&#40;</span>
@@ -91,7 +91,7 @@ const CategoryDetails = ({ open, setOpen, category }: Props) => {
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                className=" flex gap-3 items-start justify-center flex-wrap"
+                className=" flex gap-3 items-start justify-between flex-wrap"
               >
                 {category.productTypes
                   .sort((a, b) => a.id - b.id)
@@ -190,7 +190,7 @@ function SubCategory({
     <li
       onClick={() => setSubCatToEdit(subCat.id)}
       className={cn(
-        `relative    w-[30%]  sm:w-fit  px-3 py-2 flex flex-col  items-center justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm   rounded-xl `,
+        `relative   w-fit  min-w-[120px]   sm:min-w-[150px]   md:min-w-[170px]   px-3 py-2 flex flex-col  items-center  justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm   rounded-xl  flex-1 `,
         { "px-3 py-[0.4rem] ": !subCat.image }
       )}
     >
@@ -204,8 +204,8 @@ function SubCategory({
 
       <div className="flex items-center  w-full  justify-center gap-2 ">
         <p
-          className={cn("   w-full  pr-6  text-center", {
-            "   w-[99%]   text-wrap   px-5 ": subCat.image,
+          className={cn("   w-full  pr-6 text-xs xs:text-base  text-center", {
+            "   w-[99%]   text-wrap   px-[14%] ": subCat.image,
           })}
         >
           {subCat.name}
