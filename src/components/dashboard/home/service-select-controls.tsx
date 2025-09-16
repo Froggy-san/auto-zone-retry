@@ -60,7 +60,7 @@ const ServiceSelectControls = ({
           transition={{ ease: "easeIn", duration: 0.07 }}
           className=" flex items-center gap-1"
         >
-          <p className=" flex text-muted-foreground  text-sm items-center gap-1 pr-3 ">
+          <p className=" flex text-muted-foreground  text-xs xs:text-sm items-center gap-1 mr-1 xs:mr-3  ">
             <span>SELECTED</span>{" "}
             <AnimatePresence mode="wait">
               <motion.span
@@ -91,7 +91,7 @@ const ServiceSelectControls = ({
           <span>
             <CloseButton
               onClick={() => setSelected([])}
-              className=" static ml-3"
+              className=" static  sm:pl-3"
             />
           </span>
         </motion.div>
@@ -178,11 +178,11 @@ function DeleteDia({
         {" "}
         <Button
           variant="destructive"
-          className=" text-xs gap-1 h-fit px-2.5 py-1.5"
+          className="   text-[0.7rem] xs:text-xs gap-1 h-fit px-2.5 py-1.5"
         >
           {" "}
           <span className=" ">{selected.length}</span> Delete{" "}
-          <Trash2 className=" w-4 h-4" />
+          <Trash2 className=" w-3 h-3 xs:w-4 xs:h-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -292,10 +292,10 @@ function DownloadPdfDia({
         {" "}
         <Button
           variant="secondary"
-          className=" text-xs gap-1 h-fit px-2.5 py-1.5"
+          className=" text-[0.7rem] xs:text-xs gap-1 h-fit px-2.5 py-1.5"
         >
           {" "}
-          Download as pdf <Download className=" w-4 h-4" />
+          Download as pdf <Download className=" w-3 h-3 xs:w-4 xs:h-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>

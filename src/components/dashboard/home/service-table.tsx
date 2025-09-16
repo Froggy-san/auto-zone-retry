@@ -179,49 +179,7 @@ const ServiceTable = ({
           currentPage={Number(currPage)}
           pageSize={services.length}
         />
-        {/* <AnimatePresence>
-          {selected.length && (
-            <motion.div
-              key="selected-controls"
-              initial={{ x: 10, opacity: 0.5 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: 10, opacity: 0.5 }}
-              transition={{ ease: "easeIn", duration: 0.1 }}
-              className=" flex items-center gap-1"
-            >
-              <p className=" flex text-muted-foreground  items-center gap-1 pr-3 ">
-                SELECTED{" "}
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={selected.length}
-                    initial={{ y: 10, opacity: 0.5 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0.5 }}
-                    transition={{ ease: "linear", duration: 0.1 }}
-                    className="text-sm"
-                  >
-                    {selected.length}
-                  </motion.span>
-                </AnimatePresence>
-              </p>
-              <Button
-                variant="secondary"
-                className=" text-xs gap-1 h-fit px-2.5 py-1.5"
-              >
-                {" "}
-                Download as pdf <Download className=" w-4 h-4" />
-              </Button>
-              <Button
-                variant="destructive"
-                className=" text-xs gap-1 h-fit px-2.5 py-1.5"
-              >
-                {" "}
-                <span className=" ">{selected.length}</span> Delete{" "}
-                <Trash2 className=" w-4 h-4" />
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence> */}
+
         <SearchDialog
           isAdmin
           cars={cars}

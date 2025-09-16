@@ -93,13 +93,13 @@ export const MakerCombobox: React.FC<CarModelComboBoxProps> = ({
                       value === option.id ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  <span>{option.name}</span>{" "}
+                  <span className=" font-semibold">{option.name}</span>{" "}
                   <span className=" ml-auto">
                     {option.logo ? (
                       <img
                         src={option.logo}
                         alt="logo"
-                        className="  w-8 object-contain  "
+                        className="   max-w-10 h-9 object-contain  "
                       />
                     ) : (
                       "Logo"

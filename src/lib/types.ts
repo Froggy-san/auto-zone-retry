@@ -137,9 +137,13 @@ export const CategorySchema = z.object({
 });
 
 export const ProductTypeSchema = z.object({
-  name: z.string(),
-  categoryId: z.number(),
-  image: z.custom<File[]>(),
+  insert: z.array(
+    z.object({
+      name: z.string().min(3, { message: "Too short" }),
+      categoryId: z.number(),
+      image: z.custom<File[]>(),
+    })
+  ),
 });
 export const CarInfoSchema = z.object({
   carMakerId: z.number(),
