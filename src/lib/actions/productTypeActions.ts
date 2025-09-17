@@ -97,24 +97,28 @@ export async function editProductTypeAction({
   return { data: null, error: "" };
 }
 
-export async function deleteProductTypeAction(productType: ProductType) {
-  if (productType.image) {
+export async function deleteProductTypeAction(productTypes: ProductType[]) {
+  const imagesToDelete = productTypes
+    .map((item) => item.image)
+    .filter((item) => item !== null);
+
+  const ids = productTypes.map((item) => item.id);
+  if (imagesToDelete.length) {
     const { error } = await deleteImageFromBucketAction({
-      bucketName: "productTpye",
-      imagePaths: [productType.image],
+      bucketName: "productType",
+      imagePaths: imagesToDelete,
     });
     if (error) return { data: null, error: error.message };
     revalidateTag("categories");
   }
 
   const response = await fetch(
-    `${supabaseUrl}/rest/v1/productTypes?id=eq.${productType.id}`,
+    `${supabaseUrl}/rest/v1/productTypes?id=in.(${ids.join(",")})`,
     {
       method: "DELETE",
       headers: {
         apikey: `${supabaseKey}`,
         Authorization: `Bearer ${supabaseKey}`,
-
         Prefer: "return=minimal",
       },
     }
