@@ -104,7 +104,7 @@ const ProductTypeForm = ({
   const { insert: insertArry } = form.watch();
 
   const isValid = insertArry.every((subCat) => subCat.name?.length > 3);
-  console.log(insertArry, "ARRY");
+
   const currentTab: FieldArrayWithId<
     {
       insert: {
@@ -199,10 +199,10 @@ const ProductTypeForm = ({
   }, [counter]);
 
   // Scroll up on selecting a new tab.
-  useEffect(() => {
-    if (containerRef.current) containerRef.current.scrollTo(0, 0);
-    if (formRef.current) formRef.current.scrollTo(0, 0); //! This fixs a bug in the animation for some reason. you can remove it and see what happens if it's not here.
-  }, [selectedTab, containerRef.current]);
+  // useEffect(() => {
+  //   if (containerRef.current) containerRef.current.scrollTo(0, 0);
+  //   if (formRef.current) formRef.current.scrollTo(0, 0); //! This fixs a bug in the animation for some reason. you can remove it and see what happens if it's not here.
+  // }, [selectedTab, containerRef.current]);
 
   async function handleSubmit(productType: z.infer<typeof ProductTypeSchema>) {
     try {
@@ -272,7 +272,7 @@ const ProductTypeForm = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="  relative overflow-x-hidden   "
           >
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {productTypeToEdit && (
                 <motion.div
                   key={currentTab.id}
@@ -382,16 +382,14 @@ const ProductTypeForm = ({
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/*  */}
             {currentTab && !productTypeToEdit ? (
               <motion.div
                 key={currentTab.id}
-                custom={direction}
-                variants={ProFormSlideVariants}
-                initial="enter"
-                animate="center"
-                // exit="exit"
-                // transition={{ ease: "backOut", duration: 0.6 }}
-                className=" space-y-4 py-4 px-2 "
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className=" space-y-4 py-4 px-2  "
               >
                 <div className=" flex  items-start  gap-2">
                   {relatedCategory && (
@@ -489,7 +487,7 @@ const ProductTypeForm = ({
 
             <div
               key="footer"
-              className=" gap-2 flex items-center justify-between border-t pt-4"
+              className=" gap-2 flex items-center justify-between select-none border-t pt-4"
             >
               <AnimatePresence mode="wait">
                 {!productTypeToEdit && (

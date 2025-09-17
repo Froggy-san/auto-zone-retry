@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -30,6 +30,7 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
 import { PiSubtract } from "react-icons/pi";
+import { Switch } from "@components/ui/switch";
 
 interface Props {
   open: boolean;
@@ -48,16 +49,21 @@ const opacity = {
 };
 const CategoryDetails = ({ open, setOpen, category }: Props) => {
   const [subCatToEdit, setSubCatToEdit] = useState<number | undefined>();
-  const [subCatToDelete, setSubCatToDelete] = useState<number | null>();
+  const [subCatToDelete, setSubCatToDelete] = useState<number[]>([]); // An array of all the items the user wants to delete.
+  const [isDeleteMoreThanOne, setIsDeleteMoreThanOne] = useState(false); // Toggle delete than one item mode.
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<number[]>([]); // An array to track the current items that are being deleted.
   const [addTypeOpen, setAddTypeOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const subCategoryToEdit = category?.productTypes.find(
     (pro) => pro.id === subCatToEdit
   );
-  const subCategoryDelete = category?.productTypes.find(
-    (proType) => proType.id === subCatToDelete
-  );
+  const subCategoryDelete = subCatToDelete
+    .map((id) => category?.productTypes.find((item) => item.id === id))
+    .filter((item) => item !== undefined);
 
+  useEffect(() => {
+    setIsDeleteMoreThanOne(false);
+  }, [open, setIsDeleteMoreThanOne]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="  sm:p-14 max-h-[65vh] p-3  sm:max-h-[76vh] overflow-y-auto  rounded-none sm:rounded-none  lg:rounded-lg space-y-4  max-w-[1000px]">
@@ -81,7 +87,30 @@ const CategoryDetails = ({ open, setOpen, category }: Props) => {
           </DialogTitle>
           <DialogDescription className=" hidden">.</DialogDescription>
         </DialogHeader>
-
+        <AnimatePresence>
+          {category?.productTypes.length ? (
+            <motion.div
+              key="delete-controls"
+              variants={opacity}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              className=" w-full px-4 py-2 rounded-lg bg-card flex items-center gap-2 justify-between"
+            >
+              <p className=" text-xs text-muted-foreground">
+                Delete multiple items at once by toggling the delete button on
+                and selecting the items to delete
+              </p>{" "}
+              <Switch
+                checked={isDeleteMoreThanOne}
+                onCheckedChange={(isDeleting) => {
+                  setIsDeleteMoreThanOne(isDeleting);
+                  setSubCatToDelete([]);
+                }}
+              />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
         <div className=" my-12">
           <AnimatePresence mode="wait">
             {category?.productTypes.length ? (
@@ -99,9 +128,18 @@ const CategoryDetails = ({ open, setOpen, category }: Props) => {
                     <SubCategory
                       key={subCat.id}
                       subCat={subCat}
-                      isDeleting={isDeleting === subCat.id}
+                      isDeleting={isDeleting.includes(subCat.id)}
                       setSubCatToEdit={setSubCatToEdit}
-                      setDeleteOpen={() => setSubCatToDelete(subCat.id)}
+                      setDeleteOpen={setDeleteOpen}
+                      isDeleteMoreThanOne={isDeleteMoreThanOne}
+                      selected={subCatToDelete.includes(subCat.id)}
+                      setSubCatToDelete={() =>
+                        setSubCatToDelete((prev) => {
+                          if (prev.includes(subCat.id)) {
+                            return prev.filter((id) => id !== subCat.id);
+                          } else return [...prev, subCat.id];
+                        })
+                      }
                     />
                   ))}
               </motion.ul>
@@ -163,13 +201,57 @@ const CategoryDetails = ({ open, setOpen, category }: Props) => {
               />
             )}
             <DeleteProType
-              isDeleting={!!isDeleting}
+              isDeleting={isDeleting.length > 0}
               setIsDeleting={setIsDeleting}
-              productType={subCategoryDelete}
-              setOpen={() => setSubCatToDelete(null)}
+              productTypesToDelete={subCategoryDelete}
+              subCatToDelete={subCatToDelete}
+              setSubCatToDelete={setSubCatToDelete}
+              setIsDeleteMoreThanOne={setIsDeleteMoreThanOne}
+              open={deleteOpen}
+              setOpen={setDeleteOpen}
             />
           </div>
         </div>
+        <AnimatePresence>
+          {isDeleteMoreThanOne && (
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              className=" sticky  flex items-center justify-center px-5  py-3 w-full rounded-2xl  -bottom-10 bg-accent/25 backdrop-grayscale backdrop-brightness-75   backdrop-blur-xl  gap-2"
+            >
+              <Button
+                className=" w-full"
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setIsDeleteMoreThanOne(false);
+                  setSubCatToDelete([]);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                disabled={!subCatToDelete.length}
+                variant="outline"
+                size="sm"
+                className=" w-full"
+                onClick={() => setSubCatToDelete([])}
+              >
+                Reset
+              </Button>
+              <Button
+                disabled={!subCatToDelete.length}
+                variant="destructive"
+                size="sm"
+                className=" w-full"
+                onClick={() => setDeleteOpen(true)}
+              >
+                Detele {subCatToDelete.length}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </DialogContent>
     </Dialog>
   );
@@ -180,18 +262,33 @@ function SubCategory({
   isDeleting,
   setDeleteOpen,
   setSubCatToEdit,
-}: {
+  isDeleteMoreThanOne,
+  selected,
+  setSubCatToDelete,
+}: // setIsDeleteMoreThanOne,
+{
   subCat: ProductType;
   isDeleting: boolean;
-  setDeleteOpen: () => void;
+  isDeleteMoreThanOne: boolean;
+  selected: boolean;
+  setDeleteOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSubCatToEdit: React.Dispatch<React.SetStateAction<number | undefined>>;
+  setSubCatToDelete: () => void;
+  // setIsDeleteMoreThanOne: React.Dispatch<React.SetStateAction<number[]>>;
 }) {
   return (
     <li
-      onClick={() => setSubCatToEdit(subCat.id)}
+      onClick={() => {
+        if (isDeleteMoreThanOne) {
+          setSubCatToDelete();
+        } else setSubCatToEdit(subCat.id);
+      }}
       className={cn(
         `relative   w-fit  min-w-[120px]   sm:min-w-[150px]   md:min-w-[170px]   px-3 py-2 flex flex-col  items-center  justify-between    hover:bg-accent/30  transition-all cursor-pointer  gap-2 text-sm   rounded-xl  flex-1 `,
-        { "px-3 py-[0.4rem] ": !subCat.image }
+        {
+          "px-3 py-[0.4rem] ": !subCat.image,
+          "bg-destructive/40 hover:bg-destructive/30": selected,
+        }
       )}
     >
       {subCat.image ? (
@@ -210,13 +307,17 @@ function SubCategory({
         >
           {subCat.name}
         </p>
+
         {isDeleting ? (
           <Spinner className="  h-4 w-4 absolute right-3  bottom-2" />
         ) : (
           <Button
             onClick={(e) => {
               e.stopPropagation();
-              setDeleteOpen();
+              setSubCatToDelete();
+              if (!isDeleteMoreThanOne) {
+                setDeleteOpen(true);
+              }
             }}
             variant="destructive"
             className=" absolute right-2  bottom-[0.3rem]  p-0 h-6 w-6"
@@ -230,34 +331,59 @@ function SubCategory({
 }
 
 function DeleteProType({
-  productType,
+  productTypesToDelete,
+  open,
   setOpen,
   isDeleting,
   setIsDeleting,
+  subCatToDelete,
+  setSubCatToDelete,
+  setIsDeleteMoreThanOne,
 }: {
   isDeleting: boolean;
-  productType?: ProductType;
-  setOpen: () => void;
-  setIsDeleting: React.Dispatch<React.SetStateAction<number | null>>;
+  productTypesToDelete: ProductType[];
+  open: boolean;
+  subCatToDelete: number[];
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsDeleteMoreThanOne: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsDeleting: React.Dispatch<React.SetStateAction<number[]>>;
+  setSubCatToDelete: React.Dispatch<React.SetStateAction<number[]>>;
 }) {
   const { toast } = useToast();
+  useEffect(() => {
+    if (!open) setSubCatToDelete([]);
+  }, [open]);
   return (
-    <Dialog open={!!productType} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Are you absolutely sure?</DialogTitle>
           <DialogDescription>
-            You are about to delete sub-category
+            You are about to delete
             <AnimatePresence>
-              {productType?.name && (
+              {productTypesToDelete && productTypesToDelete.length > 1 ? (
                 <motion.span
+                  key="multi-del"
                   variants={opacity}
                   initial="hidden"
                   animate="visible"
                   exit="hidden"
                   transition={{ duration: 0.1 }}
                 >
-                  {productType.name}
+                  {" "}
+                  {subCatToDelete.length} sub-categories.
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="single-del"
+                  variants={opacity}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  transition={{ duration: 0.1 }}
+                >
+                  sub-category
+                  {productTypesToDelete?.[0]?.name}
                 </motion.span>
               )}
             </AnimatePresence>
@@ -276,12 +402,16 @@ function DeleteProType({
             size="sm"
             onClick={async () => {
               try {
-                if (!productType) return;
-                setIsDeleting(productType.id);
-                const { error } = await deleteProductTypeAction(productType);
+                if (!productTypesToDelete?.length) return;
+                setIsDeleting(productTypesToDelete.map((subCat) => subCat.id));
+                const { error } = await deleteProductTypeAction(
+                  productTypesToDelete
+                );
 
                 if (error) throw new Error(error);
-
+                setOpen(false);
+                setSubCatToDelete([]);
+                setIsDeleteMoreThanOne(false);
                 toast({
                   className: "bg-primary  text-primary-foreground",
                   title: "Done.",
@@ -296,7 +426,7 @@ function DeleteProType({
                   description: <ErorrToastDescription error={error.message} />,
                 });
               } finally {
-                setIsDeleting(null);
+                setIsDeleting([]);
               }
             }}
           >
