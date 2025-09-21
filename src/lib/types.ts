@@ -401,6 +401,8 @@ export interface signUpProps {
 //   aud?: string | string[] | undefined;
 // }
 
+type Providers = "email" | "google";
+
 export interface User {
   id: string;
   app_metadata: UserAppMetadata;
@@ -696,6 +698,10 @@ export interface ClientById {
   id: number;
   name: string;
   email: string;
+  created_at: string;
+  user_id: string;
+  picture: string | null;
+  provider: Providers;
   phones: PhoneNumber[];
   cars: CarItem[];
 }

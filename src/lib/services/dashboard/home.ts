@@ -30,12 +30,51 @@ type Service = {
   }[];
 };
 
-export async function getStats() {
-  const { data: services, error } = await supabase
+type Params = {
+  dateFrom?: string;
+  dateTo?: string;
+  clientId?: string;
+  carId?: string;
+  serviceStatusId?: string;
+  minPrice?: string;
+  maxPrice?: string;
+};
+
+export async function getStats({
+  dateFrom,
+  dateTo,
+  clientId,
+  carId,
+  serviceStatusId,
+  minPrice,
+  maxPrice,
+}: Params) {
+  let query = supabase
     .from("services")
     .select(
       "id,serviceStatuses(name),productsToSell(pricePerUnit,discount,count,totalPriceAfterDiscount,isReturned),servicesFee(price,discount,totalPriceAfterDiscount,isReturned)"
     );
+
+  // const { data: services, error } = await supabase
+  //   .from("services")
+  //   .select(
+  //     "id,serviceStatuses(name),productsToSell(pricePerUnit,discount,count,totalPriceAfterDiscount,isReturned),servicesFee(price,discount,totalPriceAfterDiscount,isReturned)"
+  //   );
+
+  if (clientId) query = query.eq("clientId", clientId);
+  if (dateFrom)
+    query = query.gte("created_at", new Date(dateFrom).toISOString());
+
+  if (dateTo) query = query.lte("created_at", new Date(dateTo).toISOString());
+  // Other filters
+  if (carId) query = query.eq("carId", carId);
+
+  if (serviceStatusId) query = query.eq("serviceStatusId", serviceStatusId);
+
+  if (minPrice) query = query.gte("totalPrice", minPrice);
+
+  if (maxPrice) query = query.lte("totalPrice", maxPrice);
+
   // const [soldProductsData, servicesFeeData] = await Promise.all([
   //   supabase
   //     .from("productsToSell")
@@ -47,7 +86,7 @@ export async function getStats() {
 
   // const { data: productsSold, error: productsSoldError } = soldProductsData;
   // const { data: serviceFees, error: serviceFeesError } = servicesFeeData;
-
+  const { data: services, error } = await query;
   if (error) {
     throw new Error(`Failed to fetch services: ${error.message}`);
   }

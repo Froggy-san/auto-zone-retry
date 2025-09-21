@@ -150,7 +150,7 @@ const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
   // }, [image]);
 
   return (
-    <div className="max-w-[760px] mt-20  w-full">
+    <div className="max-w-[870px] mt-20  w-full">
       <section className=" space-y-5 p-6 rounded-xl bg-card/30 border shadow-lg">
         <h2 className=" text-xl sm:text-base font-semibold border-b pb-2">
           Profile details

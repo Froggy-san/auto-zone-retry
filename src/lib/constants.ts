@@ -7,6 +7,8 @@ export const MAKER_PAGE_SIZE = 24;
 export const PILL_SIZE = 30;
 export const byteSize = 1048576;
 export const MIN_PASS_LENGTH = 6;
+
+export const DEL_ACC_DAYS = 1;
 export const DEFAULT_PRODUCT_PIC =
   "https://mywarsha.blob.core.windows.net/mywarshaimages/Product-inside.png";
 export const STATIC_IMAGES = [

@@ -66,7 +66,7 @@ const CategoryDetails = ({ open, setOpen, category }: Props) => {
   }, [open, setIsDeleteMoreThanOne]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="  sm:p-14 max-h-[65vh] p-3  sm:max-h-[76vh] overflow-y-auto  rounded-none sm:rounded-none  lg:rounded-lg space-y-4  max-w-[1000px]">
+      <DialogContent className="  sm:p-14 p-3  max-h-[76vh] overflow-y-auto  rounded-none sm:rounded-none  lg:rounded-lg space-y-4  max-w-[1000px]">
         <DialogHeader>
           <DialogTitle>
             All sub-category of <span>&#40;</span>
@@ -218,7 +218,7 @@ const CategoryDetails = ({ open, setOpen, category }: Props) => {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
-              className=" sticky  flex items-center justify-center px-5  py-3 w-full rounded-2xl  -bottom-10 bg-accent/25 backdrop-grayscale backdrop-brightness-75   backdrop-blur-xl  gap-2"
+              className=" sticky  flex items-center justify-center px-5  py-3 w-full rounded-2xl  -bottom-1  sm:-bottom-10 bg-accent/25 backdrop-grayscale backdrop-brightness-75   backdrop-blur-xl  gap-2"
             >
               <Button
                 className=" w-full"

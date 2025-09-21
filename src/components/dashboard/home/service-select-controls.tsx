@@ -22,11 +22,13 @@ import { deleteMultiServicesAction } from "@lib/actions/serviceActions";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 const ServiceSelectControls = ({
+  isAdmin,
   selected,
   setSelected,
   currentPage,
   pageSize,
 }: {
+  isAdmin: boolean;
   selected: number[];
   setSelected: React.Dispatch<React.SetStateAction<number[]>>;
   currentPage: number;
@@ -80,14 +82,16 @@ const ServiceSelectControls = ({
             isLoading={isLoading}
             setIsLoading={setIsLoading}
           />
-          <DeleteDia
-            currentPage={currentPage}
-            pageSize={pageSize}
-            selected={selected}
-            setSelected={setSelected}
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-          />
+          {isAdmin && (
+            <DeleteDia
+              currentPage={currentPage}
+              pageSize={pageSize}
+              selected={selected}
+              setSelected={setSelected}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+            />
+          )}
           <span>
             <CloseButton
               onClick={() => setSelected([])}

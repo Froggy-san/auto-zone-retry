@@ -116,7 +116,10 @@ export async function getClientsAction({
 //   return { data: ClientsData, error: "" };
 // }
 
-export async function getClientByIdAction(id: string, tag: "id" | "user_id") {
+export async function getClientByIdAction(
+  id: string,
+  tag: "id" | "user_id"
+): Promise<{ data: ClientById | null; error: string }> {
   const response = await fetch(
     `${supabaseUrl}/rest/v1/clients?${tag}=eq.${id}&select=*,phones(*),cars(*,carImages(*),carGenerations(*,carModels(*,carMakers(*))))&cars.carImages.order=created_at.asc`,
     {
@@ -124,6 +127,7 @@ export async function getClientByIdAction(id: string, tag: "id" | "user_id") {
       headers: {
         apikey: `${supabaseKey}`,
         Authorization: `Bearer ${supabaseKey}`,
+        // Prefer: "plurality=ignore", // The limit=1 makes this work
       },
     }
   );
@@ -138,9 +142,10 @@ export async function getClientByIdAction(id: string, tag: "id" | "user_id") {
     };
   }
 
-  const data = (await response.json())[0] as ClientById;
+  const data = (await response.json())[0];
 
-  return { data, error: "" };
+  if (!data) return { data: null, error: "Something went wrong" };
+  return { data: data, error: "" };
 }
 
 export async function createClientAction({
