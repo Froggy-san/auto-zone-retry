@@ -62,7 +62,7 @@ const UserServices = async ({
 
   return (
     <div className=" mt-10">
-      <SearchDialog
+      {/* <SearchDialog
         isAdmin={isAdmin}
         cars={cars}
         clients={[client]}
@@ -75,7 +75,7 @@ const UserServices = async ({
         maxPrice={maxPrice}
         minPrice={minPrice}
         currPage={pageNumber}
-      />
+      /> */}
       {data?.data.length ? (
         <>
           <ServiceTable

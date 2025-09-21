@@ -32,15 +32,13 @@ const Page = async ({ params }: Props) => {
           </ErrorMessage>
         ) : null}
         {data ? (
-          <div className=" flex sm:flex-row flex-col-reverse sm:gap-3 lg:gap-8 ">
-            <div className=" flex-1 flex flex-col  items-end">
+          <div className=" flex flex-col-reverse sm:flex-row   gap-5 w-full justify-center">
+            <div className=" ">
               <UpdateUser userData={data} />
               <UpdatePassword userData={data} />
-              <DeleteAccount />
+              <DeleteAccount userData={data} />
             </div>
-            <div className="  mx-auto  md:mr-2 lg:mr-5">
-              <User user={data.user} />
-            </div>
+            <User user={data.user} />
           </div>
         ) : (
           "Couldn't find user"

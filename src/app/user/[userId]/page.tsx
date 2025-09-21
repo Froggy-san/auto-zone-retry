@@ -11,6 +11,7 @@ import { ClientById, ClientWithPhoneNumbers } from "@lib/types";
 import { Car } from "lucide-react";
 import { Metadata } from "next";
 import React, { Suspense } from "react";
+import { PiEmpty } from "react-icons/pi";
 
 // 1. Update the Props interface to expect a 'params' object
 export const metadata: Metadata = {
@@ -85,7 +86,7 @@ const Page = async ({ params, searchParams }: Props) => {
     <main className=" relative">
       <h2 className="   font-semibold text-4xl">YOUR ACTIVITIES.</h2>
 
-      <section className=" sm:pl-4 pb-10">
+      <section className=" sm:pl-4 pb-10 space-y-24">
         {error || clientError ? (
           <ErrorMessage>
             {" "}
@@ -121,15 +122,22 @@ const Page = async ({ params, searchParams }: Props) => {
             </Suspense>
 
             {clientDetails ? (
-              <CarCarousel
-                clientDetails={clientDetails}
-                isAdmin={isAdmin === "Admin"}
-                cars={clientCars}
-              />
+              clientCars.length ? (
+                <CarCarousel
+                  clientDetails={clientDetails}
+                  isAdmin={isAdmin === "Admin"}
+                  cars={clientCars}
+                />
+              ) : (
+                <p className=" sm:text-xl flex flex-col text-muted-foreground justify-center items-center gap-3">
+                  <Car className=" w-[50px] h-[50px]" />
+                  <span>No cars found.</span>
+                </p>
+              )
             ) : (
               <p className=" sm:text-xl flex flex-col text-muted-foreground justify-center items-center gap-3">
-                <Car className=" w-[50px] h-[50px]" />
-                <span>No cars found.</span>
+                <PiEmpty className=" w-[50px] h-[50px]" />
+                <span>Something went wrong.</span>
               </p>
             )}
 

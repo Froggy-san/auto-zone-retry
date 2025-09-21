@@ -174,6 +174,7 @@ const ServiceTable = ({
     <>
       <div className=" flex flex-col-reverse sm:flex-row gap-x-2 gap-y-5 items-center ">
         <ServiceSelectControls
+          isAdmin={isAdmin}
           selected={selected}
           setSelected={setSelected}
           currentPage={Number(currPage)}
@@ -181,7 +182,7 @@ const ServiceTable = ({
         />
 
         <SearchDialog
-          isAdmin
+          isAdmin={isAdmin}
           cars={cars}
           clients={clients}
           status={status || []}
@@ -258,7 +259,15 @@ const ServiceTable = ({
                 {formatCurrency(totals)}
               </TableCell>
             </TableRow>
-            <StatsRow />
+            <StatsRow
+              carId={carId}
+              clientId={clientId}
+              dateTo={dateTo}
+              dateFrom={dateFrom}
+              serviceStatusId={serviceStatusId}
+              maxPrice={maxPrice}
+              minPrice={minPrice}
+            />
           </TableFooter>
         </Table>
       </div>

@@ -8,9 +8,10 @@ import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@utils/supabase/server";
 import { createClientAction } from "./clientActions";
-import { SUPABASE_URL } from "@lib/constants";
+import { DEL_ACC_DAYS, SUPABASE_URL } from "@lib/constants";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { deleteImageFromBucketAction } from "@lib/services/server-helpers";
+import { formatDate, formatDistance } from "date-fns";
 
 export async function revalidateHomePage() {
   revalidatePath("/", "layout");
@@ -146,13 +147,13 @@ export async function logoutUser() {
   redirect("/login");
 }
 
-interface UpdateProps {
-  id: string;
-  username?: string;
-  password?: string;
-  avatar_url: string;
-  role?: "User" | "Admin";
-}
+// interface UpdateProps {
+//   id: string;
+//   username?: string;
+//   password?: string;
+//   avatar_url: string;
+//   role?: "User" | "Admin";
+// }
 
 export async function getUserById(userId: string) {
   try {
@@ -194,13 +195,22 @@ interface UpdateUserProps {
   id: string;
   username: string;
   isCurrUser: boolean;
-  role: string;
+  role: "User" | "Admin" | string;
   avatar_url?: string;
   password?: string;
+  deleteDate?: string;
 }
 
 async function updateUser(
-  { id, username, isCurrUser, role, avatar_url, password }: UpdateUserProps,
+  {
+    id,
+    username,
+    isCurrUser,
+    role,
+    avatar_url,
+    password,
+    deleteDate,
+  }: UpdateUserProps,
   supabase: SupabaseClient
 ) {
   // https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/avatars//499916568_1268010505331789_2764471559810878394_n.jpg
@@ -212,7 +222,7 @@ async function updateUser(
     if (isCurrUser) {
       const { data, error } = await supabase.auth.updateUser({
         password,
-        data: { role: userRole, avatar_url, full_name: name },
+        data: { role: userRole, avatar_url, full_name: name, deleteDate },
       });
 
       if (error) throw new Error(error.message);
@@ -225,6 +235,7 @@ async function updateUser(
           role: userRole,
           avatar_url,
           full_name: name,
+          deleteDate,
         },
       });
       if (error) throw new Error(error.message);
@@ -315,6 +326,49 @@ export async function updateUserAction(formData: FormData) {
         data: null,
         error: "Something went wrong while updating the user's details.",
       };
+  }
+}
+
+export async function cancelDeleteAccountAction(userId: string, date: string) {}
+
+export async function deleteAccountAction(
+  user: UpdateUserProps,
+  prevDate: string = ""
+) {
+  try {
+    const supabase = await createClient();
+    // 1. Check if there is a date.
+
+    const date = prevDate !== "" ? prevDate.split("-") : [];
+
+    if (date?.length) {
+      // 2. If the user cancled we remove the date from the data base.
+      const { data, error } = await updateUser(
+        { ...user, deleteDate: "" },
+        supabase
+      );
+
+      if (error) throw new Error(error);
+      return { data, error: "" };
+      // 3. Check if the date has passed delete the user's account.
+    } else {
+      // 4. If there is no date set the timeout date.
+      const dateTo = new Date();
+      const dateFrom = new Date();
+      dateFrom.setDate(dateTo.getDate() + DEL_ACC_DAYS);
+
+      const { data, error } = await updateUser(
+        { ...user, deleteDate: `${dateTo}-${dateFrom}` },
+        supabase
+      );
+
+      if (error) throw new Error(error);
+
+      // revalidatePath(`/user/${user.id}`, "layout");
+      return { data, error: "" };
+    }
+  } catch (error: any) {
+    return { data: null, error };
   }
 }
 

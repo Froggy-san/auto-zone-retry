@@ -7,10 +7,19 @@ import { cn } from "@lib/utils";
 import { RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
+type Params = {
+  dateFrom?: string;
+  dateTo?: string;
+  clientId?: string;
+  carId?: string;
+  serviceStatusId?: string;
+  minPrice?: string;
+  maxPrice?: string;
+};
 
-const StatsRow = () => {
+const StatsRow = (filters: Params) => {
   const router = useRouter();
-  const { data, isLoading, error } = useServicesStats();
+  const { data, isLoading, error } = useServicesStats(filters);
 
   const RefreshButton = (
     <Button size="sm" onClick={() => router.refresh()}>
