@@ -1,0 +1,106 @@
+/**
+ 
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.44.2';
+// Scheduled Edge Function: permanently delete auth users whose clients.isDeleted = true and deleted_at <= now
+// - Uses SUPABASE_SERVICE_ROLE_KEY (pre-populated in Supabase Edge envs)
+// - Runs deletions in the background via EdgeRuntime.waitUntil to return quickly
+// - Batches users to avoid large single requests and adds simple retry logic
+const MAX_BATCH_SIZE = 50; // tune for your project
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 500;
+console.info("scheduled-user-cleanup started");
+Deno.serve(async (req)=>{
+  try {
+    const supabase = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"), {
+      auth: {
+        persistSession: false
+      }
+    });
+    const now = new Date().toISOString();
+    // Fetch user ids marked for deletion
+    const { data: usersToDelete, error: fetchError } = await supabase.from("clients").select("user_id").eq("isDeleted", true).lte("deleted_at", now).limit(1000); // guard: limit result size (adjust as needed)
+    if (fetchError) {
+      console.error("Error fetching users to delete:", fetchError);
+      return new Response(JSON.stringify({
+        error: "Database query failed"
+      }), {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+    }
+    if (!usersToDelete || usersToDelete.length === 0) {
+      return new Response(JSON.stringify({
+        message: "No users to delete"
+      }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+    }
+    // Prepare deletion tasks in batches
+    const userIds = usersToDelete.map((r)=>r.user_id).filter(Boolean);
+    const batches = [];
+    for(let i = 0; i < userIds.length; i += MAX_BATCH_SIZE){
+      batches.push(userIds.slice(i, i + MAX_BATCH_SIZE));
+    }
+    // Background worker that processes batches with retries
+    const worker = async ()=>{
+      for (const batch of batches){
+        for (const userId of batch){
+          let attempt = 0;
+          while(attempt < MAX_RETRIES){
+            attempt += 1;
+            try {
+              const { error: deleteError } = await supabase.auth.admin.deleteUser(userId, true);
+              if (deleteError) throw deleteError;
+              console.info(`Hard deleted user: ${userId}`);
+              break; // success
+            } catch (err) {
+              console.error(`Attempt ${attempt} failed deleting user ${userId}:`, err);
+              if (attempt < MAX_RETRIES) {
+                await new Promise((res)=>setTimeout(res, RETRY_DELAY_MS * attempt));
+                continue;
+              } else {
+                // final failure: log and continue with next user
+                console.error(`Failed to delete user after ${MAX_RETRIES} attempts: ${userId}`);
+                break;
+              }
+            }
+          }
+        }
+      }
+    };
+    // Run worker in the background and return immediately
+    if (typeof globalThis.EdgeRuntime !== "undefined" && typeof globalThis.EdgeRuntime.waitUntil === "function") {
+      // Edge runtime available
+      globalThis.EdgeRuntime.waitUntil(worker());
+    } else {
+      // Fallback: still start worker but await a short time to let some work start
+      worker();
+    }
+    return new Response(JSON.stringify({
+      message: "Cleanup job scheduled."
+    }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+  } catch (error) {
+    console.error("Unexpected error in scheduled-user-cleanup:", error);
+    return new Response(JSON.stringify({
+      error: "Internal error"
+    }), {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+  }
+});
+
+
+ */
