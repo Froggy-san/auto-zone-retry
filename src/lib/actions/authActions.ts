@@ -23,8 +23,6 @@ export async function loginUser(
 ) {
   const supabase = await createClient();
 
-  console.log("AYOO?", loginData, direct);
-
   const { error } = await supabase.auth.signInWithPassword({
     email: loginData.username,
     password: loginData.password,
@@ -70,6 +68,8 @@ export async function getUserData(userId: string) {
   //  if()
 }
 
+// Google signin
+
 export async function signinWithGoogle() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -86,7 +86,6 @@ export async function signinWithGoogle() {
     console.log("GOOGLE ERROR", error.message);
     // return { data, error: error.message };
   }
-  console.log("RETURNED DATA FORM GGOGLE", data);
 
   if (data.url) redirect(data.url);
   // return { data, error };
@@ -111,7 +110,8 @@ export async function signUp(
 
     if (error) throw new Error(error.message);
 
-    console.log("DATA:", data);
+    if (!data || !data.user)
+      throw new Error(`Something went wrong while creating a new account.`);
 
     if (role !== "Admin" && data.user) {
       const { error: clientActionError } = await createClientAction({
@@ -125,7 +125,11 @@ export async function signUp(
       if (clientActionError) throw new Error(clientActionError);
     }
 
+    // revalidatePath(`/user/${data.user.id}`, "layout");
+
+    revalidatePath("/", "layout");
     // if (direct) redirect(direct);
+
     // else redirect("/login");
 
     return { data, error: "" };
@@ -331,7 +335,7 @@ export async function updateUserAction(formData: FormData) {
 
 export async function cancelDeleteAccountAction(userId: string, date: string) {}
 
-export async function deleteAccountAction(
+export async function deleteAccountTimerAction(
   user: UpdateUserProps,
   prevDate: string = ""
 ) {
@@ -349,26 +353,85 @@ export async function deleteAccountAction(
       );
 
       if (error) throw new Error(error);
+      const { error: updatingError } = await supabase
+        .from("clients")
+        .update({
+          isDeleted: null,
+          deleted_at: null, // Store the ISO string
+        })
+        .eq("user_id", user.id);
+      if (updatingError) throw new Error(updatingError.message);
       return { data, error: "" };
       // 3. Check if the date has passed delete the user's account.
     } else {
       // 4. If there is no date set the timeout date.
-      const dateTo = new Date();
-      const dateFrom = new Date();
-      dateFrom.setDate(dateTo.getDate() + DEL_ACC_DAYS);
+      const fromDate = new Date();
+      const toDate = new Date();
+      toDate.setDate(fromDate.getDate() + DEL_ACC_DAYS);
 
+      // console.log(fromDate.toISOString());
       const { data, error } = await updateUser(
-        { ...user, deleteDate: `${dateTo}-${dateFrom}` },
+        {
+          ...user,
+          deleteDate: `${fromDate.toISOString()}&${toDate.toISOString()}`,
+        },
         supabase
       );
-
       if (error) throw new Error(error);
+      const { error: updatingError } = await supabase
+        .from("clients")
+        .update({
+          isDeleted: true,
+          deleted_at: toDate.toISOString(), // Store the ISO string
+        })
+        .eq("user_id", user.id);
+      if (updatingError) throw new Error(updatingError.message);
 
       // revalidatePath(`/user/${user.id}`, "layout");
       return { data, error: "" };
     }
   } catch (error: any) {
-    return { data: null, error };
+    return { data: null, error: error.message };
+  }
+}
+
+export async function deleteAccountAction(user: User) {
+  try {
+    const avatar_url = user.user_metadata?.avatar_url || "";
+    const supabase = await createClient(true);
+
+    // 1. Remove the preofile picture of a client if it exists.
+
+    if (avatar_url) {
+      const { error } = await deleteImageFromBucketAction({
+        bucketName: "avatars",
+        imagePaths: [avatar_url],
+      });
+
+      if (true) {
+        console.log("Error from account bucket: ", error.message);
+        throw new Error(error.message);
+      }
+    }
+    // Delete the account from the users table.
+    const { error } = await supabase.auth.admin.deleteUser(user.id, true);
+
+    if (error) {
+      console.log("Error from account deletion: ", error.message);
+      throw new Error(error.message);
+    }
+
+    const { error: updatingError } = await supabase
+      .from("clients")
+      .update({ picture: null, isDeleted: true })
+      .eq("user_id", user.id);
+    if (updatingError) {
+      console.log("Error from client table: ", updatingError);
+      throw new Error(updatingError.message);
+    }
+    return { error: "" };
+  } catch (error: any) {
+    return { error: `Something went wrong: ${error.message}` };
   }
 }
 

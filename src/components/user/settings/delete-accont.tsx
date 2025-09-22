@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { User } from "@lib/types";
-import { deleteAccountAction } from "@lib/actions/authActions";
+import { deleteAccountTimerAction } from "@lib/actions/authActions";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
@@ -32,6 +32,7 @@ import {
   isPast,
 } from "date-fns";
 import { DEL_ACC_DAYS } from "@lib/constants";
+
 interface Props {
   userData: {
     isAdmin: boolean;
@@ -41,6 +42,11 @@ interface Props {
 }
 
 const DeleteAccount = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
+  // const fromDate2 = new Date();
+  // const toDate2 = new Date();
+  // toDate2.setDate(fromDate2.getDate() + DEL_ACC_DAYS);
+
+  // console.log(fromDate2, toDate2.toISOString());
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -50,7 +56,7 @@ const DeleteAccount = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
   const deleteDate = user.user_metadata?.deleteDate || "";
 
   // Date ="Sun Sep 21 2025 08:34:43 GMT+0300 (Eastern European Summer Time)-Mon Sep 22 2025 08:34:43 GMT+0300 (Eastern European Summer Time)"
-  const date: string[] = deleteDate !== "" ? deleteDate.split("-") : [];
+  const date: string[] = deleteDate !== "" ? deleteDate.split("&") : [];
   const today = new Date();
   const fromDate = new Date(date[0]);
   const toDate = new Date(date[1]);
@@ -62,11 +68,12 @@ const DeleteAccount = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
     toDate && fromDate ? differenceInSeconds(toDate, fromDate) : 0;
   const isDatePast = isPast(toDate);
   const daysLeftPercent = (secondsPast / totalSeconds) * 100;
+
   console.log(isDatePast);
   async function handleDelete() {
     try {
       setIsLoading(true);
-      const { error } = await deleteAccountAction(
+      const { error } = await deleteAccountTimerAction(
         {
           id: user.id,
           username: full_name,
@@ -84,7 +91,11 @@ const DeleteAccount = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
         title: `Done.`,
         description: (
           <SuccessToastDescription
-            message={"Your account will be deleted in 30 days."}
+            message={
+              date.length
+                ? "Account deletion has been canceled."
+                : `Your account will be deleted in ${DEL_ACC_DAYS} days.`
+            }
           />
         ),
       });
@@ -92,7 +103,7 @@ const DeleteAccount = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
       toast({
         variant: "destructive",
         title: "Something went wrong.",
-        description: <ErorrToastDescription error={error} />,
+        description: <ErorrToastDescription error={error.message} />,
       });
     } finally {
       setIsLoading(false);
@@ -136,14 +147,14 @@ const DeleteAccount = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
               <DialogDescription>
                 {daysRemanining ? (
                   <span>
-                    Your account is ${daysRemanining} away from deletion, feel
+                    Your account is {daysRemanining} away from deletion, feel
                     free to cancel it before{" "}
                     <span className=" text-destructive">
                       &apos;{format(toDate, "dd MMM yyy")}&apos;
                     </span>
                   </span>
                 ) : (
-                  `    The decision to delete your account will take effect after 30
+                  `    The decision to delete your account will take effect after ${DEL_ACC_DAYS}
                 days. You can cancel this deletion at any time before then.`
                 )}
               </DialogDescription>
