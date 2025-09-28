@@ -7,7 +7,6 @@ import Link from "next/link";
 import React from "react";
 import { KeySquare, PersonStanding, Users } from "lucide-react";
 import { TbMessageReport } from "react-icons/tb";
-import { createClient } from "@utils/supabase/server";
 
 const ICON_SIZE = 22;
 
@@ -75,7 +74,10 @@ const Layout = ({
       <div className="flex     overflow-hidden  flex-1  ">
         <SideBar links={links} />
 
-        <div className=" flex-1 overflow-y-auto max-h-full  p-2">
+        <div
+          id="page-container"
+          className=" flex-1 overflow-y-auto max-h-full  relative  p-2"
+        >
           {children}
         </div>
       </div>

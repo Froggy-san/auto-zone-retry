@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -53,14 +54,27 @@ const CategoryCarousel: React.FC<PropType> = (props) => {
   }
 
   function handleNavTo(category: CategoryProps) {
-    router.push(`/products?${params.toString()}`, { scroll: false });
+    router.push(`/products?categoryId=${category.id}`, { scroll: false });
   }
 
+  const selectedIndex = useMemo(() => {
+    return categories.findIndex((item) => item.id === Number(currCategory));
+  }, [categories, currCategory]);
+
+  // Makes sure that the selected tab is displayed on the screen.
+  useEffect(() => {
+    if (emblaApi && selectedIndex > -1) {
+      emblaApi.scrollTo(selectedIndex, true);
+    }
+  }, [emblaApi, selectedIndex]);
+
+  // Re-initializes the carousel mounting.
   useEffect(() => {
     if (emblaApi) {
       emblaApi.reInit();
+      // emblaApi.scrollTo(8, true);
     }
-  }, [categories, emblaApi]);
+  }, [emblaApi, categories]); // Note: The categories is added in the dependencies array because we want the carousel to re-initialize when ever the categories array changes.
 
   //   useEffect(() => {
   //     if (slidesRef.current && emblaApi) {
@@ -109,7 +123,7 @@ const CategoryCarousel: React.FC<PropType> = (props) => {
                   className={cn(
                     "select-none px-2 py-1  text-xs  whitespace-nowrap  font-bold rounded-[.5rem] bg-secondary hover:bg-muted-foreground/20   dark:bg-card dark:hover:bg-accent  transition-colors duration-200",
                     {
-                      "bg-muted-foreground/20 dark:bg-accent":
+                      "bg-primary dark:bg-primary dark:hover:bg-primary/85  text-primary-foreground hover:bg-primary":
                         Number(currCategory) === category.id,
                     }
                   )}

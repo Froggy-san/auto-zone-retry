@@ -343,7 +343,6 @@ function StepOne({
               <FormControl>
                 <CarBrandsCombobox
                   options={carMakers}
-                  shouldFilter={false}
                   value={field.value}
                   setValue={(value) => {
                     field.onChange(value);

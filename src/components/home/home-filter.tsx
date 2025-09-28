@@ -58,11 +58,11 @@ const HomeFilter = ({ categories, carMakers, className }: Props) => {
       //     if (first.current) first.current.focus();
       //   }
       // }}
-      className={cn("space-y-2  w-full ", className)}
+      className={cn("space-y-2  w-full  mb-3", className)}
     >
       <CarBrandsCombobox
         ref={first}
-        className=" md:h-12"
+        className=" h-14"
         options={carMakers || []}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -75,7 +75,7 @@ const HomeFilter = ({ categories, carMakers, className }: Props) => {
       />
 
       <ModelCombobox
-        className=" md:h-12"
+        className=" h-14"
         disabled={!carModels || !carModels.length}
         options={carModels || []}
         value={modelId}
@@ -85,7 +85,7 @@ const HomeFilter = ({ categories, carMakers, className }: Props) => {
         }}
       />
       <ComboBox
-        className="md:h-12"
+        className=" h-14"
         placeholder="Select generation..."
         disabled={!modelId || !carModels || !carModels.length}
         options={carGenerations || []}
@@ -93,7 +93,7 @@ const HomeFilter = ({ categories, carMakers, className }: Props) => {
         setValue={setGenerationId}
       />
       <ComboBox
-        className=" md:h-12"
+        className=" h-14"
         placeholder="Select category..."
         disabled={!categories?.length}
         options={categories || []}
@@ -102,7 +102,7 @@ const HomeFilter = ({ categories, carMakers, className }: Props) => {
       />
 
       <ComboBox
-        className=" md:h-12"
+        className=" h-14"
         placeholder="Select product type..."
         shouldFilter={false}
         disabled={!productTypes?.length}
@@ -119,7 +119,7 @@ const HomeFilter = ({ categories, carMakers, className }: Props) => {
         disabled={disabled}
         onClick={handleClick}
         size="sm"
-        className=" w-full select-none "
+        className=" w-full select-none  "
       >
         Pick up
       </Button>

@@ -32,7 +32,7 @@ import { Button } from "@components/ui/button";
 import { cn } from "@lib/utils";
 import useSearchCategories from "@lib/queries/categories/useSearchCategory";
 import { categoryResult, Product } from "@lib/types";
-import { useMediaQuery } from "@mui/material";
+import { ClickAwayListener, useMediaQuery } from "@mui/material";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import CloseButton from "@components/close-button";
@@ -50,8 +50,6 @@ const Search = ({ className }: Props) => {
 
   const { categories, productTypes, products, error, isLoading } =
     useSearchCategories(searchTerm);
-
-  console.log(productTypes, "PRoducttpy");
 
   function handleCategory(url: string) {
     router.push(url);
@@ -148,154 +146,165 @@ function SearchBarOnBigScreens({
     }
   }, [searchTerm]);
   return (
-    <Command
-      // value={searchTerm}
-
-      onValueChange={setSearchTerm}
-      shouldFilter={false}
-      className={cn(
-        "rounded-lg border shadow-md w-full my-2  overflow-visible  relative ",
-        className,
-
-        { "animate-pulse": isLoading }
-      )}
+    <ClickAwayListener
+      onClickAway={() => {
+        setShow(false);
+      }}
     >
-      {/* <CommandInput placeholder="Type a command or search..." /> */}
-      <div className=" relative ">
-        <Input
-          onFocus={() => {
-            // if (isSmallScreen) return;
-            setShow(true);
-          }}
-          onBlur={() => {
-            // if (isSmallScreen) return;
-            setShow(false);
-          }}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="    w-full pr-4 focus-visible:ring-2"
-        />
-        <Button
-          size="sm"
-          className=" absolute right-2 top-1/2  p-0 h-7 w-7  -translate-y-1/2"
-        >
-          <PackageSearch className=" h-4 w-4  " />
-        </Button>
-      </div>
+      <Command
+        // value={searchTerm}
 
-      <AnimatePresence>
-        {show && (
-          <motion.div
-            ref={divRef}
-            initial={{
-              y: 70,
-              left: "50%",
-              translateX: "-50%",
-              width: 350,
-              // scale: 0.9,
-              maxHeight: 120, // Change height to maxHeight
-              opacity: 0,
-            }}
-            animate={{
-              y: 50,
-              left: "50%",
-              translateX: "-50%",
-              width: 800,
-              // scale: 1,
+        onValueChange={setSearchTerm}
+        shouldFilter={false}
+        className={cn(
+          "rounded-lg border shadow-md w-full my-2  overflow-visible  relative ",
+          className,
 
-              maxHeight: 300, // Change height to maxHeight
-              opacity: 1,
-              transition: { type: "spring", stiffness: 300, damping: 15 },
-            }}
-            exit={{
-              y: 70,
-              left: "50%",
-              translateX: "-50%",
-              width: 350,
-              // scale: 0.9,
-
-              maxHeight: 120, // Change height to maxHeight
-              opacity: 0,
-              transition: { duration: 0.2 },
-            }}
-            className="absolute w-full flex p-2    gap-2 flex-row  overscroll-contain overflow-y-scroll bg-card z-40 rounded-xl border"
-          >
-            <CommandList className=" overflow-visible max-h-full  flex-1">
-              {/* <h3 className=" text-sm text-muted-foreground mb-3">
-                Categories
-              </h3>
-              {isLoading ? (
-                <p className=" text-center">Loading...</p>
-              ) : (
-                <CommandEmpty>No results found.</CommandEmpty>
-              )} */}
-              <>
-                <CommandGroup heading="Categories">
-                  {categories?.length ? (
-                    categories?.map((cat) => (
-                      <CommandItem
-                        key={cat.id}
-                        value={cat.name}
-                        onClick={() =>
-                          handleCategory(
-                            `/products?page=1&categoryId=${cat.id}`
-                          )
-                        }
-                        onSelect={() =>
-                          handleCategory(
-                            `/products?page=1&categoryId=${cat.id}`
-                          )
-                        }
-                        className="  font-semibold"
-                      >
-                        <span>{cat.name}</span>
-                      </CommandItem>
-                    ))
-                  ) : (
-                    <p className="  text-sm pl-3">No categoy results found.</p>
-                  )}
-                </CommandGroup>
-                <CommandGroup heading="Sub-Categories">
-                  {productTypes?.length ? (
-                    productTypes.map((type) => (
-                      <CommandItem
-                        key={type.id}
-                        value={type.name}
-                        onClick={() =>
-                          handleCategory(
-                            `/products?page=1&categoryId=${type.categoryId}&productTypeId=${type.id}`
-                          )
-                        }
-                        onSelect={() =>
-                          handleCategory(
-                            `/products?page=1&categoryId=${type.categoryId}&productTypeId=${type.id}`
-                          )
-                        }
-                        className=" font-semibold"
-                      >
-                        {type.image ? (
-                          <img
-                            src={type.image}
-                            alt={`${type.name} image`}
-                            className="  max-w-16   h-12 pr-2 object-contain"
-                          />
-                        ) : null}{" "}
-                        <span>{type.name}</span>
-                      </CommandItem>
-                    ))
-                  ) : (
-                    <p className="  text-sm pl-3">
-                      No sub-category results found.
-                    </p>
-                  )}
-                </CommandGroup>
-              </>
-            </CommandList>
-            {products?.length ? <ProductList products={products} /> : null}
-          </motion.div>
+          { "animate-pulse": isLoading }
         )}
-      </AnimatePresence>
-    </Command>
+      >
+        {/* <CommandInput placeholder="Type a command or search..." /> */}
+        <div className=" relative ">
+          <Input
+            onFocus={() => {
+              // if (isSmallScreen) return;
+              setShow(true);
+            }}
+            onBlur={() => {
+              // if (isSmallScreen) return;
+              // setShow(false);
+            }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="    w-full pr-4 focus-visible:ring-2"
+          />
+          <Button
+            size="sm"
+            className=" absolute right-2 top-1/2  p-0 h-7 w-7  -translate-y-1/2"
+          >
+            <PackageSearch className=" h-4 w-4  " />
+          </Button>
+        </div>
+
+        <AnimatePresence>
+          {show && (
+            <motion.div
+              ref={divRef}
+              initial={{
+                y: 70,
+                left: "50%",
+                translateX: "-50%",
+                width: 350,
+                // scale: 0.9,
+                maxHeight: 120, // Change height to maxHeight
+                opacity: 0,
+              }}
+              animate={{
+                y: 50,
+                left: "50%",
+                translateX: "-50%",
+                width: 800,
+                // scale: 1,
+
+                maxHeight: 300, // Change height to maxHeight
+                opacity: 1,
+                transition: { type: "spring", stiffness: 300, damping: 15 },
+              }}
+              exit={{
+                y: 70,
+                left: "50%",
+                translateX: "-50%",
+                width: 350,
+                // scale: 0.9,
+
+                maxHeight: 120, // Change height to maxHeight
+                opacity: 0,
+                transition: { duration: 0.2 },
+              }}
+              className="absolute w-full flex p-2    gap-2 flex-row  overscroll-contain overflow-y-scroll bg-card z-40 rounded-xl border"
+            >
+              <CommandList className=" overflow-visible max-h-full  flex-1">
+                {/* <h3 className=" text-sm text-muted-foreground mb-3">
+                Categories
+                </h3>
+                {isLoading ? (
+                  <p className=" text-center">Loading...</p>
+                  ) : (
+                    <CommandEmpty>No results found.</CommandEmpty>
+                    )} */}
+                <>
+                  <CommandGroup heading="Categories">
+                    {categories?.length ? (
+                      categories?.map((cat) => (
+                        <CommandItem
+                          key={cat.id}
+                          value={cat.name}
+                          onClick={() => {
+                            setShow(false);
+
+                            // handleCategory(
+                            //   `/products?page=1&categoryId=${cat.id}`
+                            // );
+                          }}
+                          onSelect={() => {
+                            setShow(false);
+                            handleCategory(
+                              `/products?page=1&categoryId=${cat.id}`
+                            );
+                          }}
+                          className="  font-semibold"
+                        >
+                          <span>{cat.name}</span>
+                        </CommandItem>
+                      ))
+                    ) : (
+                      <p className="  text-sm pl-3">
+                        No categoy results found.
+                      </p>
+                    )}
+                  </CommandGroup>
+                  <CommandGroup heading="Sub-Categories">
+                    {productTypes?.length ? (
+                      productTypes.map((type) => (
+                        <CommandItem
+                          key={type.id}
+                          value={type.name}
+                          onClick={() =>
+                            handleCategory(
+                              `/products?page=1&categoryId=${type.categoryId}&productTypeId=${type.id}`
+                            )
+                          }
+                          onSelect={() =>
+                            handleCategory(
+                              `/products?page=1&categoryId=${type.categoryId}&productTypeId=${type.id}`
+                            )
+                          }
+                          className=" font-semibold"
+                        >
+                          {type.image ? (
+                            <img
+                              src={type.image}
+                              alt={`${type.name} image`}
+                              className="  max-w-16   h-12 pr-2 object-contain"
+                            />
+                          ) : null}{" "}
+                          <span>{type.name}</span>
+                        </CommandItem>
+                      ))
+                    ) : (
+                      <p className="  text-sm pl-3">
+                        No sub-category results found.
+                      </p>
+                    )}
+                  </CommandGroup>
+                </>
+              </CommandList>
+              {products?.length ? <ProductList products={products} /> : null}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Command>
+    </ClickAwayListener>
   );
 }
 

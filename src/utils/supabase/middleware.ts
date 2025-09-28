@@ -41,6 +41,14 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const restrictedRoutes = ["/dashboard", "/garage", "/user"];
+  const isAdmin = user?.user_metadata.role === "Admin";
+  const adminOnlyPages = ["/dashboard", "/garage"];
+
+  if (adminOnlyPages.includes(path) && !isAdmin) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
   if (!user && !path.startsWith("/login") && restrictedRoutes.includes(path)) {
     // no user, potentially respond by redirecting the user to the login page
     // const url = request.nextUrl.clone();

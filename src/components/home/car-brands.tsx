@@ -100,9 +100,10 @@ function DetailsDialog({ open, setOpen, carBrand, className }: Dia) {
 
   const models = carBrand?.carModels;
   const generations = model?.carGenerations;
+
   function handleSelect() {
     console.log("Called");
-    console.log(modelId, generationId, carBrand);
+
     if (!modelId || !generationId || !carBrand) return;
     console.log("CLICED");
     const route = `/products?page=1&makerId=${carBrand.id}&carBrand=${carBrand.name}&modelId=${modelId}&generationId=${generationId}`;
@@ -111,6 +112,7 @@ function DetailsDialog({ open, setOpen, carBrand, className }: Dia) {
   }
 
   const handleReset = useCallback(() => {
+    console.log("CALLED AGAIN");
     setModelId(0);
     setGenerationId(0);
   }, [open]);
