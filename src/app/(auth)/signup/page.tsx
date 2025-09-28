@@ -26,13 +26,14 @@ import SuccessToastDescription, {
 } from "@/components/toast-items";
 import { signUp } from "@/lib/actions/authActions";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 type sginUpSchemaTypes = z.infer<typeof SignUpFormSchema>;
 
 const Page = () => {
   const [isShowPass, setIsShowPass] = useState(false);
   const { toast } = useToast();
-
+  const queryClient = useQueryClient();
   const router = useRouter();
   const form = useForm<z.infer<typeof SignUpFormSchema>>({
     mode: "onChange",
@@ -66,6 +67,7 @@ const Page = () => {
           <SuccessToastDescription message="Account created successfully." />
         ),
       });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       router.push("/");
     } catch (error: any) {
       toast({

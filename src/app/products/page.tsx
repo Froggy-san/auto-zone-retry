@@ -72,7 +72,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
       getAllCarMakersAction(),
     ]
   );
-
+  const isAdmin = user?.user_metadata.role === "Admin";
   const { data: categoriesData, error: categoriesError } = categories;
   const { data: productBrandsData, error: productBrandsError } = productBrands;
   // const { data: brandTypesData, error: brandTypesError } = brandTypes;
@@ -92,9 +92,9 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
       className=" min-h-screen bg-background flex flex-col"
     >
       <div className=" border-b">
-        <Header />
+        <Header showSearch />
         <div className="  px-2 mb-4  space-y-2 ">
-          <h3 className=" text-md font-semibold">Categories</h3>
+          {/* <h3 className=" text-md font-semibold">Categories</h3> */}
           <CategoryCarousel
             categories={categoriesData || []}
             options={{ dragFree: true }}
@@ -151,7 +151,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
                 />
               </div>
             )} */}
-            {user && (
+            {isAdmin && (
               <div className=" my-10 px-2">
                 <ProductManagement
                   categories={categoriesData || []}

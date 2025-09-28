@@ -79,10 +79,10 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
                     <motion.video
                       controls
                       src={image}
-                      initial={{ scale: 0.7, opacity: 0 }}
+                      initial={{ scale: 1.1, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.7, opacity: 0 }}
-                      transition={{ duration: 0.2, type: "spring" }}
+                      exit={{ scale: 1.1, opacity: 0 }}
+                      transition={{ duration: 0.1, ease: "linear" }}
                       className="max-h-[90%] max-w-[100%] object-contain sm:max-h-[100%]"
                     />
                   </div>
@@ -97,10 +97,10 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
                   >
                     <motion.img
                       src={image}
-                      initial={{ scale: 0.7, opacity: 0 }}
+                      initial={{ scale: 1.1, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.7, opacity: 0 }}
-                      transition={{ duration: 0.2, type: "spring" }}
+                      exit={{ scale: 1.1, opacity: 0 }}
+                      transition={{ duration: 0.1, ease: "linear" }}
                       alt="Enlarged view"
                       className="max-h-[90%] max-w-[100%] object-contain sm:max-h-[95%]"
                     />

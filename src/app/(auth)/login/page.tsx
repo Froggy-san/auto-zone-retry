@@ -44,7 +44,7 @@ const Page = () => {
     mode: "onChange",
     resolver: zodResolver(LoginFormSchema),
     defaultValues: {
-      username: "test@test.com",
+      username: "admin@admin.com",
       password: "test123456",
     },
   });

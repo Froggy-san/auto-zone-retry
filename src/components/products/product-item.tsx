@@ -22,7 +22,7 @@ const ProductItem = ({
   appliedFilters: string;
 }) => {
   const viewedImages = product.productImages?.map((imgObj) => imgObj.imageUrl);
-
+  const isAdmin = user?.user_metadata.role === "Admin";
   return (
     <li
       className={`${(!product.isAvailable || !product.stock) && "opacity-50 "}`}
@@ -76,7 +76,7 @@ const ProductItem = ({
                   ? "In stock"
                   : "Out of stock"}
               </span>
-              {!user ? null : (
+              {user && isAdmin && (
                 <ProdcutAction
                   imagesToDelete={viewedImages}
                   currPage={currPage}

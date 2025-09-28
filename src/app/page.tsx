@@ -42,7 +42,7 @@ export default async function Home() {
         <Header showSearch />
 
         <div className="  px-2 mb-4  space-y-2 mt-1">
-          <h3 className=" text-md font-semibold">Categories</h3>
+          {/* <h3 className=" text-md font-semibold">Categories</h3> */}
           <CategoryCarousel
             asLinks
             categories={categoriesData || []}
