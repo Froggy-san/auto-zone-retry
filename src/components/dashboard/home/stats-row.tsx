@@ -69,7 +69,7 @@ const StatsRow = (filters: Params) => {
       </TableCell>
 
       <TableCell
-        colSpan={2}
+        colSpan={3}
         className=" text-right   min-w-[100px] max-w-[120px]  break-all"
       >
         {data

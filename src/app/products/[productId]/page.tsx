@@ -7,7 +7,12 @@ import { ProductImage } from "@lib/types";
 import Link from "next/link";
 import React from "react";
 import { getCurrentUser } from "@lib/actions/authActions";
-import { ArrowBigLeftDash, ArrowBigRightDash, ImageOff } from "lucide-react";
+import {
+  ArrowBigLeftDash,
+  ArrowBigRightDash,
+  ArrowLeft,
+  ImageOff,
+} from "lucide-react";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import { getAllProductBrandsAction } from "@lib/actions/productBrandsActions";
 import { getAllProductTypesAction } from "@lib/actions/productTypeActions";
@@ -132,7 +137,7 @@ const ProductView = async ({
             <ImageOff className=" w-10 h-10" /> No images.
           </div>
         )}
-        <main className=" py-1 px-6">
+        <main className=" py-1 px-2 sm:px-6">
           <ProdcutViewDetials
             user={user}
             isAdmin={isAdmin}

@@ -55,6 +55,7 @@ import Alert from "@components/alert";
 import { isNull } from "lodash";
 import { formatCurrency } from "@lib/client-helpers";
 import CurrencyInput from "react-currency-input-field";
+import PrioritySelect from "@components/priority-select";
 
 interface Client {
   name: string;
@@ -96,6 +97,8 @@ const ServicesForm = ({
     carId: (car && car.id) || 0,
     serviceStatusId: 0,
     note: "",
+    kmCount: "",
+    priority: "",
     productsToSell: [],
     serviceFees: [{ price: 0, discount: 0, categoryId: 0, notes: "" }],
   };
@@ -371,6 +374,65 @@ const ServicesForm = ({
                           </FormControl>
                           <FormDescription>
                             Enter service status.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row  gap-2   space-y-4 sm:space-y-0">
+                    <FormField
+                      disabled={isLoading}
+                      control={form.control}
+                      name="kmCount"
+                      render={({ field }) => (
+                        <FormItem className=" w-full mb-auto">
+                          <FormLabel htmlFor="km-count">Km Count</FormLabel>
+                          <FormControl>
+                            <CurrencyInput
+                              id="km-count"
+                              name="km-count"
+                              placeholder="km-count"
+                              decimalsLimit={2} // Max number of decimal places
+                              prefix="Km " // Currency symbol (e.g., Egyptian Pound)
+                              decimalSeparator="." // Use dot for decimal
+                              groupSeparator="," // Use comma for thousands
+                              value={field.value || ""}
+                              onValueChange={(formattedValue, name, value) => {
+                                // setFormattedListing(formattedValue || "");
+
+                                field.onChange(formattedValue || "");
+                              }}
+                              className="input-field "
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter service distance meter reading.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      disabled={isLoading}
+                      control={form.control}
+                      name="priority"
+                      render={({ field }) => (
+                        <FormItem className=" w-full mb-auto">
+                          <FormLabel htmlFor="km-count">
+                            Service Priority
+                          </FormLabel>
+                          <FormControl>
+                            <PrioritySelect
+                              value={field.value}
+                              onChange={field.onChange}
+                              className=" w-full flex items-center"
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter the priority level of the service.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>

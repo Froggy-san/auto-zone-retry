@@ -338,6 +338,8 @@ export const CreateServiceFeeSchema = z
 export const CreateServiceSchema = z.object({
   clientId: z.number().min(1, { message: "Client is required." }),
   carId: z.number().min(1, { message: "Car is required." }),
+  kmCount: z.string(),
+  priority: z.string(),
   serviceStatusId: z
     .number()
     .min(1, { message: "Service status is required." }),
@@ -784,6 +786,8 @@ export interface Service {
   created_at: string;
   totalPriceAfterDiscount: number;
   cars: CarItem;
+  priority: string;
+  kmCount: string;
   serviceStatuses: ServiceStatus;
   note: string;
   productsToSell: ProductToSell[];

@@ -25,6 +25,7 @@ import NoteDialog from "@components/garage/note-dialog";
 import { Badge } from "@components/ui/badge";
 import { IoCarSport } from "react-icons/io5";
 import { Blend, LucideCircleCheck } from "lucide-react";
+import BackBtn from "./back-btn";
 
 const ICON_SIZE = 20;
 const ProdcutViewDetials = ({
@@ -44,40 +45,43 @@ const ProdcutViewDetials = ({
   return (
     <div>
       <div className=" flex   gap-5 flex-wrap  mb-24 justify-between">
-        <Breadcrumb>
-          <BreadcrumbList className=" text-xs">
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link href="/products">Products</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link
-                  href={`/products?page=1&categoryId=${product.categories.id}`}
-                >
-                  {product.categories.name}
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
+        <div className=" flex items-center gap-3">
+          <BackBtn />
+          <Breadcrumb>
+            <BreadcrumbList className=" text-xs">
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/products">Products</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link
+                    href={`/products?page=1&categoryId=${product.categories.id}`}
+                  >
+                    {product.categories.name}
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
 
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link
-                  href={`/products?page=1&productTypeId=${product.productTypes.id}`}
-                >
-                  {product.productTypes.name}
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{product.name}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link
+                    href={`/products?page=1&productTypeId=${product.productTypes.id}`}
+                  >
+                    {product.productTypes.name}
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{product.name}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
         <div className="text-xs  text-nowrap text-muted-foreground ml-auto text-right">
           <div>
             {product.stock ? (

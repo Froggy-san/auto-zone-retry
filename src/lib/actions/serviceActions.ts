@@ -133,7 +133,8 @@ export async function createServiceAction(
     clientId: service.clientId,
     carId: service.carId,
     serviceStatusId: service.serviceStatusId,
-    kmCount: "",
+    kmCount: service.kmCount,
+    priority: service.priority,
     note: service.note,
     totalPrice: service.totalPrice,
   };
@@ -201,6 +202,7 @@ interface EditProps {
   serviceStatusId?: number;
   note?: string;
   totalPrice?: number;
+  priority?: string;
 }
 
 export async function editServiceAction(serivceToEdit: EditProps) {

@@ -208,7 +208,7 @@ function SlideOne({
     <CarouselItem key="first-item" className=" h-full w-full pl-[0.99rem] ">
       <div className=" h-full  w-full ">
         <Card className=" w-full h-full  border-none relative  shadow-none  overflow-hidden sm:rounded-xl  bg-cover bg-center rounded-none ">
-          {/* <video
+          <video
             autoPlay
             loop
             muted
@@ -216,17 +216,16 @@ function SlideOne({
             src="/videos/banner-video.mp4"
             className="object-cover object-bottom h-full w-full max-w-full absolute left-0 top-0 mask-accent"
           >
-          
             <source src="/videos/banner-video.mp4" type="video/mp4" />
-          </video> */}
-          <Image
+          </video>
+          {/* <Image
             // src="https://media.gq-magazine.co.uk/photos/5fdcb8470d9a429c2d245628/16:9/w_1600,c_limit/2021CARS_AUDIEtron.jpg"
             // src="https://tmna.aemassets.toyota.com/is/image/toyota/lexus/images/performance/high-performance/Lexus-RCF-Performance-explore-lexus-high-performance-desktop-1400x580-LEX-RCF-MY25-0009.jpg?wid=1400&hei=580"
             // src="https://www.asv.com.au/wp-content/uploads/2017/10/shutterstock_126064121-1.jpg"
             src={FirstSlideImage}
             alt="first-silde-image"
             className=" object-cover object-bottom   h-full   w-full  max-w-full absolute left-0 top-0  mask-accent  "
-          />
+          /> */}
 
           {/* <img
             src="https://lirp.cdn-website.com/194049ad/dms3rep/multi/opt/478107962-1920w.jpg"
