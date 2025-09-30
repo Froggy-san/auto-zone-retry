@@ -169,7 +169,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
             />
           </div>
 
-          <AvailableSwitch isAvailable={isAvailable || "false"} />
+          <AvailableSwitch isAvailable={isAvailable} />
           <ProdcutFilterInput name={name || ""} />
         </section>
       )}
@@ -307,11 +307,12 @@ function AvailableSwitch({
   isAvailable,
   className,
 }: {
-  isAvailable: string;
+  isAvailable?: string;
   className?: string;
 }) {
-  const available = JSON.parse(isAvailable);
-  const [check, setCheck] = useState(Boolean(available));
+  const available = isAvailable ? JSON.parse(isAvailable) : false;
+
+  const [check, setCheck] = useState(isAvailable !== "");
 
   const searchParams = useSearchParams();
   const pathname = usePathname();

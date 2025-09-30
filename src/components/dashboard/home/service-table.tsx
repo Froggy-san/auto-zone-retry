@@ -64,6 +64,7 @@ import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
 import Spinner from "@components/Spinner";
+import { FaArrowUpWideShort } from "react-icons/fa6";
 
 import { deleteClientByIdAction } from "@lib/actions/clientActions";
 import {
@@ -102,6 +103,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import downloadAsPdf from "@lib/services/download-pdf";
 import ServiceSelectControls from "./service-select-controls";
 import { useQueryClient } from "@tanstack/react-query";
+import { Priority } from "@components/priority-select";
 interface Props {
   isClientPage?: boolean;
   isAdmin: boolean;
@@ -214,7 +216,7 @@ const ServiceTable = ({
               <TableHead className=" whitespace-nowrap">
                 SOLD PRODUCTS
               </TableHead>
-              {/* <TableHead className=""></TableHead> */}
+              <TableHead className="">PRIORITY</TableHead>
               <TableHead className="text-right" colSpan={2}>
                 TOTAL PRICE
               </TableHead>
@@ -253,7 +255,7 @@ const ServiceTable = ({
               </TableCell>
 
               <TableCell
-                colSpan={2}
+                colSpan={3}
                 className=" text-right   min-w-[100px] max-w-[120px]  break-all"
               >
                 {formatCurrency(totals)}
@@ -362,7 +364,9 @@ function Row({
             total={total}
           />
         </TableCell>
-
+        <TableCell className=" relative">
+          <Priority priority={service.priority} />
+        </TableCell>
         <TableCell className=" min-w-[120px] max-w-[170px] break-all ">
           {formatCurrency(total)}
         </TableCell>
@@ -442,6 +446,37 @@ function TableActions({
   const router = useRouter();
   const params = new URLSearchParams(searchParam);
 
+  const handleChangePriority = async (
+    priority: "Low" | "Medium" | "High" | string
+  ) => {
+    setIsLoading(true);
+    try {
+      await editServiceAction({
+        priority,
+        id: service.id,
+      });
+
+      setIsLoading(false);
+      // handleClose();
+      toast({
+        className: "bg-primary  text-primary-foreground",
+        title: `Data updated!.`,
+        description: (
+          <SuccessToastDescription
+            message={`Service priority has been uptated.'`}
+          />
+        ),
+      });
+    } catch (error: any) {
+      setIsLoading(false);
+      toast({
+        variant: "destructive",
+        title: "Faild to update the service priority.",
+        description: <ErorrToastDescription error={error.message} />,
+      });
+    }
+  };
+
   const handleChangeStatus = async (id: number) => {
     setIsLoading(true);
     try {
@@ -465,7 +500,7 @@ function TableActions({
       setIsLoading(false);
       toast({
         variant: "destructive",
-        title: "Faild to delete client's data",
+        title: "Faild to update the service status.",
         description: <ErorrToastDescription error={error.message} />,
       });
     }
@@ -610,6 +645,77 @@ function TableActions({
               >
                 <PackagePlus className=" w-4 h-4" /> Add more sold products
               </DropdownMenuItem>
+              <DropdownMenuSub
+              // disabled={isLoading}
+              // className=" gap-2"
+              // onClick={() => {
+              //   setOpen("delete");
+              // }}
+              >
+                <DropdownMenuSubTrigger className=" gap-2">
+                  {" "}
+                  <FaArrowUpWideShort /> Change priority
+                </DropdownMenuSubTrigger>
+
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className=" max-h-[170px] overflow-y-auto">
+                    <DropdownMenuItem
+                      key="high"
+                      className=" gap-2 justify-between"
+                      onClick={async () => {
+                        if (service.priority?.toLocaleLowerCase() === "high")
+                          return;
+                        await handleChangePriority("High");
+                      }}
+                    >
+                      <Priority priority="high" />
+                      {service.priority?.toLocaleLowerCase() == "high" && (
+                        <Check className=" w-3 h-3" />
+                      )}
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      key="medium"
+                      className=" gap-2 justify-between"
+                      onClick={async () => {
+                        if (service.priority?.toLocaleLowerCase() === "medium")
+                          return;
+                        await handleChangePriority("Medium");
+                      }}
+                    >
+                      <Priority priority="medium" />
+                      {service.priority?.toLocaleLowerCase() == "medium" && (
+                        <Check className=" w-3 h-3" />
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      key="low"
+                      className=" gap-2 justify-between"
+                      onClick={async () => {
+                        if (service.priority?.toLocaleLowerCase() === "low")
+                          return;
+                        await handleChangePriority("Low");
+                      }}
+                    >
+                      <Priority priority="low" />
+                      {(service.priority?.toLocaleLowerCase() == "low" ||
+                        !service.priority) && <Check className=" w-3 h-3" />}
+                    </DropdownMenuItem>
+
+                    {/* <DropdownMenuItem
+                      key="normal"
+                      className=" gap-2 justify-between "
+                      onClick={async () => {
+                        if (!service.priority) return;
+                        await handleChangePriority("");
+                      }}
+                    >
+                      <Priority priority="low" />
+                      {!service.priority && <Check className=" w-3 h-3" />}
+                    </DropdownMenuItem> */}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
               <DropdownMenuSub
               // disabled={isLoading}
               // className=" gap-2"

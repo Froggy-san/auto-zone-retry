@@ -419,7 +419,10 @@ body {
     visibility: hidden;
     transition: visibility 0s linear 150ms;
   }
-
+  .signal-bar-destructive-half-opacity {
+    /* This CSS rule will be successfully parsed by the browser */
+    stroke: hsla(var(--destructive), 0.5);
+  }
   .mask-accent {
     mask-repeat: no-repeat;
 

@@ -79,9 +79,12 @@ export async function getProductsAction({
 
   if (generationId) query = query + `&generationsArr=ilike.*${generationId}*`;
 
-  if (isAvailable) query = query + `&isAvailable=eq.${isAvailable === "true"}`;
-  // query = query + `&productImages.order=created_at.asc`;
-  console.log("maker id", makerId);
+  if (isAvailable == "true") {
+    query = query + `&isAvailable=eq.${isAvailable === "true"}&stock=gte.${1}`;
+  }
+  if (isAvailable == "false") {
+    query = query + `&or=(isAvailable.eq.false,stock.eq.0)`;
+  }
 
   const headers = {
     apikey: `${supabaseKey}`,

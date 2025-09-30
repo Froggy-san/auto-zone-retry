@@ -8,6 +8,7 @@ import { getCurrentUser } from "@lib/actions/authActions";
 import { getAllCategoriesAction } from "@lib/actions/categoriesAction";
 import MostPop from "@components/home/most-pop";
 import { HomeCarousel } from "@components/home/home-carousel";
+import { BiSignal3 } from "react-icons/bi";
 
 import StoreServices from "@components/home/store-services";
 import {
@@ -17,6 +18,8 @@ import {
 import CarBrands from "@components/home/car-brands";
 import CategoryList from "@components/home/category-list";
 import Footer from "@components/home/footer";
+import { PiCellSignalMediumBold } from "react-icons/pi";
+import ColoredSignalIcon from "@components/ColoredSignals";
 
 export default async function Home() {
   const [categories, user, carBrands] = await Promise.all([
@@ -64,7 +67,44 @@ export default async function Home() {
       /> */}
 
       <StoreServices className=" my-20" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        className="lucide lucide-signal-medium-icon lucide-signal-medium w-14 h-14"
+      >
+        <path d="M2 20h.01" stroke="green" />
+        <path d="M7 20v-4" />
+        <path d="M12 20v-8" />
+      </svg>
 
+      <PiCellSignalMediumBold className=" w-14 h-14 bg-gren" />
+
+      <ColoredSignalIcon
+        bar1Color="hsl(353.94deg 100% 63.14%)"
+        bar2Color="hsl(353.94deg 100% 63.14%)"
+        bar3Color="hsl(353.94deg 100% 63.14%)"
+        size={30}
+      />
+      <ColoredSignalIcon
+        bar1Color="hsl(207.95deg 93.06% 66.08%)"
+        bar2Color="hsl(207.95deg 93.06% 66.08%)"
+        bar3Color="hsla(207.95deg, 93.06%, 66.08%, 25%)"
+        size={30}
+      />
+
+      <ColoredSignalIcon
+        bar1Color="hsl(127.46deg 89.33% 44.12%)"
+        bar2Color="hsla(127.46deg, 89.33%, 44.12%, 25%)"
+        bar3Color="hsla(127.46deg, 89.33%, 44.12%, 25%)"
+        size={30}
+      />
       <section className=" p-2">
         <CategoryList categories={categoriesData || []} />
 
