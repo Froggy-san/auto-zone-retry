@@ -27,7 +27,7 @@ const ITEMS: Omit<ItemProps, "className" | "focused" | "focus" | "unFocus">[] =
     },
     {
       icon: <PiEngineBold className=" w-10 h-10  xs:w-12 xs:h-12 " />,
-      link: "",
+      link: "/engine-check",
       header: "Engine check-up",
       description: "We will check your engine and give you a free report.",
     },
@@ -41,7 +41,7 @@ const ITEMS: Omit<ItemProps, "className" | "focused" | "focus" | "unFocus">[] =
 
     {
       icon: <TbBatteryAutomotive className=" w-10 h-10  xs:w-12 xs:h-12 " />,
-      link: "",
+      link: "battary-testing",
       header: "Battery Solutions",
       description:
         "Check it before you buy it or bring a dead battery back to life.",

@@ -449,6 +449,31 @@ body {
     -webkit-mask-mode: alpha;
   }
 
+  .mask-accent-small {
+    mask-repeat: no-repeat;
+
+    /* filter: brightness(80%); */
+    /* 3. The magic: Apply the mask-image property */
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      /* Direction: Start the reveal from the bottom and move up */
+        hsl(var(--accent)) 0%,
+      /* Fully visible (accent color) at the bottom (0%) */ hsl(var(--accent))
+        80%,
+      /* Stay fully visible until 80% of the way up */ transparent 100%
+        /* Fully transparent (hidden) at the bottom (100%) */
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      hsl(var(--accent)) 0%,
+      hsl(var(--accent)) 80%,
+      transparent 100%
+    );
+
+    /* Optional settings for consistency */
+    mask-mode: alpha;
+    -webkit-mask-mode: alpha;
+  }
   /* styles/globals.css or a relevant CSS file */
   /* .dialog {
     transition: opacity 400ms cubic-bezier(0.16, 1, 0.3, 1),
