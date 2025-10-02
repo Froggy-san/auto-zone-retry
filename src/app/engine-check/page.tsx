@@ -98,10 +98,10 @@ const Page = () => {
             <h2 className=" text-3xl mb-3">FREE ENGINE CHECK-UP</h2>
             <p>
               Got a check engine light on? The free test takes less than a
-              minute and you'll get an easy to understand report printed and
-              emailed. It's the most complete, free warning light report backed
-              by technician verified fixes. Fix Finder can test for many issues
-              including*:
+              minute and you&apos;ll get an easy to understand report printed
+              and emailed. It&apos;s the most complete, free warning light
+              report backed by technician verified fixes. Fix Finder can test
+              for many issues including*:
             </p>
             <ul className=" pl-2">
               <li className=" list-disc">
@@ -118,8 +118,8 @@ const Page = () => {
               </li>
               <li className=" list-disc">
                 What maintenance the Service Soon light indicates, plus
-                instructions on how to reset the Service Soon light once you've
-                completed maintenance
+                instructions on how to reset the Service Soon light once
+                you&apos;ve completed maintenance
               </li>
               <li className=" list-disc">
                 Upcoming recommended maintenance specific for your vehicle and

@@ -67,7 +67,7 @@ const Page = () => {
                 FREE BATTERY TESTING, CHARGING & INSTALLATION SERVICES
               </h2>
               <p className="  text-xs  xs:text-xl sm:text-2xl ">
-                Trust Egypt's #1 Battary Destination
+                Trust Egypt&apos;s #1 Battary Destination
               </p>
             </div>
             <span className="  absolute w-[77px] h-full -skew-x-12 bg-primary -right-10 top-0" />
