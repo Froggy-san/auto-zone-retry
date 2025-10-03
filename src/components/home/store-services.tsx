@@ -49,7 +49,7 @@ const ITEMS: Omit<ItemProps, "className" | "focused" | "focus" | "unFocus">[] =
 
     {
       icon: <Recycle className=" w-10 h-10  xs:w-12 xs:h-12 " />,
-      link: "",
+      link: "/recycling",
       header: "Recycling",
       description:
         "Bring us your used oil or get credits for your used batteries.",

@@ -56,14 +56,14 @@ const Page = () => {
     >
       <Header />
       <section className=" px-4 space-y-10">
-        <h1 className=" text-4xl font-semibold">
+        <h1 className="  text-2xl sm:text-4xl font-semibold">
           FREE FIX FINDER SERVICE FROM AUTOZONE
         </h1>
         {/* BANNER */}
-        <div className=" flex  w-full  h-[150px] xs:h-[250px] sm:h-[350px] relative">
+        <div className=" flex  w-full  h-[160px] xs:h-[250px] sm:h-[350px] relative">
           <div className="  flex-1 bg-primary  relative pr-[8%] ">
-            <div className="  absolute max-w-[600px]   pl-3 sm:pl-6  left-0 top-1/2 z-10 -translate-y-1/2 text-primary-foreground h-full  flex flex-col justify-center ">
-              <h2 className="  text-sm  xs:text-2xl sm:text-3xl  md:text-4xl lg:text-5xl font-semibold mb-4">
+            <div className="  absolute max-w-[600px] w-[105%]    pl-3 sm:pl-6  left-0 top-1/2 z-10 -translate-y-1/2 text-primary-foreground h-full  flex flex-col justify-center ">
+              <h2 className="  text-sm  xs:text-2xl sm:text-3xl  md:text-4xl lg:text-5xl font-semibold mb-2 sm:mb-4">
                 FREE EGNGINE CHECK-UP
               </h2>
               <p className="  text-xs  xs:text-xl sm:text-2xl  ">

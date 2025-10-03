@@ -9,10 +9,11 @@ import { Metadata } from "next";
 import React from "react";
 import Image from "next/image";
 import BattaryImage from "@../public/battaryimage.jpg";
-import Image1 from "@../public/battery-testing-6.png";
-import Image2 from "@../public/How-To-Test-A-Car-Battery-With-A-Multimeter.webp";
-import Image3 from "@../public/fy23-fixfinder-lp-step-2-d.jpg";
+import Image1 from "@../public/car-battery-test-with-tester-cover.webp";
+import Image2 from "@../public/charging-battery-with-portabale-battery-charger.jpg";
+import Image3 from "@../public/battdest-lp-auto-d-removebg-preview.png";
 import Image4 from "@../public/image3.webp";
+import Link from "next/link";
 export const metadata: Metadata = {
   // title: "The Wild Oasis",
   title: "Engine check-up",
@@ -22,29 +23,34 @@ export const metadata: Metadata = {
 
 const FREQUENTLY_ASKED: { question: string; answer: string }[] = [
   {
-    question:
-      "My check engine light came on. Is it serious? What about other warning lights?",
+    question: "What battery services does AutoZone offer?",
     answer:
-      "Warning lights can indicate serious issues, small, easily fixed problems, or simple maintenance reminders. In any case, it’s best to get the light checked right away to know exactly what’s going on, and get steps to move toward a solution.",
+      "AutoZone offers three free battery services. Stop by any store to get your battery tested, charged, or recycled.",
   },
   {
-    question: "Can I use the free Fix Finder Service online?",
+    question: "What happens during a battery test at AutoZone?",
     answer:
-      "Because Fix Finder needs to plug directly into your vehicle to access the computer, the Free Fix Finder Service can only be performed at an AutoZone store. Once you have the report, you can order parts from AutoZone.com for pickup or delivery.",
+      "If you think you might have a bad battery, come to any AutoZone store nearby and ask for a free battery test. An AutoZoner will come out to your vehicle and use a battery tester to get a read on the status of your battery. If your battery is low on power but still in good shape, we'll charge it back up for free. If it's beat, we'll help you find a new one.",
   },
   {
-    question: "What locations offer the Free Fix Finder Service?",
+    question: "Will AutoZone replace your battery?",
     answer:
-      "Every single one of our more than 6,200 locations in the United States offer our Free Fix Finder Service during business hours. Use the store selector at the top of the page to find an AutoZone near you.",
+      "Yes! Go to the closest AutoZone store near you to get your battery tested for free. If the report shows that you have a bad battery, we'll help you find a new one.",
   },
   {
-    question: "Can I get a digital copy via email?",
-    answer: "Yes, this is available (see AutoZoner and provide valid email).",
+    question: "How much does it cost to charge a battery at AutoZone?",
+    answer:
+      "A whopping zero dollars. You can get your battery charged for free at any AutoZone store.",
   },
   {
-    question: "Can I get a reprint of a report for the last 30 days?",
+    question: "Does AutoZone recycle batteries?",
     answer:
-      "Yes, you can call the store and get a copy or if you get it emailed, you will have it.",
+      "Yes, we do. It's part of our commitment to help the environment. And best of all, we'll recycle your battery for free at any AutoZone store.",
+  },
+  {
+    question: "Can I purchase a battery from AutoZone online?",
+    answer:
+      "Absolutely! We carry a wide variety of batteries online so that you can find the right one for you and get back on the road. We'd recommend checking out Duralast Batteries, America's #1 Battery Choice.*",
   },
 ];
 
@@ -56,14 +62,14 @@ const Page = () => {
     >
       <Header />
       <section className=" px-4 space-y-10">
-        <h1 className=" text-4xl font-semibold">
+        <h1 className="  text-2xl sm:text-4xl font-semibold">
           FREE BATTERY TESTING, CHARGING & INSTALLATION SERVICES
         </h1>
         {/* BANNER */}
-        <div className=" flex  w-full  h-[150px] xs:h-[250px] sm:h-[350px] relative">
+        <div className=" flex  w-full  h-[160px] xs:h-[250px] sm:h-[350px] relative">
           <div className="  flex-1 bg-primary  relative pr-[8%] ">
-            <div className="  absolute max-w-[600px]   pl-3 sm:pl-6  left-0 top-1/2 z-10 -translate-y-1/2 text-primary-foreground h-full  flex flex-col justify-center ">
-              <h2 className="  text-xs  xs:text-2xl sm:text-3xl  md:text-4xl lg:text-5xl font-semibold mb-4 ">
+            <div className="  absolute max-w-[600px] w-[105%]    pl-3 sm:pl-6  left-0 top-1/2 z-10 -translate-y-1/2 text-primary-foreground h-full  flex flex-col justify-center ">
+              <h2 className="  text-xs  xs:text-2xl sm:text-3xl  md:text-4xl lg:text-5xl font-semibold mb-2 sm:mb-4 ">
                 FREE BATTERY TESTING, CHARGING & INSTALLATION SERVICES
               </h2>
               <p className="  text-xs  xs:text-xl sm:text-2xl ">
@@ -87,7 +93,7 @@ const Page = () => {
         <div className=" flex flex-col md:flex-row items-center  gap-10">
           <div className="  w-full">
             <Image
-              src={Image2}
+              src={Image1}
               alt="Tuning car."
               className=" aspect-video  object-cover mask-accent-small "
             />
@@ -106,16 +112,11 @@ const Page = () => {
         {/* Second section */}
         <div className=" flex flex-col-reverse md:flex-row items-center  gap-5">
           <div className=" space-y-4 w-full">
-            <h2 className=" text-3xl mb-3">STEP ONE</h2>
-            <h3 className=" font-semibold">
-              If you see a warning light, come to AutoZone.
-            </h3>
+            <h2 className=" text-3xl mb-3">FREE BATTERY CHARGING</h2>
+
             <p>
-              Fix Finder reads information from the Check Engine, ABS, and
-              maintenance lights. The test often takes less than a minute once
-              the reader is plugged in. To learn more about what the lights on
-              your dashboard mean, you can also check out our information on
-              common Check Engine light codes.
+              Our fast charger can charge most automotive batteries in about 30
+              minutes.
             </p>
           </div>
           <div className=" w-full">
@@ -130,42 +131,45 @@ const Page = () => {
         {/* Second section */}
         {/* Third section */}
         <div className=" flex flex-col-reverse md:flex-row items-center  gap-5">
-          <div className=" w-full">
-            <Image
-              src={Image3}
-              alt="Tuning car."
-              className=" aspect-video  object-cover mask-accent-small "
-            />
-          </div>
           <div className=" space-y-4 w-full">
-            <h2 className=" text-3xl mb-3">STEP TWO</h2>
-            <h3 className=" font-semibold">Review your free report.</h3>
-            <p>
-              An AutoZoner will present an easy-to-understand report informed by
-              millions of technician-verified fixes. You’ll get a printed and
-              digital copy of the report for easy access.
-            </p>
+            <h2 className=" text-3xl mb-3">
+              DRIVE EASY WITH THE RIGHT BATTERY
+            </h2>
+
+            <div className=" flex items-center justify-center">
+              <Link
+                href="/products?page=1&categoryId=18"
+                className=" flex items-center justify-center flex-col"
+              >
+                <Image
+                  src={Image3}
+                  alt="Tuning car."
+                  className="   object-cover mask-accent-small w-40 h-40 sm:w-72 sm:h-72 "
+                />
+                <p className=" text-2xl  sm:text-4xl text-muted-foreground text-center ">
+                  Pick up your battery
+                </p>
+              </Link>
+            </div>
           </div>
         </div>
         {/* Third section */}
 
-        <div className=" flex flex-col-reverse md:flex-row items-center  gap-5">
-          <div className=" space-y-4 w-full">
-            <h2 className=" text-3xl mb-3">STEP THREE</h2>
-            <h3 className=" font-semibold">Discuss recommended solutions.</h3>
-            <p>
-              The report details recommended solutions and suggests parts for a
-              repair. An AutoZoner can help you find the right part and
-              recommend a local technician if you need additional help with the
-              fix.
-            </p>
-          </div>
-          <div className=" w-full">
+        <div className=" flex flex-col md:flex-row items-center  gap-10">
+          <div className="  w-full">
             <Image
-              src={Image4}
+              src={Image1}
               alt="Tuning car."
               className=" aspect-video  object-cover mask-accent-small "
             />
+          </div>
+
+          <div className=" space-y-4 w-full">
+            <h2 className=" text-3xl mb-3">FREE BATTERY TESTING</h2>
+            <p>
+              Battery tests are fast, accurate, and available at every AutoZone
+              in the USA.
+            </p>
           </div>
         </div>
 
