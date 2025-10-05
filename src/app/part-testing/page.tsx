@@ -70,7 +70,7 @@ const Page = () => {
             <p>
               Got a check engine light on? Fix Finder reads Check Engine, ABS,
               and maintenance lights. The free test takes less than a minute,
-              and you&apos;ll get an easy to understand report printed and
+              and you&apos;ll get an easy to understand report printed andd
               emailed.
             </p>
 
