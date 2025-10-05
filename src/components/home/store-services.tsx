@@ -21,7 +21,7 @@ const ITEMS: Omit<ItemProps, "className" | "focused" | "focus" | "unFocus">[] =
   [
     {
       icon: <Drill className=" w-10 h-10  xs:w-12 xs:h-12 " />,
-      link: "",
+      link: "/loan-a-tool",
       header: "Loan-A-Tool",
       description: "Borrow a specialty tools.",
     },
