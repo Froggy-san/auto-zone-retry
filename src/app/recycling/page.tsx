@@ -187,7 +187,7 @@ const Page = () => {
                   alt="oil"
                   className="  h-24  sm:h-36 object-contain"
                 />{" "}
-                <span className=" text-xl text-muted-foreground">Battey</span>
+                <span className=" text-xl text-muted-foreground">Batteyyy</span>
               </Link>
             </li>
           </ul>
