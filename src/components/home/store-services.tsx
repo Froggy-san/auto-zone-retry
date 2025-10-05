@@ -34,7 +34,7 @@ const ITEMS: Omit<ItemProps, "className" | "focused" | "focus" | "unFocus">[] =
 
     {
       icon: <Cross className=" w-10 h-10  xs:w-12 xs:h-12 " />,
-      link: "",
+      link: "/part-testing",
       header: "Free In-Store Parts Testing",
       description: "We'll check your alternator, starter, battery and more.",
     },
@@ -57,7 +57,7 @@ const ITEMS: Omit<ItemProps, "className" | "focused" | "focus" | "unFocus">[] =
 
     {
       icon: <MapPinCheckInside className=" w-10 h-10  xs:w-12 xs:h-12 " />,
-      link: "",
+      link: "/pick-up",
       header: "Store Pick Up",
       description: "Pick up at any location in Egypt.",
     },

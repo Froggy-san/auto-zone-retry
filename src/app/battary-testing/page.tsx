@@ -12,7 +12,7 @@ import BattaryImage from "@../public/battaryimage.jpg";
 import Image1 from "@../public/car-battery-test-with-tester-cover.webp";
 import Image2 from "@../public/charging-battery-with-portabale-battery-charger.jpg";
 import Image3 from "@../public/battdest-lp-auto-d-removebg-preview.png";
-import Image4 from "@../public/image3.webp";
+import Image4 from "@../public/battdest-lp-lawngarden-d.webp";
 import Link from "next/link";
 export const metadata: Metadata = {
   // title: "The Wild Oasis",
@@ -158,17 +158,19 @@ const Page = () => {
         <div className=" flex flex-col md:flex-row items-center  gap-10">
           <div className="  w-full">
             <Image
-              src={Image1}
+              src={Image4}
               alt="Tuning car."
               className=" aspect-video  object-cover mask-accent-small "
             />
           </div>
 
           <div className=" space-y-4 w-full">
-            <h2 className=" text-3xl mb-3">FREE BATTERY TESTING</h2>
+            <h2 className=" text-3xl mb-3">
+              FREE POWER SPORT, LAWN & GARDEN, & MARINE BATTERY CHARGING
+            </h2>
             <p>
-              Battery tests are fast, accurate, and available at every AutoZone
-              in the USA.
+              If we sell it, we can charge it. Power sport batteries can take as
+              long as overnight to charge.
             </p>
           </div>
         </div>

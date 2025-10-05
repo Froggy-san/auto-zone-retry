@@ -13,7 +13,7 @@ import Image from "next/image";
 import Image1 from "@../public/recycle-used-motor-oilcov-1606847754768.webp";
 
 import Image2 from "@../public/Untitled-design-2024-07-12T113724.759.png";
-import Image3 from "@../public/image_2_1400x-removebg-preview.png";
+import Image3 from "@../public/oil.png";
 import Image4 from "@../public/0.04339528102702506-m13670005_Prod_Battery-removebg-preview.webp";
 import Image5 from "@../public/ddd339cf-a1a5-4736-ba78-f75e41802169-fy25-lp-oil-filters-d-removebg-preview.png";
 
@@ -96,8 +96,8 @@ const Page = () => {
                 2. BRING IT TO US
               </h4>
               <p className=" w-[80%]  text-xs  xs:text-sm sm:text-base mx-auto text-center">
-                Bring oil and used filter to AutoZone. We'll get the oil to a
-                proper recycling center
+                Bring oil and used filter to AutoZone. We&apos;ll get the oil to
+                a proper recycling center
               </p>
             </li>
             <li
@@ -113,8 +113,8 @@ const Page = () => {
                 3. WE TAKE CARE OF THE REST
               </h4>
               <p className=" w-[80%]  text-xs  xs:text-sm sm:text-base mx-auto text-center">
-                Collect your container for your next oil change. That's it. Safe
-                and completely free
+                Collect your container for your next oil change. That&apos;s it.
+                Safe and completely free
               </p>
             </li>
           </ul>
@@ -126,11 +126,11 @@ const Page = () => {
 
             <p>
               Battery recycling is fast, easy, and it pays. Just bring in your
-              old battery, and we'll make sure it's recycled properly. If you're
-              buying a new battery, we'll apply a core credit right then. If
-              you're recycling a battery without a purchase, you'll receive a
-              $10 Merchandise Credit to use the next time you come in.
-              (exceptions apply)
+              old battery, and we&apos;ll make sure it&apos;s recycled properly.
+              If you&apos;re buying a new battery, we&apos;ll apply a core
+              credit right then. If you&apos;re recycling a battery without a
+              purchase, you&apos;ll receive a $10 Merchandise Credit to use the
+              next time you come in. (exceptions apply)
             </p>
           </div>
           <div className=" w-full">
@@ -149,7 +149,7 @@ const Page = () => {
             <li className="  w-[48%]  sm:w-[32%]">
               <Link
                 href="/products?categoryId=51"
-                className=" bg-card hover:bg-card/50 transition-colors rounded-lg p-2 flex flex-col  justify-center items-center gap-4"
+                className=" bg-card hover:bg-card/50 transition-colors  rounded-lg p-2 flex flex-col  justify-center items-center gap-4"
               >
                 <Image
                   src={Image3}
@@ -165,7 +165,7 @@ const Page = () => {
             <li className="  w-[48%]  sm:w-[32%]">
               <Link
                 href="/products?page=1&categoryId=47&productTypeId=570"
-                className=" bg-card hover:bg-card/50 transition-colors rounded-lg p-2 flex flex-col  justify-center items-center gap-4"
+                className=" bg-card hover:bg-card/50 transition-colors  rounded-lg p-2 flex flex-col  justify-center items-center gap-4"
               >
                 <Image
                   src={Image5}
@@ -180,7 +180,7 @@ const Page = () => {
             <li className=" sm:w-[32%] w-full">
               <Link
                 href="/products?page=1&categoryId=18&productTypeId=21"
-                className=" bg-card hover:bg-card/50 transition-colors rounded-lg p-2 flex flex-col  justify-center items-center gap-4"
+                className=" bg-card hover:bg-card/50 transition-colors  rounded-lg p-2 flex flex-col  justify-center items-center gap-4"
               >
                 <Image
                   src={Image4}
