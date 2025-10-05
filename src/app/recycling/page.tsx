@@ -36,7 +36,7 @@ const Page = () => {
       <Header />
       <section className=" px-4 space-y-10">
         <h1 className="  text-2xl sm:text-4xl font-semibold">
-          FREE RECYLING FOR OIL & BATTERIES
+          FREE RECYLING FOR OIL & BATTERIESs
         </h1>
         {/* BANNER */}
         <div className=" flex  w-full  h-[160px] xs:h-[250px] sm:h-[350px] relative">
