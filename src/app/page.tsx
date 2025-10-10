@@ -75,7 +75,7 @@ export default async function Home() {
 
         <CarBrands carBrands={CarBrandsData || []} />
         {/* absolute md:left-10 md:bottom-10 left-4 bottom-12 */}
-        <div className="   max-w-[100%] md:max-w-[50%] min-w-[250px] space-y-2">
+        {/* <div className="   max-w-[100%] md:max-w-[50%] min-w-[250px] space-y-2">
           <div className=" flex  items-center gap-4  font-semibold  text-4xl md:text-5xl lg:text-6xl pr-1">
             <h1>
               Treat your car, <br /> Contact us now{" "}
@@ -99,9 +99,9 @@ export default async function Home() {
             maiores hic? At eaque debitis consectetur quibusdam magni voluptates
             vitae enim?
           </p>
-        </div>
+        </div> */}
 
-        {isAdmin && <LinkBoxs />}
+        {/* {isAdmin && <LinkBoxs />} */}
       </section>
       <Footer />
     </main>

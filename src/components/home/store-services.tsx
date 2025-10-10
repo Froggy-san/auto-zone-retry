@@ -1,4 +1,3 @@
-"use client";
 import { cn } from "@lib/utils";
 import { Cross, Drill, MapPinCheckInside, Recycle } from "lucide-react";
 import React, { useState } from "react";
@@ -64,26 +63,28 @@ const ITEMS: Omit<ItemProps, "className" | "focused" | "focus" | "unFocus">[] =
   ];
 
 const StoreServices = ({ className }: { className?: string }) => {
-  const [focused, setFocused] = useState(-1);
-  const [hovered, setHovered] = useState(false);
+  // const [focused, setFocused] = useState(-1);
+  // const [hovered, setHovered] = useState(false);
   // console.log("HOVERED", hovered);
   return (
     <ul
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        setFocused(-1);
-        setHovered(false);
-      }}
+      // onMouseEnter={() => setHovered(true)}
+      // onMouseLeave={() => {
+      //   setFocused(-1);
+      //   setHovered(false);
+      // }}
       className={cn(" grid   grid-cols-2 md:grid-cols-3 gap-3 p-3", className)}
     >
       <LayoutGroup>
         {ITEMS.map((item, i) => (
           //  Add this to the li and see the difference: hover:scale-95 transition-all
           <li
-            onMouseEnter={() => setFocused(i)}
-            onFocus={() => setFocused(i)}
+            // onMouseEnter={() => setFocused(i)}
+            // onFocus={() => setFocused(i)}
             //   onMouseLeave={unFocus}
-            className={cn("  rounded-xl shadow-md border   z-10  relative")}
+            className={cn(
+              "  rounded-xl shadow-md  border-2 hover:border-primary/80   transition-all duration-500  z-10  relative "
+            )}
             key={i}
           >
             <Link
@@ -99,7 +100,7 @@ const StoreServices = ({ className }: { className?: string }) => {
               </p>
 
               {/* {hovered && ( */}
-              <AnimatePresence custom={hovered}>
+              {/* <AnimatePresence custom={hovered}>
                 {focused === i && (
                   <motion.div
                     transition={{ duration: 0.25, stiffness: 50 }}
@@ -112,7 +113,7 @@ const StoreServices = ({ className }: { className?: string }) => {
                     )}
                   />
                 )}
-              </AnimatePresence>
+              </AnimatePresence> */}
               {/* )} */}
             </Link>
           </li>
@@ -133,7 +134,7 @@ function Item({
 }: ItemProps) {
   return (
     <div
-      onMouseEnter={focus}
+      // onMouseEnter={focus}
       //   onMouseLeave={unFocus}
       className={cn(
         " flex flex-col items-center p-2  rounded-xl shadow-md border justify-center z-10  relative",
@@ -144,7 +145,7 @@ function Item({
       <h4 className=" text-xl font-extrabold ">{header}</h4>
       <p>{description}</p>
 
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {focused && (
           <motion.div
             transition={{ duration: 0.5 }}
@@ -155,7 +156,7 @@ function Item({
             className="bg-transparent border-2 border-primary absolute   w-[103%] h-[110%] rounded-2xl z-[-1]"
           />
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
     </div>
   );
 }

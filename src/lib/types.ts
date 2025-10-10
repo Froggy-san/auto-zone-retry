@@ -387,6 +387,16 @@ export const EditServiceSchema = z.object({
   note: z.string(),
 });
 
+export const CreateTicket = z.object({
+  subject: z
+    .string()
+    .max(250, { message: "Subject is too long." })
+    .min(3, { message: "Subject is too short." }),
+  ticketStatus_id: z.number(),
+  ticketPriority_id: z.number(),
+  ticketCategory_id: z.number(),
+});
+
 export interface signUpProps {
   full_name: string;
   email: string;
@@ -868,6 +878,45 @@ export interface RejectionFiles extends FileRejection {
   preview: string;
 }
 
+// TICKETS --------------------------
+
+export interface TicketPriority {
+  id: number;
+  created_at: string;
+  name: string;
+}
+export interface TicketStatus {
+  id: number;
+  created_at: string;
+  name: string;
+  description: string;
+}
+
+export interface TicketCategory {
+  id: number;
+  created_at: string;
+  name: string;
+}
+
+export interface Ticket {
+  id: number;
+  created_at: string;
+  user_id: string;
+  subject: string;
+  ticketStatus_id: TicketStatus;
+  ticketPriority_id: TicketPriority;
+  ticketCategory_id: TicketCategory;
+  updated_at: string;
+  admin_assigned_to: string;
+}
+
+export interface CreateTicketStatus {
+  name: string;
+  description: string;
+}
+
+// TICKETS --------------------------
+
 export type Category = z.infer<typeof CategorySchema>;
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
 export type CarGeneration = z.infer<typeof CarGenerationsSchema>;
@@ -886,3 +935,4 @@ export type ProductSold = z.infer<typeof ProductSoldSchema>;
 export type EditService = z.infer<typeof EditServiceSchema>;
 export type ServiceStatusForm = z.infer<typeof ServiceStatusSchema>;
 export type HslColor = z.infer<typeof HslColorValues>;
+export type CreateTicket = z.infer<typeof CreateTicket>;

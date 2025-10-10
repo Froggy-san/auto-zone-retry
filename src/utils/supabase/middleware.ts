@@ -44,18 +44,33 @@ export async function updateSession(request: NextRequest) {
   const isAdmin = user?.user_metadata.role === "Admin";
   const adminOnlyPages = ["/dashboard", "/garage"];
 
+  console.log("PATHL", path);
+  // Check if the path is a restricted route or STARTS with a restricted route
+  const isRestrictedPath = restrictedRoutes.some((route) => {
+    // Exact match (e.g., /dashboard)
+    if (route === path) {
+      return true;
+    }
+    // Starts with match (e.g., /user/123 matches /user)
+    // The check route + '/' ensures /user does not match /users
+    if (path.startsWith(route + "/")) {
+      return true;
+    }
+    return false;
+  });
+
+  // Check for unauthenticated access to restricted pages
+  if (!user && !path.startsWith("/login") && isRestrictedPath) {
+    // no user, redirect to the login page
+    return NextResponse.redirect(
+      new URL(`/login?redirect=${path}`, request.nextUrl)
+    );
+  }
+
   if (adminOnlyPages.includes(path) && !isAdmin) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
-  }
-  if (!user && !path.startsWith("/login") && restrictedRoutes.includes(path)) {
-    // no user, potentially respond by redirecting the user to the login page
-    // const url = request.nextUrl.clone();
-    // url.pathname = `/login?&redirect=${path}`;
-    return NextResponse.redirect(
-      new URL(`/login?redirect=${path}`, request.nextUrl)
-    );
   }
 
   if (user && (path === "/login" || path === "/signup")) {

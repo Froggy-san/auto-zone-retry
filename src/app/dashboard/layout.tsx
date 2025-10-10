@@ -29,6 +29,7 @@ import {
   Package,
   PersonStanding,
   SlidersVertical,
+  Ticket,
 } from "lucide-react";
 
 const ICON_SIZE = 22;
@@ -76,6 +77,11 @@ const links = [
     icon: <Grid2x2Plus size={ICON_SIZE} />,
     title: "Products Data",
     herf: "/dashboard/insert-data",
+  },
+  {
+    icon: <Ticket size={ICON_SIZE} />,
+    title: "Tickets",
+    herf: "/dashboard/tickets",
   },
 ];
 
