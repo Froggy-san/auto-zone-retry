@@ -46,7 +46,11 @@ export async function getServicesAction({
 
   // Date filters
   if (dateFrom) query += `&created_at=gte.${new Date(dateFrom).toISOString()}`;
-  if (dateTo) query += `&created_at=lte.${new Date(dateTo).toISOString()}`;
+  if (dateTo) {
+    const toDate = new Date(dateTo);
+    toDate.setHours(23, 59, 59, 999);
+    query += `&created_at=lte.${new Date(dateTo).toISOString()}`;
+  }
 
   // Other filters
   if (clientId) query += `&clientId=eq.${clientId}`;

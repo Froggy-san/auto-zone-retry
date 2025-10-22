@@ -1,6 +1,6 @@
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
-import { FilesWithPreview, ProductImage } from "@lib/types";
+import { FileWithPreview, ProductImage } from "@lib/types";
 import { cn } from "@lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { ImageUp, X } from "lucide-react";
@@ -24,7 +24,7 @@ interface MultiFileUploaderProps {
   isMainImage: ProductImage | number | null;
   setIsMainImage: React.Dispatch<SetStateAction<ProductImage | number | null>>;
   fieldChange: React.Dispatch<SetStateAction<File[]>>;
-  selectedFiles: FilesWithPreview[];
+  selectedFiles: FileWithPreview[];
   mediaUrl?: ProductImage[];
   disabled?: boolean;
   handleDeleteMedia: (image: ProductImage) => void;
@@ -63,7 +63,7 @@ export function MultiFileUploader({
   );
 
   // Handle deletion of selected images
-  function handleDeleteSelectedImages(viewedFile: FilesWithPreview) {
+  function handleDeleteSelectedImages(viewedFile: FileWithPreview) {
     URL.revokeObjectURL(viewedFile.preview); // Revoke the URL of the deleted file
     const newArr = selectedFiles.filter((file) => file !== viewedFile);
     fieldChange(newArr);

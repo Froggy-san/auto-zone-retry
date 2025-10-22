@@ -475,7 +475,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   return (
     <DialogComponent open={isOpen} onOpenChange={handleClose}>
       <Button onClick={handleOpen} size="sm" className=" w-full">
-        {productToEdit ? "Edit" : "Create"} a porduct
+        {productToEdit ? "Edit" : "Create"} a product
       </Button>
       {/* sm:p-14 pb-0 sm:pb-0 */}
       <DialogComponent.Content className="  max-h-[85vh] overflow-hidden max-w-[1050px] border border-transparent  sm:rounded-none lg:rounded-lg flex flex-col gap-1   p-0">

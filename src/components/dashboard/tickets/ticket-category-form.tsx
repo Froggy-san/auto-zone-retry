@@ -25,26 +25,30 @@ import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, {
   ErorrToastDescription,
 } from "@components/toast-items";
-import { FormLabel } from "@components/ui/form";
 import { cn } from "@lib/utils";
 import FormErrorMessage from "@components/form-error-message";
-const StatusForm = ({
-  statusToEdit,
+import { TicketCategory } from "@lib/types";
+import {
+  createTicketCategoryAction,
+  editTicketCategoryAction,
+} from "@lib/actions/ticket-category-action";
+const TicketCategoryForm = ({
+  ticketCateogyEdit,
   showBtn = true,
   isOpen,
   setIsOpen,
 }: {
-  statusToEdit?: any;
+  ticketCateogyEdit?: TicketCategory;
   showBtn?: boolean;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
 }) => {
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [nameError, setNameError] = useState("");
-  const [descriptionError, setDescriptionError] = useState("");
-  const [nameIsDirty, setNameIsDirty] = useState(false);
+
+  const [name, setName] = useState(ticketCateogyEdit?.name || ""); // ! Problem with how we initailize this state, it can be fized by adding a key to the parent element but that makes the animation a bit jarring.
+  const [categoryTitleError, setCategoryTitleError] = useState("");
+
+  const [titleDirty, setTitleDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const { toast } = useToast();
@@ -52,59 +56,51 @@ const StatusForm = ({
   const diaOpen = isOpen !== undefined ? isOpen : open;
 
   const defaultValues = {
-    name: statusToEdit?.name || "",
-    description: statusToEdit?.description || "",
+    name: ticketCateogyEdit?.name || "",
   };
 
-  const isEqual = useObjectCompare(defaultValues, { name, description });
+  const isEqual = useObjectCompare(defaultValues, { name });
 
   const reset = useCallback(() => {
     setName(defaultValues.name);
-    setDescription(defaultValues.description);
-    setNameError("");
-    setDescriptionError("");
-    setNameIsDirty(false);
+    setCategoryTitleError("");
+    setTitleDirty(false);
   }, [defaultValues]);
 
   const handleClose = useCallback(() => {
     setOpen(false);
     setIsOpen?.(false);
-    reset();
-  }, [setOpen, reset]);
+    // reset();
+  }, [setOpen, setIsOpen]);
 
   const handleOpenChange = useCallback(() => {
     setOpen((open) => !open);
     setIsOpen?.(!diaOpen);
-    reset();
-  }, [setOpen, reset]);
+    // reset();
+  }, [setOpen, setIsOpen]);
+
   useEffect(() => {
-    if (!nameIsDirty) return;
-    if (name.length <= 3) setNameError("Status name is too short.");
-    if (name.length > 200) setNameError("Status name is too long.");
-    if (name.length >= 3 && name.length < 200) setNameError("");
+    if (!titleDirty) return;
+    if (name.length <= 3) setCategoryTitleError("Status name is too short.");
+    if (name.length > 200) setCategoryTitleError("Status name is too long.");
+    if (name.length >= 3 && name.length < 200) setCategoryTitleError("");
   }, [name]);
 
   useEffect(() => {
-    // if(description.length < 3) setNameError("Status description is too short.")
-    if (description.length > 200)
-      setDescriptionError("Status description is too long.");
-    else setDescriptionError("");
-  }, [description]);
-
-  useEffect(() => {
     if (isLoading) return;
+
     reset();
   }, [diaOpen]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (categoryTitleError) return;
     try {
       setIsLoading(true);
-      if (statusToEdit) {
-        const { error } = await editTicketStatusAction({
-          id: statusToEdit.id,
+      if (ticketCateogyEdit) {
+        const { error } = await editTicketCategoryAction({
+          id: ticketCateogyEdit.id,
           name,
-          description,
         });
         if (error) throw new Error(error);
 
@@ -112,18 +108,18 @@ const StatusForm = ({
           className: "bg-primary  text-primary-foreground",
           title: "Done.",
           description: (
-            <SuccessToastDescription message="Ticket status has been updated." />
+            <SuccessToastDescription message="Ticket cateogry has been updated." />
           ),
         });
       } else {
-        const { error } = await createTicketStatusAction({ name, description });
+        const { error } = await createTicketCategoryAction({ name });
         if (error) throw new Error(error);
 
         toast({
           className: "bg-primary  text-primary-foreground",
           title: "Done.",
           description: (
-            <SuccessToastDescription message="New ticket status created." />
+            <SuccessToastDescription message="New ticket category created." />
           ),
         });
       }
@@ -152,12 +148,11 @@ const StatusForm = ({
       )}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create a new status</DialogTitle>
+          <DialogTitle>Create a new ticket category</DialogTitle>
           <DialogDescription>
-            Create a new status for the tickets page such as
-            &#x2772;&apos;Open&apos;, &apos;In Progress&apos;, &apos;Awaiting
-            Client&apos;s Response&apos;, &apos;Solved&apos;,
-            &apos;Closed&apos;&#x2773;.
+            Create a new status for the tickets page such as &#x2772;&apos;Order
+            Issue&apos;, &apos;Technical Support&apos;, &apos;Billing&apos;,
+            &apos;Service Appointment&apos;.
           </DialogDescription>
         </DialogHeader>
 
@@ -166,7 +161,7 @@ const StatusForm = ({
             <label
               htmlFor="name"
               className={cn(
-                nameError && "text-destructive ",
+                categoryTitleError && "text-destructive ",
                 "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               )}
             >
@@ -179,50 +174,25 @@ const StatusForm = ({
               placeholder="Status Name..."
               value={name}
               onChange={(e) => {
-                setNameIsDirty(true);
+                setTitleDirty(true);
                 setName(e.target.value);
               }}
             />
 
             <p className="text-[0.8rem] text-muted-foreground">
-              Enter the name of the status or what should the status say.
+              Enter the name of the ticket cateogry.
             </p>
             <AnimatePresence>
-              {nameError && <FormErrorMessage>{nameError}</FormErrorMessage>}
-            </AnimatePresence>
-          </div>
-
-          <div className=" space-y-2 w-full mb-auto">
-            <label
-              htmlFor="description"
-              className={cn(
-                descriptionError && "text-destructive ",
-                "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              )}
-            >
-              Description
-            </label>
-
-            <Textarea
-              id="description"
-              disabled={isLoading}
-              placeholder="Status Name..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-
-            <p className="text-[0.8rem] text-muted-foreground">
-              Descripe what the status is about.
-            </p>
-            <AnimatePresence>
-              {descriptionError && (
-                <FormErrorMessage>{descriptionError}</FormErrorMessage>
+              {categoryTitleError && (
+                <FormErrorMessage>{categoryTitleError}</FormErrorMessage>
               )}
             </AnimatePresence>
           </div>
+
           <div className=" relative flex flex-col-reverse sm:flex-row items-center justify-end  gap-3">
             <Button
               onClick={reset}
+              disabled={isLoading}
               type="button"
               className=" p-0 h-6 w-6  absolute left-5 bottom-0"
               variant="outline"
@@ -242,12 +212,12 @@ const StatusForm = ({
             <Button
               type="submit"
               size="sm"
-              disabled={isLoading || isEqual}
+              disabled={isLoading || isEqual || categoryTitleError.length > 1}
               className=" w-full sm:w-[unset]"
             >
               {isLoading ? (
                 <Spinner className=" h-full" />
-              ) : statusToEdit ? (
+              ) : ticketCateogyEdit ? (
                 "Update"
               ) : (
                 "Create"
@@ -260,4 +230,4 @@ const StatusForm = ({
   );
 };
 
-export default StatusForm;
+export default TicketCategoryForm;

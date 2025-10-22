@@ -66,3 +66,13 @@ export async function editTicketStatusAction(data: EditProps) {
     return { error: error.message };
   }
 }
+
+export async function deleteTicketStatusAction(id: number) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("ticketStatus").delete().eq("id", id);
+
+  if (error) return { error: error.message };
+
+  revalidateTag("ticketStatus");
+  return { error: "" };
+}

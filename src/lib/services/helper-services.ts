@@ -1,11 +1,11 @@
-import { FilesWithPreview } from "@lib/types";
+import { FileWithPreview } from "@lib/types";
 import { createClient } from "@utils/supabase/client";
 
 type ImgData = {
   path: string;
   name: string;
   isMain: boolean;
-  file: FilesWithPreview | File;
+  file: FileWithPreview | File;
 };
 interface UploadImageToBucket {
   bucketName: string;
@@ -56,7 +56,7 @@ interface UploadsingleImageToBucket {
   bucketName: string;
   image: {
     name: string;
-    file: File | FilesWithPreview;
+    file: File | FileWithPreview;
   };
 }
 export async function uploadSingleImgToBucket({

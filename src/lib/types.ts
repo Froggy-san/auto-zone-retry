@@ -4,7 +4,7 @@ import {
   UserIdentity,
   UserMetadata,
 } from "@supabase/supabase-js";
-import { FileRejection } from "react-dropzone";
+import { FileRejection, FileWithPath } from "react-dropzone";
 import { z } from "zod";
 import { MIN_PASS_LENGTH } from "./constants";
 
@@ -21,9 +21,7 @@ export function validateEgyptianPhoneNumber(phoneNumber: string) {
     return false;
   }
 }
-export interface FilesWithPreview extends File {
-  preview: string;
-}
+
 export const LoginFormSchema = z.object({
   username: z
     .string()
@@ -109,7 +107,7 @@ export const ProductsSchema = z
     modelId: z.number().nullable(),
     generationsArr: z.array(z.number()),
     isAvailable: z.boolean().default(false),
-    images: z.array(z.custom<FilesWithPreview>()).max(15, {
+    images: z.array(z.custom<FileWithPreview>()).max(15, {
       message: "You can only upload up to 15 images at a time.",
     }),
 
@@ -283,7 +281,7 @@ export const CreateCarSchema = z.object({
   carGenerationId: z
     .number()
     .min(1, { message: "Every car must have car generation" }),
-  images: z.array(z.custom<FilesWithPreview>()).max(9, {
+  images: z.array(z.custom<FileWithPreview>()).max(9, {
     message: "You can only upload up to 9 images at a time.",
   }),
 });
@@ -387,14 +385,32 @@ export const EditServiceSchema = z.object({
   note: z.string(),
 });
 
-export const CreateTicket = z.object({
+export const CreateTicketSchema = z.object({
   subject: z
     .string()
     .max(250, { message: "Subject is too long." })
     .min(3, { message: "Subject is too short." }),
+
+  description: z
+    .string()
+    .min(20, { message: "Description of the ticket is too short." }),
+  client_id: z.number(),
+  updated_at: z.string(),
+  admin_assigned_to: z.string().nullable(),
   ticketStatus_id: z.number(),
   ticketPriority_id: z.number(),
   ticketCategory_id: z.number(),
+});
+
+export const MessageSchema = z.object({
+  ticket_id: z.number(),
+  sender_id: z.number(),
+  sender_type: z.string(),
+  content: z.string().min(5, { message: "Message is too short" }).max(2000, {
+    message:
+      "Message is too long, please send that one and then continue the rest in onther message",
+  }),
+  is_internal_note: z.boolean().default(false),
 });
 
 export interface signUpProps {
@@ -863,7 +879,7 @@ export type ImgData = {
   path: string;
   name: string;
   isMain: boolean;
-  file: FilesWithPreview | File;
+  file: FileWithPreview | File;
 };
 
 export interface CategoryProps {
@@ -879,6 +895,12 @@ export interface RejectionFiles extends FileRejection {
 }
 
 // TICKETS --------------------------
+
+export interface CreateTicketProps extends z.infer<typeof CreateTicketSchema> {
+  user_id: string;
+  updated_at: string;
+  admin_assigned_to: string;
+}
 
 export interface TicketPriority {
   id: number;
@@ -901,13 +923,16 @@ export interface TicketCategory {
 export interface Ticket {
   id: number;
   created_at: string;
-  user_id: string;
+  client_id: Client | null;
   subject: string;
+  description: string;
   ticketStatus_id: TicketStatus;
   ticketPriority_id: TicketPriority;
   ticketCategory_id: TicketCategory;
   updated_at: string;
   admin_assigned_to: string;
+  resloveTime: string | null;
+  firstResponseTime: string | null;
 }
 
 export interface CreateTicketStatus {
@@ -915,7 +940,17 @@ export interface CreateTicketStatus {
   description: string;
 }
 
+export interface TicketCategory {
+  id: number;
+  created_at: string;
+  name: string;
+}
+
 // TICKETS --------------------------
+
+export type FileWithPreview = FileWithPath & {
+  preview: string;
+};
 
 export type Category = z.infer<typeof CategorySchema>;
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
@@ -935,4 +970,8 @@ export type ProductSold = z.infer<typeof ProductSoldSchema>;
 export type EditService = z.infer<typeof EditServiceSchema>;
 export type ServiceStatusForm = z.infer<typeof ServiceStatusSchema>;
 export type HslColor = z.infer<typeof HslColorValues>;
-export type CreateTicket = z.infer<typeof CreateTicket>;
+export type CreateTicket = z.infer<typeof CreateTicketSchema>;
+export interface Message extends z.infer<typeof MessageSchema> {
+  id: number;
+  created_at: string;
+}

@@ -5,7 +5,7 @@ import {
   CarModelProps,
   Category,
   CategoryProps,
-  FilesWithPreview,
+  FileWithPreview,
   ProductBrand,
   ProductById,
   ProductImage,
@@ -67,7 +67,7 @@ type Form = UseFormReturn<
     productTypeId: number;
     productBrandId: number;
     carinfoId: number;
-    images: FilesWithPreview[];
+    images: FileWithPreview[];
     isMain: boolean;
   },
   any,

@@ -2,7 +2,6 @@ import {
   AddetionalDetailsSchema,
   EditDetails,
   EditProduct,
-  FilesWithPreview,
   ImgData,
   ProductImage,
 } from "@lib/types";

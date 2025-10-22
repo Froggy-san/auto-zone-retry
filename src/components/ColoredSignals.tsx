@@ -30,9 +30,9 @@ const ColoredSignalIcon = ({
       viewBox="0 0 24 24"
       fill="none"
       stroke={stroke || "currentColor"}
-      stroke-width="2.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={cn(
         "lucide lucide-signal-medium-icon lucide-signal-medium w-14 h-14",
         className

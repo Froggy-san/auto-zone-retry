@@ -491,7 +491,11 @@ body {
     transform: scale(1.5);
     visibility: hidden;
   } */
-
+  .background-transition {
+    transition-property: all !important;
+    transition-timing-function: linear !important;
+    transition-duration: 0.04s !important;
+  }
   .move-div {
     position: fixed; /* or absolute, depending on your layout */
     left: -40px; /* or whatever your default left value is */
