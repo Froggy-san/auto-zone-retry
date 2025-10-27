@@ -62,6 +62,7 @@ const Tickets = async ({
         name={name}
       />
       <TicketTable
+        isAdmin
         tickets={tickets || []}
         ticketStatuses={ticketStatuses}
         ticketCategories={ticketCategories}

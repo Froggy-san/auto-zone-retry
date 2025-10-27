@@ -50,11 +50,11 @@ const Layout = ({
       herf: `/user/${userId}/complaints`,
     },
 
-    {
-      icon: <Users size={ICON_SIZE} />,
-      title: "User management",
-      herf: "/user/management",
-    },
+    // {
+    //   icon: <Users size={ICON_SIZE} />,
+    //   title: "User management",
+    //   herf: "/user/management",
+    // },
   ];
   return (
     <main

@@ -12,7 +12,7 @@ import {
 } from "@lib/types";
 import { Filter, UndoIcon } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ProdcutFilterInput from "./product-filter-input";
 import { Switch } from "@components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,29 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   carBrand,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [maker, setMaker] = useState<string | undefined>(makerId || undefined);
+  const [model, setModel] = useState<string | undefined>(modelId || undefined);
+  const [generation, setGeneration] = useState<string | undefined>(
+    generationId || undefined
+  );
+  const [category, setCategory] = useState<string | undefined>(
+    categoryId || undefined
+  );
+  const [productType, setProductType] = useState<string | undefined>(
+    productTypeId || undefined
+  );
+  const [productBrand, setProductBrand] = useState<string | undefined>(
+    productBrandId || undefined
+  );
+
+  const handleReset = useCallback(() => {
+    setMaker("");
+    setModel("");
+    setGeneration("");
+    setProductBrand("");
+    setProductType("");
+    setCategory("");
+  }, []);
 
   const { inView } = useIntersectionProvidor();
   const searchParams = useSearchParams();
@@ -70,78 +93,166 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   const pathname = usePathname();
   const isBigScreen = useMediaQuery("(min-width:640px)");
 
+  const isFirstMount = [
+    maker,
+    model,
+    generation,
+    category,
+    productType,
+    productBrand,
+  ].every((filter) => filter === undefined);
+
   const disappear = count > 2 && Math.ceil(count / PAGE_SIZE) > 3;
 
   const productTypes =
-    categoryId &&
-    categories.find((cat) => cat.id === Number(categoryId))?.productTypes;
+    category &&
+    categories.find((cat) => cat.id === Number(category))?.productTypes;
 
   const carModels =
-    makerId && carMakers?.find((car) => car.id === Number(makerId))?.carModels;
+    maker && carMakers?.find((car) => car.id === Number(maker))?.carModels;
   const carGenerations =
-    modelId &&
+    model &&
     carModels &&
-    carModels.find((model) => model.id === Number(modelId))?.carGenerations;
+    carModels.find((model) => model.id === Number(model))?.carGenerations;
 
+  const params = new URLSearchParams(searchParams);
   function handleChange(number: number, name: string, initalValue?: number) {
-    const params = new URLSearchParams(searchParams);
-    if (!number || number === initalValue) {
-      if (name === "makerId") {
-        params.delete("modelId");
-        params.delete("generationId");
-      }
+    params.set("page", "1");
+    if (name === "makerId") {
+      params.delete("modelId");
+      params.delete("generationId");
+    }
 
-      if (name === "modelId") params.delete("generationId");
-      if (name === "categoryId") params.delete("productTypeId");
+    if (name === "modelId") params.delete("generationId");
+    if (name === "categoryId") params.delete("productTypeId");
+    if (!number || number === initalValue) {
       params.delete(`${name}`);
+      params.set("page", "1");
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     } else {
       /// Filters to be reset after changing the pick of a perant select component.
-      if (name === "makerId") {
-        params.delete("modelId");
-        params.delete("generationId");
-      }
+      // if (name === "makerId") {
+      //   params.delete("modelId");
+      //   params.delete("generationId");
+      // }
 
-      if (name === "modelId") params.delete("generationId");
-      if (name === "categoryId") params.delete("productTypeId");
-      params.set("page", "1");
+      // if (name === "modelId") params.delete("generationId");
+      // if (name === "categoryId") params.delete("productTypeId");
+      // params.set("page", "1");
       params.set(`${name}`, String(number));
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     }
     window.scrollTo(0, 0);
   }
 
+  useEffect(() => {
+    if (isFirstMount) return;
+    params.set("page", "1");
+    if (maker !== undefined) {
+      // Car Maker.
+      if (maker) {
+        params.set("makerId", maker);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      } else {
+        params.delete("makerId");
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    }
+
+    if (model !== undefined) {
+      // Car Model.
+      if (model) {
+        params.set("modelId", model);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      } else {
+        params.delete("modelId");
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    }
+
+    if (generation !== undefined) {
+      if (generation) {
+        params.set("generationId", generation);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      } else {
+        params.delete("generationId");
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    }
+
+    if (category !== undefined) {
+      if (category) {
+        params.set("categoryId", category);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      } else {
+        params.delete("categoryId");
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    }
+
+    if (productType !== undefined) {
+      if (productType) {
+        params.set("productTypeId", productType);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      } else {
+        params.delete("productTypeId");
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    }
+
+    if (productBrand !== undefined) {
+      if (productBrand) {
+        params.set("productBrandId", productBrand);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      } else {
+        params.delete("productBrandId");
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    }
+  }, [maker, model, generation, productBrand, productType, category]);
   return (
     <>
       {isBigScreen && (
         <section className=" space-y-5  sticky top-[5px] max-h-[100vh]  overflow-y-auto  px-2 pt-5 pb-7  sm:block ">
-          <h1 className=" font-semibold text-2xl flex items-center ">
-            Filters{" "}
-            <span>
-              {" "}
-              <Filter size={20} />
-            </span>
-          </h1>
+          <div className=" flex justify-between">
+            <h1 className=" font-semibold text-2xl flex items-center ">
+              Filters{" "}
+              <span>
+                {" "}
+                <Filter size={20} />
+              </span>
+            </h1>
+            <Button size="sm" variant="default" onClick={handleReset}>
+              Reset
+            </Button>
+          </div>
           <CarFilter
             className=" space-y-5"
-            makerId={Number(makerId)}
-            modelId={Number(modelId)}
-            generationId={Number(generationId)}
+            makerId={Number(maker)}
+            modelId={Number(model)}
+            generationId={Number(generation)}
             carMakers={carMakers}
             carModels={carModels || []}
             carGenerations={carGenerations || []}
             carBrand={carBrand}
+            setModel={setModel}
+            setGeneration={setGeneration}
+            setMaker={setMaker}
             handleChange={handleChange}
           />
 
           <div className=" space-y-2">
             <label>Categories</label>
             <ComboBox
-              value={Number(categoryId) || 0}
+              value={Number(category) || 0}
+              setValue={(value) => {
+                setCategory(value !== 0 ? String(value) : "");
+                setProductType("");
+              }}
               placeholder="Select Category..."
               options={categories}
               paramName="categoryId"
-              setParam={handleChange}
+              // setParam={handleChange}
             />
           </div>
           <div className=" space-y-2">
@@ -151,10 +262,13 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
                 !productTypes?.length || !productTypes.length || !categoryId
               }
               placeholder="Sub-category..."
-              value={Number(productTypeId) || 0}
+              value={Number(productType) || 0}
+              setValue={(value) => {
+                setProductType(value !== 0 ? String(value) : "");
+                setProductBrand("");
+              }}
               options={productTypes || []}
               paramName="productTypeId"
-              setParam={handleChange}
             />
           </div>
 
@@ -162,10 +276,12 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
             <label>Product brands</label>
             <ComboBox
               placeholder="Select Brand..."
-              value={Number(productBrandId) || 0}
+              value={Number(productBrand) || 0}
+              setValue={(value) => {
+                setProductBrand(value !== 0 ? String(value) : "");
+              }}
               options={productBrands}
               paramName="productBrandId"
-              setParam={handleChange}
             />
           </div>
 
@@ -213,10 +329,13 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
                     <label>Car Brand</label>
                     <CarBrandsCombobox
                       options={carMakers}
-                      value={Number(makerId)}
-                      setValue={(value) =>
-                        handleChange(value, "makerId", Number(makerId))
-                      }
+                      value={Number(maker) || 0}
+                      setValue={(value) => {
+                        setMaker(value !== 0 ? String(value) : "");
+                        setModel("");
+                        setGeneration("");
+                        // handleChange(value, "makerId", makerId);
+                      }}
                     />
                   </div>
 
@@ -225,9 +344,12 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
                     <ModelCombobox
                       disabled={!carModels || !carModels.length || !makerId}
                       options={carModels || []}
-                      value={Number(modelId)}
+                      value={Number(model) || 0}
                       setValue={(value) => {
-                        handleChange(value, "modelId", Number(makerId));
+                        setModel(value !== 0 ? String(value) : "");
+                        setGeneration("");
+
+                        // handleChange(value, "makerId", makerId);
                       }}
                     />
                   </div>
@@ -240,17 +362,17 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
                       disabled={!carModels || !carModels.length || !modelId}
                       options={carGenerations || []}
                       setParam={handleChange}
-                      paramName="generationId"
-                      value={Number(generationId)}
+                      value={Number(generation) || 0}
                     />
                   </div>
                   <div className=" space-y-3 w-full">
                     <label>Categories</label>
                     <ComboBox
-                      value={Number(categoryId) || 0}
+                      value={Number(category) || 0}
+                      setValue={(value) => {
+                        setGeneration(value !== 0 ? String(value) : "");
+                      }}
                       options={categories}
-                      paramName="categoryId"
-                      setParam={handleChange}
                     />
                   </div>
                 </div>
@@ -259,19 +381,22 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
                   <div className=" space-y-3 w-full">
                     <label>Product types</label>
                     <ComboBox
-                      value={Number(productTypeId) || 0}
+                      value={Number(productType) || 0}
+                      setValue={(value) => {
+                        setProductType(value !== 0 ? String(value) : "");
+                        setProductBrand("");
+                      }}
                       options={productTypes || []}
-                      paramName="productTypeId"
-                      setParam={handleChange}
                     />
                   </div>
                   <div className=" space-y-2 w-full">
                     <label>Product brands</label>
                     <ComboBox
-                      value={Number(productBrandId) || 0}
+                      value={Number(productBrand) || 0}
+                      setValue={(value) => {
+                        setProductBrand(value !== 0 ? String(value) : "");
+                      }}
                       options={productBrands}
-                      paramName="productBrandId"
-                      setParam={handleChange}
                     />
                   </div>
                 </div>
@@ -372,9 +497,9 @@ interface Props {
   carMakers: CarMakersData[];
   carModels: CarModelProps[];
   carGenerations: CarGenerationProps[];
-  // setMakerId: React.Dispatch<React.SetStateAction<number | null>>;
-  // setModelId: React.Dispatch<React.SetStateAction<number | null>>;
-  // setGenerationId: React.Dispatch<React.SetStateAction<number>>;
+  setMaker: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setModel: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setGeneration: React.Dispatch<React.SetStateAction<string | undefined>>;
   handleChange: (number: number, name: string, initalValue?: number) => void;
 }
 
@@ -386,6 +511,9 @@ const CarFilter = ({
   carMakers,
   carModels,
   carGenerations,
+  setMaker,
+  setModel,
+  setGeneration,
   handleChange,
 }: Props) => {
   // const carModels =
@@ -402,7 +530,12 @@ const CarFilter = ({
         <CarBrandsCombobox
           options={carMakers}
           value={makerId}
-          setValue={(value) => handleChange(value, "makerId", makerId)}
+          setValue={(value) => {
+            setMaker(value !== 0 ? String(value) : "");
+            setModel("");
+            setGeneration("");
+            // handleChange(value, "makerId", makerId);
+          }}
         />
       </div>
 
@@ -413,7 +546,9 @@ const CarFilter = ({
           options={carModels || []}
           value={modelId}
           setValue={(value) => {
-            handleChange(value, "modelId", modelId);
+            setModel(value !== 0 ? String(value) : "");
+            setGeneration("");
+            // handleChange(value, "modelId", modelId);
           }}
         />
       </div>
@@ -423,7 +558,10 @@ const CarFilter = ({
           placeholder="Select generation..."
           disabled={!carModels || !carModels.length || !modelId}
           options={carGenerations || []}
-          setParam={handleChange}
+          setParam={(value) => {
+            setGeneration(value !== 0 ? String(value) : "");
+            // handleChange(value, "generationId", generationId);
+          }}
           paramName="generationId"
           value={generationId}
         />

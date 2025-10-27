@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import Logo from "@../public/autozone-logo.svg";
 import Image from "next/image";
+import { cn } from "@lib/utils";
 
 const PRODUCTS_LINKS: { url: string; name: string }[] = [
   { url: "", name: "Body Parts" },
@@ -21,9 +22,14 @@ const HELP_LINKS: { url: string; name: string }[] = [
   { url: "", name: "Return Policies" },
 ];
 
-const Footer = () => {
+const Footer = ({ className }: { className?: string }) => {
   return (
-    <footer className=" w-full border-t-2 border-primary   justify-center p-5  flex-col-reverse  sm:flex-row flex  gap-x-20  gap-y-5 pb-10">
+    <footer
+      className={cn(
+        " w-full    justify-center p-5  flex-col-reverse  sm:flex-row flex  gap-x-20  gap-y-5 pb-10",
+        className
+      )}
+    >
       <section className="  w-full sm:hidden">
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
@@ -101,7 +107,7 @@ const Footer = () => {
           </ul>
         </div>
       </section>
-      <div className="  flex-1 max-w-[600px] ">
+      <div className="  flex-1 max-w-[400px] ">
         <Image src={Logo} alt="Logo" className="   w-full" />
       </div>
     </footer>

@@ -6,12 +6,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { FileWithPreview } from "@lib/types";
-import { Textarea } from "./ui/textarea";
+import { Client, FileWithPreview, Message, Ticket, User } from "@lib/types";
 import AutoResizeTextarea from "./AutoResizeTextarea";
-interface Props {
-  className?: string;
-}
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Tooltip,
   TooltipContent,
@@ -20,19 +17,43 @@ import {
 } from "@/components/ui/tooltip";
 import { formatBytes } from "@lib/client-helpers";
 import CloseButton from "./close-button";
+import { Switch } from "./ui/switch";
+import useCreateMessage from "@lib/queries/tickets/useCreateMessage";
+import useEditMessage from "@lib/queries/tickets/useEditMessage";
+import { useToast } from "@hooks/use-toast";
+import SuccessToastDescription, { ErorrToastDescription } from "./toast-items";
+interface Props {
+  className?: string;
+  currentUser?: User | null;
+  messageToEdit?: Message;
+  clientById: Client;
+  ticket?: Ticket;
+}
 type rejectedFile = FileRejection & {
   preview: string;
 };
 
 const MAX_SIZE = 1000000;
 const MAX_FILES = 5;
-const TicketTextField = ({ className }: Props) => {
-  const [value, setValue] = useState("");
+const TicketTextField = ({
+  className,
+  currentUser,
+  messageToEdit,
+  clientById,
+  ticket,
+}: Props) => {
+  const [content, setContent] = useState(messageToEdit?.content || "");
   const [files, setFiles] = useState<FileWithPreview[]>([]);
+  const [isInternal, setIsInternal] = useState(false);
   const [rejectedFiles, setRejectedFiles] = useState<rejectedFile[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { createMessage, isLoading } = useCreateMessage();
+  const { editMessage, isLoading: isEditting } = useEditMessage();
 
-  console.log(rejectedFiles, "Rejected files");
-  console.log(files, "Accepted files");
+  const currentUserRole = currentUser?.user_metadata.role || "client";
+  const loading = isLoading || isEditting;
+
+  const { toast } = useToast();
   const onDrop = useCallback(
     (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {
       if (rejectedFiles.length) {
@@ -107,7 +128,51 @@ const TicketTextField = ({ className }: Props) => {
       rejectedFiles.forEach((file) => URL.revokeObjectURL(file.preview));
   }, []);
 
-  // application
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    try {
+      if (!ticket || !currentUser) return;
+      const data = {
+        content,
+        is_internal_note: isInternal,
+        senderType: currentUserRole,
+        ticket_id: ticket.id,
+        senderId: currentUser.id,
+        client_id: clientById.id,
+      };
+
+      if (messageToEdit) {
+        editMessage({
+          id: ticket.id,
+          ...data,
+        });
+      } else {
+        createMessage({ data, files });
+      }
+      toast({
+        className: "bg-primary  text-primary-foreground",
+        title: `Done.`,
+        description: (
+          <SuccessToastDescription
+            message={`${
+              messageToEdit
+                ? "Message has been updated"
+                : "Message has been created."
+            }`}
+          />
+        ),
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong.",
+        description: <ErorrToastDescription error={error.message} />,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <>
       <div className=" flex flex-col max-h-60 overflow-y-auto px-2">
@@ -129,69 +194,83 @@ const TicketTextField = ({ className }: Props) => {
       </div>
       <div {...getRootProps({ className })}>
         <input {...getInputProps()} />
-        {/* <div className=" flex flex-col">
-        {files.map((file, index) => (
-          <AcceptedFile
-            key={`${file.name}-${index}`}
-            file={file}
-            idx={index}
-            handleRemove={() => handleRemove(index)}
-          />
-        ))}
 
-        {rejectedFiles.map((file, index) => (
-          <RejecetdFile
-            rejectedFile={file}
-            key={`${file.file.name}-${index}`}
-            handleRemove={() => handleRemoveRejected(index)}
-          />
-        ))}
-      </div> */}
-
-        <form className=" w-full relative  flex items-end gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className=" p-0 w-8 h-8  hover:text-primary shrink-0  mb-[0.15rem] "
-                  type="button"
-                >
-                  {" "}
-                  <Paperclip className=" w-4 h-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Attachments</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <AutoResizeTextarea
-            onClick={(e) => e.stopPropagation()}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            className="  resize-none"
-          />
-          {/* <Textarea
+        <div className=" w-full ">
+          <form
+            onSubmit={handleSubmit}
+            className=" w-full relative  flex items-end gap-2"
+          >
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className=" p-0 w-8 h-8  hover:text-primary shrink-0  mb-[0.15rem] "
+                    type="button"
+                  >
+                    {" "}
+                    <Paperclip className=" w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Attachments</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <AutoResizeTextarea
+              onClick={(e) => e.stopPropagation()}
+              content={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="  resize-none"
+            />
+            {/* <Textarea
           rows={5}
           className=" w-full resize-none   h-10    "
-          value={value}
+          content={content}
           onClick={(e) => {
             e.stopPropagation();
-          }}
-          onChange={(e) => setValue(e.target.value)}
-        /> */}
+            }}
+            onChange={(e) => setContent(e.target.content)}
+            /> */}
 
-          <Button
-            value="ghost"
-            variant="ghost"
-            type="submit"
-            className=" px-2 !py-[0.2rem] hover:text-primary  "
-          >
-            <Forward className=" w-5 h-5" />
-          </Button>
-        </form>
+            <Button
+              onClick={(e) => e.stopPropagation()}
+              content="ghost"
+              variant="ghost"
+              type="submit"
+              className=" px-2 !py-[0.2rem] hover:text-primary  "
+            >
+              <Forward className=" w-5 h-5" />
+            </Button>
+          </form>
+
+          <AnimatePresence>
+            {currentUserRole.toLowerCase() === "admin" &&
+              content.trim().length > 0 && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0.2 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0.2 }}
+                  className="    max-w-full flex items-center gap-2 my-6  ml-11"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Switch
+                    id="is-internal"
+                    checked={isInternal}
+                    onCheckedChange={(content) => setIsInternal(content)}
+                  />
+
+                  <label
+                    htmlFor="is-internal"
+                    className=" text-sm text-muted-foreground"
+                  >
+                    Set as internal message, Only can be seen by admins{" "}
+                  </label>
+                </motion.div>
+              )}
+          </AnimatePresence>
+        </div>
       </div>
     </>
   );
@@ -306,6 +385,7 @@ function RejecetdFile({
     </div>
   );
 }
+
 // function FileUploader() {
 //   const onDrop = useCallback(
 //     (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {

@@ -73,12 +73,14 @@ import NoteDialog from "./garage/note-dialog";
 import { TbFileDescription } from "react-icons/tb";
 import ImageView from "./image-view";
 import TicketDetails from "./ticket-details";
+import { cn } from "@lib/utils";
 
 interface Props {
   tickets: Ticket[];
   ticketStatuses: TicketStatusType[];
   ticketCategories: TicketCategory[];
   ticketPriorities: TicketPriority[];
+  isAdmin?: boolean;
 }
 
 type Selected = number | null;
@@ -91,6 +93,7 @@ const TicketTable = ({
   ticketCategories,
   ticketPriorities,
   ticketStatuses,
+  isAdmin = false,
 }: Props) => {
   const [open, setOpen] = useState<Open>(null);
   const [selectedId, setSelectedId] = useState<Selected>(null);
@@ -98,7 +101,20 @@ const TicketTable = ({
   const [image, setImage] = useState<string | null>(null);
 
   const selectedTicket = tickets.find((ticket) => ticket.id === selectedId);
+  const searchParam = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  const params = new URLSearchParams(searchParam);
 
+  const handleDetails = useCallback(
+    (id: number) => {
+      params.set("ticket", String(id));
+      router.push(`${pathname}?${params.toString()}`, {
+        scroll: false,
+      });
+    },
+    [params, router]
+  );
   const handleOpen = useCallback((open: Open, selected?: Selected) => {
     setOpen(open);
     setSelectedId(selected || null);
@@ -115,7 +131,14 @@ const TicketTable = ({
     };
   }, [open]);
   return (
-    <div className="mt-10 p-3 border rounded-3xl shadow-lg ">
+    <div
+      className={cn(
+        "mt-10 p-3 border rounded-3xl shadow-lg "
+        //    {
+        //   " max-w-[1200px] mx-auto": !isAdmin,
+        // }
+      )}
+    >
       <Table>
         <TableCaption>A list of the tickets issues.</TableCaption>
         <TableHeader>
@@ -123,21 +146,31 @@ const TicketTable = ({
             <TableHead className="text-nowrap min-w-36">SUBJECT</TableHead>
             <TableHead className="text-nowrap  min-w-36">CATEGORY</TableHead>
             <TableHead className="w-[100px] text-nowrap">ID</TableHead>
-            <TableHead className="max-w-36 text-nowrap">CLIENT</TableHead>
+            {isAdmin && (
+              <TableHead className="max-w-36 text-nowrap">CLIENT</TableHead>
+            )}
 
             <TableHead className="text-nowrap">STATUS</TableHead>
-            <TableHead className="text-nowrap">PRIORITY</TableHead>
+            {isAdmin && <TableHead className="text-nowrap">PRIORITY</TableHead>}
             <TableHead className="text-nowrap">ISSUE DATE</TableHead>
-            <TableHead className="text-nowrap">UPDATED AT</TableHead>
-            <TableHead className="text-right text-nowrap  w-11 ">
-              ASSIGNED TO
+            <TableHead
+              className={cn("text-nowrap", { " text-right": !isAdmin })}
+            >
+              UPDATED AT
             </TableHead>
+            {isAdmin && (
+              <TableHead className="text-right text-nowrap  w-11 ">
+                ASSIGNED TO
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
           {tickets.map((ticket) => (
             <Row
               key={ticket.id}
+              isAdmin={isAdmin}
+              handleDetails={handleDetails}
               ticket={ticket}
               open={open}
               setOpen={setOpen}
@@ -186,6 +219,7 @@ const TicketTable = ({
 };
 
 interface RowProps {
+  isAdmin: boolean;
   ticket: Ticket;
   ticketStatuses: TicketStatusType[];
   setSelected: SetSelected;
@@ -196,6 +230,7 @@ interface RowProps {
   handleOpen: HandleOpen;
   setImage: React.Dispatch<React.SetStateAction<string | null>>;
   priorities: TicketPriority[];
+  handleDetails: (id: number) => void;
 }
 function Row({
   ticket,
@@ -208,6 +243,8 @@ function Row({
   handleOpen,
   priorities,
   setImage,
+  handleDetails,
+  isAdmin,
 }: RowProps) {
   const [copied, setCopied] = useState(false);
 
@@ -228,7 +265,12 @@ function Row({
 
   return (
     <TableRow className=" background-transition ">
-      <TableCell>{ticket.subject}</TableCell>
+      <TableCell
+        onClick={() => handleDetails(ticket.id)}
+        className="  font-semibold underline underline-offset-4 cursor-pointer"
+      >
+        <p className=" line-clamp-3"> {ticket.subject}</p>
+      </TableCell>
       <TableCell>{ticket.ticketCategory_id.name}</TableCell>
       <TableCell>
         <div
@@ -266,47 +308,60 @@ function Row({
           </AnimatePresence>
         </div>
       </TableCell>
-      <TableCell>
-        <div className=" flex items-center  gap-2">
-          {ticket?.client_id?.picture && (
-            <img
-              onClick={() => setImage(ticket?.client_id?.picture || null)}
-              src={ticket.client_id.picture}
-              alt="img"
-              className=" w-7  h-7 object-cover rounded-full hover:opacity-90 hover:contrast-75 transition-all"
-            />
-          )}
-          <span className=" text-wrap text-sm text-muted-foreground">
-            {ticket.client_id?.name}
-          </span>
-        </div>
-      </TableCell>
+      {isAdmin && (
+        <TableCell>
+          <div className=" flex items-center  gap-2">
+            {ticket?.client_id?.picture && (
+              <img
+                onClick={() => setImage(ticket?.client_id?.picture || null)}
+                src={ticket.client_id.picture}
+                alt="img"
+                className=" w-7  h-7 object-cover rounded-full hover:opacity-90 hover:contrast-75 transition-all"
+              />
+            )}
+            <span className=" text-wrap text-sm text-muted-foreground">
+              {ticket.client_id?.name}
+            </span>
+          </div>
+        </TableCell>
+      )}
       <TableCell>
         <TicketStatus ticketStatus={ticket.ticketStatus_id} />
       </TableCell>
-      <TableCell>
-        <Priority priority={ticket.ticketPriority_id.name} />
+      {isAdmin && (
+        <TableCell>
+          <Priority priority={ticket.ticketPriority_id.name} />
+        </TableCell>
+      )}
+      <TableCell className=" text-nowrap">
+        {formatDate(ticket.created_at, "MMMM d, yyyy h:mm aa")}
       </TableCell>
-      <TableCell>{formatDate(ticket.created_at, "MMM dd yyyy")}</TableCell>
-      <TableCell>{formatDate(ticket.updated_at, "MMM dd yyyy")}</TableCell>
-      <TableCell
-        className={`text-right flex items-center   gap-2 ${
-          !ticket.admin_assigned_to && "text-muted-foreground"
-        }`}
-      >
-        <span>{ticket.admin_assigned_to || "Unassigned"}</span>{" "}
-        <TableActions
-          ticket={ticket}
-          open={open}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          handleOpen={handleOpen}
-          setOpen={setOpen}
-          status={ticketStatuses}
-          setSelected={setSelected}
-          priorities={priorities}
-        />
+      <TableCell className={cn("text-nowrap", { " text-right": !isAdmin })}>
+        {formatDate(ticket.updated_at, "MMMM d, yyyy h:mm aa")}
       </TableCell>
+      {isAdmin && (
+        <TableCell>
+          <div
+            className={`text-right flex items-center   gap-2 ${
+              !ticket.admin_assigned_to && "text-muted-foreground"
+            }`}
+          >
+            <span>{ticket.admin_assigned_to || "Unassigned"}</span>{" "}
+            <TableActions
+              ticket={ticket}
+              open={open}
+              handleDetails={handleDetails}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+              handleOpen={handleOpen}
+              setOpen={setOpen}
+              status={ticketStatuses}
+              setSelected={setSelected}
+              priorities={priorities}
+            />
+          </div>
+        </TableCell>
+      )}
     </TableRow>
   );
 }
@@ -322,6 +377,7 @@ function TableActions({
   setSelected,
   isLoading,
   setIsLoading,
+  handleDetails,
   priorities,
 }: {
   ticket: Ticket;
@@ -336,16 +392,16 @@ function TableActions({
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<number | false>>;
   currPageSize?: number;
+  handleDetails: (id: number) => void;
   priorities: TicketPriority[];
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const { toast } = useToast();
-  const searchParam = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
-  const params = new URLSearchParams(searchParam);
-  const searchParams = useSearchParams();
+  // const searchParam = useSearchParams();
+  // const pathname = usePathname();
+  // const router = useRouter();
+  // const params = new URLSearchParams(searchParam);
 
   const handleChangePriority = async (id: number) => {
     setIsLoading(ticket.id);
@@ -521,12 +577,7 @@ function TableActions({
 
           <DropdownMenuItem
             className=" gap-2  "
-            onClick={(e) => {
-              params.set("ticket", String(ticket.id));
-              router.push(`${pathname}?${params.toString()}`, {
-                scroll: false,
-              });
-            }}
+            onClick={() => handleDetails(ticket.id)}
           >
             <MessagesSquare className=" w-4 h-4" />
             Address ticket

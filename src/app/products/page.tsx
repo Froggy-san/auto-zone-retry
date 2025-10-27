@@ -84,7 +84,10 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
     productTypeId +
     productBrandId +
     isAvailable +
-    name;
+    name +
+    makerId +
+    modelId +
+    generationId;
 
   return (
     <main

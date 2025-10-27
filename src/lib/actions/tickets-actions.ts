@@ -9,7 +9,7 @@ import {
   Ticket,
   TicketStatus,
 } from "@lib/types";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@utils/supabase/server";
 
 import { revalidateTag, unstable_cache } from "next/cache";
@@ -26,15 +26,24 @@ interface GetTickets {
   dateFrom?: string;
   dateTo?: string;
   status?: string;
+  clientId?: number;
 }
 
 async function getTickets(
-  { pageNumber, sort = "asc", name, dateFrom, dateTo, status }: GetTickets,
+  {
+    pageNumber,
+    sort = "asc",
+    name,
+    dateFrom,
+    dateTo,
+    status,
+    clientId,
+  }: GetTickets,
   supabase: SupabaseClient
 ): Promise<{
   tickets: Ticket[] | null;
   count: number | null;
-  error: any;
+  error: PostgrestError | null;
 }> {
   const from = (Number(pageNumber) - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -50,6 +59,7 @@ async function getTickets(
   if (status) query = query.eq("ticketStatus_id", status);
   if (dateFrom) query = query.gte("created_at", dateFrom);
   if (dateTo) query = query.lte("created_at", dateTo);
+  if (clientId) query = query.eq("client_id", clientId);
 
   const {
     data: tickets,

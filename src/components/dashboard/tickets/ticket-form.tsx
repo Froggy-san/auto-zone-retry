@@ -91,8 +91,14 @@ const TicketForm = ({
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const diaOpen = isOpen !== undefined ? isOpen : open;
+  const isAdmin = user?.user?.user_metadata.role === "Admin";
+  console.log(isAdmin, "IS ADMIN");
   const deafultStatus = ticketStatus.find(
     (status) => status.name.toLowerCase() === "open"
+  )?.id;
+
+  const defaultPriority = ticketPriorities.find(
+    (proio) => proio.name.toLowerCase() === "medium"
   )?.id;
   const defaultValues = useMemo(() => {
     return {
@@ -101,8 +107,8 @@ const TicketForm = ({
       client_id: client?.id,
       admin_assigned_to: null,
       updated_at: "",
-      ticketStatus_id: ticketToEdit?.ticketStatus_id.id,
-      ticketPriority_id: ticketToEdit?.ticketPriority_id.id,
+      ticketStatus_id: ticketToEdit?.ticketStatus_id.id || deafultStatus,
+      ticketPriority_id: ticketToEdit?.ticketPriority_id.id || defaultPriority,
       ticketCategory_id: ticketToEdit?.ticketCategory_id.id,
     };
   }, [ticketToEdit, client]);
@@ -277,93 +283,101 @@ const TicketForm = ({
                   </FormItem>
                 )}
               />
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="ticketStatus_id"
-                render={({ field }) => (
-                  <FormItem className=" w-full">
-                    <FormLabel>Ticket Status</FormLabel>
-                    <FormControl>
-                      <Select
-                        defaultValue={
-                          field.value ? `${field.value}` : undefined
-                        }
-                        onValueChange={(value) => {
-                          field.onChange(Number(value));
-                        }}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Ticket Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ticketStatus.length ? (
-                            ticketStatus.map((status) => (
-                              <SelectItem
-                                key={status.id}
-                                value={`${status.id}`}
-                              >
-                                <TicketStatus ticketStatus={status} />
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <p className=" text-muted-foreground text-center w-full">
-                              No ticket status
-                            </p>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormDescription>
-                      Enter the status of the ticket, ( &apos;Open&apos;,
-                      &apos;Solved&apos;, &apos;close&apos;, est... ).
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                disabled={isLoading}
-                control={form.control}
-                name="ticketPriority_id"
-                render={({ field }) => (
-                  <FormItem className=" w-full">
-                    <FormLabel>Ticket Priority</FormLabel>
-                    <FormControl>
-                      <Select
-                        defaultValue={
-                          field.value ? `${field.value}` : undefined
-                        }
-                        onValueChange={(value) => {
-                          field.onChange(Number(value));
-                        }}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Ticket Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {ticketPriorities.length ? (
-                            ticketPriorities.map((prio) => (
-                              <SelectItem key={prio.id} value={`${prio.id}`}>
-                                <Priority priority={prio.name} />
-                              </SelectItem>
-                            ))
-                          ) : (
-                            <p className=" text-muted-foreground text-center w-full">
-                              No ticket priorities
-                            </p>
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormDescription>
-                      Enter the priority level of the ticket, ( &apos;Low&apos;,
-                      &apos;Meduim&apos;, &apos;High&apos;, est... ).
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {isAdmin && (
+                <>
+                  <FormField
+                    disabled={isLoading}
+                    control={form.control}
+                    name="ticketStatus_id"
+                    render={({ field }) => (
+                      <FormItem className=" w-full">
+                        <FormLabel>Ticket Status</FormLabel>
+                        <FormControl>
+                          <Select
+                            defaultValue={
+                              field.value ? `${field.value}` : undefined
+                            }
+                            onValueChange={(value) => {
+                              field.onChange(Number(value));
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Ticket Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ticketStatus.length ? (
+                                ticketStatus.map((status) => (
+                                  <SelectItem
+                                    key={status.id}
+                                    value={`${status.id}`}
+                                  >
+                                    <TicketStatus ticketStatus={status} />
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <p className=" text-muted-foreground text-center w-full">
+                                  No ticket status
+                                </p>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormDescription>
+                          Enter the status of the ticket, ( &apos;Open&apos;,
+                          &apos;Solved&apos;, &apos;close&apos;, est... ).
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    disabled={isLoading}
+                    control={form.control}
+                    name="ticketPriority_id"
+                    render={({ field }) => (
+                      <FormItem className=" w-full">
+                        <FormLabel>Ticket Priority</FormLabel>
+                        <FormControl>
+                          <Select
+                            defaultValue={
+                              field.value ? `${field.value}` : undefined
+                            }
+                            onValueChange={(value) => {
+                              field.onChange(Number(value));
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Ticket Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ticketPriorities.length ? (
+                                ticketPriorities.map((prio) => (
+                                  <SelectItem
+                                    key={prio.id}
+                                    value={`${prio.id}`}
+                                  >
+                                    <Priority priority={prio.name} />
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <p className=" text-muted-foreground text-center w-full">
+                                  No ticket priorities
+                                </p>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormDescription>
+                          Enter the priority level of the ticket, (
+                          &apos;Low&apos;, &apos;Meduim&apos;, &apos;High&apos;,
+                          est... ).
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
 
               <FormField
                 disabled={isLoading}

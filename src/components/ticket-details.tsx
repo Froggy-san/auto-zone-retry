@@ -1,4 +1,4 @@
-import { Ticket } from "@lib/types";
+import { Message, Ticket, User } from "@lib/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import BackBtn from "./products/back-btn";
@@ -6,9 +6,15 @@ import { cn } from "@lib/utils";
 import { Button } from "./ui/button";
 import useTicketById from "@lib/queries/tickets/useTicketById";
 import TicketTextField from "./ticket-text-field";
-import { MailSearch } from "lucide-react";
+import { ArrowLeft, MailSearch } from "lucide-react";
 import Spinner from "./Spinner";
 import useMessages from "@lib/queries/tickets/useMessages";
+import useCurrUser from "@lib/queries/useCurrUser";
+import ErrorMessage from "./error-message";
+import { format, formatDistance, formatDistanceToNow } from "date-fns";
+import TicketStatus from "./ticket-status";
+import useClientById from "@lib/queries/client/useClient";
+import TicketMessage from "./ticket-message";
 
 interface TicketDetailsProps {
   ticket?: Ticket;
@@ -25,6 +31,7 @@ const OPEN_POSITION = 0;
 const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
   const [positionY, setPositionY] = useState(CLOSED_POSITION);
   const [isDragging, setIsDragging] = useState(false);
+  const [messageId, setMessageId] = useState<number | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -33,12 +40,35 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
 
   const startYRef = useRef(0);
   const positionYRef = useRef(CLOSED_POSITION);
+
+  // Get the Ticket's details.
   const { ticket: ticketData, error, isLoading } = useTicketById(open);
   const {
     messages,
     error: messagesError,
     isMessagesLoading,
   } = useMessages(open);
+
+  const selectedMessage = messages?.find((message) => message.id === messageId);
+  const ticketViewed = ticketData?.[0];
+
+  // Get the currently logged in user.
+  const { user, isLoading: userLoading, error: userError } = useCurrUser();
+
+  // Get the client that issued the ticket.
+  const {
+    clientById,
+    isLoading: isClientLoading,
+    error: clientError,
+  } = useClientById({ id: ticketViewed?.client_id?.id || "" });
+
+  const loading =
+    isLoading || userLoading || isMessagesLoading || isClientLoading;
+  const isError =
+    !!messagesError?.message.length ||
+    !!error?.message.length ||
+    !!clientError?.message.length;
+
   useEffect(() => {
     if (open) {
       setPositionY(OPEN_POSITION);
@@ -90,15 +120,17 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
       // Note: I'm assuming you have access to these from the outer scope,
       // as they are not defined in the provided snippet.
       // If not, you may need to pass them or define them inside the component scope.
-      params.delete("ticket");
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      setTimeout(() => {
+        params.delete("ticket");
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      }, 500);
     } else {
       // It was NOT dragged past the threshold, snap open.
       setPositionY(OPEN_POSITION);
     }
 
     startYRef.current = 0;
-  }, [handleMouseMove]); // 💡 positionY is removed from dependencies!// positionY is required here for the final snap check.
+  }, [handleMouseMove, router, pathname, params]); // 💡 positionY is removed from dependencies!// positionY is required here for the final snap check.
 
   // 3. handleMouseDown: Starts the drag and attaches global listeners
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -137,46 +169,105 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
         <div className="w-10 h-1 bg-gray-300 rounded-full" />
       </div>
 
-      <BackBtn className=" ml-4" />
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={(e) => {
+          setPositionY(CLOSED_POSITION);
+          const timer = setTimeout(() => {
+            router.back();
+          }, 700);
 
-      {open && isLoading && <Spinner size={30} />}
-      {error && !isLoading ? (
-        <p className=" text-lg text-muted-foreground">{error.message}</p>
+          return () => clearTimeout(timer);
+        }}
+        className={cn("group")}
+      >
+        <ArrowLeft className=" icon  w-4 h-4  sm:w-6 sm:h-6  group-hover:-translate-x-1 transition-all" />
+      </Button>
+
+      {/* {open && isLoading && <Spinner size={30} />} */}
+      {open && loading ? (
+        <Spinner size={30} />
+      ) : isError ? (
+        <>
+          {error && (
+            <p className=" text-lg text-muted-foreground w-full text-center">
+              {error.message}
+            </p>
+          )}
+          {messagesError && (
+            <ErrorMessage>
+              {" "}
+              <p className=" text-center">{messagesError.message}</p>
+            </ErrorMessage>
+          )}
+
+          {clientError && (
+            <ErrorMessage>
+              {" "}
+              <p className=" text-center">{clientError.message}</p>
+            </ErrorMessage>
+          )}
+        </>
+      ) : !clientById || !clientById.length ? (
+        <ErrorMessage>
+          Something went wrong while getting the client&apos;s data.
+        </ErrorMessage>
       ) : (
         <>
           <div className="p-4">
             <h2 className="text-xl font-bold">Ticket Details</h2>
           </div>
 
-          <section className=" flex   max-w-[1000px] mx-auto gap-5 mt-14 ">
-            <ul className=" space-y-5 text-sm">
+          <section className=" flex   max-w-[1000px] mx-auto gap-10 mt-14 px-4 md:px-20 ">
+            <ul className=" space-y-6 text-sm">
               <li className=" space-y-2">
                 <p className=" text-muted-foreground ">TICKET ID</p>
-                <p className=" font-semibold">#12312312</p>
-              </li>
-              <li className=" space-y-2">
-                <p className=" text-muted-foreground">CREATED AT</p>
-                <p className="  font-semibold">July 10, 2024 at 12:15 AM</p>
+                <p className=" font-semibold">#{ticketData?.[0]?.id}</p>
               </li>
 
               <li className=" space-y-2">
-                <p className=" text-muted-foreground">LAST ACTIVITY</p>
-                <p className=" ">#12312312</p>
+                <p className=" text-muted-foreground">CREATED AT</p>
+                <p className="  font-semibold">
+                  {" "}
+                  {ticketData?.[0] &&
+                    format(ticketData?.[0].created_at, "MMMM d, yyyy h:mm bb")}
+                </p>
+              </li>
+
+              <li className=" space-y-2">
+                <p className=" text-muted-foreground text-nowrap">
+                  LAST ACTIVITY
+                </p>
+                <p className="  font-semibold">
+                  {" "}
+                  {ticketData?.[0] &&
+                    formatDistanceToNow(ticketData[0].updated_at) + ` ago`}
+                </p>
               </li>
 
               <li className=" space-y-2">
                 <p className=" text-muted-foreground">STATUS</p>
-                <p className=" ">#12312312</p>
+                <p className=" ">
+                  {ticketData?.[0] && (
+                    <TicketStatus
+                      ticketStatus={ticketData?.[0].ticketStatus_id}
+                    />
+                  )}
+                </p>
               </li>
             </ul>
 
-            <div className=" w-full  space-y-6  ">
+            <div className=" w-full  ">
               <div className=" pb-5 border-b">
                 <h2 className=" text-xl font-semibold mb-4">
                   {ticketData?.[0].subject}
                 </h2>
                 <p className=" text-sm"> {ticketData?.[0].description}</p>
               </div>
+              {messages && (
+                <Messages messages={messages} currentUser={user?.user} />
+              )}
               {/* <div className="  h-44  flex items-center justify-center border border-dashed rounded-xl">
              
                 <div className=" flex items-center gap-2 flex-col text-muted-foreground">
@@ -185,7 +276,24 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
                 </div>
               </div> */}
 
-              <TicketTextField />
+              {/* !// Make it so when there is no ticket the filed it self is disabled instead of just having it disappear completely. */}
+              {ticketData === undefined ||
+              ticketData === null ||
+              ticketData?.[0]?.ticketStatus_id.name.toLocaleLowerCase() ===
+                "closed" ? null : (
+                <TicketTextField
+                  currentUser={user?.user}
+                  clientById={clientById[0]}
+                  ticket={ticketData[0]}
+                  messageToEdit={selectedMessage}
+                  className={
+                    !ticketViewed ||
+                    ticketViewed.ticketStatus_id.name.toLowerCase() === "close"
+                      ? "opacity-75 pointer-events-none"
+                      : ""
+                  }
+                />
+              )}
             </div>
           </section>
         </>
@@ -196,6 +304,25 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
 
 export default TicketDetails;
 
+function Messages({
+  messages,
+  currentUser,
+}: {
+  messages: Message[];
+  currentUser?: User | null;
+}) {
+  return (
+    <div className=" mb-6">
+      {messages.map((message) => (
+        <TicketMessage
+          key={message.id}
+          message={message}
+          currentUser={currentUser}
+        />
+      ))}
+    </div>
+  );
+}
 // ! OLD CODE
 
 // import { Ticket } from "@lib/types";

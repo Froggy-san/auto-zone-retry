@@ -402,16 +402,31 @@ export const CreateTicketSchema = z.object({
   ticketCategory_id: z.number(),
 });
 
-export const MessageSchema = z.object({
-  ticket_id: z.number(),
-  sender_id: z.number(),
-  sender_type: z.string(),
-  content: z.string().min(5, { message: "Message is too short" }).max(2000, {
-    message:
-      "Message is too long, please send that one and then continue the rest in onther message",
-  }),
-  is_internal_note: z.boolean().default(false),
-});
+export const MessageSchema = z
+  .object({
+    ticket_id: z.number(),
+    senderId: z
+      .string()
+      .min(5, { message: "Sender ID is invailed" })
+      .max(30, { message: "Sender ID is too long, please put a vaild ID" }),
+
+    senderType: z.string().min(5, { message: "Enter a vaild role." }).max(6, {
+      message: `Role enter is too long, please pick "client" or "admin"`,
+    }),
+    client_id: z.number(),
+
+    content: z.string().min(5, { message: "Message is too short" }).max(2000, {
+      message:
+        "Message is too long, please send that one and then continue the rest in onther message",
+    }),
+    is_internal_note: z.boolean().default(false),
+  })
+  .refine(
+    (values) => values.senderType === "client" || values.senderType === "admin",
+    {
+      message: `Enter a vaild role "client" or "admin".`,
+    }
+  );
 
 export interface signUpProps {
   full_name: string;
@@ -946,6 +961,26 @@ export interface TicketCategory {
   name: string;
 }
 
+export interface Attachment {
+  id: number;
+  ticket_id: number;
+  message_id: number;
+  file_url: string;
+  file_name: string;
+  file_type: string;
+  client_id?: Client;
+}
+
+export interface CreateAttachment {
+  file: File;
+  ticket_id: number;
+  message_id: number;
+  file_url: string;
+  file_name: string;
+  file_type: string;
+  client_id: number;
+  uploaded_by: string;
+}
 // TICKETS --------------------------
 
 export type FileWithPreview = FileWithPath & {
@@ -974,4 +1009,6 @@ export type CreateTicket = z.infer<typeof CreateTicketSchema>;
 export interface Message extends z.infer<typeof MessageSchema> {
   id: number;
   created_at: string;
+  client?: Client;
+  attachments: Attachment[];
 }
