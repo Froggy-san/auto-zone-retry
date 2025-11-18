@@ -971,6 +971,12 @@ export interface Attachment {
   client_id?: Client;
 }
 
+export type OptimisticAction =
+  | { type: "add"; message: Message }
+  | { type: "fail"; tempId: number; error: string }
+  | { type: "succeed"; tempId: number; realMessage: Message }
+  | { type: "remove"; tempId: number };
+
 export interface CreateAttachment {
   file: File;
   ticket_id: number;
@@ -1011,4 +1017,5 @@ export interface Message extends z.infer<typeof MessageSchema> {
   created_at: string;
   client?: Client;
   attachments: Attachment[];
+  status?: "pending" | "failed";
 }

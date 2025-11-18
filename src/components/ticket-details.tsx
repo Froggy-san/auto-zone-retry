@@ -1,6 +1,18 @@
-import { Message, Ticket, User } from "@lib/types";
+import {
+  Message,
+  OptimisticAction,
+  Ticket,
+  TicketStatus as TicketStatusType,
+  User,
+} from "@lib/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useOptimistic,
+} from "react";
 import BackBtn from "./products/back-btn";
 import { cn } from "@lib/utils";
 import { Button } from "./ui/button";
@@ -15,10 +27,24 @@ import { format, formatDistance, formatDistanceToNow } from "date-fns";
 import TicketStatus from "./ticket-status";
 import useClientById from "@lib/queries/client/useClient";
 import TicketMessage from "./ticket-message";
+import { AnimatePresence } from "framer-motion";
+import { Switch } from "./ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { editTicket } from "@lib/services/complaints";
+import SuccessToastDescription, { ErorrToastDescription } from "./toast-items";
+import { useToast } from "@hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface TicketDetailsProps {
   ticket?: Ticket;
   className?: string;
+  ticketStatus: TicketStatusType[];
 }
 
 // Define the threshold for closing (e.g., if dragged down 80 pixels)
@@ -28,46 +54,125 @@ const OPEN_DRAG_THRESHOLD = 70;
 const CLOSED_POSITION = 100;
 const OPEN_POSITION = 0;
 
-const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
+const TicketDetails = ({
+  ticket,
+  ticketStatus,
+  className,
+}: TicketDetailsProps) => {
   const [positionY, setPositionY] = useState(CLOSED_POSITION);
   const [isDragging, setIsDragging] = useState(false);
   const [messageId, setMessageId] = useState<number | null>(null);
+  const [isInternalOnly, setIsInternalOnly] = useState(false);
+  const [isMessagesOnly, setIsMessagesOnly] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const params = new URLSearchParams(searchParams);
+  const { toast } = useToast();
+
   const open = searchParams.get("ticket") || undefined;
 
+  const [statusId, setStatusId] = useState<number | undefined>(undefined);
+  const containerRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
   const positionYRef = useRef(CLOSED_POSITION);
 
   // Get the Ticket's details.
-  const { ticket: ticketData, error, isLoading } = useTicketById(open);
+  const {
+    ticket: ticketData,
+    error,
+    isLoading: ticketByIdLoading,
+  } = useTicketById(open);
   const {
     messages,
     error: messagesError,
     isMessagesLoading,
   } = useMessages(open);
 
+  let filteredMessages = messages;
+
+  if (isInternalOnly)
+    filteredMessages = messages?.filter(
+      (messages) => messages.is_internal_note
+    );
+  if (isMessagesOnly)
+    filteredMessages = messages?.filter(
+      (messages) => !messages.is_internal_note
+    );
+
+  const [optimisticMessages, dispatchOptimistic] = useOptimistic(
+    filteredMessages || [],
+    (
+      currentOptimisticMessages: Message[],
+      action: OptimisticAction
+    ): Message[] => {
+      switch (action.type) {
+        case "add":
+          // Add the new message, marked as pending
+          return [
+            ...currentOptimisticMessages,
+            { ...action.message, status: "pending" },
+          ];
+
+        case "fail":
+          // Find the message by its temporary ID and mark it as failed
+          return currentOptimisticMessages.map((msg) =>
+            msg.id === action.tempId
+              ? { ...msg, status: "failed", error: action.error }
+              : msg
+          );
+
+        case "succeed":
+          // Find the message by temp ID and replace it with the real message
+          return currentOptimisticMessages.map((msg) =>
+            msg.id === action.tempId ? action.realMessage : msg
+          );
+
+        case "remove":
+          // Manually remove a failed message
+          return currentOptimisticMessages.filter(
+            (msg) => msg.id !== action.tempId
+          );
+
+        default:
+          return currentOptimisticMessages;
+      }
+    }
+  );
   const selectedMessage = messages?.find((message) => message.id === messageId);
   const ticketViewed = ticketData?.[0];
 
   // Get the currently logged in user.
   const { user, isLoading: userLoading, error: userError } = useCurrUser();
 
+  const isAdmin = user?.user?.user_metadata.role.toLowerCase() === "admin";
   // Get the client that issued the ticket.
   const {
     clientById,
     isLoading: isClientLoading,
     error: clientError,
-  } = useClientById({ id: ticketViewed?.client_id?.id || "" });
+  } = useClientById({
+    id: user?.user?.id || "",
+    getBy: "user_id",
+  });
 
   const loading =
-    isLoading || userLoading || isMessagesLoading || isClientLoading;
+    isLoading ||
+    userLoading ||
+    isMessagesLoading ||
+    isClientLoading ||
+    ticketByIdLoading;
   const isError =
     !!messagesError?.message.length ||
     !!error?.message.length ||
     !!clientError?.message.length;
+
+  useEffect(() => {
+    setStatusId(ticketData?.[0].ticketStatus_id.id);
+  }, [ticketData]);
 
   useEffect(() => {
     if (open) {
@@ -76,6 +181,39 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
       setPositionY(CLOSED_POSITION);
     }
   }, [open]);
+  const handleStatusChange = useCallback(
+    async (ticketStatus_id: number) => {
+      try {
+        if (!ticketData)
+          throw new Error("Something went wrong, refresh the page.");
+
+        setIsLoading(true);
+        await editTicket({ id: ticketData[0].id, ticketStatus_id });
+        // const { error } = await editTicketAction({
+        //   id: ticketData[0].id,
+        //   ticketStatus_id,
+        // });
+        if (error) throw new Error(error.message);
+        queryClient.invalidateQueries(["ticketById", String(ticketData[0].id)]);
+        toast({
+          className: "bg-primary  text-primary-foreground",
+          title: `Done.`,
+          description: (
+            <SuccessToastDescription message="Ticket status has been updated" />
+          ),
+        });
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Something went wrong.",
+          description: <ErorrToastDescription error={error.message} />,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [statusId, ticketData]
+  );
 
   // 1. handleMouseMove: Uses functional update for smooth dragging (Dependency array is empty)
   const handleMouseMove = useCallback((e: MouseEvent) => {
@@ -145,11 +283,12 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
   };
 
   const openDrawer = () => setPositionY(OPEN_POSITION);
-
+  console.log(optimisticMessages, "MESSAGES");
   return (
     <div
+      ref={containerRef}
       className={cn(
-        "w-full h-full overflow-y-auto pb-8 fixed left-0 top-0 transition-all ease-out duration-700 bg-background border z-50",
+        "w-full h-full overflow-y-auto pb-32 fixed left-0 top-0 transition-all ease-out duration-700 bg-background border overflow-x-hidden   z-50",
         className
       )}
       style={{
@@ -160,7 +299,7 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
     >
       <div
         className={cn(
-          "h-10 w-full flex justify-center items-center cursor-grab  ",
+          "h-10 w-full flex justify-center items-center cursor-grab ",
           isDragging ? "cursor-grabbing" : "cursor-grab"
         )}
         onMouseDown={handleMouseDown}
@@ -174,13 +313,11 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
         size="sm"
         onClick={(e) => {
           setPositionY(CLOSED_POSITION);
-          const timer = setTimeout(() => {
+          setTimeout(() => {
             router.back();
           }, 700);
-
-          return () => clearTimeout(timer);
         }}
-        className={cn("group")}
+        className={cn(" ml-4 group")}
       >
         <ArrowLeft className=" icon  w-4 h-4  sm:w-6 sm:h-6  group-hover:-translate-x-1 transition-all" />
       </Button>
@@ -219,45 +356,117 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
             <h2 className="text-xl font-bold">Ticket Details</h2>
           </div>
 
-          <section className=" flex   max-w-[1000px] mx-auto gap-10 mt-14 px-4 md:px-20 ">
-            <ul className=" space-y-6 text-sm">
-              <li className=" space-y-2">
-                <p className=" text-muted-foreground ">TICKET ID</p>
-                <p className=" font-semibold">#{ticketData?.[0]?.id}</p>
-              </li>
+          <section className=" flex flex-col sm:flex-row   max-w-[1000px] mx-auto gap-10 mt-14 px-4   md:px-20  ">
+            <div>
+              <div className=" sm:sticky top-5">
+                <div className=" space-y-6 mb-20 text-sm">
+                  <div className=" space-y-2">
+                    <p className=" text-muted-foreground ">TICKET ID</p>
+                    <p className=" font-semibold">#{ticketData?.[0]?.id}</p>
+                  </div>
 
-              <li className=" space-y-2">
-                <p className=" text-muted-foreground">CREATED AT</p>
-                <p className="  font-semibold">
-                  {" "}
-                  {ticketData?.[0] &&
-                    format(ticketData?.[0].created_at, "MMMM d, yyyy h:mm bb")}
-                </p>
-              </li>
+                  <div className=" space-y-2">
+                    <p className=" text-muted-foreground">CREATED AT</p>
+                    <p className="  font-semibold">
+                      {" "}
+                      {ticketData?.[0] &&
+                        format(
+                          ticketData?.[0].created_at,
+                          "MMMM d, yyyy h:mm aa"
+                        )}
+                    </p>
+                  </div>
 
-              <li className=" space-y-2">
-                <p className=" text-muted-foreground text-nowrap">
-                  LAST ACTIVITY
-                </p>
-                <p className="  font-semibold">
-                  {" "}
-                  {ticketData?.[0] &&
-                    formatDistanceToNow(ticketData[0].updated_at) + ` ago`}
-                </p>
-              </li>
+                  <div className=" space-y-2">
+                    <p className=" text-muted-foreground text-nowrap">
+                      LAST ACTIVITY
+                    </p>
+                    <p className="  font-semibold">
+                      {" "}
+                      {ticketData?.[0] &&
+                        formatDistanceToNow(ticketData[0].updated_at) + ` ago`}
+                    </p>
+                  </div>
 
-              <li className=" space-y-2">
-                <p className=" text-muted-foreground">STATUS</p>
-                <p className=" ">
-                  {ticketData?.[0] && (
-                    <TicketStatus
-                      ticketStatus={ticketData?.[0].ticketStatus_id}
-                    />
-                  )}
-                </p>
-              </li>
-            </ul>
+                  <div className=" space-y-2">
+                    <p className=" text-muted-foreground">STATUS</p>
+                    <p className=" ">
+                      {ticketData?.[0] && (
+                        <TicketStatus
+                          ticketStatus={ticketData?.[0].ticketStatus_id}
+                        />
+                      )}
+                    </p>
+                  </div>
+                </div>
+                {isAdmin && (
+                  <div className=" p-3  space-y-6 rounded-xl bg-accent/30 ">
+                    <div className=" flex  gap-2">
+                      <Switch
+                        id="is-internal-only"
+                        checked={isInternalOnly}
+                        onCheckedChange={(value) => {
+                          setIsInternalOnly(value);
+                          setIsMessagesOnly(false);
+                        }}
+                      />{" "}
+                      <label
+                        htmlFor="is-internal-only"
+                        className=" text-xs text-muted-foreground "
+                      >
+                        Internal messages only
+                      </label>
+                    </div>
+                    <div className=" flex  gap-2">
+                      <Switch
+                        id="is-visible-only"
+                        checked={isMessagesOnly}
+                        onCheckedChange={(value) => {
+                          setIsMessagesOnly(value);
+                          setIsInternalOnly(false);
+                        }}
+                      />{" "}
+                      <label
+                        htmlFor="is-visible-only"
+                        className=" text-xs text-muted-foreground "
+                      >
+                        Visible messages only
+                      </label>
+                    </div>
 
+                    <Select
+                      // key={statusId}
+                      disabled={isLoading}
+                      value={String(statusId) || undefined}
+                      onValueChange={async (value) => {
+                        setStatusId(Number(value));
+                        await handleStatusChange(Number(value));
+                      }}
+                    >
+                      <SelectTrigger className="w-full  h-fit gap-2">
+                        <SelectValue placeholder="Ticket Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ticketStatus.length ? (
+                          ticketStatus.map((status) => (
+                            <SelectItem key={status.id} value={`${status.id}`}>
+                              <TicketStatus
+                                ticketStatus={status}
+                                className=" text-wrap"
+                              />
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <p className=" text-muted-foreground text-center w-full">
+                            No ticket status
+                          </p>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+            </div>
             <div className=" w-full  ">
               <div className=" pb-5 border-b">
                 <h2 className=" text-xl font-semibold mb-4">
@@ -265,8 +474,12 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
                 </h2>
                 <p className=" text-sm"> {ticketData?.[0].description}</p>
               </div>
-              {messages && (
-                <Messages messages={messages} currentUser={user?.user} />
+              {optimisticMessages && (
+                <Messages
+                  messages={optimisticMessages}
+                  currentUser={user?.user}
+                  isDragging={isDragging}
+                />
               )}
               {/* <div className="  h-44  flex items-center justify-center border border-dashed rounded-xl">
              
@@ -277,23 +490,23 @@ const TicketDetails = ({ ticket, className }: TicketDetailsProps) => {
               </div> */}
 
               {/* !// Make it so when there is no ticket the filed it self is disabled instead of just having it disappear completely. */}
-              {ticketData === undefined ||
-              ticketData === null ||
-              ticketData?.[0]?.ticketStatus_id.name.toLocaleLowerCase() ===
-                "closed" ? null : (
-                <TicketTextField
-                  currentUser={user?.user}
-                  clientById={clientById[0]}
-                  ticket={ticketData[0]}
-                  messageToEdit={selectedMessage}
-                  className={
-                    !ticketViewed ||
-                    ticketViewed.ticketStatus_id.name.toLowerCase() === "close"
-                      ? "opacity-75 pointer-events-none"
-                      : ""
-                  }
-                />
-              )}
+
+              <TicketTextField
+                key={open}
+                open={open}
+                dispatchOptimistic={dispatchOptimistic}
+                containerRef={containerRef}
+                currentUser={user?.user}
+                clientById={clientById[0]}
+                ticket={ticketData?.[0]}
+                messageToEdit={selectedMessage}
+                className={
+                  !ticketViewed ||
+                  ticketViewed.ticketStatus_id.name.toLowerCase() === "close"
+                    ? "opacity-75 pointer-events-none"
+                    : ""
+                }
+              />
             </div>
           </section>
         </>
@@ -307,19 +520,24 @@ export default TicketDetails;
 function Messages({
   messages,
   currentUser,
+  isDragging,
 }: {
   messages: Message[];
   currentUser?: User | null;
+  isDragging?: boolean;
 }) {
   return (
     <div className=" mb-6">
-      {messages.map((message) => (
-        <TicketMessage
-          key={message.id}
-          message={message}
-          currentUser={currentUser}
-        />
-      ))}
+      <AnimatePresence>
+        {messages.map((message) => (
+          <TicketMessage
+            key={message.id}
+            isDragging={isDragging}
+            message={message}
+            currentUser={currentUser}
+          />
+        ))}
+      </AnimatePresence>
     </div>
   );
 }

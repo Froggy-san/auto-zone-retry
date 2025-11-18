@@ -68,19 +68,37 @@ const ProductImages = ({
       className=" w-full h-full"
     >
       <div className={cn(" relative ", className)}>
-        {imageUrls.map((url, i) => (
-          <img
-            src={url}
-            key={i}
-            className={cn(
-              "w-full h-full object-cover absolute inset-0 transition-all",
-              {
-                "opacity-0": viewedImage !== i,
-                "opacity-100": viewedImage === i,
-              }
-            )}
-          />
-        ))}
+        {imageUrls.map((url, i) =>
+          url.includes("mp4") ? (
+            <video
+              controls={false}
+              playsInline
+              key={i}
+              src={url}
+              className={cn(
+                "w-full h-full object-cover absolute inset-0 transition-all",
+                {
+                  "opacity-0": viewedImage !== i,
+                  "opacity-100": viewedImage === i,
+                }
+              )}
+            >
+              <source src={url} />
+            </video>
+          ) : (
+            <img
+              src={url}
+              key={i}
+              className={cn(
+                "w-full h-full object-cover absolute inset-0 transition-all",
+                {
+                  "opacity-0": viewedImage !== i,
+                  "opacity-100": viewedImage === i,
+                }
+              )}
+            />
+          )
+        )}
         <div className=" absolute  flex inset-0 w-full h-full">
           {imageUrls.map((_, i) => (
             <div

@@ -79,7 +79,7 @@ export function MultiFileUploader({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     disabled: disabled,
-    accept: { "image/*": [] },
+    accept: { "image/*": [], "video/*": [] },
   });
 
   return (
@@ -121,11 +121,22 @@ export function MultiFileUploader({
                 >
                   <X size={15} />
                 </Button>
-                <img
-                  src={media.imageUrl}
-                  alt="Image selected"
-                  className=" max-h-[250px] sm:max-h-[120px]"
-                />
+                {media.imageUrl.includes("mp4") ? (
+                  <video
+                    key={media.id}
+                    src={media.imageUrl}
+                    className=" max-h-[250px] sm:max-h-[120px]"
+                  >
+                    <source src={media.imageUrl} />
+                  </video>
+                ) : (
+                  <img
+                    src={media.imageUrl}
+                    alt="Image selected"
+                    className=" max-h-[250px] sm:max-h-[120px]"
+                  />
+                )}
+
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -177,11 +188,17 @@ export function MultiFileUploader({
                 >
                   <X size={15} />
                 </Button>
-                <img
-                  src={file.preview}
-                  alt="Image selected"
-                  className="max-h-[250px] sm:max-h-[120px]"
-                />
+                {file.type.startsWith("video/") ? (
+                  <video key={i} src={file.preview} className="media-file ">
+                    <source src={file.preview} type={file.type} />
+                  </video>
+                ) : (
+                  <img
+                    src={file.preview}
+                    alt="Image selected"
+                    className="max-h-[250px] sm:max-h-[120px]"
+                  />
+                )}
 
                 <TooltipProvider>
                   <Tooltip>

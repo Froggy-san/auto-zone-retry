@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 export default function useEditMessage() {
   const queryClient = useQueryClient();
 
-  const { mutate: editMessage, isLoading } = useMutation({
+  const { mutateAsync: editMessage, isLoading } = useMutation({
     mutationFn: editMessageApi,
     onSuccess: () => {
       queryClient.invalidateQueries(["message"]);

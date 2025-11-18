@@ -18,6 +18,50 @@ export async function urlToFile(
   return new File([blob], filename, { type: mimeType });
 }
 
+/**
+ * Fetches a file from a URL and prompts the user to download it.
+ * @param url The URL of the file to download.
+ * @param fileName The desired file name for the download.
+ */
+export async function downloadFileFromUrl(
+  url: string,
+  fileName: string
+): Promise<void> {
+  try {
+    // 1. Fetch the file content
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // 2. Get the response body as a Blob
+    const blob = await response.blob();
+
+    // 3. Create a temporary URL for the Blob
+    const blobUrl = URL.createObjectURL(blob);
+
+    // 4. Create a temporary anchor element
+    const a = document.createElement("a");
+    a.style.display = "none"; // Keep it hidden
+    a.href = blobUrl;
+    a.download = fileName; // Set the desired file name
+
+    // 5. Append to the DOM, trigger click, and remove
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    // 6. Release the temporary URL
+    URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error("Download failed:", error);
+    // You might want to show an error message to the user here
+  }
+}
+
+// Example usage:
+// downloadFileFromUrl('https://example.com/api/get-document', 'report.pdf');
 export async function downloadImage(url: string): Promise<File | null> {
   try {
     const response = await fetch(url, { mode: "no-cors" }); // Prevent blocking (limited success)

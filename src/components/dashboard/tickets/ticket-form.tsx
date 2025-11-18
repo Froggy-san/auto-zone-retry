@@ -92,7 +92,7 @@ const TicketForm = ({
   const formRef = useRef<HTMLFormElement>(null);
   const diaOpen = isOpen !== undefined ? isOpen : open;
   const isAdmin = user?.user?.user_metadata.role === "Admin";
-  console.log(isAdmin, "IS ADMIN");
+
   const deafultStatus = ticketStatus.find(
     (status) => status.name.toLowerCase() === "open"
   )?.id;
@@ -157,7 +157,6 @@ const TicketForm = ({
         });
         if (error) throw Error(error);
       } else {
-        console.log("FIREDD CLIENT");
         const { error } = await createTicketAction({ ...data, updated_at });
         if (error) throw Error(error);
       }

@@ -1,5 +1,6 @@
 import { SUPABASE_URL } from "@lib/constants";
 import {
+  Attachment,
   CreateAttachment,
   FileWithPreview,
   Message,
@@ -9,6 +10,7 @@ import {
 import { PostgrestError } from "@supabase/supabase-js";
 import supabase from "@utils/supabase";
 import { z } from "zod";
+import { deleteImageFromBucket } from "./helper-services";
 
 interface GetTicketByIdProps {
   id: string;
@@ -32,7 +34,8 @@ export async function getMessages(
   const { data: messages, error } = await supabase
     .from("messages")
     .select("*,attachments(*),client:client_id(*)")
-    .eq("ticket_id", id);
+    .eq("ticket_id", id)
+    .order("created_at", { ascending: true });
 
   return { messages, error };
 }
@@ -61,7 +64,11 @@ interface Create {
   data: z.infer<typeof MessageSchema>;
   files: FileWithPreview[];
 }
-export async function createMessage({ data, files }: Create) {
+export async function createMessage({
+  data,
+  files,
+}: Create): Promise<Message | null> {
+  // throw new Error(`Testing failed creation`);
   const { data: message, error } = await supabase
     .from("messages")
     .insert([data])
@@ -76,6 +83,8 @@ export async function createMessage({ data, files }: Create) {
   const message_id = message[0].id;
   const ticket_id = data.ticket_id;
   const client_id = data.client_id;
+
+  let attachments: Attachment[] = [];
 
   // https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/attachments/G4OrcuxWsAA8iDj.jpeg
   if (files.length) {
@@ -96,7 +105,10 @@ export async function createMessage({ data, files }: Create) {
 
       // Push all the file data for the attachment bucket.
       bucketPromises.push(
-        supabase.storage.from("attachments").update(nameInBucket, file)
+        supabase.storage.from("attachments").upload(nameInBucket, file, {
+          cacheControl: "3600",
+          upsert: false, // Prevent overwriting if UUID collision somehow happens
+        })
       );
 
       // Push the data needed for the attachments table.
@@ -112,9 +124,9 @@ export async function createMessage({ data, files }: Create) {
     });
 
     // 2. Upload all files to the bucket.
-
+    console.log("BEFORE  result");
     const results = await Promise.allSettled(bucketPromises);
-
+    console.log("After results");
     // 3.  Make sure that there were no errors while uploading the files to the backend.
     results.forEach((result, index) => {
       if (result.status === "rejected") {
@@ -129,13 +141,17 @@ export async function createMessage({ data, files }: Create) {
     });
 
     // 4. Upload all attachment data for each file to attachment Table.
-    const { error: attachmentsError } = await supabase
+    const { data: returnedAttchments, error: attachmentsError } = await supabase
       .from("attachments")
-      .insert(attachmentsData);
+      .insert(attachmentsData)
+      .select();
 
     // 5. If an error occurred while uploading the attachment data throw an error.
     if (attachmentsError) throw new Error(attachmentsError.message);
+    attachments = returnedAttchments;
   }
+
+  return { ...message[0], attachments };
 }
 
 interface Edit {
@@ -152,6 +168,59 @@ export async function editMessages(data: Edit) {
     .from("messages")
     .update({ ...data })
     .eq("id", data.id);
+
+  if (error) throw new Error(error.message);
+}
+
+export async function deleteMessage(message: Message) {
+  if (message.attachments.length) {
+    const imagePaths: string[] = [];
+    const attachmentIds: number[] = [];
+    message.attachments.forEach((attachment) => {
+      imagePaths.push(attachment.file_url);
+      attachmentIds.push(attachment.id);
+    });
+
+    const { error: bucketError } = await deleteImageFromBucket({
+      imagePaths,
+      bucketName: "attachments",
+    });
+
+    if (bucketError) throw new Error(bucketError.message);
+
+    const { error } = await supabase
+      .from("attachments")
+      .delete()
+      .in("id", attachmentIds);
+
+    if (error) {
+      console.log(error.message);
+      throw new Error(error.message);
+    }
+  }
+
+  const { error } = await supabase
+    .from("messages")
+    .delete()
+    .eq("id", message.id);
+
+  if (error) {
+    console.log(error.message);
+    throw new Error(error.message);
+  }
+}
+
+export async function deleteAttachment(attachment: Attachment) {
+  const { error: bucketError } = await deleteImageFromBucket({
+    bucketName: "attachments",
+    imagePaths: [attachment.file_url],
+  });
+  if (bucketError) throw new Error(bucketError.message);
+
+  const { error } = await supabase
+    .from("attachments")
+    .delete()
+    .eq("id", attachment.id);
 
   if (error) throw new Error(error.message);
 }

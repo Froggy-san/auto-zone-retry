@@ -213,7 +213,7 @@ const TicketTable = ({
         setIsLoading={setIsLoading}
       />
       <ImageView image={image} handleClose={() => setImage(null)} />
-      <TicketDetails ticket={selectedTicket} />
+      <TicketDetails ticket={selectedTicket} ticketStatus={ticketStatuses} />
     </div>
   );
 };
@@ -434,8 +434,12 @@ function TableActions({
   const handleChangeStatus = async (id: number) => {
     setIsLoading(ticket.id);
     try {
-      await editTicketAction({ id: ticket.id, ticketStatus_id: id });
+      const { error } = await editTicketAction({
+        id: ticket.id,
+        ticketStatus_id: id,
+      });
 
+      if (error) throw new Error(error.message);
       // handleClose();
       toast({
         className: "bg-primary  text-primary-foreground",

@@ -1,3 +1,4 @@
+import { revalidateTickets } from "@lib/actions/tickets-actions";
 import { CreateTicket, Ticket } from "@lib/types";
 import { createClient } from "@utils/supabase/client";
 
@@ -36,10 +37,28 @@ export async function createTicket(data: CreateProps) {
   if (error) throw new Error(error.message);
 }
 
-export async function editTicket(data: CreateProps) {
-  const { error } = await supabase.from("tickets").update({ data });
+interface EditProps {
+  id: number;
+  subject?: string;
+  description?: string;
+  client_id?: number;
+  updated_at?: string;
+  admin_assigned_to?: string | null;
+  ticketStatus_id?: number;
+  ticketPriority_id?: number;
+  ticketCategory_id?: number;
+}
+export async function editTicket(data: EditProps) {
+  const { error } = await supabase
+    .from("tickets")
+    .update(data)
+    .eq("id", data.id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.log(error.message);
+    throw new Error(error.message);
+  }
+  await revalidateTickets();
 }
 
 export async function deleteTicket(id: number) {

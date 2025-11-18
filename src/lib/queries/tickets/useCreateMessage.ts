@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function useCreateMessage() {
   const queryClient = useQueryClient();
-  const { mutate: createMessage, isLoading } = useMutation({
+  const { mutateAsync: createMessage, isLoading } = useMutation({
     mutationFn: createMessageService,
     onSuccess: () => {
       queryClient.invalidateQueries(["message"]);
