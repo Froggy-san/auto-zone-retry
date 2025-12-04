@@ -12,19 +12,20 @@ interface AutoResizeTextareaProps
 // Define a maximum height to prevent it from growing infinitely
 const MAX_HEIGHT_PIXELS = 300;
 
-const AutoResizeTextarea = ({
-  maxHeight,
-  value,
-  onChange,
-  ...props
-}: AutoResizeTextareaProps) => {
+const AutoResizeTextarea = React.forwardRef<
+  HTMLTextAreaElement,
+  AutoResizeTextareaProps
+>(({ maxHeight, value, onChange, ...props }, ref) => {
   const maxHeightValue =
     maxHeight !== undefined ? maxHeight : MAX_HEIGHT_PIXELS;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Function to resize the textarea based on its content
   const adjustHeight = useCallback(() => {
-    const textarea = textareaRef.current;
+    const forwardedRef =
+      ref && typeof ref === "object" && "current" in ref ? ref.current : null;
+
+    const textarea = forwardedRef || textareaRef.current;
     if (textarea) {
       // 1. Reset height to shrink it if content was deleted
       textarea.style.height = "auto";
@@ -63,7 +64,8 @@ const AutoResizeTextarea = ({
   return (
     <Textarea
       {...props}
-      ref={textareaRef}
+      // aria-hidden="false"
+      ref={ref || textareaRef}
       value={value}
       onChange={handleChange}
       // Set an initial small height via rows or CSS for when it first loads
@@ -76,5 +78,6 @@ const AutoResizeTextarea = ({
       }}
     />
   );
-};
+});
+AutoResizeTextarea.displayName = "AutoResizeTextarea";
 export default AutoResizeTextarea;

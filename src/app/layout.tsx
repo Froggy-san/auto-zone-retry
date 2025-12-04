@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/lib/providers/next-theme-providers";
 import { Toaster } from "@/components/ui/toaster";
 import ReactQueryProvidor from "@lib/providers/react-query-provider";
 import StoreProvider from "@lib/providers/store-provider";
-
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -39,6 +39,7 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <ReactQueryProvidor>
+            <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
             <StoreProvider>{children}</StoreProvider>
           </ReactQueryProvidor>
           <Toaster />

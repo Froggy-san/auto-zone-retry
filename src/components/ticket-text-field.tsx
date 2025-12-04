@@ -1,10 +1,11 @@
 "use client";
 
 import { cn } from "@lib/utils";
-import { File, FileAudio, Forward, ImageUp, Paperclip } from "lucide-react";
+import { File, FileAudio, Forward, ImageUp, Paperclip, X } from "lucide-react";
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useTransition,
@@ -23,7 +24,12 @@ import {
   User,
 } from "@lib/types";
 import AutoResizeTextarea from "./AutoResizeTextarea";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useAnimate,
+  usePresence,
+} from "framer-motion";
 import {
   Tooltip,
   TooltipContent,
@@ -39,6 +45,8 @@ import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, { ErorrToastDescription } from "./toast-items";
 import _ from "lodash";
 import { z } from "zod";
+import { AcceptedFile } from "./accpeted-file";
+import { RejecetdFile } from "./rejected-file";
 interface Props {
   className?: string;
   containerRef: React.RefObject<HTMLDivElement>;
@@ -46,8 +54,20 @@ interface Props {
   messageToEdit?: Message;
   clientById: Client;
   open: string | undefined;
+  isDragging: boolean;
   ticket?: Ticket;
+  handleEditTicket: ({
+    ticketStatus_id,
+    updateActivity,
+  }: {
+    ticketStatus_id?: number | undefined;
+    updateActivity?: boolean | undefined;
+  }) => Promise<void>;
+  textAreaRef: React.RefObject<HTMLTextAreaElement>;
+  handleScrollContainer: () => void;
+  setSelectedMessageId: (id: number | null) => void;
   dispatchOptimistic: (action: OptimisticAction) => void;
+  addFailedMessage: (message: Message) => void;
 }
 
 type RejecetedFile = Omit<FileRejection, "File"> & {
@@ -64,7 +84,13 @@ const TicketTextField = ({
   ticket,
   open,
   containerRef,
+  isDragging,
+  textAreaRef,
+  handleEditTicket,
+  handleScrollContainer,
+  setSelectedMessageId,
   dispatchOptimistic,
+  addFailedMessage,
 }: Props) => {
   const initialValues = {
     content: messageToEdit?.content || "",
@@ -74,9 +100,10 @@ const TicketTextField = ({
     rejectedFiles: [],
   };
 
-  const [content, setContent] = useState(initialValues.content);
+  const [content, setContent] = useState(initialValues?.content || "");
   const [files, setFiles] = useState<FileWithPreview[]>(initialValues.files);
-  const [imagesToDelete, setImagesToDelete] = useState(
+
+  const [imagesToDelete, setImagesToDelete] = useState<Attachment[]>(
     initialValues.imagesToDelete
   );
   const [isInternal, setIsInternal] = useState(initialValues.isInternal);
@@ -87,7 +114,7 @@ const TicketTextField = ({
   const [isPending, startTransition] = useTransition();
 
   const { createMessage, isLoading } = useCreateMessage();
-  const { editMessage, isLoading: isEditting } = useEditMessage();
+  const { editMessage, isLoading: isEditting } = useEditMessage(ticket?.id);
   const textContainer = useRef<HTMLDivElement>(null);
   // 1. Define Refs
   const filesRef = useRef<FileWithPreview[]>([]);
@@ -107,7 +134,8 @@ const TicketTextField = ({
     setContent("");
     setIsInternal(initialValues.isInternal);
     setImagesToDelete(initialValues.imagesToDelete);
-  }, [files, rejectedFiles, initialValues]);
+    setSelectedMessageId(null);
+  }, [files, rejectedFiles, initialValues, setSelectedMessageId]);
 
   // const moveRejectedToAccepted = useCallback(() => {
   //   // 1. Calculate how many more files can be accepted
@@ -162,6 +190,77 @@ const TicketTextField = ({
   //   }
   // }, [files.length, rejectedFiles, setFiles, setRejectedFiles]);
 
+  const onDrop = useCallback(
+    (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {
+      let filesRejected: RejecetedFile[] = [];
+
+      if (acceptedFiles.length) {
+        const remainingSpace = MAX_FILES - files.length;
+
+        //1. Get all the accpeted files
+        const filesToAccept = acceptedFiles
+          .slice(0, remainingSpace)
+          .map((accepted) =>
+            Object.assign(accepted, {
+              preview: URL.createObjectURL(accepted),
+            })
+          );
+        // 3. Explicitly cast the resulting object type
+
+        // 2. Get all the access files.
+        filesRejected = acceptedFiles.slice(remainingSpace).map((rejected) => {
+          const file = Object.assign(rejected, {
+            preview: URL.createObjectURL(rejected),
+          });
+          return {
+            file,
+            errors: [{ code: "too-many-files", message: "Too many files" }],
+          };
+        });
+        // 3. Update the accepted files state
+        if (filesToAccept.length > 0)
+          setFiles((prev) => [...prev, ...filesToAccept]);
+      }
+
+      let dropzoneRejectedFiles: RejecetedFile[] = [];
+      if (rejectedFiles.length) {
+        dropzoneRejectedFiles = rejectedFiles.map((rejected) => {
+          const file = Object.assign(rejected.file, {
+            preview: URL.createObjectURL(rejected.file),
+          });
+          return {
+            ...rejected,
+            file,
+          };
+        });
+      }
+
+      const allRejectedFiles = [...dropzoneRejectedFiles, ...filesRejected];
+
+      if (allRejectedFiles.length) {
+        setRejectedFiles((prev) => [...prev, ...allRejectedFiles]);
+      }
+    },
+    [files.length, setFiles, setRejectedFiles]
+  );
+
+  const handleRemoveUploadedImg = useCallback(
+    (attachment: Attachment) => {
+      setImagesToDelete((prev) => {
+        const isRemoved = prev.find(
+          (attachmentFile) => attachmentFile.id === attachment.id
+        );
+        if (isRemoved) {
+          return prev.filter(
+            (attachmentFile) => attachmentFile.id !== attachment.id
+          );
+        } else {
+          return [...prev, attachment];
+        }
+      });
+    },
+    [setImagesToDelete]
+  );
   const handleRemove = useCallback(
     (indexToRemove: number) => {
       // --- STEP 1: Calculate Remaining Space (compensating for stale state) ---
@@ -228,60 +327,6 @@ const TicketTextField = ({
     // Dependency list is sound. Note: rejectedFiles is needed because you access its content directly.
     [setFiles, setRejectedFiles, files.length, rejectedFiles]
   );
-  const onDrop = useCallback(
-    (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {
-      let filesRejected: RejecetedFile[] = [];
-
-      if (acceptedFiles.length) {
-        const remainingSpace = MAX_FILES - files.length;
-
-        //1. Get all the accpeted files
-        const filesToAccept = acceptedFiles
-          .slice(0, remainingSpace)
-          .map((accepted) =>
-            Object.assign(accepted, {
-              preview: URL.createObjectURL(accepted),
-            })
-          );
-        // 3. Explicitly cast the resulting object type
-
-        // 2. Get all the access files.
-        filesRejected = acceptedFiles.slice(remainingSpace).map((rejected) => {
-          const file = Object.assign(rejected, {
-            preview: URL.createObjectURL(rejected),
-          });
-          return {
-            file,
-            errors: [{ code: "too-many-files", message: "Too many files" }],
-          };
-        });
-        // 3. Update the accepted files state
-        if (filesToAccept.length > 0)
-          setFiles((prev) => [...prev, ...filesToAccept]);
-      }
-
-      let dropzoneRejectedFiles: RejecetedFile[] = [];
-      if (rejectedFiles.length) {
-        dropzoneRejectedFiles = rejectedFiles.map((rejected) => {
-          const file = Object.assign(rejected.file, {
-            preview: URL.createObjectURL(rejected.file),
-          });
-          return {
-            ...rejected,
-            file,
-          };
-        });
-      }
-
-      const allRejectedFiles = [...dropzoneRejectedFiles, ...filesRejected];
-
-      if (allRejectedFiles.length) {
-        setRejectedFiles((prev) => [...prev, ...allRejectedFiles]);
-      }
-    },
-    [files.length, setFiles, setRejectedFiles]
-  );
-
   const handleRemoveRejected = useCallback(
     (index: number) => {
       const rejectedFile = rejectedFiles[index];
@@ -296,6 +341,7 @@ const TicketTextField = ({
     },
     [rejectedFiles, setFiles]
   );
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     // maxFiles: MAX_FILES,
@@ -307,6 +353,9 @@ const TicketTextField = ({
     filesRef.current = files;
   }, [files]); // Runs whenever 'files' changes
 
+  useEffect(() => {
+    setContent(messageToEdit?.content || "");
+  }, [setContent, messageToEdit]);
   useEffect(() => {
     rejectedFilesRef.current = rejectedFiles;
   }, [rejectedFiles]); // Runs whenever 'rejectedFiles' changes
@@ -326,10 +375,13 @@ const TicketTextField = ({
       });
 
       // Optional: Clear the refs after revoking to be certain
+      setFiles([]);
+      setRejectedFiles([]);
+      setImagesToDelete([]);
       filesRef.current = [];
       rejectedFilesRef.current = [];
     };
-  }, [open, ticket?.id]); // Only runs cleanup when context changes!
+  }, [open, setFiles, setRejectedFiles, messageToEdit, ticket?.id]); // Only runs cleanup when context changes!
 
   // async function handleAddMessage({
   //   data,
@@ -394,11 +446,13 @@ const TicketTextField = ({
       file_url: file.preview,
       uploaded_by: currentUser.id,
       client_id: clientById,
+      file,
     }));
 
     return {
       id: tempId, // The temporary ID
       ...data,
+      client: clientById,
       created_at: String(new Date()),
       attachments,
     };
@@ -427,11 +481,16 @@ const TicketTextField = ({
 
     try {
       // 2. Try to send to Server
-      const realMessage = await createMessage({ data, files });
+      const realMessage = await createMessage({
+        data,
+        files,
+        client: clientById,
+      });
 
       if (!realMessage) throw new Error("Failed to create message");
 
       // 3. On Success: Replace optimistic message with real one
+      await handleEditTicket({ updateActivity: true });
       dispatchOptimistic({
         type: "succeed",
         tempId: optimisticMessage.id,
@@ -445,6 +504,8 @@ const TicketTextField = ({
       console.error("Message creation failed:", error);
 
       // Trigger the 'fail' case in your reducer (turns the message red)
+
+      addFailedMessage({ ...optimisticMessage, status: "failed" });
       dispatchOptimistic({
         type: "fail",
         tempId: optimisticMessage.id,
@@ -475,23 +536,20 @@ const TicketTextField = ({
 
       if (messageToEdit) {
         await editMessage({
-          id: ticket.id,
-          ...data,
+          editMessage: { id: messageToEdit.id, ...data },
+          newFiles: files,
+          attachmentsToDelete: imagesToDelete,
         });
+        files.forEach((file) => URL.revokeObjectURL(file.preview));
       } else {
         startTransition(async () => await handleAddMessage({ data, files }));
 
         // await createMessage({ data, files });
       }
-
       handleReset();
 
-      if (containerRef.current) {
-        containerRef.current.scrollTo({
-          top: containerRef.current.scrollHeight,
-          behavior: "smooth", // This is the key for a smooth animation
-        });
-      }
+      handleScrollContainer();
+
       // if (containerRef.current)
       //   containerRef.current.scrollTop =
       //     containerRef.current.scrollHeight + 1200;
@@ -531,36 +589,60 @@ const TicketTextField = ({
       <div
         ref={textContainer}
         className={cn(
-          " flex flex-col  max-w-full w-full max-h-60 overflow-y-auto  px-2"
+          " flex flex-col  max-w-full w-full max-h-60 overflow-y-auto  px-2 ticket-input  "
           // {
           //   "pointer-events-none opacity-65": loading,
           // }
         )}
       >
-        {files.map((file, index) => (
-          <AcceptedFile
-            key={`${file.name}-${index}`}
-            className=" max-w-full w-full"
-            file={file}
-            handleRemove={() => handleRemove(index)}
-          />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {messageToEdit
+            ? messageToEdit.attachments.map((attachment, index) => (
+                <AcceptedFile
+                  isUploaded
+                  isSetToBeDeleted={imagesToDelete.some(
+                    (deletedAttach) => deletedAttach.id === attachment.id
+                  )}
+                  index={index}
+                  key={`${attachment.file_name}-${attachment.id}`}
+                  className=" "
+                  fileUrl={attachment.file_url}
+                  fileName={attachment.file_name}
+                  fileType={attachment.file_type}
+                  handleRemove={() => handleRemoveUploadedImg(attachment)}
+                />
+              ))
+            : null}
+          {files.map((file, index) => (
+            <AcceptedFile
+              index={index}
+              key={`${file.name}-${file.preview}`}
+              className=" max-w-full w-full"
+              fileUrl={file.preview}
+              fileName={file.name}
+              fileType={file.type}
+              fileSize={file.size}
+              handleRemove={() => handleRemove(index)}
+            />
+          ))}
 
-        {rejectedFiles.map((file, index) => (
-          <RejecetdFile
-            key={`${file.file.name}-${index}`}
-            className=" max-w-full w-full"
-            rejectedFile={file}
-            handleRemove={() => handleRemoveRejected(index)}
-          />
-        ))}
+          {rejectedFiles.map((file, index) => (
+            <RejecetdFile
+              index={index}
+              key={`${file.file.name}-${file.file.preview}`}
+              className=" max-w-full w-full"
+              rejectedFile={file}
+              handleRemove={() => handleRemoveRejected(index)}
+            />
+          ))}
+        </AnimatePresence>
       </div>
       <div {...getRootProps({ className })}>
         <input {...getInputProps()} />
 
         <div
           className={cn(
-            " w-full"
+            " w-full pt-4"
             //   {
             //   "pointer-events-none opacity-65": loading,
             // }
@@ -588,13 +670,20 @@ const TicketTextField = ({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <AutoResizeTextarea
-              onClick={(e) => e.stopPropagation()}
-              content={content}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="  resize-none"
-            />
+            <motion.div
+              key="text-feild"
+              layout={!isDragging}
+              className=" flex-1"
+            >
+              <AutoResizeTextarea
+                ref={textAreaRef}
+                className="  resize-none "
+                onClick={(e) => e.stopPropagation()}
+                content={content}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+              />
+            </motion.div>
             {/* <Textarea
           rows={5}
           className=" w-full resize-none   h-10    "
@@ -605,15 +694,35 @@ const TicketTextField = ({
             onChange={(e) => setContent(e.target.content)}
             /> */}
 
-            <Button
-              onClick={(e) => e.stopPropagation()}
-              content="ghost"
-              variant="ghost"
-              type="submit"
-              className=" px-2 !py-[0.2rem] hover:text-primary  "
-            >
-              <Forward className=" w-5 h-5" />
-            </Button>
+            <div className=" flex items-start  gap-1">
+              <Button
+                onClick={(e) => e.stopPropagation()}
+                content="ghost"
+                variant="ghost"
+                type="submit"
+                className=" px-2 !py-[0.2rem] hover:text-primary  "
+              >
+                <Forward className=" w-5 h-5" />
+              </Button>
+              <AnimatePresence mode="sync">
+                {messageToEdit && (
+                  <motion.button
+                    layout
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMessageId(null);
+                    }}
+                    type="submit"
+                    className=" inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-9 px-2 !py-[0.2rem] hover:text-primary  hover:bg-accent  "
+                  >
+                    <X className=" w-5 h-5" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </div>
           </form>
 
           <AnimatePresence>
@@ -646,128 +755,6 @@ const TicketTextField = ({
     </>
   );
 };
-
-function AcceptedFile({
-  file,
-  handleRemove,
-  className,
-}: {
-  file: FileWithPreview;
-  handleRemove: () => void;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "flex w-full max-w-full items-center gap-x-4 border-b py-2 first:mt-4 last:mb-4  relative",
-        className
-      )}
-    >
-      <div className="h-10 w-10 rounded border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-        {file.type?.startsWith("image/") ? (
-          <img
-            src={file.preview}
-            alt={file.name}
-            className="object-cover"
-            // onLoad={() => URL.revokeObjectURL(file.preview)}
-          />
-        ) : file.type?.startsWith("video/") ? (
-          <video src={file.preview} className="object-contian  h-full ">
-            <source
-              src={file.preview}
-              type={file.type}
-              onLoad={() => URL.revokeObjectURL(file.preview)}
-            />
-          </video>
-        ) : file.type?.startsWith("audio/") ? (
-          <FileAudio className=" w-4 h-4" />
-        ) : (
-          <File className=" w-4 h-4" />
-        )}
-      </div>
-      <div className=" flex flex-col items-start relative   ">
-        {" "}
-        <p
-          title={file.name}
-          className="text-sm w-full break-all max-w-full  line-clamp-1 "
-        >
-          {file.name}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {formatBytes(file.size, 2)}
-        </p>
-      </div>
-      <CloseButton
-        className=" static ml-auto"
-        onClick={(e) => {
-          handleRemove();
-        }}
-      />
-    </div>
-  );
-}
-
-function RejecetdFile({
-  rejectedFile,
-  handleRemove,
-  className,
-}: {
-  rejectedFile: RejecetedFile;
-  handleRemove: () => void;
-  className?: string;
-}) {
-  const file = rejectedFile.file;
-  return (
-    <div
-      onClick={(e) => e.stopPropagation()}
-      className={cn(
-        "flex items-center gap-x-4 border-b py-2 first:mt-4 last:mb-4 ",
-        className
-      )}
-    >
-      <div className="h-10 w-10 rounded border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-        <div className="h-10 w-10 rounded border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
-          {file.type?.startsWith("image/") ? (
-            <img
-              src={rejectedFile.file.preview}
-              alt={file.name}
-              className="object-cover"
-            />
-          ) : file.type?.startsWith("video/") ? (
-            <video
-              src={rejectedFile.file.preview}
-              className="object-contian  h-full "
-            >
-              <source src={rejectedFile.file.preview} type={file.type} />
-            </video>
-          ) : file.type?.startsWith("audio/") ? (
-            <FileAudio className=" w-4 h-4" />
-          ) : (
-            <File className=" w-4 h-4" />
-          )}
-        </div>
-      </div>
-      <div className="shrink grow flex flex-col items-start ">
-        {" "}
-        <p
-          title={rejectedFile.file.name}
-          className="text-sm w-full break-all max-w-full  line-clamp-1 "
-        >
-          {rejectedFile.file.name}
-        </p>
-        <p className="text-xs text-destructive">
-          {rejectedFile.errors[0].message.startsWith("File is larger than")
-            ? `File is larger than ${formatBytes(
-                MAX_SIZE,
-                2
-              )} (Size: ${formatBytes(rejectedFile.file.size, 2)})`
-            : rejectedFile.errors[0].message}
-        </p>
-      </div>
-      <CloseButton onClick={handleRemove} className=" static" />
-    </div>
-  );
-}
 
 // function FileUploader() {
 //   const onDrop = useCallback(

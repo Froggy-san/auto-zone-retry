@@ -1,15 +1,15 @@
 import { editMessages as editMessageApi } from "@lib/services/ticket";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export default function useEditMessage() {
+export default function useEditMessage(ticketId: number | undefined) {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: editMessage, isLoading } = useMutation({
+  const { mutateAsync: editMessage, isPending } = useMutation({
     mutationFn: editMessageApi,
     onSuccess: () => {
-      queryClient.invalidateQueries(["message"]);
+      queryClient.invalidateQueries({ queryKey: ["message", `${ticketId}`] });
     },
   });
 
-  return { editMessage, isLoading };
+  return { editMessage, isLoading: isPending };
 }

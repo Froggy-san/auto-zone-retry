@@ -428,6 +428,55 @@ export const MessageSchema = z
     }
   );
 
+//! TICEKT HISTORY SCHMEA  START
+
+// Define schemas for specific action types
+export const StatusChangeDetails = z.object({
+  old_status: z.string(),
+  new_status: z.string(),
+  reason: z.string().optional(),
+});
+
+export const AssignmentDetails = z.object({
+  old_admin_id: z.string().uuid().nullable(),
+  new_admin_id: z.string().uuid(),
+});
+
+export const TicketHistoryAction = z.enum([
+  "Status Changed",
+  "Admin Assigned",
+  "Priority Changed",
+  "Internal Note Added",
+  "Ticket Created",
+  "Customer Message Added",
+  "Customer Responded",
+  "Assigned To a different admin",
+  "System Auto-Closed",
+]); // Limited actions for simplicity
+
+export const TicektHistoryDetials = z.union([
+  StatusChangeDetails,
+  AssignmentDetails,
+  z.record(z.string(), z.any()), // Fallback for other actions
+]);
+// The final schema uses a discriminated union for type safety
+export const TicketHistorySchemaStrict = z.object({
+  // ... other fields (id, ticket_id, actor_id, created_at)
+  ticket_id: z.string().uuid(), // Foreign key to the ticket
+  actor_id: z.bigint().nullable(), // The user/admin who took the action
+  action: TicketHistoryAction, // Limited actions for simplicity
+  details: TicektHistoryDetials,
+  message_id: z.bigint().nullable(),
+});
+
+//! TICEKT HISTORY SCHMEA  END
+
+export const NotificationSchema = z.object({
+  user_id: z.string().uuid(),
+  ticket_id: z.number(),
+  message: z.string(),
+  is_read: z.boolean().default(false),
+});
 export interface signUpProps {
   full_name: string;
   email: string;
@@ -946,7 +995,7 @@ export interface Ticket {
   ticketCategory_id: TicketCategory;
   updated_at: string;
   admin_assigned_to: string;
-  resloveTime: string | null;
+  resolveTime: string | null;
   firstResponseTime: string | null;
 }
 
@@ -969,6 +1018,7 @@ export interface Attachment {
   file_name: string;
   file_type: string;
   client_id?: Client;
+  file?: FileWithPreview;
 }
 
 export type OptimisticAction =
@@ -991,6 +1041,10 @@ export interface CreateAttachment {
 
 export type FileWithPreview = FileWithPath & {
   preview: string;
+};
+
+export type RejecetedFile = Omit<FileRejection, "File"> & {
+  file: FileWithPreview;
 };
 
 export type Category = z.infer<typeof CategorySchema>;
@@ -1019,3 +1073,12 @@ export interface Message extends z.infer<typeof MessageSchema> {
   attachments: Attachment[];
   status?: "pending" | "failed";
 }
+export type TicketHistory = z.infer<typeof TicketHistorySchemaStrict> & {
+  id: number;
+  created_at: string;
+};
+
+export type Notification = z.infer<typeof NotificationSchema> & {
+  id: number;
+  created_at: string;
+};

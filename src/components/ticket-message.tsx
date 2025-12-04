@@ -19,6 +19,7 @@ import {
   MessageSquareOff,
   MessageSquareReply,
   Play,
+  RotateCcw,
 } from "lucide-react";
 import {
   Dialog,
@@ -36,34 +37,50 @@ import Spinner from "./Spinner";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, { ErorrToastDescription } from "./toast-items";
 import ViewCarousel from "./view-carousel";
-import { downloadFileFromUrl, urlToFile } from "@lib/client-helpers";
+import { downloadFileFromUrl } from "@lib/client-helpers";
 import { FiExternalLink } from "react-icons/fi";
 import { CgInternal } from "react-icons/cg";
 import { deleteAttachment } from "@lib/services/ticket";
-interface Props {
-  message: Message;
-  className?: string;
-  currentUser?: User | null;
-  isDragging?: boolean;
-}
+
 interface CustomComponentProps extends HTMLMotionProps<"div"> {
-  // Add any other custom props here
   message: Message;
+  isSelected: boolean;
   className?: string;
   currentUser?: User | null;
   isDragging?: boolean;
+  isRetrying: boolean;
+  handleResend: (message: Message) => Promise<void>;
+  handleSelect: () => void;
 }
+
+const FAILED_STYLE =
+  "bg-destructive/30 text-destructive-foreground hover:bg-destructive/20";
 const MEDIA_FILES = ["image", "video"];
 
 const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
-  ({ message, className, currentUser, isDragging, ...props }, ref) => {
+  (
+    {
+      message,
+      className,
+      currentUser,
+      isDragging,
+      isSelected,
+      isRetrying,
+      handleResend,
+      handleSelect,
+      ...props
+    },
+    ref
+  ) => {
     const [deleteOpen, setDeleteOpen] = useState(false);
     const { deleteMessage, isLoading } = useDeleteMessage();
     const [viewedIndex, setViewedIndex] = useState<undefined | number>(
       undefined
     );
+    // const [isRetrying, setisRetrying] = useState(false);
     const [deletedAttch, setDeletedAttch] = useState<number[]>([]);
     const [loadingIds, setLoadingIds] = useState<number[]>([]);
+    const [open, setOpen] = useState(false);
     const { toast } = useToast();
 
     const images = useMemo(
@@ -96,7 +113,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
         !deletedAttch.includes(attachment.id)
     );
     const isAdmin = currentUser?.user_metadata.role.toLowerCase() === "admin";
-    const isSender = message.senderId === currentUser?.id;
+    const isSameSender = message.senderId === currentUser?.id;
 
     useEffect(() => {
       const body = document.querySelector("body");
@@ -161,6 +178,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
 
     return (
       <motion.div
+        id={`${message.id}`}
         {...props}
         ref={ref}
         layout={!isDragging}
@@ -170,8 +188,10 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
         className={cn(
           " px-2 py-5 border-b  group   relative",
           {
-            "bg-accent/40": message.is_internal_note,
-            "bg-destructive/55": message.status === "failed",
+            " bg-accent/90 dark:bg-accent/40": message.is_internal_note,
+            "bg-red-200 text-red-800 dark:text-destructive-foreground  dark:bg-destructive/30 ":
+              message.status === "failed",
+            "bg-secondary/50": isSelected,
           },
           className
         )}
@@ -209,6 +229,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
               <MediaItem
                 key={imgAttchments.id}
                 pending={message.status === "pending"}
+                isFailed={message.status === "failed"}
                 isLoading={loadingIds.includes(imgAttchments.id)}
                 setDeletedAttch={setDeletedAttch}
                 handleDeleteAttachment={() =>
@@ -229,6 +250,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
               <MediaItem
                 key={audio.id}
                 pending={message.status === "pending"}
+                isFailed={message.status === "failed"}
                 isLoading={loadingIds.includes(audio.id)}
                 handleDeleteAttachment={() => handleDeleteAttachment(audio)}
                 handleDownloadFile={() => handleDownloadFile(audio)}
@@ -252,6 +274,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
               <MediaItem
                 key={attch.id}
                 pending={message.status === "pending"}
+                isFailed={message.status === "failed"}
                 isLoading={loadingIds.includes(attch.id)}
                 handleDeleteAttachment={() => handleDeleteAttachment(attch)}
                 handleDownloadFile={() => handleDownloadFile(attch)}
@@ -269,66 +292,143 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
         ) : message.status === "failed" ? (
           <div className=" flex items-center text-xs gap-1">
             {" "}
-            Failed to send
+            <Button
+              disabled={isRetrying}
+              onClick={async () => await handleResend(message)}
+              variant="destructive"
+              size="sm"
+              className=" bg-destructive dark:bg-red-950 dark:hover:bg-red-800/50 text-destructive-foreground gap-2"
+            >
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={`ind-${isRetrying}`}
+                  layout
+                  initial={{
+                    // rotate: !isRetrying ? "120deg" : 0,
+                    opacity: 0,
+                    scale: 0,
+                  }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{
+                    // rotate: !isRetrying ? "120deg" : 0,
+                    opacity: 0,
+                    scale: 0,
+                  }}
+                  // transition={{ rotate: { delay: 0.01 } }}
+                  className="text-red-100    "
+                >
+                  {" "}
+                  {isRetrying ? (
+                    <Spinner className=" w-4 h-4" />
+                  ) : (
+                    <RotateCcw className=" w-4 h-4" />
+                  )}
+                </motion.span>
+              </AnimatePresence>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={`word-${isRetrying}`}
+                  layout
+                  initial={{ y: 10, opacity: 0.2 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className=" text-xs text-red-100 "
+                >
+                  {isRetrying ? "Resending" : "Failed to send"}
+                </motion.span>
+              </AnimatePresence>
+            </Button>
           </div>
         ) : null}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              className={cn(
-                " p-0 w-7 h-7 rounded-full  focus-within:opacity-100  opacity-0 pointer-events-none  transition-all duration-300 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100  absolute right-3 top-3 ",
-                {
-                  " opacity-100": isLoading,
-                  " !opacity-55 !pointer-events-none":
-                    message.status === "pending",
-                }
-              )}
-              variant="ghost"
-            >
-              {isLoading ? (
-                <Spinner className=" w-4 h-4 " />
-              ) : (
-                <Ellipsis className=" w-4 h-4" />
-              )}
-            </Button>
-          </DropdownMenuTrigger>
+        {isSameSender && (
+          <DropdownMenu open={open} onOpenChange={setOpen}>
+            <DropdownMenuTrigger disabled={isLoading} asChild>
+              <Button
+                disabled={isLoading}
+                className={cn(
+                  " p-0 w-7 h-7 rounded-full  focus-within:opacity-100  opacity-0 pointer-events-none  transition-all duration-300 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100  absolute right-3 top-3 ",
+                  {
+                    " opacity-100 pointer-events-none": isLoading,
+                    " !opacity-55 !pointer-events-none":
+                      message.status === "pending",
+                    "opacity-100 pointer-events-auto": open,
+                    " bg-destructive  hover:bg-destructive/90 hover:text-destructive-foreground   dark:bg-red-950 text-destructive-foreground dark:hover:bg-red-800/50":
+                      message.status === "failed",
+                  }
+                )}
+                variant="ghost"
+              >
+                {isLoading ? (
+                  <Spinner className=" w-4 h-4 " />
+                ) : (
+                  <Ellipsis className=" w-4 h-4" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
 
-          <DropdownMenuContent>
-            <DropdownMenuItem className=" flex items-center justify-between gap-2">
-              {" "}
-              Edit{" "}
-              <span>
-                <MessageSquareDashed className=" w-4 h-4" />
-              </span>
-            </DropdownMenuItem>
-            {/* <DropdownMenuItem>
+            <DropdownMenuContent
+              className={cn("", {
+                " bg-destructive border-red-500  dark:!bg-red-950 dark:border-red-950":
+                  message.status === "failed",
+              })}
+              // style={{ backgroundColor: "hsl(1.94deg 50.82% 11.96%)" }}
+            >
+              <DropdownMenuItem
+                onClick={handleSelect}
+                className={cn(" flex items-center justify-between gap-2   ", {
+                  "hover:!bg-red-800 !text-destructive-foreground dark:hover:!bg-destructive/60 dark:!text-red-100":
+                    message.status === "failed",
+                })}
+              >
+                {" "}
+                Edit{" "}
+                <span>
+                  <MessageSquareDashed className=" w-4 h-4" />
+                </span>
+              </DropdownMenuItem>
+              {/* <DropdownMenuItem>
             Forward{" "}
             <span>
               <MessageSquareReply className=" w-4 h-4" />
             </span>{" "}
           </DropdownMenuItem> */}
-            <DropdownMenuItem className=" flex items-center justify-between gap-2">
-              {message.is_internal_note ? "Set as visible" : "Set as internal"}
-              <span>
-                {message.is_internal_note ? (
-                  <FiExternalLink className=" w-4 h-4" />
-                ) : (
-                  <CgInternal className=" w-4 h-4" />
-                )}
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className=" flex items-center justify-between gap-2"
-              onClick={() => setDeleteOpen(true)}
-            >
-              Unsend{" "}
-              <span>
-                <MessageSquareOff className=" w-4 h-4" />
-              </span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuItem
+                className={cn(" flex items-center justify-between gap-2  ", {
+                  " hover:!bg-red-800 !text-destructive-foreground dark:hover:!bg-destructive/60 dark:!text-red-100 ":
+                    message.status === "failed",
+                })}
+              >
+                {message.is_internal_note
+                  ? "Set as visible"
+                  : "Set as internal"}
+                <span>
+                  {message.is_internal_note ? (
+                    <FiExternalLink className=" w-4 h-4" />
+                  ) : (
+                    <CgInternal className=" w-4 h-4" />
+                  )}
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator
+                className={cn("", {
+                  "bg-red-900/50": message.status === "failed",
+                })}
+              />
+              <DropdownMenuItem
+                className={cn(" flex items-center justify-between gap-2 ", {
+                  "hover:!bg-red-800 !text-destructive-foreground dark:hover:!bg-destructive/60 dark:!text-red-100":
+                    message.status === "failed",
+                })}
+                onClick={() => setDeleteOpen(true)}
+              >
+                Unsend{" "}
+                <span>
+                  <MessageSquareOff className=" w-4 h-4" />
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
         <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
           <DialogContent>
@@ -365,6 +465,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
   }
 );
 
+TicketMessage.displayName = "TicketMessage";
 export default TicketMessage;
 
 const VIEW_TYPES = ["image", "video"];
@@ -374,6 +475,7 @@ interface MediaProps {
   handleSelectFile?: () => void;
   handleDeleteAttachment: () => void;
   handleDownloadFile: () => void;
+  isFailed: boolean;
   isLoading: boolean;
   pending: boolean;
   setDeletedAttch?: React.Dispatch<React.SetStateAction<number[]>>;
@@ -390,6 +492,7 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
       pending,
       handleDeleteAttachment,
       handleDownloadFile,
+      isFailed,
       className,
       ...props
     },
@@ -451,7 +554,7 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
           </div>
         ) : null}
 
-        {!pending && (
+        {!pending && !isFailed && (
           <div onClick={(e) => e.stopPropagation()}>
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               {isLoading ? (
@@ -482,3 +585,4 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
     );
   }
 );
+MediaItem.displayName = "MediaItem";

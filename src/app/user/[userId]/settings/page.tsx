@@ -25,7 +25,7 @@ const Page = async ({ params }: Props) => {
   const deleteDate = data?.user.user_metadata.deleteDate;
   const date = deleteDate ? deleteDate.split("&")[1] : "";
   const hasPasted = date ? isPast(date) : false;
-  console.log(hasPasted);
+
   return (
     <main
       className={` relative pb-10  ${hasPasted && " pointer-events-none"} `}

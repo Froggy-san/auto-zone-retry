@@ -147,7 +147,7 @@ const TicketTable = ({
             <TableHead className="text-nowrap  min-w-36">CATEGORY</TableHead>
             <TableHead className="w-[100px] text-nowrap">ID</TableHead>
             {isAdmin && (
-              <TableHead className="max-w-36 text-nowrap">CLIENT</TableHead>
+              <TableHead className=" min-w-36 text-nowrap">CLIENT</TableHead>
             )}
 
             <TableHead className="text-nowrap">STATUS</TableHead>
@@ -319,7 +319,12 @@ function Row({
                 className=" w-7  h-7 object-cover rounded-full hover:opacity-90 hover:contrast-75 transition-all"
               />
             )}
-            <span className=" text-wrap text-sm text-muted-foreground">
+            <span
+              className={cn(" text-nowrap text-sm text-muted-foreground", {
+                "text-wrap ":
+                  ticket.client_id && ticket.client_id.name.length > 10,
+              })}
+            >
               {ticket.client_id?.name}
             </span>
           </div>

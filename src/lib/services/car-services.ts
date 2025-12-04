@@ -82,7 +82,6 @@ export async function editCar({
 
   console.log("isEqual:", isEqual);
   if (!isEqual) {
-    console.log("I HAVE BEEN EXECUTED!");
     const { error } = await supabase.from("cars").update(car).eq("id", id);
 
     if (error) {
