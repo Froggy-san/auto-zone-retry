@@ -3,6 +3,7 @@ import StatusForm from "@components/dashboard/tickets/status-form";
 import Statuses from "@components/dashboard/tickets/statuses";
 import TicketCategoryForm from "@components/dashboard/tickets/ticket-category-form";
 import TicketForm from "@components/dashboard/tickets/ticket-form";
+import TicketHistoryList from "@components/dashboard/tickets/ticket-history-list";
 import PrioManagement from "@components/dashboard/tickets/ticket-prio-management";
 import TicketPriorityForm from "@components/dashboard/tickets/ticket-priority-form";
 
@@ -59,6 +60,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
                   Create new ticket.
                 </p>
               </div>
+
               <div className=" sm:pr-2">
                 <TicketForm
                   ticketCategories={ticketCategories || []}
@@ -68,6 +70,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               </div>
             </div>
           </div>
+
           <Suspense
             key={key}
             fallback={<Spinner size={25} className=" h-fit my-10" />}
@@ -140,6 +143,13 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
           <Suspense fallback={<Spinner size={25} className=" h-fit my-10" />}>
             <PrioManagement />
           </Suspense>
+        </div>
+
+        <div className=" pb-32">
+          <TicketHistoryList
+            ticketPriorities={ticketPriorities || []}
+            ticketStatuses={ticketStatus || []}
+          />
         </div>
       </section>
     </main>

@@ -1,5 +1,6 @@
 import { PAGE_SIZE } from "@lib/constants";
 import {
+  Ticket,
   TicketHistory,
   TicketHistoryAction,
   TicketHistorySchemaStrict,
@@ -19,98 +20,113 @@ interface GetTicketProps {
   ticketCategory_id?: number;
   ticketPriority_id?: number;
   ticketStatus_id?: number;
-  ticket_id?: number;
-  pageNumber?: string;
+  ticketId?: number;
   dateFrom?: Date;
   dateTo?: Date;
 }
 
 // Assuming PAGE_SIZE is defined elsewhere
 
-export async function getTicketHisotry({
-  id,
-  created_at,
-  pageNumber,
-  action,
-  admin_assigned_to,
-  ticketCategory_id,
-  ticketPriority_id,
-  ticketStatus_id,
-  ticket_id,
-  clinetId,
-  clinetName,
-  dateFrom,
-  dateTo,
-}: GetTicketProps): Promise<{
-  ticketHistory: TicketHistory[] | null;
+export async function getTicketHistory({
+  pageParam = 1,
+  queryKey,
+}: {
+  pageParam?: number;
+  queryKey: [string, GetTicketProps];
+}): Promise<{
+  items: TicketHistory[];
+  nextPageParam: number | null;
   count: number | null;
-  error: PostgrestError | null;
 }> {
   // Note: The table name is likely 'ticket_history', not 'tickeHistory'
   let query = supabase
-    .from("ticket_history")
+    .from("ticketHistory")
     // Use an alias if the constraint name is different from 'ticket_id'
     .select(
-      "*,actor_id(*),ticket_id(id, ticketCategory_id, ticketPriority_id, ticketStatus_id, admin_assigned_to, client_id(*))",
+      "*,actor:actor_id(*),ticket:ticket_id(id, ticketCategory_id(*), ticketPriority_id(*), ticketStatus_id, admin_assigned_to, client:client_id(*))",
       { count: "exact" }
     );
 
+  const [_, filters] = queryKey;
   // 1. Direct Filters on 'ticket_history'
-  if (id) query = query.eq("id", id);
-  if (action) query = query.ilike("action", `%${action}%`);
-  if (ticket_id) query = query.eq("ticket_id", ticket_id);
+  if (filters.id) query = query.eq("id", filters.id);
+  if (filters.action) query = query.ilike("action", `%${filters.action}%`);
+  if (filters.ticketId) query = query.eq("ticket_id", filters.ticketId);
 
   // 2. Nested Filters on the joined 'tickets' table (via ticket_id relationship)
   // Syntax: .eq('{relationship_name}.{column_name}', value)
-  if (ticketCategory_id)
-    query = query.eq("ticket_id.ticketCategory_id", ticketCategory_id);
+  if (filters.ticketCategory_id)
+    query = query.eq("ticket_id.ticketCategory_id", filters.ticketCategory_id);
 
-  if (ticketPriority_id)
-    query = query.eq("ticket_id.ticketPriority_id", ticketPriority_id);
+  if (filters.ticketPriority_id)
+    query = query.eq("ticket_id.ticketPriority_id", filters.ticketPriority_id);
 
-  if (ticketStatus_id)
-    query = query.eq("ticket_id.ticketStatus_id", ticketStatus_id);
+  if (filters.ticketStatus_id)
+    query = query.eq("ticket_id.ticketStatus_id", filters.ticketStatus_id);
 
-  if (admin_assigned_to)
-    query = query.eq("ticket_id.admin_assigned_to", admin_assigned_to);
+  if (filters.admin_assigned_to)
+    query = query.eq("ticket_id.admin_assigned_to", filters.admin_assigned_to);
 
-  if (admin_assigned_to) query = query.eq("ticket_id.", admin_assigned_to);
+  if (filters.admin_assigned_to)
+    query = query.eq("ticket_id.", filters.admin_assigned_to);
 
   // Filter by Client ID (Exact Match)
-  if (clinetId) {
+  if (filters.clinetId) {
     // Relationship 1: ticket_id (from history to tickets)
     // Relationship 2: client_id (from tickets to clients)
     // Column: id (in the clients table)
-    query = query.eq("ticket_id.client_id.id", clinetId);
+    query = query.eq("ticket_id.client_id.id", filters.clinetId);
   }
 
   // Filter by Client Name (Partial Match/Case Insensitive)
-  if (clinetName) {
+  if (filters.clinetName) {
     // We use .ilike() for case-insensitive partial matching on the name
-    query = query.ilike("ticket_id.client_id.name", `%${clinetName}%`);
+    query = query.ilike("ticket_id.client_id.name", `%${filters.clinetName}%`);
   }
   // 3. Date Filters
-  if (dateFrom) {
+  if (filters.dateFrom) {
     // Use the ISO string for consistent comparison
-    query = query.gte("created_at", dateFrom.toISOString());
+    query = query.gte("created_at", filters.dateFrom.toISOString());
   }
-  if (dateTo) {
+  if (filters.dateTo) {
     // Ensure the date includes the end of the day
-    const endOfDay = new Date(dateTo);
+    const endOfDay = new Date(filters.dateTo);
     endOfDay.setHours(23, 59, 59, 999);
     query = query.lte("created_at", endOfDay.toISOString());
   }
 
   // 4. Pagination
-  if (pageNumber) {
-    const page = Number(pageNumber);
-    const from = (page - 1) * PAGE_SIZE;
-    const to = from + PAGE_SIZE - 1;
-    query = query.range(from, to);
+
+  const page = Number(pageParam);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+  query = query.range(from, to);
+
+  const {
+    data: ticketHistory,
+    count,
+    error,
+  } = await query
+    .order("created_at", { ascending: true })
+    .order("id", { ascending: true }); // Secondary sort for stable order;
+  if (error) {
+    // throw the error so useInfiniteQuery can catch it
+    throw new Error(error.message);
   }
 
-  const { data: ticketHistory, count, error } = await query;
-  return { ticketHistory, count, error };
+  // Calculate next page logic
+  const totalItems = count || 0;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+
+  // If the current page is less than the total pages, the next parameter is current + 1
+  const nextPageParam = page < totalPages ? page + 1 : null;
+
+  // RETURN THE REQUIRED STRUCTURE
+  return {
+    items: ticketHistory || [], // Ensure it's an array, not null
+    count,
+    nextPageParam: nextPageParam,
+  };
 }
 
 export async function createTicketHistory(

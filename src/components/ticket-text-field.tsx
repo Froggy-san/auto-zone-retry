@@ -12,7 +12,7 @@ import React, {
 } from "react";
 import { FileRejection, FileWithPath, useDropzone } from "react-dropzone";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+
 import {
   Attachment,
   Client,
@@ -21,6 +21,7 @@ import {
   MessageSchema,
   OptimisticAction,
   Ticket,
+  TicketStatus,
   User,
 } from "@lib/types";
 import AutoResizeTextarea from "./AutoResizeTextarea";
@@ -42,7 +43,7 @@ import { Switch } from "./ui/switch";
 import useCreateMessage from "@lib/queries/tickets/useCreateMessage";
 import useEditMessage from "@lib/queries/tickets/useEditMessage";
 import { useToast } from "@hooks/use-toast";
-import SuccessToastDescription, { ErorrToastDescription } from "./toast-items";
+import { ErorrToastDescription } from "./toast-items";
 import _ from "lodash";
 import { z } from "zod";
 import { AcceptedFile } from "./accpeted-file";
@@ -56,12 +57,13 @@ interface Props {
   open: string | undefined;
   isDragging: boolean;
   ticket?: Ticket;
+  ticketStatus: TicketStatus[];
   handleEditTicket: ({
     ticketStatus_id,
-    updateActivity,
+    message,
   }: {
     ticketStatus_id?: number | undefined;
-    updateActivity?: boolean | undefined;
+    message?: Message;
   }) => Promise<void>;
   textAreaRef: React.RefObject<HTMLTextAreaElement>;
   handleScrollContainer: () => void;
@@ -82,6 +84,7 @@ const TicketTextField = ({
   messageToEdit,
   clientById,
   ticket,
+  ticketStatus,
   open,
   containerRef,
   isDragging,
@@ -120,6 +123,7 @@ const TicketTextField = ({
   const filesRef = useRef<FileWithPreview[]>([]);
   const rejectedFilesRef = useRef<RejecetedFile[]>([]);
   const currentUserRole = currentUser?.user_metadata.role || "client";
+
   const loading = isLoading || isEditting;
 
   const { toast } = useToast();
@@ -490,7 +494,16 @@ const TicketTextField = ({
       if (!realMessage) throw new Error("Failed to create message");
 
       // 3. On Success: Replace optimistic message with real one
-      await handleEditTicket({ updateActivity: true });
+      const isAdmin = currentUserRole.toLowerCase() === "admin";
+      const newStatusId = ticketStatus.find((status) =>
+        isAdmin
+          ? status.name.startsWith("Awaiting")
+          : status.name.toLowerCase() === "open"
+      ) as TicketStatus;
+      await handleEditTicket({
+        message: realMessage,
+        ticketStatus_id: newStatusId.id,
+      });
       dispatchOptimistic({
         type: "succeed",
         tempId: optimisticMessage.id,

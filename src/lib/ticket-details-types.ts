@@ -6,6 +6,8 @@ export interface TicketDetailStates {
   selectedMessageId: number | null;
   isInternalOnly: boolean;
   isMounted: boolean;
+  isHistory: boolean;
+  focusedMessage: number | null;
   isMessagesOnly: boolean;
   isLoading: boolean;
   statusId: number | undefined;
@@ -50,9 +52,11 @@ export type Action =
   | { type: "position"; payload: number }
   | { type: "is-dragging"; payload: boolean }
   | { type: "is-mounted"; payload: boolean }
+  | { type: "set-focused-message"; payload: number | null }
   | { type: "set-is-internal-only"; payload: boolean }
   | { type: "set-is-messages-only"; payload: boolean }
   | { type: "set-is-loading"; payload: boolean }
+  | { type: "set-is-history"; payload: boolean }
   | { type: "set-selected-message-id"; payload: number | null }
   | { type: "set-status-id"; payload: number | undefined }
   | { type: "add-failed-message"; payload: Message }

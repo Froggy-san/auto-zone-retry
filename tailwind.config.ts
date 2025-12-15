@@ -58,6 +58,16 @@ const config: Config = {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        action: {
+          created: "hsl(var(--action-created))",
+          updated: "hsl(var(--action-updated))",
+          resolved: "hsl(var(--action-resolved))",
+          closed: "hsl(var(--action-closed))",
+          reopened: "hsl(var(--action-reopened))",
+          escalated: "hsl(var(--action-escalated))",
+          assigned: "hsl(var(--action-assigned))",
+          message: "hsl(var(--action-message))",
+        },
         "dashboard-blue": "var(--dashboard-blue)",
         "dashboard-green": "var(--dashboard-green)",
         "dashboard-indigo": "var(--dashboard-indigo)",
@@ -67,6 +77,7 @@ const config: Config = {
         "dashboard-text-indigo": "var(--dashboard-text-indigo)",
         "dashboard-text-orange": "var(--dashboard-text-orange)",
       },
+
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

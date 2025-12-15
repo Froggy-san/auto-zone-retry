@@ -3,6 +3,7 @@ import {
   Message,
   OptimisticAction,
   Ticket,
+  TicketPriority,
   TicketStatus as TicketStatusType,
   User,
 } from "@lib/types";
@@ -38,17 +39,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { editTicket } from "@lib/services/complaints";
+import { editTicket } from "@lib/services/ticket";
 import SuccessToastDescription, { ErorrToastDescription } from "./toast-items";
 import { useToast } from "@hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Action, TicketDetailStates } from "@lib/ticket-details-types";
 import useCreateMessage from "@lib/queries/tickets/useCreateMessage";
-import { getTicketHisotry } from "@lib/services/ticket-history";
+import ShowTicketHistory from "./show-ticket-history";
 
 interface TicketDetailsProps {
   ticket?: Ticket;
   className?: string;
+  ticketPriorities: TicketPriority[];
   ticketStatus: TicketStatusType[];
 }
 
@@ -61,8 +63,10 @@ const OPEN_POSITION = 0;
 const initalState = {
   positionY: CLOSED_POSITION,
   isDragging: false,
+  focusedMessage: null,
   selectedMessageId: null,
   isInternalOnly: false,
+  isHistory: false,
   isMounted: false,
   isMessagesOnly: false,
   isLoading: false,
@@ -97,7 +101,11 @@ function reducer(
 
     case "set-is-loading": // Corresponds to setIsLoading
       return { ...state, isLoading: action.payload };
+    case "set-focused-message":
+      return { ...state, focusedMessage: action.payload };
 
+    case "set-is-history":
+      return { ...state, isHistory: action.payload };
     case "set-status-id": // Corresponds to setStatusId
       return { ...state, statusId: action.payload };
 
@@ -126,6 +134,7 @@ function reducer(
 const TicketDetails = ({
   ticket,
   ticketStatus,
+  ticketPriorities,
   className,
 }: TicketDetailsProps) => {
   const [
@@ -134,8 +143,10 @@ const TicketDetails = ({
       selectedMessageId,
       failedMessages,
       statusId,
+      focusedMessage,
       isDragging,
       isMounted,
+      isHistory,
       isInternalOnly,
       isLoading,
       isMessagesOnly,
@@ -150,8 +161,9 @@ const TicketDetails = ({
   const params = new URLSearchParams(searchParams);
   const { toast } = useToast();
 
-  const open = searchParams.get("ticket") || undefined;
-
+  const open = searchParams.get("ticket") ?? undefined;
+  const messageId = searchParams.get("messageId") ?? undefined;
+  const details = searchParams.get("details") ?? false;
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const startYRef = useRef(0);
@@ -163,13 +175,32 @@ const TicketDetails = ({
     error,
     isLoading: ticketByIdLoading,
   } = useTicketById(open);
+
   const {
     messages,
     error: messagesError,
     isMessagesLoading,
   } = useMessages(open);
 
-  const isMessageAssigned = ticketData?.[0].admin_assigned_to;
+  const ticketViewed = ticketData;
+
+  const currentStatus = ticketStatus.find(
+    (status) => status.id === ticketViewed?.ticketStatus_id.id
+  );
+  // Get the currently logged in user.
+  const { user, isLoading: userLoading, error: userError } = useCurrUser();
+
+  const isAdmin = user?.user?.user_metadata.role.toLowerCase() === "admin";
+  // Get the client that issued the ticket.
+  const {
+    clientById,
+    isLoading: isClientLoading,
+    error: clientError,
+  } = useClientById({
+    id: user?.user?.id || "",
+    getBy: "user_id",
+  });
+  const isMessageAssigned = ticketData?.admin_assigned_to;
   const allMessages = messages ? [...messages, ...failedMessages] : [];
   let filteredMessages = allMessages;
 
@@ -177,7 +208,7 @@ const TicketDetails = ({
     filteredMessages = allMessages?.filter(
       (messages) => messages.is_internal_note
     );
-  if (isMessagesOnly)
+  if (isMessagesOnly || !isAdmin)
     filteredMessages = allMessages?.filter(
       (messages) => !messages.is_internal_note
     );
@@ -233,26 +264,6 @@ const TicketDetails = ({
   const selectedMessage = optimisticMessages?.find(
     (message) => message.id === selectedMessageId
   );
-
-  const ticketViewed = ticketData?.[0];
-
-  const currentStatus = ticketStatus.find(
-    (status) => status.id === ticketViewed?.ticketStatus_id.id
-  );
-  // Get the currently logged in user.
-  const { user, isLoading: userLoading, error: userError } = useCurrUser();
-
-  const isAdmin = user?.user?.user_metadata.role.toLowerCase() === "admin";
-  // Get the client that issued the ticket.
-  const {
-    clientById,
-    isLoading: isClientLoading,
-    error: clientError,
-  } = useClientById({
-    id: user?.user?.id || "",
-    getBy: "user_id",
-  });
-
   const loading =
     isLoading ||
     userLoading ||
@@ -263,6 +274,11 @@ const TicketDetails = ({
     !!messagesError?.message.length ||
     !!error?.message.length ||
     !!clientError?.message.length;
+
+  useEffect(() => {
+    if (messageId)
+      dispatch({ type: "set-focused-message", payload: Number(messageId) });
+  }, [messageId]);
 
   useEffect(() => {
     // Replaced setStatusId with dispatch
@@ -285,13 +301,31 @@ const TicketDetails = ({
     }
   }, [open, dispatch]); // Added dispatch to dependency array
 
+  const handleViewDetails = useCallback(
+    (ticketId: number, messageId?: number) => {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set("ticket", String(ticketId));
+      messageId && newSearchParams.set("messageId", `${messageId}`);
+      router.push(`${pathname}?${newSearchParams.toString()}`, {
+        scroll: false,
+      });
+    },
+    [router, searchParams, pathname]
+  );
+
+  const handleRemoveMessageId = useCallback(() => {
+    if (!messageId) return;
+    params.delete("messageId");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [router, pathname, params]);
+
   const handleEditTicket = useCallback(
     async ({
       ticketStatus_id,
-      updateActivity,
+      message,
     }: {
       ticketStatus_id?: number;
-      updateActivity?: boolean;
+      message?: Message;
     }) => {
       try {
         if (!ticketViewed)
@@ -302,45 +336,53 @@ const TicketDetails = ({
           throw new Error(
             `Unauthorized action, please make sure that you are logged in.`
           );
-        const previousStatus = ticketData[0].ticketStatus_id;
-        const isSameStatus = previousStatus.id === ticketStatus_id;
-        const currentChosenStatus = ticketStatus
-          .find((status) => status.id === ticketStatus_id)
-          ?.name.toLowerCase();
-        const dateNow = new Date().toISOString();
 
-        // if(isAdmin)
-        const data: {
-          ticketStatus_id?: number;
-          firstResponseTime?: string;
-          resolveTime?: string;
-          admin_assigned_to?: string;
-          updated_at: string;
-        } = {
-          updated_at: dateNow,
-        };
-        if (isSameStatus && isMessageAssigned && !updateActivity) return; // If status id hasn't changed and the message is already assgined then there is nothing to do.
+        // const previousStatus = ticketData[0].ticketStatus_id;
+        // const isSameStatus = previousStatus.id === ticketStatus_id;
+        // const currentChosenStatus = ticketStatus
+        //   .find((status) => status.id === ticketStatus_id)
+        //   ?.name.toLowerCase();
+        // const dateNow = new Date().toISOString();
 
-        if (!isSameStatus) {
-          data.ticketStatus_id = ticketStatus_id; // Change the status id if the status id isn't the same.
-          if (
-            currentChosenStatus === "solved" ||
-            currentChosenStatus == "closed"
-          )
-            if (!data.resolveTime) data.resolveTime = dateNow; // The the admin closed the ticket then set the resloved time.
-        }
-        if (!ticketViewed.firstResponseTime) data.firstResponseTime = dateNow;
+        // // if(isAdmin)
+        // const data: {
+        //   ticketStatus_id?: number;
+        //   firstResponseTime?: string;
+        //   resolveTime?: string;
+        //   admin_assigned_to?: string;
+        //   updated_at: string;
+        // } = {
+        //   updated_at: dateNow,
+        // };
+        // if (isSameStatus && isMessageAssigned && !updateActivity) return; // If status id hasn't changed and the message is already assgined then there is nothing to do.
 
-        if (!data.admin_assigned_to) data.admin_assigned_to = user.user.id;
+        // if (!isSameStatus) {
+        //   data.ticketStatus_id = ticketStatus_id; // Change the status id if the status id isn't the same.
+        //   if (
+        //     currentChosenStatus === "solved" ||
+        //     currentChosenStatus == "closed"
+        //   )
+        //     if (!data.resolveTime) data.resolveTime = dateNow; // The the admin closed the ticket then set the resloved time.
+        // }
+        // if (!ticketViewed.firstResponseTime) data.firstResponseTime = dateNow;
+
+        // if (!data.admin_assigned_to) data.admin_assigned_to = user.user.id;
 
         // Replaced setIsLoading(true) with dispatch
         dispatch({ type: "set-is-loading", payload: true });
-        if (!clientById) return;
+        if (!clientById) throw new Error(`Incomplete data.`);
         await editTicket({
-          newTicketData: { id: ticketViewed.id, ...data },
+          message,
+          newTicketData: {
+            id: ticketViewed.id,
+            admin_assigned_to: isAdmin ? clientById.id : null,
+            ticketStatus_id: ticketStatus_id,
+          },
           oldTicketData: ticketViewed,
           currentUser: user.user,
-          ticketClient: clientById[0],
+          currentClient: clientById,
+          ticketStatuses: ticketStatus,
+          ticketPriorities: ticketPriorities,
         });
 
         if (error) throw new Error(error.message);
@@ -367,7 +409,7 @@ const TicketDetails = ({
     },
     // statusId is now read from state, but its value is already in ticketStatus_id
     // for the editTicket call. The dependency array is fine.
-    [dispatch, statusId, ticketData, queryClient, toast] // Added dispatch, queryClient, toast
+    [dispatch, statusId, ticketViewed, clientById, queryClient, toast, isAdmin] // Added dispatch, queryClient, toast
   );
 
   // 1. handleMouseMove (Corrected)
@@ -554,7 +596,7 @@ const TicketDetails = ({
     <div
       ref={containerRef}
       className={cn(
-        "w-full h-full overflow-y-auto pb-32 fixed left-0 top-0 transition-all ease-out duration-700 bg-background border overflow-x-hidden  z-50",
+        "w-full h-full overflow-y-auto  fixed left-0 top-0 transition-all ease-out duration-700 bg-background border overflow-x-hidden  z-50",
         className
       )}
       style={{
@@ -614,7 +656,7 @@ const TicketDetails = ({
             </ErrorMessage>
           )}
         </>
-      ) : !clientById || !clientById.length ? (
+      ) : !clientById ? (
         <ErrorMessage>
           Something went wrong while getting the client&apos;s data.
         </ErrorMessage>
@@ -624,237 +666,280 @@ const TicketDetails = ({
             <h2 className="text-xl font-bold">Ticket Details</h2>
           </div>
 
-          <section className=" flex flex-col sm:flex-row  max-w-[1000px] mx-auto gap-10 mt-14 px-4  md:px-20 ">
-            <div>
-              <div className=" sm:sticky top-5">
-                <div className=" space-y-6 mb-20 text-sm">
-                  <div className=" space-y-2">
-                    <p className=" text-muted-foreground ">TICKET ID</p>
-                    <p className=" font-semibold">#{ticketViewed?.id}</p>
-                  </div>
+          {/*          */}
+          <div className=" flex  mt-14">
+            <main
+              className={cn(
+                " flex flex-col   sm:flex-row  flex-1  max-w-[1000px] mx-auto gap-10  px-4 md:px-10  ",
+                { " md:flex-col lg:flex-row": isHistory }
+              )}
+            >
+              <div>
+                <div className=" sm:sticky top-5">
+                  <div className=" space-y-6 mb-20 text-sm">
+                    <div className=" space-y-2">
+                      <p className=" text-muted-foreground ">TICKET ID</p>
+                      <p className=" font-semibold">#{ticketViewed?.id}</p>
+                    </div>
 
-                  <div className=" space-y-2">
-                    <p className=" text-muted-foreground">CREATED AT</p>
-                    <p className=" font-semibold">
-                      {" "}
-                      {ticketViewed &&
-                        format(ticketViewed.created_at, "MMMM d, yyyy h:mm aa")}
-                    </p>
-                  </div>
+                    <div className=" space-y-2">
+                      <p className=" text-muted-foreground">CREATED AT</p>
+                      <p className=" font-semibold">
+                        {" "}
+                        {ticketViewed &&
+                          format(
+                            ticketViewed.created_at,
+                            "MMMM d, yyyy h:mm aa"
+                          )}
+                      </p>
+                    </div>
 
-                  <div className=" space-y-2">
-                    <p className=" text-muted-foreground text-nowrap">
-                      LAST ACTIVITY
-                    </p>
-                    <p className=" font-semibold">
-                      {" "}
-                      {ticketViewed &&
-                        formatDistanceToNow(ticketViewed.updated_at) + ` ago`}
-                    </p>
-                  </div>
-                  {isAdmin && ticketData && (
-                    <>
-                      {ticketData?.[0].firstResponseTime && (
-                        <div className=" space-y-2">
-                          <p className=" text-muted-foreground text-nowrap">
-                            FIRST RESPONSE TIME
-                          </p>
-                          <p className=" font-semibold">
-                            {format(
-                              ticketData?.[0].firstResponseTime,
-                              "MMMM d, yyyy h:mm aa"
-                            )}
-                            {/* {ticketData?.[0] &&
+                    <div className=" space-y-2">
+                      <p className=" text-muted-foreground text-nowrap">
+                        LAST ACTIVITY
+                      </p>
+                      <p className=" font-semibold">
+                        {" "}
+                        {ticketViewed &&
+                          formatDistanceToNow(ticketViewed.updated_at) + ` ago`}
+                      </p>
+                    </div>
+                    {isAdmin && ticketData && (
+                      <>
+                        {ticketData.firstResponseTime && (
+                          <div className=" space-y-2">
+                            <p className=" text-muted-foreground text-nowrap">
+                              FIRST RESPONSE TIME
+                            </p>
+                            <p className=" font-semibold">
+                              {format(
+                                ticketData.firstResponseTime,
+                                "MMMM d, yyyy h:mm aa"
+                              )}
+                              {/* {ticketData &&
                               formatDistance(
                                 ticketViewed.updated_at,
                                 ticketViewed.firstResponseTime
                               ) + ` ago`} */}
-                          </p>
-                        </div>
-                      )}
+                            </p>
+                          </div>
+                        )}
 
-                      {ticketData?.[0].resolveTime && (
-                        <div className=" space-y-2">
-                          <p className=" text-muted-foreground text-nowrap">
-                            RESOLVED AT
-                          </p>
-                          <p className=" font-semibold text-primary">
-                            {" "}
-                            {format(
-                              ticketData?.[0].resolveTime,
-                              "MMMM d, yyyy h:mm aa"
-                            )}
-                            {/* {ticketData?.[0] &&
+                        {ticketData.resolveTime && (
+                          <div className=" space-y-2">
+                            <p className=" text-muted-foreground text-nowrap">
+                              RESOLVED AT
+                            </p>
+                            <p className=" font-semibold text-primary">
+                              {" "}
+                              {format(
+                                ticketData.resolveTime,
+                                "MMMM d, yyyy h:mm aa"
+                              )}
+                              {/* {ticketData &&
                               formatDistance(
                                 ticketViewed.updated_at,
                                 ticketViewed.resolveTime
                               ) + ` ago`} */}
-                          </p>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  <div className=" space-y-2">
-                    <p className=" text-muted-foreground">STATUS</p>
-                    <p className=" ">
-                      {ticketData?.[0] && (
-                        <TicketStatus
-                          ticketStatus={ticketData?.[0].ticketStatus_id}
-                        />
-                      )}
-                    </p>
-                  </div>
-                </div>
-                {isAdmin && (
-                  <div className=" p-3 space-y-6 rounded-xl bg-accent/30 ">
-                    <div className=" flex gap-2">
-                      <Switch
-                        id="is-internal-only"
-                        checked={isInternalOnly}
-                        onCheckedChange={(value) => {
-                          // Replaced setIsInternalOnly(value) with dispatch
-                          dispatch({
-                            type: "set-is-internal-only",
-                            payload: value,
-                          });
-                          // Replaced setIsMessagesOnly(false) with dispatch
-                          dispatch({
-                            type: "set-is-messages-only",
-                            payload: false,
-                          });
-                        }}
-                      />{" "}
-                      <label
-                        htmlFor="is-internal-only"
-                        className=" text-xs text-muted-foreground "
-                      >
-                        Internal messages only
-                      </label>
-                    </div>
-                    <div className=" flex gap-2">
-                      <Switch
-                        id="is-visible-only"
-                        checked={isMessagesOnly}
-                        onCheckedChange={(value) => {
-                          // Replaced setIsMessagesOnly(value) with dispatch
-                          dispatch({
-                            type: "set-is-messages-only",
-                            payload: value,
-                          });
-                          // Replaced setIsInternalOnly(false) with dispatch
-                          dispatch({
-                            type: "set-is-internal-only",
-                            payload: false,
-                          });
-                        }}
-                      />{" "}
-                      <label
-                        htmlFor="is-visible-only"
-                        className=" text-xs text-muted-foreground "
-                      >
-                        Visible messages only
-                      </label>
-                    </div>
-
-                    <Select
-                      // key={statusId}
-                      disabled={isLoading}
-                      value={String(statusId) || undefined}
-                      onValueChange={async (value) => {
-                        // Replaced setStatusId(Number(value)) with dispatch
-                        dispatch({
-                          type: "set-status-id",
-                          payload: Number(value),
-                        });
-                        await handleEditTicket({
-                          ticketStatus_id: Number(value),
-                        });
-                      }}
-                    >
-                      <SelectTrigger className="w-full h-fit gap-2">
-                        <SelectValue placeholder="Ticket Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ticketStatus.length ? (
-                          ticketStatus.map((status) => (
-                            <SelectItem key={status.id} value={`${status.id}`}>
-                              <TicketStatus
-                                ticketStatus={status}
-                                className=" text-wrap"
-                              />
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <p className=" text-muted-foreground text-center w-full">
-                            No ticket status
-                          </p>
+                            </p>
+                          </div>
                         )}
-                      </SelectContent>
-                    </Select>
+                      </>
+                    )}
+
+                    <div className=" space-y-2">
+                      <p className=" text-muted-foreground">STATUS</p>
+                      <p className=" ">
+                        {ticketData && (
+                          <TicketStatus
+                            ticketStatus={ticketData.ticketStatus_id}
+                          />
+                        )}
+                      </p>
+                    </div>
                   </div>
+                  {isAdmin && (
+                    <div className=" p-3 space-y-6 rounded-xl bg-accent/30 ">
+                      <div className=" flex gap-2">
+                        <Switch
+                          id="is-internal-only"
+                          checked={isInternalOnly}
+                          onCheckedChange={(value) => {
+                            // Replaced setIsInternalOnly(value) with dispatch
+                            dispatch({
+                              type: "set-is-internal-only",
+                              payload: value,
+                            });
+                            // Replaced setIsMessagesOnly(false) with dispatch
+                            dispatch({
+                              type: "set-is-messages-only",
+                              payload: false,
+                            });
+                          }}
+                        />{" "}
+                        <label
+                          htmlFor="is-internal-only"
+                          className=" text-xs text-muted-foreground "
+                        >
+                          Internal messages only
+                        </label>
+                      </div>
+                      <div className=" flex gap-2">
+                        <Switch
+                          id="is-visible-only"
+                          checked={isMessagesOnly}
+                          onCheckedChange={(value) => {
+                            // Replaced setIsMessagesOnly(value) with dispatch
+                            dispatch({
+                              type: "set-is-messages-only",
+                              payload: value,
+                            });
+                            // Replaced setIsInternalOnly(false) with dispatch
+                            dispatch({
+                              type: "set-is-internal-only",
+                              payload: false,
+                            });
+                          }}
+                        />{" "}
+                        <label
+                          htmlFor="is-visible-only"
+                          className=" text-xs text-muted-foreground "
+                        >
+                          Visible messages only
+                        </label>
+                      </div>
+
+                      <Select
+                        // key={statusId}
+                        disabled={isLoading}
+                        value={String(statusId) || undefined}
+                        onValueChange={async (value) => {
+                          // Replaced setStatusId(Number(value)) with dispatch
+                          dispatch({
+                            type: "set-status-id",
+                            payload: Number(value),
+                          });
+                          await handleEditTicket({
+                            ticketStatus_id: Number(value),
+                          });
+                        }}
+                      >
+                        <SelectTrigger className="w-full h-fit gap-2">
+                          <SelectValue placeholder="Ticket Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ticketStatus.length ? (
+                            ticketStatus.map((status) => (
+                              <SelectItem
+                                key={status.id}
+                                value={`${status.id}`}
+                              >
+                                <TicketStatus
+                                  ticketStatus={status}
+                                  // className=" text-wrap"
+                                />
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <p className=" text-muted-foreground text-center w-full">
+                              No ticket status
+                            </p>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className=" w-full ">
+                <div className=" pb-5 border-b">
+                  <h2 className=" text-xl font-semibold mb-4">
+                    {ticketData?.subject}
+                  </h2>
+                  <p className=" text-sm"> {ticketData?.description}</p>
+                </div>
+
+                {optimisticMessages && (
+                  <Messages
+                    messageId={messageId}
+                    focusedMessage={focusedMessage}
+                    messages={optimisticMessages}
+                    selectedMessageId={selectedMessageId}
+                    handleRemoveMessageId={handleRemoveMessageId}
+                    handleScrollContainer={handleScrollContainer}
+                    setFocusedMessage={(id: number | null) =>
+                      dispatch({ type: "set-focused-message", payload: id })
+                    }
+                    removeFailedMessage={(message: Message) =>
+                      dispatch({
+                        type: "remove-failed-message",
+                        payload: message,
+                      })
+                    }
+                    setSelectedMessageId={(id) =>
+                      dispatch({ type: "set-selected-message-id", payload: id })
+                    }
+                    currentUser={user?.user}
+                    isDragging={isDragging}
+                  />
                 )}
-              </div>
-            </div>
-            <div className=" w-full ">
-              <div className=" pb-5 border-b">
-                <h2 className=" text-xl font-semibold mb-4">
-                  {ticketData?.[0].subject}
-                </h2>
-                <p className=" text-sm"> {ticketData?.[0].description}</p>
-              </div>
 
-              {optimisticMessages && (
-                <Messages
-                  messages={optimisticMessages}
-                  selectedMessageId={selectedMessageId}
-                  handleScrollContainer={handleScrollContainer}
-                  removeFailedMessage={(message: Message) =>
-                    dispatch({
-                      type: "remove-failed-message",
-                      payload: message,
-                    })
-                  }
-                  setSelectedMessageId={(id) =>
-                    dispatch({ type: "set-selected-message-id", payload: id })
-                  }
-                  currentUser={user?.user}
-                  isDragging={isDragging}
-                />
-              )}
-
-              {!currentStatus ||
-              currentStatus.name.toLowerCase() === "solved" ||
-              currentStatus.name.toLowerCase() === "closed" ? null : (
-                <TicketTextField
-                  // key={open}
-                  open={open}
-                  isDragging={isDragging}
-                  textAreaRef={inputRef}
-                  handleScrollContainer={handleScrollContainer}
-                  dispatchOptimistic={dispatchOptimistic}
-                  handleEditTicket={handleEditTicket}
-                  addFailedMessage={(message) =>
-                    dispatch({ type: "add-failed-message", payload: message })
-                  }
-                  setSelectedMessageId={(id) =>
-                    dispatch({ type: "set-selected-message-id", payload: id })
-                  }
-                  containerRef={containerRef}
-                  currentUser={user?.user}
-                  clientById={clientById[0]}
-                  ticket={ticketData?.[0]}
-                  messageToEdit={selectedMessage}
-                  className={
-                    !ticketViewed ||
-                    ticketViewed.ticketStatus_id.name.toLowerCase() === "close"
-                      ? "opacity-75 pointer-events-none"
-                      : ""
-                  }
-                />
-              )}
-            </div>
-          </section>
+                {!currentStatus ||
+                currentStatus.name.toLowerCase() === "solved" ||
+                currentStatus.name.toLowerCase() === "closed" ? null : (
+                  <TicketTextField
+                    // key={open}
+                    open={open}
+                    isDragging={isDragging}
+                    textAreaRef={inputRef}
+                    handleScrollContainer={handleScrollContainer}
+                    dispatchOptimistic={dispatchOptimistic}
+                    handleEditTicket={handleEditTicket}
+                    ticketStatus={ticketStatus}
+                    addFailedMessage={(message) =>
+                      dispatch({ type: "add-failed-message", payload: message })
+                    }
+                    setSelectedMessageId={(id) =>
+                      dispatch({ type: "set-selected-message-id", payload: id })
+                    }
+                    containerRef={containerRef}
+                    currentUser={user?.user}
+                    clientById={clientById}
+                    ticket={ticketData || undefined}
+                    messageToEdit={selectedMessage}
+                    className={
+                      !ticketViewed ||
+                      ticketViewed.ticketStatus_id.name.toLowerCase() ===
+                        "close"
+                        ? "opacity-75 pointer-events-none"
+                        : ""
+                    }
+                  />
+                )}
+                <div className="pb-32" />
+              </div>
+            </main>
+            {ticketData && (
+              <ShowTicketHistory
+                ticket={ticketData}
+                isOpen={isHistory}
+                selectedMessage={selectedMessage}
+                handleSelectMessage={(id: number | null) =>
+                  dispatch({ type: "set-focused-message", payload: id })
+                }
+                handleFocusMessage={(messageId: number | null) => {
+                  handleRemoveMessageId();
+                  dispatch({ type: "set-focused-message", payload: messageId });
+                }}
+                handleViewDetails={handleViewDetails}
+                setIsOpen={() =>
+                  dispatch({ type: "set-is-history", payload: !isHistory })
+                }
+                ticketPriorities={ticketPriorities}
+                ticketStatuses={ticketStatus}
+              />
+            )}
+          </div>
         </>
       )}
     </div>
@@ -865,25 +950,64 @@ export default TicketDetails;
 
 function Messages({
   messages,
+  messageId,
   currentUser,
   isDragging,
   selectedMessageId,
   removeFailedMessage,
+  focusedMessage,
   handleScrollContainer,
+  handleRemoveMessageId,
   setSelectedMessageId,
+  setFocusedMessage,
 }: {
+  messageId?: string;
   messages: Message[];
+  focusedMessage: number | null;
   selectedMessageId: number | null;
   currentUser?: User | null;
   isDragging?: boolean;
+  setFocusedMessage: (id: number | null) => void;
+  handleRemoveMessageId: () => void;
   removeFailedMessage: (message: Message) => void;
   handleScrollContainer: () => void;
   setSelectedMessageId: (id: number | null) => void;
 }) {
   const [messagesLoadingIds, setMessagesLoadingIds] = useState<number[]>([]);
   const { createMessage, isLoading } = useCreateMessage();
+  const messageRefs = useRef<Record<string, HTMLDivElement>>({});
+
   const { toast } = useToast();
+
   const currentUserRole = currentUser?.user_metadata.role || "client";
+
+  // 3. Define a function to set the ref for each message element
+  const setRef = useCallback((el: HTMLDivElement | null, messageId: number) => {
+    if (el) {
+      // Store the element reference using its ID as the key
+      messageRefs.current[messageId] = el;
+    } else {
+      // Cleanup on unmount
+      delete messageRefs.current[messageId];
+    }
+  }, []);
+
+  useEffect(() => {
+    if (focusedMessage || messageId) {
+      // 1. Get the actual DOM element reference
+      const targetElement =
+        messageRefs.current[messageId || String(focusedMessage)];
+
+      if (targetElement) {
+        // 2. Use the native browser method to scroll
+        targetElement.scrollIntoView({
+          behavior: "smooth", // Optional: provides a smooth animation
+          block: "center", // Scrolls the target to the center of the viewport
+        });
+        // handleRemoveMessageId();
+      }
+    }
+  }, [focusedMessage, messageId]); // Run this effect whenever the target ID changes
   const handleResend = useCallback(
     async (message: Message) => {
       try {
@@ -936,18 +1060,23 @@ function Messages({
         {messages.map((message) => (
           <TicketMessage
             key={message.id}
+            ref={(el) => setRef(el, message.id)}
+            isFocused={focusedMessage === message.id}
+            setFocusedMessage={setFocusedMessage}
             isRetrying={messagesLoadingIds.includes(message.id)}
             isDragging={isDragging}
             isSelected={selectedMessageId === message.id}
             message={message}
             currentUser={currentUser}
             handleSelect={() => {
-              if (message.id === selectedMessageId) setSelectedMessageId(null);
-              else {
+              if (message.id === selectedMessageId) {
+                setSelectedMessageId(null);
+              } else {
                 setSelectedMessageId(message.id);
                 handleScrollContainer();
               }
             }}
+            handleRemoveMessageId={handleRemoveMessageId}
             handleResend={handleResend}
           />
         ))}
@@ -1192,7 +1321,7 @@ function Messages({
 //     (message) => message.id === selectedMessageId
 //   );
 
-//   const ticketViewed = ticketData?.[0];
+//   const ticketViewed = ticketData;
 
 //   // Get the currently logged in user.
 //   const { user, isLoading: userLoading, error: userError } = useCurrUser();
@@ -1220,7 +1349,7 @@ function Messages({
 //     !!clientError?.message.length;
 
 //   useEffect(() => {
-//     setStatusId(ticketData?.[0].ticketStatus_id.id);
+//     setStatusId(ticketData.ticketStatus_id.id);
 //   }, [ticketData]);
 
 //   useEffect(() => {
@@ -1493,16 +1622,16 @@ function Messages({
 //                 <div className=" space-y-6 mb-20 text-sm">
 //                   <div className=" space-y-2">
 //                     <p className=" text-muted-foreground ">TICKET ID</p>
-//                     <p className=" font-semibold">#{ticketData?.[0]?.id}</p>
+//                     <p className=" font-semibold">#{ticketData?.id}</p>
 //                   </div>
 
 //                   <div className=" space-y-2">
 //                     <p className=" text-muted-foreground">CREATED AT</p>
 //                     <p className="  font-semibold">
 //                       {" "}
-//                       {ticketData?.[0] &&
+//                       {ticketData &&
 //                         format(
-//                           ticketData?.[0].created_at,
+//                           ticketData.created_at,
 //                           "MMMM d, yyyy h:mm aa"
 //                         )}
 //                     </p>
@@ -1514,7 +1643,7 @@ function Messages({
 //                     </p>
 //                     <p className="  font-semibold">
 //                       {" "}
-//                       {ticketData?.[0] &&
+//                       {ticketData &&
 //                         formatDistanceToNow(ticketData[0].updated_at) + ` ago`}
 //                     </p>
 //                   </div>
@@ -1522,9 +1651,9 @@ function Messages({
 //                   <div className=" space-y-2">
 //                     <p className=" text-muted-foreground">STATUS</p>
 //                     <p className=" ">
-//                       {ticketData?.[0] && (
+//                       {ticketData && (
 //                         <TicketStatus
-//                           ticketStatus={ticketData?.[0].ticketStatus_id}
+//                           ticketStatus={ticketData.ticketStatus_id}
 //                         />
 //                       )}
 //                     </p>
@@ -1601,9 +1730,9 @@ function Messages({
 //             <div className=" w-full  ">
 //               <div className=" pb-5 border-b">
 //                 <h2 className=" text-xl font-semibold mb-4">
-//                   {ticketData?.[0].subject}
+//                   {ticketData.subject}
 //                 </h2>
-//                 <p className=" text-sm"> {ticketData?.[0].description}</p>
+//                 <p className=" text-sm"> {ticketData.description}</p>
 //               </div>
 
 //               {optimisticMessages && (
@@ -1632,8 +1761,8 @@ function Messages({
 //                 setFailedMessages={setFailedMessages}
 //                 containerRef={containerRef}
 //                 currentUser={user?.user}
-//                 clientById={clientById[0]}
-//                 ticket={ticketData?.[0]}
+//                 clientById={clientById}
+//                 ticket={ticketData}
 //                 messageToEdit={selectedMessage}
 //                 className={
 //                   !ticketViewed ||

@@ -51,7 +51,7 @@ async function getTickets(
   let query = supabase
     .from("tickets")
     .select(
-      "*,client_id!inner(*),ticketStatus_id(*),ticketPriority_id(*),ticketCategory_id(*)",
+      "*,admin_assigned_to(*),client:client_id!inner(*),ticketStatus_id(*),ticketPriority_id(*),ticketCategory_id(*)",
       { count: "exact" }
     );
 

@@ -83,11 +83,11 @@ const TicketForm = ({
   const [open, setOpen] = useState(false);
   const { user, isLoading, error } = useCurrUser();
   const {
-    clientById,
+    clientById: client,
     error: clientError,
     isLoading: clientLoading,
   } = useClientById({ id: user?.user?.id, getBy: "user_id" });
-  const client = clientById?.[0];
+
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const diaOpen = isOpen !== undefined ? isOpen : open;

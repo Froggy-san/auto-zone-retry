@@ -197,7 +197,7 @@ const TicketTable = ({
       />
 
       <NoteDialog
-        description={`Viewing the description of the ticket '#${selectedTicket?.id}', client '${selectedTicket?.client_id?.name}'.`}
+        description={`Viewing the description of the ticket '#${selectedTicket?.id}', client '${selectedTicket?.client?.name}'.`}
         className="hidden"
         title="Description"
         open={open === "description"}
@@ -213,7 +213,11 @@ const TicketTable = ({
         setIsLoading={setIsLoading}
       />
       <ImageView image={image} handleClose={() => setImage(null)} />
-      <TicketDetails ticket={selectedTicket} ticketStatus={ticketStatuses} />
+      <TicketDetails
+        ticket={selectedTicket}
+        ticketStatus={ticketStatuses}
+        ticketPriorities={ticketPriorities}
+      />
     </div>
   );
 };
@@ -311,21 +315,20 @@ function Row({
       {isAdmin && (
         <TableCell>
           <div className=" flex items-center  gap-2">
-            {ticket?.client_id?.picture && (
+            {ticket?.client?.picture && (
               <img
-                onClick={() => setImage(ticket?.client_id?.picture || null)}
-                src={ticket.client_id.picture}
+                onClick={() => setImage(ticket?.client?.picture || null)}
+                src={ticket.client.picture}
                 alt="img"
                 className=" w-7  h-7 object-cover rounded-full hover:opacity-90 hover:contrast-75 transition-all"
               />
             )}
             <span
               className={cn(" text-nowrap text-sm text-muted-foreground", {
-                "text-wrap ":
-                  ticket.client_id && ticket.client_id.name.length > 10,
+                "text-wrap ": ticket.client && ticket.client.name.length > 10,
               })}
             >
-              {ticket.client_id?.name}
+              {ticket.client?.name}
             </span>
           </div>
         </TableCell>
@@ -351,7 +354,7 @@ function Row({
               !ticket.admin_assigned_to && "text-muted-foreground"
             }`}
           >
-            <span>{ticket.admin_assigned_to || "Unassigned"}</span>{" "}
+            <span>{ticket.admin_assigned_to?.name || "Unassigned"}</span>{" "}
             <TableActions
               ticket={ticket}
               open={open}

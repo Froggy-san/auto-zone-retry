@@ -92,12 +92,11 @@ const ServiceSelectControls = ({
               setIsLoading={setIsLoading}
             />
           )}
-          <span>
-            <CloseButton
-              onClick={() => setSelected([])}
-              className=" static  sm:pl-3"
-            />
-          </span>
+
+          <CloseButton
+            onClick={() => setSelected([])}
+            className=" static  sm:pl-3"
+          />
         </motion.div>
       )}
     </AnimatePresence>
@@ -182,7 +181,7 @@ function DeleteDia({
         {" "}
         <Button
           variant="destructive"
-          className="   text-[0.7rem] xs:text-xs gap-1 h-fit px-2.5 py-1.5"
+          className="  mb-1 text-[0.7rem] xs:text-xs gap-1 h-fit px-2.5 py-1"
         >
           {" "}
           <span className=" ">{selected.length}</span> Delete{" "}
@@ -296,7 +295,7 @@ function DownloadPdfDia({
         {" "}
         <Button
           variant="secondary"
-          className=" text-[0.7rem] xs:text-xs gap-1 h-fit px-2.5 py-1.5"
+          className=" mb-1 text-[0.7rem] xs:text-xs gap-1 h-fit px-2.5 py-1"
         >
           {" "}
           Download as pdf <Download className=" w-3 h-3 xs:w-4 xs:h-4" />

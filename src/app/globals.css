@@ -305,6 +305,20 @@ body {
     --dashboard-text-green: #15803d;
     --dashboard-text-indigo: #4338ca;
     --dashboard-text-orange: #a16207;
+
+    /* Custom action colors */
+    --action-created: 142 71% 45%;
+    --action-updated: 217 91% 60%;
+    --action-resolved: 142 76% 36%;
+    --action-closed: 220 10% 50%;
+    --action-reopened: 38 92% 50%;
+    --action-escalated: 0 84% 60%;
+    --action-assigned: 262 83% 58%;
+    --action-message: 199 89% 48%;
+
+    /* Timeline */
+    --timeline-line: 220 15% 85%;
+    --timeline-dot: 220 70% 50%;
   }
   .dark {
     --background: 20 14.3% 4.1%;
@@ -341,6 +355,18 @@ body {
     --dashboard-text-green: #dcfce7;
     --dashboard-text-indigo: #e0e7ff;
     --dashboard-text-orange: #fef9c3;
+    /* Custom action colors - dark mode */
+    --action-created: 142 71% 50%;
+    --action-updated: 217 91% 65%;
+    --action-resolved: 142 76% 45%;
+    --action-closed: 220 10% 60%;
+    --action-reopened: 38 92% 55%;
+    --action-escalated: 0 84% 65%;
+    --action-assigned: 262 83% 65%;
+    --action-message: 199 89% 55%;
+
+    --timeline-line: 220 20% 25%;
+    --timeline-dot: 217 91% 60%;
   }
 }
 

@@ -443,15 +443,27 @@ export const AssignmentDetails = z.object({
 });
 
 export const TicketHistoryAction = z.enum([
+  "created",
+  "message",
+  "assigned",
+  "reassigned",
+  "updated",
+  "solved",
+  "closed",
+  "reopened",
+  "escalated",
+  "comment",
+  "internal note",
   "Status Changed",
-  "Admin Assigned",
-  "Priority Changed",
-  "Internal Note Added",
-  "Ticket Created",
-  "Customer Message Added",
-  "Customer Responded",
-  "Assigned To a different admin",
   "System Auto-Closed",
+  "priority Changed",
+  // "Admin Assigned",
+  // "Internal Note Added",
+  // "Ticket Created",
+  // "Customer Message Added",
+  // "Admin Message Added",
+  // "Customer Responded",
+  // "Assigned To a different admin",
 ]); // Limited actions for simplicity
 
 export const TicektHistoryDetials = z.union([
@@ -463,10 +475,10 @@ export const TicektHistoryDetials = z.union([
 export const TicketHistorySchemaStrict = z.object({
   // ... other fields (id, ticket_id, actor_id, created_at)
   ticket_id: z.string().uuid(), // Foreign key to the ticket
-  actor_id: z.bigint().nullable(), // The user/admin who took the action
+  actor_id: z.number().nullable(), // The user/admin who took the action
   action: TicketHistoryAction, // Limited actions for simplicity
   details: TicektHistoryDetials,
-  message_id: z.bigint().nullable(),
+  message_id: z.number().nullable(),
 });
 
 //! TICEKT HISTORY SCHMEA  END
@@ -987,14 +999,14 @@ export interface TicketCategory {
 export interface Ticket {
   id: number;
   created_at: string;
-  client_id: Client | null;
+  client: Client | null;
   subject: string;
   description: string;
   ticketStatus_id: TicketStatus;
   ticketPriority_id: TicketPriority;
   ticketCategory_id: TicketCategory;
   updated_at: string;
-  admin_assigned_to: string;
+  admin_assigned_to: Client | null;
   resolveTime: string | null;
   firstResponseTime: string | null;
 }
@@ -1076,6 +1088,9 @@ export interface Message extends z.infer<typeof MessageSchema> {
 export type TicketHistory = z.infer<typeof TicketHistorySchemaStrict> & {
   id: number;
   created_at: string;
+  actor?: Client;
+  ticket?: Ticket;
+  message?: Message;
 };
 
 export type Notification = z.infer<typeof NotificationSchema> & {

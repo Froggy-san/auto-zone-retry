@@ -10,11 +10,12 @@ export async function getClinetById({
 }: {
   id?: number | string;
   getBy?: GetBy;
-}): Promise<{ clientById: Client[] | null; error: PostgrestError | null }> {
+}): Promise<{ clientById: Client | null; error: PostgrestError | null }> {
   const { data: clientById, error } = await supabase
     .from("clients")
     .select("*")
-    .eq(getBy, id);
+    .eq(getBy, id)
+    .single();
 
   return { clientById, error };
 }

@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Download,
   Ellipsis,
   EllipsisVertical,
   File,
@@ -49,6 +50,9 @@ interface CustomComponentProps extends HTMLMotionProps<"div"> {
   currentUser?: User | null;
   isDragging?: boolean;
   isRetrying: boolean;
+  isFocused: boolean;
+  setFocusedMessage: (id: number | null) => void;
+  handleRemoveMessageId: () => void;
   handleResend: (message: Message) => Promise<void>;
   handleSelect: () => void;
 }
@@ -64,9 +68,12 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
       className,
       currentUser,
       isDragging,
+      isFocused,
       isSelected,
       isRetrying,
+      setFocusedMessage,
       handleResend,
+      handleRemoveMessageId,
       handleSelect,
       ...props
     },
@@ -183,16 +190,24 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
         ref={ref}
         layout={!isDragging}
         initial={{ scale: 0.5, opacity: 0.2 }}
+        onClick={() => {
+          if (isFocused) {
+            handleRemoveMessageId();
+            setFocusedMessage(null);
+          }
+        }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 1.5, opacity: 0 }}
         className={cn(
-          " px-2 py-5 border-b  group   relative",
+          " px-2 py-5 border-b  group    relative",
           {
             " bg-accent/90 dark:bg-accent/40": message.is_internal_note,
             "bg-red-200 text-red-800 dark:text-destructive-foreground  dark:bg-destructive/30 ":
               message.status === "failed",
             "bg-secondary/50": isSelected,
+            "bg-primary  text-primary-foreground": isFocused,
           },
+
           className
         )}
       >
@@ -206,12 +221,20 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
           )}
           <div className="flex flex-col">
             <span className="font-semibold">{message.client?.name}</span>
-            <span className="font-semibold text-xs text-muted-foreground">
+            <span
+              className={cn("font-semibold text-xs text-muted-foreground", {
+                " text-primary-foreground/80": isFocused,
+              })}
+            >
               {format(message.created_at, "MMMM d, yyyy h:mm bb")}
             </span>
           </div>
         </div>
-        <p className={cn(" mb-6", { "mb-0": !message.attachments.length })}>
+        <p
+          className={cn(" mb-6  break-all ", {
+            "mb-0": !message.attachments.length,
+          })}
+        >
           {message.content}
         </p>
 
@@ -228,6 +251,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
             {imgAttchments.map((imgAttchments, index) => (
               <MediaItem
                 key={imgAttchments.id}
+                isSameSender={isSameSender}
                 pending={message.status === "pending"}
                 isFailed={message.status === "failed"}
                 isLoading={loadingIds.includes(imgAttchments.id)}
@@ -249,6 +273,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
             {audioAttchments.map((audio, i) => (
               <MediaItem
                 key={audio.id}
+                isSameSender={isSameSender}
                 pending={message.status === "pending"}
                 isFailed={message.status === "failed"}
                 isLoading={loadingIds.includes(audio.id)}
@@ -273,6 +298,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
             {applicationAttchments.map((attch, i) => (
               <MediaItem
                 key={attch.id}
+                isSameSender={isSameSender}
                 pending={message.status === "pending"}
                 isFailed={message.status === "failed"}
                 isLoading={loadingIds.includes(attch.id)}
@@ -475,6 +501,7 @@ interface MediaProps {
   handleSelectFile?: () => void;
   handleDeleteAttachment: () => void;
   handleDownloadFile: () => void;
+  isSameSender: boolean;
   isFailed: boolean;
   isLoading: boolean;
   pending: boolean;
@@ -489,6 +516,7 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
       isLoading,
       setDeletedAttch,
       handleSelectFile,
+      isSameSender,
       pending,
       handleDeleteAttachment,
       handleDownloadFile,
@@ -554,12 +582,25 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
           </div>
         ) : null}
 
-        {!pending && !isFailed && (
-          <div onClick={(e) => e.stopPropagation()}>
-            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-              {isLoading ? (
-                <Spinner className=" absolute  right-1 top-1  shadow-md   w-7 h-7" />
-              ) : (
+        {!pending &&
+          !isFailed &&
+          (isLoading ? (
+            <Spinner className=" absolute  right-1 top-1  shadow-md   w-7 h-7" />
+          ) : !isSameSender ? (
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadFile();
+              }}
+              variant="secondary"
+              className=" p-0 absolute media-container-menu-btn right-1 top-1  shadow-md   w-7 h-7 rounded-full"
+            >
+              {" "}
+              <Download className=" w-4 h-4" />
+            </Button>
+          ) : (
+            <div onClick={(e) => e.stopPropagation()}>
+              <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="secondary"
@@ -569,18 +610,18 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
                     <EllipsisVertical className=" w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-              )}
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleDownloadFile}>
-                  Download file
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDeleteAttachment}>
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
+
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={handleDownloadFile}>
+                    Download file
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDeleteAttachment}>
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ))}
       </div>
     );
   }

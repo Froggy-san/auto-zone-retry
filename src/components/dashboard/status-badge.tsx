@@ -92,7 +92,7 @@ const StatusBadge = ({
                   if (controls) setisEditing((is) => !is);
                 }}
                 className={cn(
-                  "text-xs select-none w-fit font-semibold flex items-center justify-center gap-1  px-2 py-1  whitespace-nowrap text-center rounded-lg bg-primary text-primary-foreground  transition-all",
+                  "text-xs select-none w-fit font-semibold flex items-center justify-center gap-1  px-2.5 py-[0.15rem]  whitespace-nowrap text-center rounded-full bg-primary text-primary-foreground  transition-all",
 
                   {
                     "bg-dashboard-blue text-dashboard-text-blue":
