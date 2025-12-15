@@ -41,7 +41,7 @@ const actionConfig: Record<
     bgClass: "bg-action-updated/15",
     textClass: "text-action-updated",
   },
-  resolved: {
+  solved: {
     label: "Resolved",
     icon: CheckCircle2,
     bgClass: "bg-action-resolved/15",
@@ -71,6 +71,12 @@ const actionConfig: Record<
     bgClass: "bg-action-assigned/15",
     textClass: "text-action-assigned",
   },
+  reassigned: {
+    label: "Re-assigned",
+    icon: UserPlus,
+    bgClass: "bg-action-assigned/15",
+    textClass: "text-action-assigned",
+  },
   message: {
     label: "Message",
     icon: MessageSquare,
@@ -80,6 +86,14 @@ const actionConfig: Record<
     //  "text-dashboard-text-indigo",
   },
   comment: {
+    label: "Comment",
+    icon: MessageSquare,
+    bgClass: "bg-secondary",
+    // "bg-action-message/15",
+    textClass: "",
+    // "text-action-message",
+  },
+  "Internal Note": {
     label: "Comment",
     icon: MessageSquare,
     bgClass: "bg-secondary",

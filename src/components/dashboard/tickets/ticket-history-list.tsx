@@ -48,7 +48,7 @@ const TicketHistoryList = ({
     (ticketId: number, messageId?: number) => {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.set("ticket", String(ticketId));
-      messageId && newSearchParams.set("messageId", `${messageId}`);
+      if (messageId) newSearchParams.set("messageId", `${messageId}`);
       router.push(`${pathname}?${newSearchParams.toString()}`, {
         scroll: false,
       });
@@ -60,10 +60,10 @@ const TicketHistoryList = ({
     if (!isFetchingNextPage && hasNextPage) fetchNextPage();
   }, [inView]);
 
-  if (error) return <ErrorMessage>{`${error}`}</ErrorMessage>;
   const ticketHistories: TicketHistoryType[] = useMemo(() => {
     return data ? data?.pages.flatMap((item) => item.items) : [];
   }, [data]);
+  if (error) return <ErrorMessage>{`${error}`}</ErrorMessage>;
 
   return (
     <>

@@ -176,7 +176,7 @@ function generateHistoryLogs(
       (p) => p.id === newTicket.ticketPriority_id
     );
     logs.push({
-      action: "priority Changed",
+      action: "Priority Changed",
       details: {
         reason: `Ticket priority changed from ${oldPrio?.name} to ${newPrio?.name}`,
         old_priority: oldPrio,
@@ -252,7 +252,7 @@ export async function editTicket({
         ? "Admin added internal note"
         : ` ${userRole === "admin" ? "Admin" : "Cutomer"} added public message`;
       historyLogs.push({
-        action: isInternal ? "internal note" : "message",
+        action: isInternal ? "Internal Note" : "message",
         details: {
           message_id: message.id,
           reason,

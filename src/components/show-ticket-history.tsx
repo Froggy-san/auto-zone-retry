@@ -49,7 +49,8 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
       useInfiniteTicketHistory({ ticketId: ticket.id });
 
     const { ref: inViewElement, inView } = useInView();
-    const sliderRef = ref ? ref : useRef<HTMLDivElement>(null);
+    const internalRef = useRef<HTMLDivElement>(null);
+    const sliderRef = ref ? ref : internalRef;
 
     const ticketHistoryById: TicketHistoryType[] = useMemo(() => {
       return data ? data.pages.flatMap((page) => page.items) : [];
@@ -120,3 +121,5 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
   }
 );
 export default ShowTicketHistory;
+
+ShowTicketHistory.displayName = "ShowTicketHistory";

@@ -305,7 +305,7 @@ const TicketDetails = ({
     (ticketId: number, messageId?: number) => {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.set("ticket", String(ticketId));
-      messageId && newSearchParams.set("messageId", `${messageId}`);
+      if (messageId) newSearchParams.set("messageId", `${messageId}`);
       router.push(`${pathname}?${newSearchParams.toString()}`, {
         scroll: false,
       });
