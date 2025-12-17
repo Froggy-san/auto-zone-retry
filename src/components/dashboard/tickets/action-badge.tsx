@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import { TicketHistoryAction } from "@lib/types";
-
 import {
   Plus,
   Pencil,
@@ -10,7 +9,12 @@ import {
   AlertTriangle,
   UserPlus,
   MessageSquare,
+  UserRoundPen,
+  MessageSquareOff,
+  MessageSquareDashed,
+  Replace,
 } from "lucide-react";
+import { TbStatusChange } from "react-icons/tb";
 import { z } from "zod";
 
 type ActionType = z.infer<typeof TicketHistoryAction>;
@@ -42,7 +46,7 @@ const actionConfig: Record<
     textClass: "text-action-updated",
   },
   solved: {
-    label: "Resolved",
+    label: "Solved",
     icon: CheckCircle2,
     bgClass: "bg-action-resolved/15",
     textClass: "text-action-resolved",
@@ -65,6 +69,12 @@ const actionConfig: Record<
     bgClass: "bg-action-escalated/15",
     textClass: "text-action-escalated",
   },
+  "message deleted": {
+    label: "Message Deleted",
+    icon: MessageSquareOff,
+    bgClass: "bg-action-escalated/15",
+    textClass: "text-action-escalated",
+  },
   assigned: {
     label: "Assigned",
     icon: UserPlus,
@@ -72,8 +82,8 @@ const actionConfig: Record<
     textClass: "text-action-assigned",
   },
   reassigned: {
-    label: "Re-assigned",
-    icon: UserPlus,
+    label: "Re-Assigned",
+    icon: UserRoundPen,
     bgClass: "bg-action-assigned/15",
     textClass: "text-action-assigned",
   },
@@ -85,6 +95,15 @@ const actionConfig: Record<
     textClass: "text-action-message",
     //  "text-dashboard-text-indigo",
   },
+  "message edited": {
+    label: "Message Edited",
+    icon: MessageSquareDashed,
+    bgClass: "bg-action-message/15",
+    // "bg-dashboard-indigo",
+    textClass: "text-action-message",
+    //  "text-dashboard-text-indigo",
+  },
+
   comment: {
     label: "Comment",
     icon: MessageSquare,
@@ -94,7 +113,15 @@ const actionConfig: Record<
     // "text-action-message",
   },
   "Internal Note": {
-    label: "Comment",
+    label: "Internal Note",
+    icon: MessageSquare,
+    bgClass: "bg-secondary",
+    // "bg-action-message/15",
+    textClass: "",
+    // "text-action-message",
+  },
+  "Internal Note Edited": {
+    label: "Internal Note Edited",
     icon: MessageSquare,
     bgClass: "bg-secondary",
     // "bg-action-message/15",
@@ -103,9 +130,11 @@ const actionConfig: Record<
   },
   "Status Changed": {
     label: "Status Changed",
-    icon: MessageSquare,
-    bgClass: "bg-action-message/15",
-    textClass: "text-action-message",
+    icon: Replace,
+    bgClass: "bg-action-reopened/15",
+    textClass: "text-action-reopened",
+    // bgClass: "bg-action-message/15",
+    // textClass: "text-action-message",
   },
   "Priority Changed": {
     label: "Comment",

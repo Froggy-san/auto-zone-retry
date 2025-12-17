@@ -413,7 +413,77 @@ body {
       transform: translateY(20px);
     }
   }
+  /* Base styles for the container */
+  .scroll-fade-container {
+    /* This is the container that controls the fading effect */
+    position: relative;
+    /* Set a fixed height for the scrollable area */
+    height: 200px;
+    /* Important for the mask to work properly */
+    overflow: hidden;
+  }
 
+  /* Styles for the actual scrollable content area */
+  .scroll-fade-list {
+    /* Make the content itself scrollable */
+    height: 100%;
+    overflow-y: auto;
+    /* Optional: Hide default scrollbar */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scroll-fade-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .show-hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* --- The Fading Effects (Masking) --- */
+
+  /* 1. FADE BOTH (Scrolled in the middle) */
+  .scroll-fade-container.fade-both .scroll-fade-list {
+    /* * Mask: Fades out at the top, is solid in the middle, and fades out at the bottom.
+   * - top-to-bottom transparent (0%) to black (5%)
+   * - black (95%) to transparent (100%)
+   */
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 5%,
+      black 95%,
+      transparent 100%
+    );
+    /* Use -webkit prefix for maximum browser compatibility */
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      black 5%,
+      black 95%,
+      transparent 100%
+    );
+  }
+
+  /* 2. FADE TOP (Scrolled to the bottom) */
+  .scroll-fade-container.fade-top .scroll-fade-list {
+    /* Mask: Fades out at the top, solid to the bottom. */
+    mask-image: linear-gradient(to bottom, transparent 0%, black 5%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%);
+  }
+
+  /* 3. FADE BOTTOM (Scrolled to the top) */
+  .scroll-fade-container.fade-bottom .scroll-fade-list {
+    /* Mask: Solid from the top, fades out at the bottom. */
+    mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 95%, transparent 100%);
+  }
+
+  /* 4. NO FADE (Scrolled fully or content is small) */
+  .scroll-fade-container.no-fade .scroll-fade-list {
+    /* Mask: Fully solid, showing all content. */
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
   .media-container {
   }
 

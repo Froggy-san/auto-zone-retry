@@ -1,8 +1,11 @@
 import {
+  EditMessageProps,
   FileWithPreview,
   Message,
   OptimisticAction,
   Ticket,
+  TicketHistory,
+  TicketHistoryAction,
   TicketPriority,
   TicketStatus as TicketStatusType,
   User,
@@ -46,7 +49,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Action, TicketDetailStates } from "@lib/ticket-details-types";
 import useCreateMessage from "@lib/queries/tickets/useCreateMessage";
 import ShowTicketHistory from "./show-ticket-history";
-
+import { ActionBadge } from "./dashboard/tickets/action-badge";
+import { z } from "zod";
+type ActionType = z.infer<typeof TicketHistoryAction>;
 interface TicketDetailsProps {
   ticket?: Ticket;
   className?: string;
@@ -323,9 +328,11 @@ const TicketDetails = ({
     async ({
       ticketStatus_id,
       message,
+      updatedMessageMessage,
     }: {
       ticketStatus_id?: number;
       message?: Message;
+      updatedMessageMessage?: EditMessageProps;
     }) => {
       try {
         if (!ticketViewed)
@@ -373,6 +380,7 @@ const TicketDetails = ({
         if (!clientById) throw new Error(`Incomplete data.`);
         await editTicket({
           message,
+          messageToEdit: updatedMessageMessage,
           newTicketData: {
             id: ticketViewed.id,
             admin_assigned_to: isAdmin ? clientById.id : null,
@@ -389,13 +397,13 @@ const TicketDetails = ({
         queryClient.invalidateQueries({
           queryKey: ["ticketById", String(ticketViewed.id)],
         });
-        toast({
-          className: "bg-primary text-primary-foreground",
-          title: `Done.`,
-          description: (
-            <SuccessToastDescription message="Ticket status has been updated" />
-          ),
-        });
+        // toast({
+        //   className: "bg-primary text-primary-foreground",
+        //   title: `Done.`,
+        //   description: (
+        //     <SuccessToastDescription message="Ticket status has been updated" />
+        //   ),
+        // });
       } catch (error: any) {
         toast({
           variant: "destructive",
@@ -573,21 +581,29 @@ const TicketDetails = ({
     // e.preventDefault();
   };
 
-  function handleScrollContainer() {
-    console.log("CLICKER");
-
-    console.log("scrolled");
+  const handleScrollContainer = useCallback(() => {
     setTimeout(() => {
       if (containerRef.current) {
         containerRef.current.scrollTo({
           top: containerRef.current.scrollHeight,
-          behavior: "smooth", // This is the key for a smooth animation
+          behavior: "smooth",
         });
+      }
 
-        if (inputRef.current) inputRef.current.focus();
+      if (inputRef.current) {
+        const inputElement = inputRef.current;
+        inputElement.focus();
+
+        // FIX: Set cursor to the end
+        const textLength = inputElement.value.length;
+        inputElement.setSelectionRange(textLength, textLength);
       }
     }, 220);
-  }
+  }, [containerRef, inputRef]); // Add refs as dependencies if they can change
+
+  useEffect(() => {
+    if (selectedMessage) handleScrollContainer();
+  }, [selectedMessage, handleScrollContainer]);
   // Replaced openDrawer with dispatch
   const openDrawer = () =>
     dispatch({ type: "position", payload: OPEN_POSITION });
@@ -921,6 +937,7 @@ const TicketDetails = ({
             </main>
             {ticketData && (
               <ShowTicketHistory
+                internalActivity
                 ticket={ticketData}
                 isOpen={isHistory}
                 selectedMessage={selectedMessage}
@@ -957,6 +974,7 @@ function Messages({
   removeFailedMessage,
   focusedMessage,
   handleScrollContainer,
+  ticketHistory,
   handleRemoveMessageId,
   setSelectedMessageId,
   setFocusedMessage,
@@ -965,6 +983,7 @@ function Messages({
   messages: Message[];
   focusedMessage: number | null;
   selectedMessageId: number | null;
+  ticketHistory?: TicketHistory[];
   currentUser?: User | null;
   isDragging?: boolean;
   setFocusedMessage: (id: number | null) => void;
@@ -1073,7 +1092,7 @@ function Messages({
                 setSelectedMessageId(null);
               } else {
                 setSelectedMessageId(message.id);
-                handleScrollContainer();
+                // handleScrollContainer();
               }
             }}
             handleRemoveMessageId={handleRemoveMessageId}
@@ -1081,6 +1100,18 @@ function Messages({
           />
         ))}
       </AnimatePresence>
+      {/* <ChangesSeparator action="solved" /> */}
+    </div>
+  );
+}
+
+function ChangesSeparator({ action }: { action: ActionType }) {
+  return (
+    <div className="   bg-border my-6 relative  h-[1px] w-full ">
+      <ActionBadge
+        action={action}
+        className=" absolute left-1/2 top-1/2  -translate-x-1/2 -translate-y-1/2 z-30"
+      />
     </div>
   );
 }

@@ -22,6 +22,7 @@ interface Props {
   ticketStatuses: TicketStatusType[];
   ticketPriorities: TicketPriority[];
   selectedMessage: Message | undefined;
+  internalActivity?: boolean;
   handleFocusMessage?: (messageId: number | null) => void;
   handleSelectMessage?: (id: number | null) => void;
   handleViewDetails?: (ticketId: number, messageId?: number) => void;
@@ -35,6 +36,7 @@ const TicketHistory = React.forwardRef<HTMLLIElement, Props>(
       ticketStatuses,
       ticketPriorities,
       selectedMessage,
+      internalActivity,
       handleFocusMessage,
       handleSelectMessage,
       handleViewDetails,
@@ -140,7 +142,7 @@ const TicketHistory = React.forwardRef<HTMLLIElement, Props>(
         />
 
         {/* Ticket reference */}
-        {ticketHistory.ticket_id && (
+        {ticketHistory.ticket_id && !internalActivity && (
           <div className="mt-3 pt-3  flex items-center justify-between border-t border-border">
             <p
               className="text-xs text-muted-foreground group hover:cursor-pointer  "
@@ -214,7 +216,7 @@ export function HistoryDetails({
           const isStatusChange =
             key.toLowerCase() === "new_status" ||
             key.toLowerCase() === "old_status";
-
+          // key.toLowerCase() === "ticket_status";
           return (
             <div key={key} className="flex items-start gap-2 text-sm">
               <span className="text-muted-foreground font-medium min-w-[100px]">

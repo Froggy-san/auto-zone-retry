@@ -199,9 +199,11 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 1.5, opacity: 0 }}
         className={cn(
-          " px-2 py-5 border-b  group    relative",
+          " px-2 py-5 border-b   group    relative",
           {
             " bg-accent/90 dark:bg-accent/40": message.is_internal_note,
+            " !text-primary-foreground  !bg-primary ":
+              message.is_internal_note && isFocused,
             "bg-red-200 text-red-800 dark:text-destructive-foreground  dark:bg-destructive/30 ":
               message.status === "failed",
             "bg-secondary/50": isSelected,

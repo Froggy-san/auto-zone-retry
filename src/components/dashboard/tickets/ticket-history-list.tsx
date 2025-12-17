@@ -13,6 +13,10 @@ import {
 } from "@lib/types";
 import Spinner from "@components/Spinner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Input } from "@components/ui/input";
+import { PersonStanding } from "lucide-react";
+import { Button } from "@components/ui/button";
+import { PiPerson } from "react-icons/pi";
 
 interface Props {
   selectedMessage?: Message | undefined;
@@ -67,6 +71,13 @@ const TicketHistoryList = ({
 
   return (
     <>
+      <div className="  flex items-center justify-between w-[95%] gap-3 px-5 py-2  mx-auto rounded-full  border border-border/70 shadow-md ">
+        {" "}
+        <Button variant="outline" className=" p-0 w-7 h-7">
+          <PiPerson className=" w-5 h-5" />
+        </Button>
+        <Input placeholder="Search history...." className=" h-7" />
+      </div>
       <ul className=" grid items-start  grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-5">
         {ticketHistories.map((ticketHistory) => (
           <TicketHistory
@@ -83,6 +94,11 @@ const TicketHistoryList = ({
       <div ref={ref} className=" h-32">
         {isFetchingNextPage && <Spinner size={30} />}
       </div>
+      {!isFetchingNextPage && ticketHistories.length === 0 && (
+        <p className=" text-center text-muted-foreground mt-10">
+          No ticket history found.
+        </p>
+      )}
     </>
   );
 };

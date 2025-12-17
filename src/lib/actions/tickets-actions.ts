@@ -73,23 +73,73 @@ async function getTickets(
 export const getTicketsAction = unstable_cache(getTickets, ["tickets"], {
   tags: ["tickets"],
 });
+interface TicketLogData {
+  ticket_id: number;
+  actor_id: number; // Assuming actor_id is a string/UUID based on previous discussion
+  action: string;
+  details: object;
+  message_id?: number | null;
+  created_at?: string; // We'll set this automatically
+}
+export async function logTicketActions(
+  supabase: SupabaseClient,
+  logs: TicketLogData[]
+) {
+  // Pre-process the logs to ensure created_at is set if missing
+  // const logsWithTimestamp = logs.map(log => ({
+  //   ...log,
+  //   created_at: log.created_at || new Date().toISOString(),
+  // }));
 
+  // Perform a single bulk insert
+  const { error } = await supabase.from("ticketHistory").insert(logs);
+
+  if (error) {
+    // IMPORTANT: Only log the critical error. Do not throw, as the main ticket update succeeded.
+    console.error(
+      "CRITICAL HISTORY ERROR: Failed to bulk log ticket history:",
+      error
+    );
+    // You might integrate with a monitoring tool like Sentry here.
+  }
+}
 export async function createTicketAction(
   insert: z.infer<typeof CreateTicketSchema>
 ) {
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase
+    const { data: createdTicket, error } = await supabase
       .from("tickets")
-      .insert([insert])
-      .select();
+      .insert(insert)
+      .select("*,ticketStatus_id(*)");
 
     if (error) {
       throw new Error(error.message);
     }
     revalidateTag("tickets");
+    if (!createdTicket || createdTicket.length === 0)
+      throw new Error("Could not create ticket");
+    console.log("Created Ticket:", createdTicket[0]);
+    console.log(createdTicket[0].ticketStatus_id, "AYYOO");
+    await logTicketActions(supabase, [
+      {
+        ticket_id: createdTicket[0].id,
+        actor_id: insert.client_id,
+        action: "created",
+        details: {
+          ticket_id: createdTicket[0].id,
+          reason: "New ticket created",
+          ticket_subject: insert.subject,
+          ticket_category: insert.ticketCategory_id,
+          ticket_priority: insert.ticketPriority_id,
+          ticket_status: createdTicket[0].ticketStatus_id,
+          ticket_assigned_to: insert.admin_assigned_to,
+          ticket_cotent: insert.description,
+        },
+      },
+    ]);
 
-    return { data, error: "" };
+    return { data: createdTicket, error: "" };
   } catch (error: any) {
     return { data: null, error: error.message };
   }

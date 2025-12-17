@@ -4,10 +4,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 export default function useDeleteMessage() {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: deleteMessage, isLoading } = useMutation({
+  const { mutateAsync: deleteMessage, isPending: isLoading } = useMutation({
     mutationFn: deleteMessageApi,
     onSuccess: () => {
-      queryClient.invalidateQueries(["message"]);
+      queryClient.invalidateQueries({ queryKey: ["message"] });
     },
   });
   return { deleteMessage, isLoading };

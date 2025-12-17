@@ -17,11 +17,13 @@ import TicketHistory from "./dashboard/tickets/ticket-history";
 import { GiTumbleweed } from "react-icons/gi";
 import Spinner from "./Spinner";
 import { TbMoodEmptyFilled } from "react-icons/tb";
+import { useScrollFade } from "@hooks/use-scroll-fade";
 interface Props {
   isOpen: boolean;
   ticket: Ticket;
   ticketStatuses: TicketStatus[];
   ticketPriorities: TicketPriority[];
+  internalActivity?: boolean;
   className?: string;
   selectedMessage: Message | undefined;
   setIsOpen: () => void;
@@ -39,26 +41,35 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
       isOpen,
       setIsOpen,
       selectedMessage,
+      internalActivity,
       handleFocusMessage,
       handleViewDetails,
       handleSelectMessage,
     }: Props,
     ref
   ) => {
-    const { data, isFetching, fetchNextPage, isFetchingNextPage, error } =
-      useInfiniteTicketHistory({ ticketId: ticket.id });
+    const {
+      data,
+      isFetching,
+      fetchNextPage,
+      isFetchingNextPage,
+      hasNextPage,
+      error,
+    } = useInfiniteTicketHistory({ ticketId: ticket.id });
 
     const { ref: inViewElement, inView } = useInView();
+
     const internalRef = useRef<HTMLDivElement>(null);
-    const sliderRef = ref ? ref : internalRef;
+
+    const sliderRef = ref ?? internalRef;
 
     const ticketHistoryById: TicketHistoryType[] = useMemo(() => {
       return data ? data.pages.flatMap((page) => page.items) : [];
     }, [data?.pages]);
 
     useEffect(() => {
-      if (!isFetchingNextPage && inView) fetchNextPage();
-    }, [inView]);
+      if (!isFetchingNextPage && hasNextPage && inView) fetchNextPage();
+    }, [inView, hasNextPage]);
 
     if (error) return <ErrorMessage>{`${error}`}</ErrorMessage>;
 
@@ -71,7 +82,7 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
           className
         )}
       >
-        <div className=" w-full  relative h-full   ">
+        <div className=" w-full  relative h-full  ">
           <Button
             onClick={setIsOpen}
             variant="secondary"
@@ -84,12 +95,17 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
             />
           </Button>
           {isOpen && (
-            <div className=" h-full p-3  overflow-y-auto overscroll-contain">
+            <div
+              className={cn(
+                " h-full overflow-y-auto px-4 py-6 space-y-6 show-hide-scrollbar"
+              )}
+            >
               {ticketHistoryById.length ? (
-                <ul className=" space-y-4">
+                <ul className="   space-y-4">
                   {ticketHistoryById.map((history) => (
                     <TicketHistory
                       key={history.id}
+                      internalActivity={internalActivity}
                       selectedMessage={selectedMessage}
                       handleFocusMessage={handleFocusMessage}
                       handleSelectMessage={handleSelectMessage}

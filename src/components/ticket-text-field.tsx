@@ -16,6 +16,7 @@ import { Button } from "./ui/button";
 import {
   Attachment,
   Client,
+  EditMessageProps,
   FileWithPreview,
   Message,
   MessageSchema,
@@ -61,9 +62,11 @@ interface Props {
   handleEditTicket: ({
     ticketStatus_id,
     message,
+    updatedMessageMessage,
   }: {
     ticketStatus_id?: number | undefined;
     message?: Message;
+    updatedMessageMessage?: EditMessageProps;
   }) => Promise<void>;
   textAreaRef: React.RefObject<HTMLTextAreaElement>;
   handleScrollContainer: () => void;
@@ -359,6 +362,7 @@ const TicketTextField = ({
 
   useEffect(() => {
     setContent(messageToEdit?.content || "");
+    setIsInternal(messageToEdit?.is_internal_note || false);
   }, [setContent, messageToEdit]);
   useEffect(() => {
     rejectedFilesRef.current = rejectedFiles;
@@ -554,6 +558,14 @@ const TicketTextField = ({
           attachmentsToDelete: imagesToDelete,
         });
         files.forEach((file) => URL.revokeObjectURL(file.preview));
+        await handleEditTicket({
+          message: messageToEdit,
+          updatedMessageMessage: {
+            editMessage: { id: messageToEdit.id, ...data },
+            newFiles: files,
+            attachmentsToDelete: imagesToDelete,
+          },
+        });
       } else {
         startTransition(async () => await handleAddMessage({ data, files }));
 

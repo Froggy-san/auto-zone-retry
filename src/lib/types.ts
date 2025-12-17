@@ -454,6 +454,9 @@ export const TicketHistoryAction = z.enum([
   "escalated",
   "comment",
   "Internal Note",
+  "Internal Note Edited",
+  "message edited",
+  "message deleted",
   "Status Changed",
   "System Auto-Closed",
   "Priority Changed",
@@ -1058,6 +1061,21 @@ export type FileWithPreview = FileWithPath & {
 export type RejecetedFile = Omit<FileRejection, "File"> & {
   file: FileWithPreview;
 };
+
+export type EditMessage = {
+  id: number;
+  ticket_id?: number;
+  senderId?: string;
+  senderType?: string;
+  client_id?: number;
+  content?: string;
+  is_internal_note?: boolean;
+};
+export interface EditMessageProps {
+  editMessage: EditMessage;
+  newFiles?: FileWithPreview[];
+  attachmentsToDelete?: Attachment[];
+}
 
 export type Category = z.infer<typeof CategorySchema>;
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;

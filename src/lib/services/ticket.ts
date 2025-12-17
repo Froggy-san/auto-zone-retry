@@ -14,6 +14,7 @@ import {
   TicketStatus,
   User,
   TicketPriority,
+  EditMessageProps,
 } from "@lib/types";
 import { PostgrestError } from "@supabase/supabase-js";
 import supabase from "@utils/supabase";
@@ -50,9 +51,33 @@ interface CreateProps extends CreateTicket {
 }
 
 export async function createTicket(data: CreateProps) {
-  const { error } = await supabase.from("tickets").insert([data]);
+  const { data: createdTicket, error } = await supabase
+    .from("tickets")
+    .insert(data)
+    .select();
 
   if (error) throw new Error(error.message);
+  if (!createdTicket || createdTicket.length === 0)
+    throw new Error("Could not create ticket");
+  console.log("Created Ticket:", createdTicket[0]);
+  await logTicketActions([
+    {
+      ticket_id: createdTicket[0].id,
+      actor_id: data.client_id,
+      action: "created",
+      details: {
+        ticket_id: createdTicket[0].id,
+        reason: "New ticket created",
+        ticket_subject: data.subject,
+        ticket_category: data.ticketCategory_id,
+        ticket_priority: data.ticketPriority_id,
+        ticket_status: data.ticketStatus_id,
+        ticket_assigned_to: data.admin_assigned_to,
+        ticket_cotent: data.description,
+      },
+    },
+  ]);
+  return createdTicket[0];
 }
 
 type Reason =
@@ -195,7 +220,8 @@ export async function editTicket({
   currentClient,
   ticketStatuses,
   ticketPriorities,
-  message, // Use message content as the reason note
+  message,
+  messageToEdit,
 }: {
   newTicketData: EditProps;
   oldTicketData: Ticket;
@@ -204,6 +230,7 @@ export async function editTicket({
   ticketStatuses: TicketStatus[];
   ticketPriorities: TicketPriority[];
   message?: Message;
+  messageToEdit?: EditMessageProps;
 }) {
   try {
     // 1. Data Preparation: Fetch statuses if not provided (keeping the original logic for simplicity)
@@ -246,7 +273,7 @@ export async function editTicket({
     );
 
     // 4. Handle Message/Note Log (Independent Action)
-    if (message) {
+    if (message && !messageToEdit) {
       const isInternal = message.is_internal_note;
       const reason = isInternal
         ? "Admin added internal note"
@@ -254,10 +281,36 @@ export async function editTicket({
       historyLogs.push({
         action: isInternal ? "Internal Note" : "message",
         details: {
-          message_id: message.id,
+          message_id: `#${message.id}`,
           reason,
           content: message.content, // Includes the "reason" text
           attachment_count: message.attachments.length,
+        },
+      });
+    }
+
+    if (message && messageToEdit) {
+      const isInternal = messageToEdit.editMessage.is_internal_note;
+      const reason = isInternal
+        ? "Admin edited internal note"
+        : ` ${
+            userRole === "admin" ? "Admin" : "Cutomer"
+          } edited public message`;
+      historyLogs.push({
+        action: isInternal ? "Internal Note Edited" : "message edited",
+        details: {
+          message_id: `#${message.id}`,
+          reason,
+          content: messageToEdit.editMessage.content,
+          old_message_content: message.content,
+          attachment_count:
+            message.attachments.length -
+            (messageToEdit.attachmentsToDelete?.length || 0) +
+            (messageToEdit.newFiles?.length || 0),
+
+          deleted_attachment_count:
+            messageToEdit.attachmentsToDelete?.length || 0,
+          added_attachment_count: messageToEdit.newFiles?.length || 0,
         },
       });
     }
@@ -288,8 +341,12 @@ export async function editTicket({
       actor_id: actorId,
       action: log.action,
       details: log.details,
-      // Message ID is only relevant for message/comment logs, otherwise it's undefined
-      message_id: log.action.includes("message") ? message?.id : null,
+      // Message ID is only relevant for message/comment logs, otherwise it's null
+      message_id:
+        log.action.toLowerCase().includes("message") ||
+        log.action.toLowerCase().includes("internal")
+          ? message?.id
+          : null,
     }));
 
     // Log all other state changes
@@ -658,26 +715,11 @@ export async function createMessage({
   return { ...message[0], client, attachments };
 }
 
-type EditMessage = {
-  id: number;
-  ticket_id?: number;
-  senderId?: string;
-  senderType?: string;
-  client_id?: number;
-  content?: string;
-  is_internal_note?: boolean;
-};
-
-interface Edit {
-  editMessage: EditMessage;
-  newFiles?: FileWithPreview[];
-  attachmentsToDelete?: Attachment[];
-}
 export async function editMessages({
   editMessage,
   newFiles,
   attachmentsToDelete,
-}: Edit) {
+}: EditMessageProps) {
   const { data: message, error } = await supabase
     .from("messages")
     .update({ ...editMessage })
@@ -688,7 +730,7 @@ export async function editMessages({
     throw new Error(error.message);
   }
   if (!message) throw new Error("Something went wrong while editing message.");
-  console.log(message, "EMEEMEEMEME");
+
   if (newFiles?.length) {
     await uploadFiles(message[0], newFiles);
   }
@@ -715,6 +757,22 @@ export async function editMessages({
       .in("id", attachmentIds);
     if (error) throw new Error(error.message);
   }
+
+  // await logTicketActions([
+  //   {
+  //     ticket_id: message[0].id,
+  //     actor_id: message[0].client_id,
+  //     action: "message edited",
+  //     details: {
+  //       ticket_id: message[0].id,
+  //       reason: "Message content edited",
+  //       deleted_attachments: attachmentsToDelete?.length || 0,
+  //       added_attachments: newFiles?.length || 0,
+  //       old_message_content: editMessage.content,
+  //       new_message_content: message[0].content,
+  //     },
+  //   },
+  // ]);
 }
 
 export async function deleteMessage(message: Message) {
@@ -753,6 +811,21 @@ export async function deleteMessage(message: Message) {
     console.log(error.message);
     throw new Error(error.message);
   }
+
+  await logTicketActions([
+    {
+      ticket_id: message.ticket_id,
+      actor_id: message.client_id,
+      action: "message deleted",
+      details: {
+        reason: "Message deleted",
+        attachments_deleted: message.attachments.length,
+        message_content: message.content,
+        is_internal_note: message.is_internal_note,
+        message_id: `#${message.id}`,
+      },
+    },
+  ]);
 }
 
 export async function deleteAttachment(attachment: Attachment) {

@@ -145,12 +145,12 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
           </Suspense>
         </div>
 
-        <div className=" pb-32">
+        <section className="   space-y-12  pb-32">
           <TicketHistoryList
             ticketPriorities={ticketPriorities || []}
             ticketStatuses={ticketStatus || []}
           />
-        </div>
+        </section>
       </section>
     </main>
   );
