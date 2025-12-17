@@ -503,7 +503,7 @@ const TicketDetails = ({
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
       if (!startYRef.current || e.touches.length === 0) return;
-
+      e.preventDefault();
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - startYRef.current;
 
