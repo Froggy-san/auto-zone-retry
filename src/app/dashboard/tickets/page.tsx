@@ -33,7 +33,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   const ticketStatusId = searchParams.ticketStatusId ?? "";
   const sort = searchParams.sort ?? "";
   const name = searchParams.name ?? "";
-  const supabase = await createClient();
+  const supabase = await createClient(false, false);
   const [categoriesData, statusData, prioritiesData] = await Promise.all([
     getTicketCategoriesAction(supabase),
     getTicketStatusesAction(supabase),

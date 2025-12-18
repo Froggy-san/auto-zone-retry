@@ -1,3 +1,4 @@
+import useDebounce from "@hooks/use-debounce";
 import { getTicketHistory } from "@lib/services/ticket-history";
 import { TicketHistoryAction } from "@lib/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -15,8 +16,12 @@ interface Filters {
   ticketId?: number;
   dateFrom?: Date;
   dateTo?: Date;
+  searchterm?: string;
 }
 export default function useInfiniteTicketHistory(filters: Filters) {
+  const searchterm = useDebounce(filters.searchterm, 500);
+
+  const appliedFilters = { ...filters, searchterm };
   const {
     data,
     error,
@@ -26,7 +31,7 @@ export default function useInfiniteTicketHistory(filters: Filters) {
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({
-    queryKey: ["ticketHistory", filters],
+    queryKey: ["ticketHistory", appliedFilters],
     // 2. queryFn: The function that fetches the data for a page
     queryFn: ({ queryKey, pageParam }) =>
       getTicketHistory({

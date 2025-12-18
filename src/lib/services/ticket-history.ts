@@ -23,6 +23,8 @@ interface GetTicketProps {
   ticketId?: number;
   dateFrom?: Date;
   dateTo?: Date;
+  sort?: "asc" | "desc" | string;
+  searchterm?: { term: string; type: "actor" | "client" | "admin" };
 }
 
 // Assuming PAGE_SIZE is defined elsewhere
@@ -43,12 +45,18 @@ export async function getTicketHistory({
     .from("ticketHistory")
     // Use an alias if the constraint name is different from 'ticket_id'
     .select(
-      "*,actor:actor_id(*),ticket:ticket_id(id, ticketCategory_id(*), ticketPriority_id(*), ticketStatus_id, admin_assigned_to, client:client_id(*))",
+      "*,actor:actor_id!inner(*),ticket:ticket_id!inner(id, ticketCategory_id(*), ticketPriority_id(*), ticketStatus_id, admin_assigned_to, client:client_id!inner  (*))",
       { count: "exact" }
     );
 
   const [_, filters] = queryKey;
   // 1. Direct Filters on 'ticket_history'
+  if (filters.searchterm) {
+    // Use dot notation to filter the inner-joined tables
+    query = query.or(`name.ilike.%${filters.searchterm}%`, {
+      foreignTable: "actor_id",
+    });
+  }
   if (filters.id) query = query.eq("id", filters.id);
   if (filters.action) query = query.ilike("action", `%${filters.action}%`);
   if (filters.ticketId) query = query.eq("ticket_id", filters.ticketId);

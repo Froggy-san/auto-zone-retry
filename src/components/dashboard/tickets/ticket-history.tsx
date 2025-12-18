@@ -102,7 +102,7 @@ const TicketHistory = React.forwardRef<HTMLLIElement, Props>(
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">
+              <span className=" text-xs xs:text-sm font-semibold text-foreground">
                 {ticketHistory.actor?.name || `User #${ticketHistory.actor_id}`}
               </span>
               <span
@@ -118,7 +118,7 @@ const TicketHistory = React.forwardRef<HTMLLIElement, Props>(
 
         {/* Message preview if available */}
         {ticketHistory.message_id && (
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="  text-xs xs:text-sm text-muted-foreground mt-2">
             Message{" "}
             <span
               className=" hover:text-primary transition-colors cursor-pointer"
@@ -218,12 +218,15 @@ export function HistoryDetails({
             key.toLowerCase() === "old_status";
           // key.toLowerCase() === "ticket_status";
           return (
-            <div key={key} className="flex items-start gap-2 text-sm">
-              <span className="text-muted-foreground font-medium min-w-[100px]">
+            <div
+              key={key}
+              className="flex items-start gap-2 text-xs xs:text-sm"
+            >
+              <span className="text-muted-foreground font-medium min-w-[50px]">
                 {formatKey(key)}:
               </span>
               {isStatusChange ? (
-                <TicketStatus ticketStatus={value} className=" text-wrap" />
+                <TicketStatus ticketStatus={value} className="  text-wrap" />
               ) : (
                 <span className="text-foreground break-all">
                   {formatValue(value)}

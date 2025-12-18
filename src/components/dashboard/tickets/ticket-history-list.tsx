@@ -14,7 +14,7 @@ import {
 import Spinner from "@components/Spinner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@components/ui/input";
-import { PersonStanding } from "lucide-react";
+import { CalendarClock, CalendarDays, PersonStanding } from "lucide-react";
 import { Button } from "@components/ui/button";
 import { PiPerson } from "react-icons/pi";
 
@@ -28,6 +28,7 @@ const TicketHistoryList = ({
   ticketStatuses,
   selectedMessage,
 }: Props) => {
+  const [searchterm, setSearchTerm] = React.useState("");
   const {
     data,
     error,
@@ -35,7 +36,7 @@ const TicketHistoryList = ({
     isFetchingNextPage,
     isFetching,
     hasNextPage,
-  } = useInfiniteTicketHistory({});
+  } = useInfiniteTicketHistory({ searchterm });
   // dashboard/tickets?ticket=41
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -71,13 +72,7 @@ const TicketHistoryList = ({
 
   return (
     <>
-      <div className="  flex items-center justify-between w-[95%] gap-3 px-5 py-2  mx-auto rounded-full  border border-border/70 shadow-md ">
-        {" "}
-        <Button variant="outline" className=" p-0 w-7 h-7">
-          <PiPerson className=" w-5 h-5" />
-        </Button>
-        <Input placeholder="Search history...." className=" h-7" />
-      </div>
+      <Filters searhchterm={searchterm} setSearchterm={setSearchTerm} />
       <ul className=" grid items-start  grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4 gap-5">
         {ticketHistories.map((ticketHistory) => (
           <TicketHistory
@@ -104,3 +99,27 @@ const TicketHistoryList = ({
 };
 
 export default React.memo(TicketHistoryList);
+
+interface FiltersProps {
+  searhchterm: string;
+  setSearchterm: (term: string) => void;
+}
+function Filters({ searhchterm, setSearchterm }: FiltersProps) {
+  return (
+    <div className="  flex items-center justify-between w-[95%] gap-3 px-5 py-2  mx-auto rounded-full  border border-border/70 shadow-md ">
+      {" "}
+      <Button variant="outline" className=" p-1 w-7 h-7">
+        <PiPerson className=" w-5 h-5" />
+      </Button>
+      <Button variant="outline" className=" p-1 w-7 h-7">
+        <CalendarDays className=" w-5 h-5" />
+      </Button>
+      <Input
+        value={searhchterm}
+        onChange={(e) => setSearchterm(e.target.value)}
+        placeholder="Search history...."
+        className=" h-7"
+      />
+    </div>
+  );
+}
