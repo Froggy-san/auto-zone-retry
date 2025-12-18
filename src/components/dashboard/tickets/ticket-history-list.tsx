@@ -29,6 +29,9 @@ const TicketHistoryList = ({
   selectedMessage,
 }: Props) => {
   const [searchterm, setSearchTerm] = React.useState("");
+  const [type, setType] = React.useState<"actor" | "client" | "admin">(
+    "client"
+  );
   const {
     data,
     error,
@@ -36,7 +39,7 @@ const TicketHistoryList = ({
     isFetchingNextPage,
     isFetching,
     hasNextPage,
-  } = useInfiniteTicketHistory({ searchterm });
+  } = useInfiniteTicketHistory({ searchterm: { term: searchterm, type } });
   // dashboard/tickets?ticket=41
   const router = useRouter();
   const searchParams = useSearchParams();

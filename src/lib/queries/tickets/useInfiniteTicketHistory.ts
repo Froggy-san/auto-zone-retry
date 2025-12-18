@@ -16,7 +16,7 @@ interface Filters {
   ticketId?: number;
   dateFrom?: Date;
   dateTo?: Date;
-  searchterm?: string;
+  searchterm?: { term: string; type: "actor" | "client" | "admin" };
 }
 export default function useInfiniteTicketHistory(filters: Filters) {
   const searchterm = useDebounce(filters.searchterm, 500);
