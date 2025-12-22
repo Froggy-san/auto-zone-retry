@@ -31,6 +31,7 @@ interface Props {
   handleFocusMessage: (messageId: number | null) => void;
   handleSelectMessage: (id: number | null) => void;
 }
+
 const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
   (
     {

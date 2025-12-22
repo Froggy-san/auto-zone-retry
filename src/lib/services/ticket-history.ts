@@ -7,6 +7,7 @@ import {
 } from "@lib/types";
 import { PostgrestError } from "@supabase/supabase-js";
 import supabase from "@utils/supabase";
+import { filter } from "lodash";
 import { z } from "zod";
 // :Promise<{ticketHistory:TicketHistory[] | null:error:}> error: PostgrestError | null
 
@@ -14,8 +15,8 @@ interface GetTicketProps {
   id?: number | undefined;
   action?: z.infer<typeof TicketHistoryAction>;
   created_at?: string;
-  clinetName?: string;
-  clinetId?: string;
+  clientName?: string;
+  clientId?: number;
   admin_assigned_to?: string;
   ticketCategory_id?: number;
   ticketPriority_id?: number;
@@ -24,7 +25,10 @@ interface GetTicketProps {
   dateFrom?: Date;
   dateTo?: Date;
   sort?: "asc" | "desc" | string;
-  searchterm?: { term: string; type: "actor" | "client" | "admin" };
+  searchterm?: {
+    term: string;
+    type: "actor_id" | "ticket_id.client_id" | "admin";
+  };
 }
 
 // Assuming PAGE_SIZE is defined elsewhere
@@ -45,17 +49,26 @@ export async function getTicketHistory({
     .from("ticketHistory")
     // Use an alias if the constraint name is different from 'ticket_id'
     .select(
-      "*,actor:actor_id!inner(*),ticket:ticket_id!inner(id, ticketCategory_id(*), ticketPriority_id(*), ticketStatus_id, admin_assigned_to, client:client_id!inner  (*))",
+      "*,actor:actor_id!inner(*),ticket:ticket_id!inner(id, ticketCategory_id(*), ticketPriority_id(*), ticketStatus_id, admin_assigned_to,client:client_id!inner(*))",
       { count: "exact" }
     );
 
   const [_, filters] = queryKey;
   // 1. Direct Filters on 'ticket_history'
-  if (filters.searchterm) {
+  if (filters.searchterm && filters.searchterm.term.length > 0) {
     // Use dot notation to filter the inner-joined tables
-    query = query.or(`name.ilike.%${filters.searchterm}%`, {
-      foreignTable: "actor_id",
-    });
+
+    if (
+      filters.searchterm.type === "ticket_id.client_id" ||
+      filters.searchterm.type === "actor_id"
+    ) {
+      query = query.or(
+        `name.ilike.%${filters.searchterm.term}%,email.ilike.%${filters.searchterm.term}%`,
+        {
+          foreignTable: filters.searchterm.type,
+        }
+      );
+    }
   }
   if (filters.id) query = query.eq("id", filters.id);
   if (filters.action) query = query.ilike("action", `%${filters.action}%`);
@@ -79,17 +92,17 @@ export async function getTicketHistory({
     query = query.eq("ticket_id.", filters.admin_assigned_to);
 
   // Filter by Client ID (Exact Match)
-  if (filters.clinetId) {
+  if (filters.clientId) {
     // Relationship 1: ticket_id (from history to tickets)
     // Relationship 2: client_id (from tickets to clients)
     // Column: id (in the clients table)
-    query = query.eq("ticket_id.client_id.id", filters.clinetId);
+    query = query.eq("ticket_id.client_id.id", filters.clientId);
   }
 
   // Filter by Client Name (Partial Match/Case Insensitive)
-  if (filters.clinetName) {
+  if (filters.clientName) {
     // We use .ilike() for case-insensitive partial matching on the name
-    query = query.ilike("ticket_id.client_id.name", `%${filters.clinetName}%`);
+    query = query.ilike("ticket_id.client_id.name", `%${filters.clientName}%`);
   }
   // 3. Date Filters
   if (filters.dateFrom) {

@@ -7,8 +7,8 @@ interface Filters {
   id?: number | undefined;
   action?: z.infer<typeof TicketHistoryAction>;
   created_at?: string;
-  clinetName?: string;
-  clinetId?: string;
+  clientName?: string;
+  clientId?: number;
   admin_assigned_to?: string;
   ticketCategory_id?: number;
   ticketPriority_id?: number;
@@ -16,12 +16,12 @@ interface Filters {
   ticketId?: number;
   dateFrom?: Date;
   dateTo?: Date;
-  searchterm?: { term: string; type: "actor" | "client" | "admin" };
+  searchterm?: { term: string; type: "actor_id" | "ticket_id.client_id" };
 }
 export default function useInfiniteTicketHistory(filters: Filters) {
-  const searchterm = useDebounce(filters.searchterm, 500);
+  // const searchterm = useDebounce(filters.searchterm, 500);
 
-  const appliedFilters = { ...filters, searchterm };
+  // const appliedFilters = { ...filters, searchterm };
   const {
     data,
     error,
@@ -31,7 +31,7 @@ export default function useInfiniteTicketHistory(filters: Filters) {
     isFetchingNextPage,
     status,
   } = useInfiniteQuery({
-    queryKey: ["ticketHistory", appliedFilters],
+    queryKey: ["ticketHistory", filters],
     // 2. queryFn: The function that fetches the data for a page
     queryFn: ({ queryKey, pageParam }) =>
       getTicketHistory({

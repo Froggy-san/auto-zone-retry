@@ -36,7 +36,6 @@ interface SearchProps {
   isAdmin: boolean;
   isClient?: boolean;
   currPage: string;
-
   dateFrom: string;
   dateTo: string;
   sort: "asc" | "desc" | string;
