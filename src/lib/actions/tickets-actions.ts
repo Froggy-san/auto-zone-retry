@@ -47,6 +47,7 @@ async function getTickets(
 }> {
   const from = (Number(pageNumber) - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
+  const sortBy = sort ? sort === "asc" : false;
 
   let query = supabase
     .from("tickets")
@@ -65,7 +66,7 @@ async function getTickets(
     data: tickets,
     count,
     error,
-  } = await query.order("id", { ascending: sort === "asc" }).range(from, to);
+  } = await query.order("id", { ascending: sortBy }).range(from, to);
 
   return { tickets, count, error };
 }

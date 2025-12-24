@@ -121,6 +121,8 @@ export async function getTicketHistory({
   const page = Number(pageParam);
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
+  const sortBy = filters.sort ? filters.sort === "asc" : true;
+
   query = query.range(from, to);
 
   const {
@@ -128,8 +130,8 @@ export async function getTicketHistory({
     count,
     error,
   } = await query
-    .order("created_at", { ascending: true })
-    .order("id", { ascending: true }); // Secondary sort for stable order;
+    .order("created_at", { ascending: sortBy })
+    .order("id", { ascending: sortBy }); // Secondary sort for stable order;
   if (error) {
     // throw the error so useInfiniteQuery can catch it
     throw new Error(error.message);

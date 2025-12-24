@@ -8,6 +8,7 @@ import ErrorMessage from "@components/error-message";
 import {
   Client,
   Message,
+  TicketCategory,
   TicketHistory as TicketHistoryType,
   TicketPriority,
   TicketStatus,
@@ -28,9 +29,12 @@ import Spinner from "@components/Spinner";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@components/ui/input";
 import {
+  ArrowDownNarrowWide,
+  ArrowUpWideNarrow,
   CalendarClock,
   CalendarDays,
   CalendarIcon,
+  ListTree,
   PersonStanding,
 } from "lucide-react";
 import { Button } from "@components/ui/button";
@@ -41,10 +45,12 @@ import { cn } from "@lib/utils";
 import { formatDate } from "date-fns";
 import { Calendar } from "@components/ui/calendar";
 import { DateRange } from "react-day-picker";
+import TicketCategoryList from "@components/ticket-category-list";
 
 interface Props {
   selectedMessage?: Message | undefined;
   ticketStatuses: TicketStatus[];
+  ticketCategory: TicketCategory[];
   ticketPriorities: TicketPriority[];
 }
 type SearchType = "actor_id" | "ticket_id.client_id";
@@ -56,14 +62,16 @@ const TicketHistoryList = ({
   ticketPriorities,
   ticketStatuses,
   selectedMessage,
+  ticketCategory,
 }: Props) => {
   const [searchterm, setSearchTerm] = React.useState("");
   const [type, setType] = React.useState<SearchType>("ticket_id.client_id");
   const [selectedClient, setSelectedClient] = React.useState<null | Client>(
     null
   );
+  const [category, setCategory] = React.useState<TicketCategory | null>(null);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
-
+  const [sortBy, setSortBy] = React.useState<"asc" | "desc" | string>("desc");
   const debouncedValue = useDebounce(searchterm, 500);
 
   const {
@@ -76,6 +84,10 @@ const TicketHistoryList = ({
   } = useInfiniteTicketHistory({
     searchterm: { term: debouncedValue, type },
     clientId: selectedClient?.id,
+    dateFrom: date?.from,
+    dateTo: date?.to,
+    ticketCategory_id: category?.id,
+    sort: sortBy,
   });
   // dashboard/tickets?ticket=41
   const router = useRouter();
@@ -100,6 +112,19 @@ const TicketHistoryList = ({
     },
     [router, searchParams, pathname]
   );
+  const selectHistory = useCallback(
+    (ticketId: number, historyId: number) => {
+      console.log("WWWWW");
+      const params = new URLSearchParams(searchParams);
+
+      params.set("ticket", String(ticketId));
+      params.set("historyId", `${historyId}`);
+      router.push(`${pathname}?${params.toString()}`, {
+        scroll: false,
+      });
+    },
+    [router, searchParams, pathname]
+  );
 
   useEffect(() => {
     if (!isFetchingNextPage && hasNextPage) fetchNextPage();
@@ -116,6 +141,13 @@ const TicketHistoryList = ({
       <Filters
         searhchterm={searchterm}
         setSearchterm={setSearchTerm}
+        ticketStatuses={ticketStatuses}
+        ticketPriorities={ticketPriorities}
+        ticketCategories={ticketCategory}
+        setCategory={setCategory}
+        selectedCategory={category}
+        setSortBy={setSortBy}
+        sortBy={sortBy}
         selectItems={SELECT_ITEMS}
         type={type}
         setType={setType}
@@ -133,6 +165,7 @@ const TicketHistoryList = ({
           {ticketHistories.map((ticketHistory) => (
             <TicketHistory
               key={ticketHistory.id}
+              selectHistory={selectHistory}
               selectedMessage={selectedMessage}
               handleViewDetails={handleViewDetails}
               ticketStatuses={ticketStatuses}
@@ -162,13 +195,20 @@ export default React.memo(TicketHistoryList);
 
 interface FiltersProps {
   searhchterm: string;
-  setSearchterm: (term: string) => void;
   selectItems?: { label: string; value: SearchType }[];
   type: SearchType;
-  setType: (type: SearchType) => void;
   selectedClient?: Client | null;
-  setSelectedClient?: (client: Client | null) => void;
   date?: DateRange;
+  ticketStatuses: TicketStatus[];
+  ticketPriorities: TicketPriority[];
+  ticketCategories: TicketCategory[];
+  selectedCategory?: TicketCategory | null;
+  sortBy: "asc" | "desc" | string;
+  setSortBy: (sort: "asc" | "desc" | string) => void;
+  setCategory: (category: TicketCategory | null) => void;
+  setSearchterm: (term: string) => void;
+  setType: (type: SearchType) => void;
+  setSelectedClient?: (client: Client | null) => void;
   setDate?: (date: DateRange | undefined) => void;
 }
 
@@ -179,36 +219,54 @@ function Filters({
   type,
   setType,
   selectedClient,
+  ticketCategories,
+  setCategory,
+  selectedCategory,
+  ticketPriorities,
+  ticketStatuses,
+  sortBy,
+  setSortBy,
   setSelectedClient,
   date,
   setDate,
 }: FiltersProps) {
-  const [isHovered, setIsHovered] = React.useState(false);
+  const [isClientOpen, setClientOpen] = React.useState(false);
+  const [isDateOpen, setDateOpen] = React.useState(false);
+  const [isCategoryOpen, setCategoryOpen] = React.useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const categoryInputRef = useRef<HTMLInputElement>(null);
   const clientInputRef = useRef<HTMLInputElement>(null);
   const isThereSelectedClient = selectedClient !== null;
   useEffect(() => {
-    if (isHovered) {
+    if (isClientOpen) {
       if (clientInputRef) {
         setTimeout(() => {
           clientInputRef.current?.focus();
         }, 100);
       }
     }
-  }, [isHovered]);
+    if (isCategoryOpen) {
+      if (categoryInputRef) {
+        setTimeout(() => {
+          categoryInputRef.current?.focus();
+        }, 100);
+      }
+    }
+  }, [isClientOpen, isCategoryOpen]);
   return (
-    <div className="  flex items-center justify-between w-[95%] gap-3 px-5 py-2  mx-auto rounded-full  border border-border/70 shadow-md ">
+    <div className="  flex items-center justify-between w-[95%] gap-3 px-5 py-1.5  mx-auto rounded-full  border border-border/70 shadow-md ">
       {" "}
       <HoverCard
-        open={isHovered}
-        onOpenChange={setIsHovered}
+        open={isClientOpen}
+        onOpenChange={setClientOpen}
         openDelay={100}
         closeDelay={200}
       >
         <HoverCardTrigger>
           <Button
             variant="outline"
+            onClick={() => setClientOpen(true)}
             className={cn(" p-1 w-7 h-7", isThereSelectedClient && "bg-accent")}
           >
             <PiPerson className=" w-5 h-5" />
@@ -217,7 +275,7 @@ function Filters({
         <HoverCardContent className="   sm:w-80">
           <InfiniteClientsList
             ref={clientInputRef}
-            setOpen={setIsHovered}
+            setOpen={setClientOpen}
             selectedClient={selectedClient}
             onVlaueChange={setSelectedClient}
           />
@@ -229,8 +287,12 @@ function Filters({
             <CalendarDays className=" w-5 h-5" />
           </Button>
         </HoverCardTrigger>
-        <HoverCardContent className="w-auto p-0" align="start">
+        <HoverCardContent
+          className="w-auto p-0 max-h-[50vh] overflow-y-auto"
+          align="start"
+        >
           <Calendar
+            className=" !text-xs"
             initialFocus
             mode="range"
             defaultMonth={date?.from}
@@ -252,6 +314,30 @@ function Filters({
               <span>Pick a date</span>
             )}
           </div>
+        </HoverCardContent>
+      </HoverCard>
+      <HoverCard
+        open={isCategoryOpen}
+        onOpenChange={setCategoryOpen}
+        openDelay={100}
+        closeDelay={200}
+      >
+        <HoverCardTrigger>
+          <Button
+            variant="outline"
+            className={cn(" p-1 w-7 h-7", isThereSelectedClient && "bg-accent")}
+          >
+            <ListTree className=" w-5 h-5" />
+          </Button>
+        </HoverCardTrigger>
+        <HoverCardContent className="   sm:w-80">
+          <TicketCategoryList
+            onSelect={setCategory}
+            setOpen={setCategoryOpen}
+            value={selectedCategory}
+            ticketCategories={ticketCategories}
+            ref={categoryInputRef}
+          />
         </HoverCardContent>
       </HoverCard>
       <div className=" h-7 relative flex-1 flex items-center  border border-input rounded-full transition-all focus-within:ring-1 ring-ring  ">
@@ -284,6 +370,26 @@ function Filters({
           </SelectContent>
         </Select>
       </div>
+      <Button
+        variant="outline"
+        size="sm"
+        className=" gap-1 text-xs  h-7"
+        onClick={() => {
+          setSortBy(sortBy === "asc" ? "desc" : "asc");
+        }}
+      >
+        {" "}
+        {sortBy === "desc" || !sortBy ? (
+          <>
+            <span>Desc</span>
+            <ArrowDownNarrowWide className=" w-4 h-4" />
+          </>
+        ) : (
+          <>
+            <span>Asc</span> <ArrowUpWideNarrow className=" h-4 w-4" />
+          </>
+        )}{" "}
+      </Button>
     </div>
   );
 }

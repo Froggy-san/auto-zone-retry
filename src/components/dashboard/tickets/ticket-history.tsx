@@ -23,9 +23,11 @@ interface Props {
   ticketPriorities: TicketPriority[];
   selectedMessage: Message | undefined;
   internalActivity?: boolean;
+  isHistorySelected?: boolean;
   handleFocusMessage?: (messageId: number | null) => void;
   handleSelectMessage?: (id: number | null) => void;
   handleViewDetails?: (ticketId: number, messageId?: number) => void;
+  selectHistory?: (ticketId: number, hisotryId: number) => void;
   className?: string;
 }
 
@@ -40,6 +42,8 @@ const TicketHistory = React.forwardRef<HTMLLIElement, Props>(
       handleFocusMessage,
       handleSelectMessage,
       handleViewDetails,
+      selectHistory,
+      isHistorySelected,
       className,
       ...props
     },
@@ -85,6 +89,7 @@ const TicketHistory = React.forwardRef<HTMLLIElement, Props>(
         }}
         className={cn(
           "bg-card rounded-lg border border-border p-4 shadow-md card-hover",
+          { "bg-secondary": isHistorySelected },
           className
         )}
         {...props}
@@ -156,8 +161,13 @@ const TicketHistory = React.forwardRef<HTMLLIElement, Props>(
               </span>
             </p>
 
-            <button className=" text-xs  relative text-muted-foreground hover:text-foreground focus-within:text-foreground  focus-within:pr-5 hover:pr-5 transition-all duration-300 group">
-              View all hitory
+            <button
+              onClick={() => {
+                selectHistory?.(ticketHistory.ticket_id, ticketHistory.id);
+              }}
+              className=" text-xs  relative text-muted-foreground hover:text-foreground focus-within:text-foreground  focus-within:pr-5 hover:pr-5 transition-all duration-300 group"
+            >
+              Show History
               <MoveRight className=" w-3 h-3 3xl:w-4 3xl:h-4  absolute right-3 top-1/2  delay-75 group-hover:delay-0  opacity-0 -translate-y-1/2 group-hover:right-0  group-focus-within:opacity-100  group-focus-within:right-0   group-hover:opacity-100 transition-all duration-300 " />
             </button>
           </div>

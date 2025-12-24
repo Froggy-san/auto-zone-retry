@@ -17,6 +17,7 @@ interface Filters {
   dateFrom?: Date;
   dateTo?: Date;
   searchterm?: { term: string; type: "actor_id" | "ticket_id.client_id" };
+  sort?: "asc" | "desc" | string;
 }
 export default function useInfiniteTicketHistory(filters: Filters) {
   // const searchterm = useDebounce(filters.searchterm, 500);

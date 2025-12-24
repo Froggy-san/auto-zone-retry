@@ -169,6 +169,7 @@ const TicketDetails = ({
   const open = searchParams.get("ticket") ?? undefined;
   const messageId = searchParams.get("messageId") ?? undefined;
   const details = searchParams.get("details") ?? false;
+  const isShowHistory = searchParams.get("showHistory") ?? false;
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const startYRef = useRef(0);
@@ -604,6 +605,13 @@ const TicketDetails = ({
   useEffect(() => {
     if (selectedMessage) handleScrollContainer();
   }, [selectedMessage, handleScrollContainer]);
+
+  const handleOpen = useCallback(
+    (open: boolean) => {
+      dispatch({ type: "set-is-history", payload: open });
+    },
+    [dispatch]
+  );
   // Replaced openDrawer with dispatch
   const openDrawer = () =>
     dispatch({ type: "position", payload: OPEN_POSITION });
@@ -935,7 +943,7 @@ const TicketDetails = ({
                 <div className="pb-32" />
               </div>
             </main>
-            {ticketData && (
+            {ticketData && isAdmin && (
               <ShowTicketHistory
                 internalActivity
                 ticket={ticketData}
@@ -949,9 +957,7 @@ const TicketDetails = ({
                   dispatch({ type: "set-focused-message", payload: messageId });
                 }}
                 handleViewDetails={handleViewDetails}
-                setIsOpen={() =>
-                  dispatch({ type: "set-is-history", payload: !isHistory })
-                }
+                setIsOpen={handleOpen}
                 ticketPriorities={ticketPriorities}
                 ticketStatuses={ticketStatus}
               />

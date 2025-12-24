@@ -442,8 +442,10 @@ body {
   }
 
   .show-hide-scrollbar::-webkit-scrollbar {
-    display: none;
+    /* display: none; */
+    width: 3px;
   }
+
   /* --- The Fading Effects (Masking) --- */
 
   /* 1. FADE BOTH (Scrolled in the middle) */

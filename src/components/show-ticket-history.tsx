@@ -1,5 +1,12 @@
 import { cn } from "@lib/utils";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, History } from "lucide-react";
 import { Button } from "./ui/button";
@@ -18,6 +25,7 @@ import { GiTumbleweed } from "react-icons/gi";
 import Spinner from "./Spinner";
 import { TbMoodEmptyFilled } from "react-icons/tb";
 import { useScrollFade } from "@hooks/use-scroll-fade";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 interface Props {
   isOpen: boolean;
   ticket: Ticket;
@@ -26,7 +34,7 @@ interface Props {
   internalActivity?: boolean;
   className?: string;
   selectedMessage: Message | undefined;
-  setIsOpen: () => void;
+  setIsOpen: (open: boolean) => void;
   handleViewDetails: (ticketId: number, messageId?: number | undefined) => void;
   handleFocusMessage: (messageId: number | null) => void;
   handleSelectMessage: (id: number | null) => void;
@@ -57,26 +65,143 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
       hasNextPage,
       error,
     } = useInfiniteTicketHistory({ ticketId: ticket.id });
-
+    const [node, setNode] = useState<HTMLDivElement | null>(null);
+    const [loadCount, setLoadCount] = useState(0);
     const { ref: inViewElement, inView } = useInView();
-
-    const internalRef = useRef<HTMLDivElement>(null);
-
-    const sliderRef = ref ?? internalRef;
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const params = new URLSearchParams(searchParams);
+    const router = useRouter();
+    const historyId = searchParams.get("historyId")
+      ? Number(searchParams.get("historyId"))
+      : null;
+    const sliderContainerRef = useRef<HTMLDivElement>(null);
+    const historyRefs = useRef<Record<string, HTMLLIElement>>({});
+    const listRef = useRef<HTMLDivElement>(null);
+    // const sliderContainerRef = ref ?? sliderContainerRef;
+    // This exposes the internal DOM node to the parent's ref
+    useImperativeHandle(
+      ref,
+      () => sliderContainerRef.current as HTMLDivElement
+    );
 
     const ticketHistoryById: TicketHistoryType[] = useMemo(() => {
       return data ? data.pages.flatMap((page) => page.items) : [];
     }, [data?.pages]);
 
+    const selectHistory = useCallback(
+      (ticketId: number, ticketHisotryId: number) => {
+        if (ticketHisotryId === historyId) {
+          params.delete(`${ticketHisotryId}`);
+          router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        } else {
+          params.set("ticket", String(ticketId));
+          params.set("historyId", String(ticketHisotryId));
+          router.push(`${pathname}?ticket=${ticket.id}${params.toString()}`, {
+            scroll: false,
+          });
+        }
+      },
+      [router, params, pathname]
+    );
+
+    const setRef = useCallback((el: HTMLLIElement | null, id: number) => {
+      if (el) {
+        historyRefs.current[id] = el;
+      }
+      // Remove the 'delete' part unless you are worried about
+      // memory leaks with thousands of items.
+      //! Keeping the old ref for a moment usually helps stability.
+      else {
+        delete historyRefs.current[id];
+      }
+    }, []);
+
+    //! This hook ensures that if 'ref' is a function or an object,
+    // it gets updated whenever 'sliderContainerRef' changes.
+
+    // useEffect(() => {
+    //   if (!ref) return;
+
+    //   if (typeof ref === "function") {
+    //     ref(sliderContainerRef.current);
+    //   } else {
+    //     (ref as React.MutableRefObject<HTMLDivElement | null>).current = sliderContainerRef.current;
+    //   }
+    // }, [ref]);
     useEffect(() => {
       if (!isFetchingNextPage && hasNextPage && inView) fetchNextPage();
     }, [inView, hasNextPage]);
 
+    useEffect(() => {
+      if (!historyId || !isOpen) return;
+
+      const scrollToTarget = () => {
+        const element = historyRefs.current[historyId];
+
+        if (element) {
+          element.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        } else if (hasNextPage && !isFetchingNextPage) {
+          // If the ID isn't in our refs yet, but more pages exist,
+          // scroll to bottom to trigger 'inView' and fetch more.
+          listRef.current?.scrollTo({
+            top: listRef.current.scrollHeight,
+            behavior: "smooth",
+          });
+          fetchNextPage();
+        }
+      };
+
+      // We use a requestAnimationFrame to ensure the DOM has
+      // actually rendered the new items from the last fetch
+      const timeoutId = setTimeout(scrollToTarget, 200);
+
+      return () => clearTimeout(timeoutId);
+    }, [
+      historyId,
+      isOpen,
+      ticketHistoryById.length, // Trigger when new items are added
+      isFetchingNextPage,
+    ]);
+
+    // useEffect(() => {
+    //   if (historyId) {
+    //     // setIsOpen(true);
+    //     const element = historyRefs.current[historyId];
+
+    //     if (!element && hasNextPage && !isFetchingNextPage) {
+    //       listRef.current?.scrollTo({
+    //         top: listRef.current.scrollHeight,
+    //         behavior: "smooth",
+    //       });
+    //       fetchNextPage();
+    //     }
+    //     element?.scrollIntoView({
+    //       behavior: "smooth",
+    //       block: "center", // Puts the item in the middle of the container
+    //     });
+    //   }
+    // }, [
+    //   historyId,
+    //   setIsOpen,
+    //   isOpen,
+    //   hasNextPage,
+    //   isFetchingNextPage,
+    //   ticketHistoryById.length,
+    // ]);
+
+    useEffect(() => {
+      if (historyId) setIsOpen(true);
+    }, [historyId, setIsOpen]);
+
     if (error) return <ErrorMessage>{`${error}`}</ErrorMessage>;
 
     return (
-      <motion.div
-        ref={sliderRef}
+      <div
+        ref={sliderContainerRef}
         className={cn(
           " w-0     sticky  transition-all  ease-in   rounded-l-3xl  border-l border-y shadow-lg top-1      h-[99vh] ",
           { " w-[400px]": isOpen },
@@ -85,7 +210,7 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
       >
         <div className=" w-full  relative h-full  ">
           <Button
-            onClick={setIsOpen}
+            onClick={() => setIsOpen(!isOpen)}
             variant="secondary"
             className="  absolute top-1/2 bottom-1/2  border z-50  p-0 -left-8  w-7 h-7 rounded-full"
           >
@@ -97,15 +222,20 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
           </Button>
           {isOpen && (
             <div
-              className={cn(
-                " h-full overflow-y-auto px-4 py-6 space-y-6 show-hide-scrollbar"
-              )}
+              ref={listRef}
+              //show-hide-scrollbar
+              className={cn(" h-full relative  p-3   space-y-6 ")}
             >
               {ticketHistoryById.length ? (
-                <ul className="   space-y-4">
+                <ul className=" max-h-full  py-6 px-1.5  overflow-y-auto history-thumb show-hide-scrollbar space-y-4">
                   {ticketHistoryById.map((history) => (
                     <TicketHistory
                       key={history.id}
+                      ref={(element) => {
+                        setRef(element, history.id);
+                      }}
+                      isHistorySelected={history.id === historyId}
+                      selectHistory={selectHistory}
                       internalActivity={internalActivity}
                       selectedMessage={selectedMessage}
                       handleFocusMessage={handleFocusMessage}
@@ -133,10 +263,37 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
             </div>
           )}
         </div>
-      </motion.div>
+      </div>
     );
   }
 );
 export default ShowTicketHistory;
 
 ShowTicketHistory.displayName = "ShowTicketHistory";
+
+/*
+   const measuredRef = useCallback((node: HTMLDivElement | null) => {
+      if (node !== null) {
+        console.log("Element is now in the DOM", node.getBoundingClientRect());
+        setNode(node); // If you need to trigger a re-render, update state
+      }
+    }, []);
+*/
+
+/*
+const measuredRef = useCallback((node: HTMLDivElement | null) => {
+  // Update the forwarded ref so the parent knows about the node
+  if (typeof ref === "function") {
+    ref(node);
+  } else if (ref) {
+    ref.current = node;
+  }
+
+  // Internal Logic: Scroll to specific historyId if it exists
+  if (node && historyId) {
+    const target = node.querySelector(`[data-id="${historyId}"]`);
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+}, [ref, historyId]);
+
+*/

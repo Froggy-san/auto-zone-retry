@@ -147,6 +147,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
 
         <section className="   space-y-12  pb-32">
           <TicketHistoryList
+            ticketCategory={ticketCategories || []}
             ticketPriorities={ticketPriorities || []}
             ticketStatuses={ticketStatus || []}
           />

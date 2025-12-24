@@ -477,7 +477,7 @@ export const TicektHistoryDetials = z.union([
 // The final schema uses a discriminated union for type safety
 export const TicketHistorySchemaStrict = z.object({
   // ... other fields (id, ticket_id, actor_id, created_at)
-  ticket_id: z.string().uuid(), // Foreign key to the ticket
+  ticket_id: z.number(), // Foreign key to the ticket
   actor_id: z.number().nullable(), // The user/admin who took the action
   action: TicketHistoryAction, // Limited actions for simplicity
   details: TicektHistoryDetials,
