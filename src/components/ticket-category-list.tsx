@@ -60,3 +60,4 @@ const TicketCategoryList = React.forwardRef<
   }
 );
 export default TicketCategoryList;
+TicketCategoryList.displayName = "TicketCategoryList";
