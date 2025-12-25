@@ -75,10 +75,11 @@ const TicketHistory = React.forwardRef<HTMLLIElement, Props>(
       <li
         ref={ref}
         onClick={() => {
-          if (!ticketHistory.message_id) return;
-          if (isSelected) {
-            handleSelectMessage?.(null);
-          } else handleSelectMessage?.(ticketHistory.message_id);
+          selectHistory?.(ticketHistory.ticket_id, ticketHistory.id);
+          // if (!ticketHistory.message_id) return;
+          // if (isSelected) {
+          //   handleSelectMessage?.(null);
+          // } else handleSelectMessage?.(ticketHistory.message_id);
         }}
         onMouseEnter={() => {
           if (ticketHistory.message_id)

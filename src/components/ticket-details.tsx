@@ -691,7 +691,7 @@ const TicketDetails = ({
           </div>
 
           {/*          */}
-          <div className=" flex  mt-14">
+          <div className=" flex  flex-col sm:flex-row mt-14">
             <main
               className={cn(
                 " flex flex-col   sm:flex-row  flex-1  max-w-[1000px] mx-auto gap-10  px-4 md:px-10  ",

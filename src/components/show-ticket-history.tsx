@@ -92,17 +92,17 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
     const selectHistory = useCallback(
       (ticketId: number, ticketHisotryId: number) => {
         if (ticketHisotryId === historyId) {
-          params.delete(`${ticketHisotryId}`);
+          params.delete("historyId");
           router.replace(`${pathname}?${params.toString()}`, { scroll: false });
         } else {
           params.set("ticket", String(ticketId));
           params.set("historyId", String(ticketHisotryId));
-          router.push(`${pathname}?ticket=${ticket.id}${params.toString()}`, {
+          router.replace(`${pathname}?${params.toString()}`, {
             scroll: false,
           });
         }
       },
-      [router, params, pathname]
+      [router, params, pathname, historyId]
     );
 
     const setRef = useCallback((el: HTMLLIElement | null, id: number) => {
@@ -164,7 +164,7 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
       historyId,
       isOpen,
       ticketHistoryById.length, // Trigger when new items are added
-      isFetchingNextPage,
+      // isFetchingNextPage,
     ]);
 
     // useEffect(() => {
@@ -246,6 +246,12 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
                       ticketPriorities={ticketPriorities}
                     />
                   ))}
+                  <li
+                    ref={inViewElement}
+                    className=" flex items-center justify-center "
+                  >
+                    {isFetching && <Spinner className="  h-5 w-5 static" />}
+                  </li>
                 </ul>
               ) : (
                 <motion.div className=" text-xs my-auto w-full text-center text-muted-foreground flex flex-col justify-center items-center gap-2">
@@ -253,13 +259,6 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
                   <History className="  w-5 h-5   sm:w-9 sm:h-9" />
                 </motion.div>
               )}
-
-              <div
-                ref={inViewElement}
-                className=" flex items-center justify-center"
-              >
-                {isFetching && <Spinner className="  h-5 w-5 static" />}
-              </div>
             </div>
           )}
         </div>
