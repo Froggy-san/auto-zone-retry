@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, History } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -65,8 +65,7 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
       hasNextPage,
       error,
     } = useInfiniteTicketHistory({ ticketId: ticket.id });
-    const [node, setNode] = useState<HTMLDivElement | null>(null);
-    const [loadCount, setLoadCount] = useState(0);
+
     const { ref: inViewElement, inView } = useInView();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -203,8 +202,8 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
       <div
         ref={sliderContainerRef}
         className={cn(
-          " w-0     sticky  transition-all  ease-in   rounded-l-3xl  border-l border-y shadow-lg top-1      h-[99vh] ",
-          { " w-[400px]": isOpen },
+          "     sticky  transition-all   ease-out     rounded-t-3xl  md:rounded-l-3xl bg-background  border-t border-x md:border-x-0 md:border-t-0 md:border-l md:border-y shadow-lg bottom-0 md:top-1   w-full  h-0    md:w-0  md:h-[99vh] ",
+          { "  h-fit md:!w-[400px]": isOpen },
           className
         )}
       >
@@ -212,7 +211,7 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
           <Button
             onClick={() => setIsOpen(!isOpen)}
             variant="secondary"
-            className="  absolute top-1/2 bottom-1/2  border z-50  p-0 -left-8  w-7 h-7 rounded-full"
+            className="  absolute left-1/2 -translate-x-1/2 rotate-90 md:rotate-0 -top-10 md:top-1/2 md:bottom-1/2 md:-left-8  border z-50  p-0   w-7 h-7 rounded-full"
           >
             <ArrowLeft
               className={cn(" w-4 h-4 transition-all  ease-in duration-300", {
@@ -220,46 +219,66 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
               })}
             />
           </Button>
+
           {isOpen && (
-            <div
+            <motion.div
               ref={listRef}
               //show-hide-scrollbar
               className={cn(" h-full relative  p-3   space-y-6 ")}
             >
-              {ticketHistoryById.length ? (
-                <ul className=" max-h-full  py-6 px-1.5  overflow-y-auto history-thumb show-hide-scrollbar space-y-4">
-                  {ticketHistoryById.map((history) => (
-                    <TicketHistory
-                      key={history.id}
-                      ref={(element) => {
-                        setRef(element, history.id);
-                      }}
-                      isHistorySelected={history.id === historyId}
-                      selectHistory={selectHistory}
-                      internalActivity={internalActivity}
-                      selectedMessage={selectedMessage}
-                      handleFocusMessage={handleFocusMessage}
-                      handleSelectMessage={handleSelectMessage}
-                      handleViewDetails={handleViewDetails}
-                      ticketHistory={history}
-                      ticketStatuses={ticketStatuses}
-                      ticketPriorities={ticketPriorities}
-                    />
-                  ))}
-                  <li
-                    ref={inViewElement}
-                    className=" flex items-center justify-center "
+              <AnimatePresence mode="wait">
+                {ticketHistoryById.length ? (
+                  <motion.ul
+                    key={`list`}
+                    initial={{
+                      y: 40,
+                      opacity: 0,
+                    }}
+                    animate={{
+                      y: 0,
+                      opacity: 1,
+                    }}
+                    exit={{ y: 40, opacity: 0 }}
+                    transition={{ ease: "easeOut", delay: 0.1 }}
+                    className=" flex flex-row md:flex-col justify-stretch gap-4 !h-full   max-h-full  py-3 px-1.5  overflow-y-auto history-thumb show-hide-scrollbar "
                   >
-                    {isFetching && <Spinner className="  h-5 w-5 static" />}
-                  </li>
-                </ul>
-              ) : (
-                <motion.div className=" text-xs my-auto w-full text-center text-muted-foreground flex flex-col justify-center items-center gap-2">
-                  <p className="  text-sm sm:text-lg">No history found.</p>
-                  <History className="  w-5 h-5   sm:w-9 sm:h-9" />
-                </motion.div>
-              )}
-            </div>
+                    {ticketHistoryById.map((history) => (
+                      <TicketHistory
+                        key={history.id}
+                        className="  min-w-[290px] xs:min-w-[350px] "
+                        ref={(element) => {
+                          setRef(element, history.id);
+                        }}
+                        isHistorySelected={history.id === historyId}
+                        selectHistory={selectHistory}
+                        internalActivity={internalActivity}
+                        selectedMessage={selectedMessage}
+                        handleFocusMessage={handleFocusMessage}
+                        handleSelectMessage={handleSelectMessage}
+                        handleViewDetails={handleViewDetails}
+                        ticketHistory={history}
+                        ticketStatuses={ticketStatuses}
+                        ticketPriorities={ticketPriorities}
+                      />
+                    ))}
+                    <li
+                      ref={inViewElement}
+                      className=" flex items-center   w-[20px] sm:w-[unset] justify-center "
+                    >
+                      {isFetching && <Spinner className="  h-5 w-5 static" />}
+                    </li>
+                  </motion.ul>
+                ) : (
+                  <motion.div
+                    key={"not-found"}
+                    className=" text-xs my-auto w-full text-center text-muted-foreground flex flex-col justify-center items-center gap-2"
+                  >
+                    <p className="  text-sm sm:text-lg">No history found.</p>
+                    <History className="  w-5 h-5   sm:w-9 sm:h-9" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           )}
         </div>
       </div>

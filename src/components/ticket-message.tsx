@@ -3,6 +3,7 @@ import { cn } from "@lib/utils";
 import { format } from "date-fns";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, HTMLMotionProps, motion } from "framer-motion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,7 +39,7 @@ import Spinner from "./Spinner";
 import { useToast } from "@hooks/use-toast";
 import SuccessToastDescription, { ErorrToastDescription } from "./toast-items";
 import ViewCarousel from "./view-carousel";
-import { downloadFileFromUrl } from "@lib/client-helpers";
+import { downloadFileFromUrl, getInitials } from "@lib/client-helpers";
 import { FiExternalLink } from "react-icons/fi";
 import { CgInternal } from "react-icons/cg";
 import { deleteAttachment } from "@lib/services/ticket";
@@ -215,11 +216,17 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
       >
         <div className=" flex items-center gap-4  mb-6 ">
           {message.client?.picture && (
-            <img
-              src={message.client?.picture}
-              alt="Profile-picture"
-              className=" w-10 h-10 rounded-full "
-            />
+            <Avatar>
+              <AvatarImage src={message.client.picture} />
+              <AvatarFallback>
+                {getInitials(message.client.name)}
+              </AvatarFallback>
+            </Avatar>
+            // <img
+            //   src={message.client?.picture}
+            //   alt="Profile-picture"
+            //   className=" w-10 h-10 rounded-full "
+            // />
           )}
           <div className="flex flex-col">
             <span className="font-semibold">{message.client?.name}</span>
