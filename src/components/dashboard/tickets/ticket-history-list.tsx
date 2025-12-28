@@ -46,6 +46,7 @@ import { formatDate } from "date-fns";
 import { Calendar } from "@components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import TicketCategoryList from "@components/ticket-category-list";
+import HoverPopCard from "@components/hover-pop-card";
 
 interface Props {
   selectedMessage?: Message | undefined;
@@ -53,10 +54,20 @@ interface Props {
   ticketCategory: TicketCategory[];
   ticketPriorities: TicketPriority[];
 }
-type SearchType = "actor_id" | "ticket_id.client_id";
+type SearchType =
+  | "default"
+  | "actor_id"
+  | "ticket_id.client_id"
+  | "id"
+  | "ticket_id"
+  | "actor_id";
 const SELECT_ITEMS: { label: string; value: SearchType }[] = [
+  { label: "Default", value: "default" },
   { label: "Actor", value: "actor_id" },
   { label: "Ticket", value: "ticket_id.client_id" },
+  { label: "Id", value: "id" },
+  { label: "Ticket Id", value: "ticket_id" },
+  // { label: "Actor Id", value: "actor_id" },
 ];
 const TicketHistoryList = ({
   ticketPriorities,
@@ -65,7 +76,7 @@ const TicketHistoryList = ({
   ticketCategory,
 }: Props) => {
   const [searchterm, setSearchTerm] = React.useState("");
-  const [type, setType] = React.useState<SearchType>("ticket_id.client_id");
+  const [type, setType] = React.useState<SearchType>("default");
   const [selectedClient, setSelectedClient] = React.useState<null | Client>(
     null
   );
@@ -255,91 +266,98 @@ function Filters({
     }
   }, [isClientOpen, isCategoryOpen]);
   return (
-    <div className="  flex items-center justify-between w-[95%] gap-3 px-5 py-1.5  mx-auto rounded-full  border border-border/70 shadow-md ">
+    <div className="  flex items-center justify-between w-[95%] gap-3 px-4 py-1.5  mx-auto rounded-full  border border-border/70 shadow-md ">
       {" "}
-      <HoverCard
-        open={isClientOpen}
-        onOpenChange={setClientOpen}
-        openDelay={100}
-        closeDelay={200}
-      >
-        <HoverCardTrigger>
-          <Button
-            variant="outline"
-            onClick={() => setClientOpen(true)}
-            className={cn(" p-1 w-7 h-7", isThereSelectedClient && "bg-accent")}
-          >
-            <PiPerson className=" w-5 h-5" />
-          </Button>
-        </HoverCardTrigger>
-        <HoverCardContent className="   sm:w-80">
-          <InfiniteClientsList
-            ref={clientInputRef}
-            setOpen={setClientOpen}
-            selectedClient={selectedClient}
-            onVlaueChange={setSelectedClient}
-          />
-        </HoverCardContent>
-      </HoverCard>
-      <HoverCard openDelay={100} closeDelay={200}>
-        <HoverCardTrigger asChild>
-          <Button variant="outline" className=" p-1 w-7 h-7">
-            <CalendarDays className=" w-5 h-5" />
-          </Button>
-        </HoverCardTrigger>
-        <HoverCardContent
+      <div className=" flex items-center  gap-1">
+        <HoverPopCard
+          open={isClientOpen}
+          onOpenChange={setClientOpen}
+          className="   sm:w-80"
+          trigger={
+            <Button
+              variant="outline"
+              className={cn(
+                " p-1 w-7 h-7",
+                isThereSelectedClient && "bg-accent"
+              )}
+            >
+              <PiPerson className=" w-5 h-5" />
+            </Button>
+          }
+          content={
+            <InfiniteClientsList
+              ref={clientInputRef}
+              setOpen={setClientOpen}
+              selectedClient={selectedClient}
+              onVlaueChange={setSelectedClient}
+            />
+          }
+        />
+
+        <HoverPopCard
+          open={isDateOpen}
+          onOpenChange={setDateOpen}
           className="w-auto p-0 max-h-[50vh] overflow-y-auto"
-          align="start"
-        >
-          <Calendar
-            className=" !text-xs"
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={setDate}
-            numberOfMonths={2}
-          />
-          <div className=" px-4 py-2 text-center">
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {formatDate(date.from, "LLL dd, y")} -{" "}
-                  {formatDate(date.to, "LLL dd, y")}
-                </>
-              ) : (
-                formatDate(date.from, "LLL dd, y")
-              )
-            ) : (
-              <span>Pick a date</span>
-            )}
-          </div>
-        </HoverCardContent>
-      </HoverCard>
-      <HoverCard
-        open={isCategoryOpen}
-        onOpenChange={setCategoryOpen}
-        openDelay={100}
-        closeDelay={200}
-      >
-        <HoverCardTrigger>
-          <Button
-            variant="outline"
-            className={cn(" p-1 w-7 h-7", isThereSelectedClient && "bg-accent")}
-          >
-            <ListTree className=" w-5 h-5" />
-          </Button>
-        </HoverCardTrigger>
-        <HoverCardContent className="   sm:w-80">
-          <TicketCategoryList
-            onSelect={setCategory}
-            setOpen={setCategoryOpen}
-            value={selectedCategory}
-            ticketCategories={ticketCategories}
-            ref={categoryInputRef}
-          />
-        </HoverCardContent>
-      </HoverCard>
+          trigger={
+            <Button variant="outline" className=" p-1 w-7 h-7">
+              <CalendarDays className=" w-5 h-5" />
+            </Button>
+          }
+          content={
+            <>
+              <Calendar
+                className=" !text-xs"
+                initialFocus
+                mode="range"
+                defaultMonth={date?.from}
+                selected={date}
+                onSelect={setDate}
+                numberOfMonths={2}
+              />
+              <div className=" px-4 py-2 text-center">
+                {date?.from ? (
+                  date.to ? (
+                    <>
+                      {formatDate(date.from, "LLL dd, y")} -{" "}
+                      {formatDate(date.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    formatDate(date.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>Pick a date</span>
+                )}
+              </div>
+            </>
+          }
+        />
+
+        <HoverPopCard
+          open={isCategoryOpen}
+          onOpenChange={setCategoryOpen}
+          className="   sm:w-80"
+          trigger={
+            <Button
+              variant="outline"
+              className={cn(
+                " p-1 w-7 h-7",
+                isThereSelectedClient && "bg-accent"
+              )}
+            >
+              <ListTree className=" w-5 h-5" />
+            </Button>
+          }
+          content={
+            <TicketCategoryList
+              onSelect={setCategory}
+              setOpen={setCategoryOpen}
+              value={selectedCategory}
+              ticketCategories={ticketCategories}
+              ref={categoryInputRef}
+            />
+          }
+        />
+      </div>
       <div className=" h-7 relative flex-1 flex items-center  border border-input rounded-full transition-all focus-within:ring-1 ring-ring  ">
         <Input
           ref={inputRef}

@@ -27,7 +27,14 @@ interface GetTicketProps {
   sort?: "asc" | "desc" | string;
   searchterm?: {
     term: string;
-    type: "actor_id" | "ticket_id.client_id" | "admin";
+    type:
+      | "default"
+      | "actor_id"
+      | "ticket_id.client_id"
+      | "id"
+      | "ticket_id"
+      | "actor_id"
+      | "admin";
   };
 }
 
@@ -57,18 +64,18 @@ export async function getTicketHistory({
   // 1. Direct Filters on 'ticket_history'
   if (filters.searchterm && filters.searchterm.term.length > 0) {
     // Use dot notation to filter the inner-joined tables
-
+    const term = filters.searchterm.term;
     if (
       filters.searchterm.type === "ticket_id.client_id" ||
       filters.searchterm.type === "actor_id"
     ) {
+      query = query.or(`name.ilike.%${term}%,email.ilike.%${term}%`, {
+        foreignTable: filters.searchterm.type,
+      });
+    } else
       query = query.or(
-        `name.ilike.%${filters.searchterm.term}%,email.ilike.%${filters.searchterm.term}%`,
-        {
-          foreignTable: filters.searchterm.type,
-        }
+        `action.ilike.%${term}%,details->>reason.ilike.%${term}%,details->>message_content.ilike.%${term}%,details->>message_content.ilike.%${term}%,details->>old_message_content.ilike.%${term}%,details->>new_status.ilike.%${term}%,details->>old_status.ilike.%${term}%`
       );
-    }
   }
   if (filters.id) query = query.eq("id", filters.id);
   if (filters.action) query = query.ilike("action", `%${filters.action}%`);

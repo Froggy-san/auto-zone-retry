@@ -25,7 +25,7 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(index || 0);
   const [count, setCount] = React.useState(0);
-  console.log(current, "CURR");
+
   React.useEffect(() => {
     if (!api) {
       return;
@@ -63,6 +63,9 @@ const ViewCarousel = ({ images, index, closeFunction }: ViewCarouselProps) => {
 
   return createPortal(
     <motion.div
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3, type: "spring" }}
       key="container"

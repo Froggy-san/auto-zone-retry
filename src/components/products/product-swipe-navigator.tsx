@@ -14,8 +14,8 @@ interface ProductSwipeNavigatorProps {
   filters: string;
 }
 
-const SWIPE_THRESHOLD = 70; // Minimum pixels to count as a swipe
-const HUE_MAX = 130;
+const SWIPE_THRESHOLD = 170; // Minimum pixels to count as a swipe
+const HUE_MAX = 150;
 const ARROW_MAX_MOVEMENT = 300; // Max pixels the arrow will move during a swipe
 
 export function ProductSwipeNavigator({
@@ -35,8 +35,8 @@ export function ProductSwipeNavigator({
   const deltaX = touchCurrentX - touchStartX;
 
   // Determine the translation for the arrows
-  let leftArrowTranslateX = -45;
-  let rightArrowTranslateX = 45;
+  let leftArrowTranslateX = -3000;
+  let rightArrowTranslateX = 3000;
   let rightArrowHue = 100;
   let leftArrowHue = 100;
 
@@ -45,12 +45,12 @@ export function ProductSwipeNavigator({
     if (deltaX > 0) {
       // Swiping right
       leftArrowTranslateX = Math.min(deltaX, SWIPE_THRESHOLD); // Move left arrow to the right
-      leftArrowHue = Math.min(deltaX + 70, HUE_MAX);
+      leftArrowHue = Math.min(deltaX + 2, HUE_MAX);
       //   rightArrowTranslateX = Math.max(0, -deltaX + SWIPE_THRESHOLD); // Keep right arrow at 0 or push it slightly left then back
     } else if (deltaX < 0) {
       // Swiping left
       rightArrowTranslateX = Math.max(deltaX, -SWIPE_THRESHOLD); // Move right arrow to the left
-      rightArrowHue = Math.max(deltaX - 70, -HUE_MAX);
+      rightArrowHue = Math.max(deltaX - 2, -HUE_MAX);
       //   leftArrowTranslateX = Math.min(0, -deltaX - SWIPE_THRESHOLD); // Keep left arrow at 0 or push it slightly right then back
     }
   }

@@ -504,7 +504,10 @@ const TicketDetails = ({
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
       if (!startYRef.current || e.touches.length === 0) return;
-      // e.preventDefault();
+      // Prevent the browser from scrolling the background or refreshing
+      if (e.cancelable) {
+        e.preventDefault();
+      }
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - startYRef.current;
 
@@ -575,7 +578,7 @@ const TicketDetails = ({
     positionYRef.current = positionY;
 
     // Attach listeners to the global window
-    window.addEventListener("touchmove", handleTouchMove);
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
     window.addEventListener("touchend", handleTouchEnd);
 
     // Optional: Add e.preventDefault() here if vertical scrolling is an issue during drag start
@@ -620,7 +623,7 @@ const TicketDetails = ({
     <div
       ref={containerRef}
       className={cn(
-        "w-full h-full overflow-y-auto  fixed left-0 top-0 transition-all ease-out duration-700 bg-background border overflow-x-hidden  z-50",
+        "w-full h-full overflow-y-auto  fixed left-0 top-0 transition-all ease-out duration-700 bg-background sm:border overflow-x-hidden  z-50  overscroll-contain touch-none",
         className
       )}
       style={{

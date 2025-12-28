@@ -74,12 +74,24 @@ const TicketHistory = React.forwardRef<HTMLLIElement, Props>(
     return (
       <li
         ref={ref}
-        onClick={() => {
-          selectHistory?.(ticketHistory.ticket_id, ticketHistory.id);
+        onMouseDown={() => {
+          if (internalActivity)
+            selectHistory?.(ticketHistory.ticket_id, ticketHistory.id);
           // if (!ticketHistory.message_id) return;
           // if (isSelected) {
           //   handleSelectMessage?.(null);
           // } else handleSelectMessage?.(ticketHistory.message_id);
+        }}
+        onTouchStart={(e) => {
+          e.stopPropagation();
+
+          if (ticketHistory.message_id)
+            handleFocusMessage?.(ticketHistory.message_id);
+        }}
+        onTouchEnd={(e) => {
+          e.stopPropagation();
+
+          if (ticketHistory.message_id) handleFocusMessage?.(null);
         }}
         onMouseEnter={() => {
           if (ticketHistory.message_id)
@@ -221,7 +233,12 @@ export function HistoryDetails({
   const displayEntries = isExpanded ? entries : previewEntries;
 
   return (
-    <div className="mt-3 space-y-2">
+    <div
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+      className="mt-3 space-y-2"
+    >
       <div className="rounded-lg bg-muted/50 p-3 space-y-2">
         {displayEntries.map(([key, value]) => {
           const isStatusChange =
@@ -250,7 +267,10 @@ export function HistoryDetails({
 
       {hasMore && (
         <button
-          onClick={() => setIsExpanded(!isExpanded)}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
           className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
         >
           {isExpanded ? (

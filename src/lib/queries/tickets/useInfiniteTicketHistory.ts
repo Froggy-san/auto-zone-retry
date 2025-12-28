@@ -16,7 +16,16 @@ interface Filters {
   ticketId?: number;
   dateFrom?: Date;
   dateTo?: Date;
-  searchterm?: { term: string; type: "actor_id" | "ticket_id.client_id" };
+  searchterm?: {
+    term: string;
+    type:
+      | "default"
+      | "actor_id"
+      | "ticket_id.client_id"
+      | "id"
+      | "ticket_id"
+      | "actor_id";
+  };
   sort?: "asc" | "desc" | string;
 }
 export default function useInfiniteTicketHistory(filters: Filters) {
