@@ -636,7 +636,7 @@ const TicketDetails = ({
     >
       <div
         className={cn(
-          "h-10 w-full flex justify-center items-center cursor-grab ",
+          "h-10 w-full flex justify-center items-center cursor-grab  touch-none",
           isDragging ? "cursor-grabbing" : "cursor-grab"
         )}
         onTouchStart={handleTouchStart}
