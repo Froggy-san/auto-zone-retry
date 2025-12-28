@@ -623,7 +623,7 @@ const TicketDetails = ({
     <div
       ref={containerRef}
       className={cn(
-        "w-full h-full overflow-y-auto  fixed left-0 top-0 transition-all ease-out duration-700 bg-background sm:border overflow-x-hidden  z-50   touch-none",
+        "w-full h-full overflow-y-auto  fixed left-0 top-0 transition-all ease-out duration-700 bg-background sm:border overflow-x-hidden  z-50  overscroll-contain ",
         className
       )}
       style={{
