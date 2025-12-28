@@ -624,10 +624,12 @@ const TicketDetails = ({
       ref={containerRef}
       className={cn(
         "w-full h-full overflow-y-auto  fixed left-0 top-0 transition-all ease-out duration-700 bg-background sm:border overflow-x-hidden  z-50  overscroll-contain ",
+        { "overflow-hidden": isDragging },
         className
       )}
       style={{
         transform: `translateY(${positionY}%)`,
+
         // Disable transition during drag for smooth tracking
         transition: isDragging ? "none" : undefined,
       }}
