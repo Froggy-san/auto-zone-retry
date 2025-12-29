@@ -70,6 +70,7 @@ function CarBrand({
     >
       {carBrand.logo ? (
         <img
+          loading="lazy"
           src={carBrand.logo}
           alt={carBrand.name}
           className="  h-20 object-contain group-hover:scale-110   transition-all duration-200 ease-out"

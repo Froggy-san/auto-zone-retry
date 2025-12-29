@@ -29,6 +29,7 @@ import React, { useEffect, useState } from "react";
 import { useToast } from "@hooks/use-toast";
 import { ErorrToastDescription } from "@components/toast-items";
 import UserUi from "@components/user-ui";
+import useCurrUser from "@lib/queries/useCurrUser";
 
 <ArrowLeftToLine />;
 <ArrowRightToLine />;
@@ -46,7 +47,7 @@ const SideBar = ({ links }: Props) => {
   const [lock, setLock] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
-
+  const { user, error } = useCurrUser();
   // useEffect(() => {
   //   const body = document.querySelector("body");
   //   if (!menuOpen && !collapse && !lock) setCollapse(true);

@@ -177,7 +177,7 @@ const VideoSlide: React.FC<VideoSlideProps> = ({ index, i, url }) => {
       ref={videoRef as any} // Framer Motion uses a complex ref type, using 'as any' often resolves TS issues here
       controls
       playsInline
-      src={url}
+      src={url.startsWith("blob") ? url.split(" ")[0] : url}
       initial={{ scale: 1.1, opacity: 0 }}
       animate={{
         scale: index === i ? 1 : 0.95,

@@ -130,6 +130,7 @@ function SubCategoryList({
           >
             {item.image ? (
               <img
+                loading="lazy"
                 src={item.image}
                 alt={item.name}
                 className="  h-20 block  object-contain"

@@ -80,8 +80,7 @@ const FullImagesGallery = ({
                 {" "}
                 <video
                   playsInline
-                  key={i}
-                  src={url}
+                  src={url.startsWith("blob") ? url.split(" ")[0] : url}
                   className=" w-full h-full object-cover absolute inset-0 origin-top  z-10  blur-lg"
                 >
                   <source src={url} />
@@ -89,8 +88,7 @@ const FullImagesGallery = ({
                 <video
                   controls={false}
                   playsInline
-                  key={i}
-                  src={url}
+                  src={url.startsWith("blob") ? url.split(" ")[0] : url}
                   className={cn(" max-w-full  max-h-full object-contain z-30")}
                 >
                   <source src={url} />
@@ -115,7 +113,6 @@ const FullImagesGallery = ({
                 <img
                   loading="lazy"
                   src={url}
-                  key={i}
                   className={cn(" max-w-full  max-h-full object-contain z-30")}
                 />
               </div>
@@ -124,9 +121,9 @@ const FullImagesGallery = ({
           <div className=" absolute  flex inset-0 w-full h-full">
             {images.map((image, i) => (
               <div
+                key={i}
                 onClick={() => setViewedIndex(i)}
                 onMouseOver={() => setViewedImage(i)}
-                key={i}
                 //  border bg-red-300/20
                 className=" h-full cursor-pointer   z-50"
                 style={{ width: `calc( 100% / ${images.length})` }}

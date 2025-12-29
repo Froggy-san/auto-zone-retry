@@ -965,7 +965,7 @@ export interface CategoryProps {
   id: number;
   name: string;
   created_at: string;
-  image: string | null;
+  image?: string | null;
   productTypes: ProductType[];
 }
 

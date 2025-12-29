@@ -27,7 +27,9 @@ import Link from "next/link";
 import { cn } from "@lib/utils";
 import { useParams, usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@lib/client-helpers";
+import { TbMessageReport } from "react-icons/tb";
 interface Props {
   collapse?: boolean;
   lock?: boolean;
@@ -98,14 +100,14 @@ const UserUi = ({
           <Button
             variant="ghost"
             size="sm"
-            className={cn(" w-full gap-2 mb-1 ", {
+            className={cn(" w-full gap-2 mb-1 h-10", {
               "w-fit": collapse,
             })}
           >
-            <img
-              className=" w-8 h-8 rounded-full object-cover object-top"
-              src={image}
-            />
+            <Avatar className=" w-8 h-8">
+              <AvatarImage src={image} />
+              <AvatarFallback>{getInitials(name)}</AvatarFallback>
+            </Avatar>
             {!collapse && (
               <motion.span
                 initial={{ opacity: 0 }}
@@ -148,6 +150,17 @@ const UserUi = ({
               Personal details
               <DropdownMenuShortcut>
                 <PersonStanding className=" w-4 h-4" />
+              </DropdownMenuShortcut>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={loading || isSettings} asChild>
+            <Link
+              href={`/user/${userData.id}/complaints`}
+              className=" flex items-center justify-between w-full"
+            >
+              Complanints
+              <DropdownMenuShortcut>
+                <TbMessageReport className=" w-4 h-4" />
               </DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>

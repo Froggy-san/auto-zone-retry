@@ -80,22 +80,19 @@ type HandleNumber = (
   values?: CurrencyInputOnChangeValues,
   onChange?: React.Dispatch<React.SetStateAction<number>>
 ) => void;
+
 interface StepOneProps {
   form: Form;
   control: Control<z.infer<typeof ProductsSchema>>;
-
   isLoading: boolean;
   categories: CategoryProps[];
-
   productBrand: ProductBrand[];
   isMainImage: number | ProductImage | null;
   mediaUrls: ProductImage[];
   productToEdit?: ProductById;
   currStep: number[];
-
   carMaker: CarMakerData | undefined;
   handleDeleteMedia(productImage?: ProductImage): void;
-
   setIsMainImage: React.Dispatch<
     React.SetStateAction<number | ProductImage | null>
   >;

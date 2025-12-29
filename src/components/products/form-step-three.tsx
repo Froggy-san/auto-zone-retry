@@ -46,7 +46,9 @@ function StepThree({
 }: StepThreeProps) {
   const [step, direction] = currStep;
 
-  const images = formValues.images.map((image) => image.preview);
+  const images = formValues.images.map((image) =>
+    image.type.startsWith("video") ? `${image.preview} .mp4` : image.preview
+  );
   const urls = mediaUrls.map((image) => image.imageUrl);
   const viewedImages = [...urls, ...images];
   const categories = categoriesArr.find(

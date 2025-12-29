@@ -22,7 +22,7 @@ interface ComboBoxProps {
   setParam?: (number: number, name: string, initalValue: number) => void;
   paramName?: string;
   value: number;
-  options: { id: number; name: string }[];
+  options: { id: number; name: string; image?: string | null }[];
   disabled?: boolean;
   placeholder?: string;
   searchTerm?: string;
@@ -46,6 +46,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
 }) => {
   const [open, setOpen] = React.useState(false);
   const text = placeholder ? placeholder : "Select option...";
+  const selectedValue = options.find((option) => option.id === value);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -59,9 +60,16 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
             className
           )}
         >
-          <p className="text-wrap break-all text-left ">
+          <p className="text-wrap break-all flex items-center gap-2 text-left ">
             {" "}
-            {value ? options.find((option) => option.id === value)?.name : text}
+            {selectedValue?.image && (
+              <img
+                loading="lazy"
+                className="  max-w-16 h-7   object-contain"
+                src={selectedValue?.image}
+              />
+            )}
+            {selectedValue ? selectedValue.name : text}
           </p>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -79,6 +87,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
               {options?.map((option) => (
                 <CommandItem
                   key={option.id}
+                  className=" gap-2"
                   value={option.name + String(option.id)} // to avoid selecting two or more items that has the same name proprty.
                   onSelect={() => {
                     setValue?.(option.id === value ? 0 : option.id);
@@ -90,10 +99,17 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "mr-1 h-4 w-4",
                       value === option.id ? "opacity-100" : "opacity-0"
                     )}
                   />
+                  {option.image && (
+                    <img
+                      loading="lazy"
+                      className=" w-10 h-10   object-contain"
+                      src={option.image}
+                    />
+                  )}
                   {option.name}
                 </CommandItem>
               ))}

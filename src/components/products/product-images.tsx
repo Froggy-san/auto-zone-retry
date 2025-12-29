@@ -87,6 +87,7 @@ const ProductImages = ({
             </video>
           ) : (
             <img
+              loading="lazy"
               src={url}
               key={i}
               className={cn(

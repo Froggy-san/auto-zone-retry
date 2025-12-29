@@ -189,7 +189,11 @@ export function MultiFileUploader({
                   <X size={15} />
                 </Button>
                 {file.type.startsWith("video/") ? (
-                  <video key={i} src={file.preview} className="media-file ">
+                  <video
+                    key={i}
+                    src={file.preview}
+                    className="media-file      max-h-[250px] sm:max-h-[120px]"
+                  >
                     <source src={file.preview} type={file.type} />
                   </video>
                 ) : (

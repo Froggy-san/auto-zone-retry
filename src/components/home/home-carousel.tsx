@@ -98,7 +98,7 @@ export function HomeCarousel({
 }) {
   const [api, setApi] = React.useState<CarouselApi>();
   const [currSlide, setCurrSlide] = React.useState(0);
-  console.log(currSlide, "CURR");
+
   const {
     prevBtnDisabled,
     nextBtnDisabled,
@@ -142,6 +142,7 @@ export function HomeCarousel({
                 <Card className=" w-full h-full  shadow-none  border-none relative  overflow-hidden  bg-cover bg-center rounded-none sm:rounded-xl">
                   {item.image && (
                     <Image
+                      loading="lazy"
                       src={item.image}
                       alt={`${item.header} image`}
                       className={` object-cover object-bottom  h-full   w-full  max-w-full absolute left-0 top-0  mask-accent   ${

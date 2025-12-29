@@ -19,6 +19,7 @@ const Category = ({
     >
       {category.image ? (
         <img
+          loading="lazy"
           src={category.image}
           alt={`${category.name} image`}
           className="  h-20 sm:h-24 block  object-contain"

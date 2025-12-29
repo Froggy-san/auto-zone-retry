@@ -266,7 +266,7 @@ function Filters({
     }
   }, [isClientOpen, isCategoryOpen]);
   return (
-    <div className="  flex items-center justify-between w-[95%] gap-3 px-4 py-1.5  mx-auto rounded-full  border border-border/70 shadow-md ">
+    <div className="  flex items-center justify-between  w-full sm:w-[95%] gap-1 px-1.5 sm:px-4 py-1.5  mx-auto rounded-full  border border-border/70 shadow-md ">
       {" "}
       <div className=" flex items-center  gap-1">
         <HoverPopCard
@@ -376,7 +376,7 @@ function Filters({
               }, 100);
           }}
         >
-          <SelectTrigger className=" w-fit gap-1 text-xs mr-1   border-none h-[80%] ">
+          <SelectTrigger className=" w-fit gap-1  text-[10px] xs:text-xs mr-1 p-0 pl-1 sm:px-2 sm:py-1.5  border-none h-[80%] ">
             <SelectValue placeholder="Seach by" />
           </SelectTrigger>
           <SelectContent>
@@ -391,7 +391,7 @@ function Filters({
       <Button
         variant="outline"
         size="sm"
-        className=" gap-1 text-xs  h-7"
+        className=" gap-1  w-fit px-1.5 !py-0.5 text-[9px] xs:text-xs  h-7"
         onClick={() => {
           setSortBy(sortBy === "asc" ? "desc" : "asc");
         }}
