@@ -11,9 +11,11 @@ import { Button } from "@components/ui/button";
 import Link from "next/link";
 import { Store } from "lucide-react";
 
-const STRIPE_PUBLIC_KEY = process.env.PUBLIC_STRIPE_PUBLIC_KEY;
+const STRIPE_PUBLIC_KEY = process.env.NEXT_PUBLIC_STRIPE_KEY;
+console.log(STRIPE_PUBLIC_KEY, "STRIMG KEY");
 if (STRIPE_PUBLIC_KEY === undefined) throw new Error("something went wrong.");
 const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
+console.log(stripePromise, "STRIPE R");
 const Stripe = () => {
   const amount = useSelector(getTotalCartPrices);
 

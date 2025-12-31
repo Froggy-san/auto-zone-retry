@@ -1,7 +1,13 @@
 import { Attachment, Message, User } from "@lib/types";
 import { cn } from "@lib/utils";
 import { format } from "date-fns";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { AnimatePresence, HTMLMotionProps, motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -90,7 +96,19 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
     const [loadingIds, setLoadingIds] = useState<number[]>([]);
     const [open, setOpen] = useState(false);
     const { toast } = useToast();
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    function handleTouchStart() {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+      timeoutRef.current = setTimeout(() => {
+        setOpen(true);
+      }, 1000);
+    }
+
+    function handleTouchEnd() {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    }
     const images = useMemo(
       () =>
         message.attachments
@@ -197,6 +215,8 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
             setFocusedMessage(null);
           }
         }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 1.5, opacity: 0 }}
         className={cn(
@@ -362,8 +382,8 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
               </AnimatePresence>
               <AnimatePresence mode="wait">
                 <motion.span
-                  key={`word-${isRetrying}`}
                   layout
+                  key={`word-${isRetrying}`}
                   initial={{ y: 10, opacity: 0.2 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
@@ -537,7 +557,21 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
   ) => {
     const [menuOpen, setMenuOpen] = useState(false);
     // const [isLoading, setIsLoading] = useState(false);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    function handleTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+      e.stopPropagation();
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+      timeoutRef.current = setTimeout(() => {
+        setMenuOpen(true);
+      }, 1000);
+    }
+
+    function handleTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
+      e.stopPropagation();
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    }
     return (
       <div
         {...props}
@@ -547,11 +581,8 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
           if (VIEW_TYPES.includes(attachment.file_type.split("/")[0]))
             handleSelectFile?.();
         }}
-        onTouchStart={() => {
-          setTimeout(() => {
-            setMenuOpen(true);
-          }, 300);
-        }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         className={cn(
           "relative  media-container focus:border-4   transition-all ",
           { "  animate-pulse pointer-events-none": isLoading },
@@ -602,7 +633,7 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
                 handleDownloadFile();
               }}
               variant="secondary"
-              className=" p-0 absolute media-container-menu-btn right-1 top-1  shadow-md   w-7 h-7 rounded-full"
+              className=" p-0 absolute media-container-download right-1 top-1  shadow-md   w-7 h-7 rounded-full"
             >
               {" "}
               <Download className=" w-4 h-4" />

@@ -65,7 +65,7 @@ const SELECT_ITEMS: { label: string; value: SearchType }[] = [
   { label: "Default", value: "default" },
   { label: "Actor", value: "actor_id" },
   { label: "Ticket", value: "ticket_id.client_id" },
-  { label: "Id", value: "id" },
+  // { label: "Id", value: "id" },
   { label: "Ticket Id", value: "ticket_id" },
   // { label: "Actor Id", value: "actor_id" },
 ];
@@ -93,11 +93,13 @@ const TicketHistoryList = ({
     isFetching,
     hasNextPage,
   } = useInfiniteTicketHistory({
-    searchterm: { term: debouncedValue, type },
+    searchterm:
+      type !== "ticket_id" ? { term: debouncedValue, type } : undefined,
     clientId: selectedClient?.id,
     dateFrom: date?.from,
     dateTo: date?.to,
     ticketCategory_id: category?.id,
+    ticketId: type === "ticket_id" ? Number(debouncedValue) : undefined,
     sort: sortBy,
   });
   // dashboard/tickets?ticket=41
@@ -249,6 +251,7 @@ function Filters({
   const categoryInputRef = useRef<HTMLInputElement>(null);
   const clientInputRef = useRef<HTMLInputElement>(null);
   const isThereSelectedClient = selectedClient !== null;
+  const isId = type === "ticket_id";
   useEffect(() => {
     if (isClientOpen) {
       if (clientInputRef) {
@@ -265,6 +268,7 @@ function Filters({
       }
     }
   }, [isClientOpen, isCategoryOpen]);
+
   return (
     <div className="  flex items-center justify-between  w-full sm:w-[95%] gap-1 px-1.5 sm:px-4 py-1.5  mx-auto rounded-full  border border-border/70 shadow-md ">
       {" "}
@@ -359,12 +363,19 @@ function Filters({
         />
       </div>
       <div className=" h-7 relative flex-1 flex items-center  border border-input rounded-full transition-all focus-within:ring-1 ring-ring  ">
+        {isId && (
+          <span className="  text-xs text-muted-foreground absolute left-2 top-1/2 -translate-y-1/2">
+            #
+          </span>
+        )}
         <Input
           ref={inputRef}
           value={searhchterm}
           onChange={(e) => setSearchterm(e.target.value)}
-          placeholder="Search history...."
-          className=" w-full h-full pr-0 border-none focus:!ring-0"
+          placeholder={isId ? "21" : "Search history...."}
+          className={cn(" w-full h-full pr-0 border-none focus:!ring-0", {
+            " ml-2": isId,
+          })}
         />
         <Select
           value={type}
@@ -400,11 +411,12 @@ function Filters({
         {sortBy === "desc" || !sortBy ? (
           <>
             <span>Desc</span>
-            <ArrowDownNarrowWide className=" w-4 h-4" />
+            <ArrowDownNarrowWide className=" w-3 h-3 sm:w-4 sm:h-4" />
           </>
         ) : (
           <>
-            <span>Asc</span> <ArrowUpWideNarrow className=" h-4 w-4" />
+            <span>Asc</span>{" "}
+            <ArrowUpWideNarrow className=" w-3 h-3 sm:w-4 sm:h-4" />
           </>
         )}{" "}
       </Button>

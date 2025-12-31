@@ -51,6 +51,7 @@ import useCreateMessage from "@lib/queries/tickets/useCreateMessage";
 import ShowTicketHistory from "./show-ticket-history";
 import { ActionBadge } from "./dashboard/tickets/action-badge";
 import { z } from "zod";
+import { useMediaQuery } from "@mui/material";
 type ActionType = z.infer<typeof TicketHistoryAction>;
 interface TicketDetailsProps {
   ticket?: Ticket;
@@ -1006,7 +1007,7 @@ function Messages({
   const [messagesLoadingIds, setMessagesLoadingIds] = useState<number[]>([]);
   const { createMessage, isLoading } = useCreateMessage();
   const messageRefs = useRef<Record<string, HTMLDivElement>>({});
-
+  const isBigScreen = useMediaQuery(`(min-width: 640px)`);
   const { toast } = useToast();
 
   const currentUserRole = currentUser?.user_metadata.role || "client";
@@ -1032,12 +1033,12 @@ function Messages({
         // 2. Use the native browser method to scroll
         targetElement.scrollIntoView({
           behavior: "smooth", // Optional: provides a smooth animation
-          block: "center", // Scrolls the target to the center of the viewport
+          block: isBigScreen ? "center" : "start", // Scrolls the target to the center of the viewport
         });
         // handleRemoveMessageId();
       }
     }
-  }, [focusedMessage, messageId]); // Run this effect whenever the target ID changes
+  }, [focusedMessage, messageId, isBigScreen]); // Run this effect whenever the target ID changes
   const handleResend = useCallback(
     async (message: Message) => {
       try {

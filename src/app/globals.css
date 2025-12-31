@@ -515,6 +515,11 @@ body {
     pointer-events: none;
     transition: all ease-in 3s;
   }
+  .media-container-download {
+    opacity: 100;
+    pointer-events: none;
+    transition: all ease-in 3s;
+  }
   .media-container:hover .media-container-menu-btn {
     opacity: 1;
     pointer-events: auto;
@@ -683,6 +688,9 @@ body {
     scrollbar-color: var(--dashboard-text-green);
   }
   @media (min-width: 640px) {
+    .media-container-download {
+      opacity: 0;
+    }
     .dashboard-children-hight {
       height: calc(100vh - 68px);
     }
