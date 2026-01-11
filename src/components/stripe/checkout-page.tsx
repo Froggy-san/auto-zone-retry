@@ -11,53 +11,65 @@ import {
 } from "@stripe/react-stripe-js";
 import React, { useEffect, useState } from "react";
 
-const CheckoutPage = ({ amount }: { amount: number }) => {
+const CheckoutPage = ({
+  amount,
+  clientSecret,
+  orderId,
+}: {
+  amount: number;
+  clientSecret: string;
+  orderId: string | null;
+}) => {
   const stripe = useStripe();
   const elements = useElements();
   const [errorMessage, setErrorMessage] = useState("");
-  const [clientSecret, setClientSecret] = useState("");
+  // const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/create-payment-intent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ amount: convertToSubcurrency(amount) }),
-    })
-      .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret));
-  }, [amount]);
+  // useEffect(() => {
+  //   fetch("/api/create-payment-intent", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({ amount: convertToSubcurrency(amount) }),
+  //   })
+  //     .then((res) => res.json())
+  //     .then((data) => setClientSecret(data.clientSecret));
+  // }, [amount]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    if (!stripe || !elements) return;
+      if (!stripe || !elements) return;
 
-    const { error: submitError } = await elements.submit();
+      const { error: submitError } = await elements.submit();
 
-    if (submitError && submitError.message) {
-      setErrorMessage(submitError.message);
-      setLoading(false);
-      return;
-    }
+      if (submitError && submitError.message) {
+        setErrorMessage(submitError.message);
+        setLoading(false);
+        return;
+      }
 
-    // Confirm payment 14:59 https://www.youtube.com/watch?v=fgbEwVWlpsI&t=815s&ab_channel=SonnySangha
+      // Confirm payment 14:59 https://www.youtube.com/watch?v=fgbEwVWlpsI&t=815s&ab_channel=SonnySangha
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      clientSecret,
-      confirmParams: {
-        return_url: `http://localhost:3000/success?stripe="${amount}"`,
-      },
-    });
-
-    if (error && error.message) {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        confirmParams: {
+          return_url: `http://localhost:3000/success?amount=${amount}&orderId=${orderId}`,
+        },
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+    } catch (error: any) {
+      console.log(`Something went wrong while trying to pay: ${error.message}`);
       setErrorMessage(error.message);
-    } else {
-      // the async function we called above will redirect the user to the home page.
+    } finally {
+      setLoading(false);
     }
   }
 

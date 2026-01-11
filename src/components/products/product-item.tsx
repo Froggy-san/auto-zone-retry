@@ -7,6 +7,7 @@ import { formatCurrency } from "@lib/helper";
 import { ProdcutAction } from "./product-actions";
 import Link from "next/link";
 import { ImageOff } from "lucide-react";
+import ProductPrices from "./product-prices";
 
 const ProductItem = ({
   user,
@@ -38,7 +39,7 @@ const ProductItem = ({
             <FullImagesGallery
               imageUrls={viewedImages}
               productId={product.id}
-              className="h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden"
+              className="h-[250px] 3xl:h-[330px] 4xl:h-[400px]  relative rounded-lg overflow-hidden select-none"
             />
           ) : (
             <div className=" h-[250px] 3xl:h-[330px] 4xl:h-[400px]  flex items-center justify-center  bg-foreground/10 rounded-lg">
@@ -52,11 +53,15 @@ const ProductItem = ({
           <h1 className=" line-clamp-1 text-xl font-semibold">
             {product.name}
           </h1>
-          <h2 className=" text-sm text-muted-foreground break-words line-clamp-2">
+          <h2
+            title={product.description}
+            className=" text-sm text-muted-foreground break-words line-clamp-2"
+          >
             {product.description}
           </h2>
           <div className=" flex justify-between  items-center text-xs">
-            {product.salePrice ? (
+            <ProductPrices product={product} />
+            {/* {product.salePrice ? (
               <span className=" text-green-500 dark:text-green-600">
                 {formatCurrency(product.salePrice)}
               </span>
@@ -64,7 +69,7 @@ const ProductItem = ({
               <span className="text-muted-foreground">
                 {formatCurrency(product.listPrice)}
               </span>
-            )}
+            )} */}
             <div className=" flex gap-3 items-center">
               <span
                 className={cn("text-muted-foreground", {

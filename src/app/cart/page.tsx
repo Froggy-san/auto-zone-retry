@@ -1,6 +1,7 @@
 import CartClientForm from "@components/cart/cart-client-form";
 import CartList from "@components/cart/cart-list";
 import Header from "@components/header";
+import Footer from "@components/home/footer";
 
 import React from "react";
 
@@ -17,6 +18,7 @@ const Page = () => {
 
         <CartClientForm />
       </div>
+      <Footer className=" mt-24" />
     </main>
   );
 };

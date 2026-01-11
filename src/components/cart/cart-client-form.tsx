@@ -7,6 +7,7 @@ import React, {
   SetStateAction,
   useEffect,
   useRef,
+  useState,
 } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
@@ -20,9 +21,24 @@ import { Calendar } from "@components/ui/calendar";
 import { differenceInDays, format, formatDistanceToNow } from "date-fns";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@lib/store/store";
-import { getCart, getClient, setClient, setDate } from "./cartSlice";
+import {
+  getCart,
+  getClient,
+  getTotalCartPrices,
+  setClient,
+  setDate,
+} from "./cartSlice";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import FormErrorMessage from "@components/form-error-message";
+import useCurrUser from "@lib/queries/useCurrUser";
+import useCurrentClient from "@hooks/use-current-client";
+import { cn } from "@lib/utils";
+import { getUserLocation } from "@lib/services/helper-services";
+import { createOrderAction } from "@lib/actions/orderActions";
+import { z } from "zod";
+import { PaymentMethod } from "@lib/types";
+import { useToast } from "@hooks/use-toast";
+import { ErorrToastDescription } from "@components/toast-items";
 
 type Inputs = {
   name: string;
@@ -31,14 +47,22 @@ type Inputs = {
 };
 
 const CartClientForm = () => {
+  const { clientById, error, isLoading } = useCurrentClient();
+  const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethond] =
+    useState<z.infer<typeof PaymentMethod>>("card");
   const cart = useSelector(getCart);
+
+  const total_amount = useSelector(getTotalCartPrices);
+
   const date = useSelector(({ cartData }: RootState) => cartData.date);
+  const [showCalendar, setShowCalendar] = React.useState(date ? true : false);
+  const { toast } = useToast();
   const client = useSelector(getClient);
   const dispatch = useDispatch();
 
   const currentDate = new Date();
   // const [date, setDate] = React.useState<Date | undefined>();
-  const [showCalendar, setShowCalendar] = React.useState(date ? true : false);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
   const submitForm = () => {
@@ -59,12 +83,18 @@ const CartClientForm = () => {
   // To know if the date seleceted exceeds the 31days.
   const periodExceeds = 31 - diffInDays < 0;
 
+  const defaultValues = {
+    name: clientById ? clientById.name : "",
+    email: clientById ? clientById.email : "",
+    phone: "",
+  };
+
   const {
     register,
     handleSubmit,
     getValues,
     watch,
-
+    reset,
     formState: {
       errors,
       isSubmitting,
@@ -74,11 +104,7 @@ const CartClientForm = () => {
     control,
   } = useForm<Inputs>({
     mode: "onChange",
-    defaultValues: {
-      name: client ? client.name : "",
-      email: client ? client.email : "",
-      phone: client ? client.phone : "",
-    },
+    defaultValues: defaultValues,
   });
 
   const { phone } = watch();
@@ -86,11 +112,72 @@ const CartClientForm = () => {
   const { isValid } = getPhoneData(phone); // Assuming this is a utility function
 
   useEffect(() => {
+    reset(defaultValues);
+  }, [clientById]);
+  useEffect(() => {
+    // Get the language and locale string from the browser settings
+    const userLocale = navigator.language; // e.g., "en-US" or "en-GB"
+    // getUserLocation();
+    // Extract the region/country code
+    // const countryCode = new Intl.Locale(userLocale).region;
+    // console.log(userLocale, "COUNTR", countryCode);
+    // const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // console.log(tz, "TZZZ");
+    // if ("geolocation" in navigator) {
+    //   const userLocation = navigator.geolocation?.getCurrentPosition(
+    //     (position) => {
+    //       console.log(position, "POSITION");
+    //     }
+    //   );
+    // } else {
+    // }
+  }, []);
+
+  useEffect(() => {
     if (!cart.length) setShowCalendar(false);
   }, [cart.length]);
 
   async function onSubmit(data: Inputs) {
-    dispatch(setClient(data));
+    try {
+      setLoading(true);
+      if (!clientById)
+        throw new Error(`Failed to get the currently logged in client`);
+      const { data: createdOrder, error } = await createOrderAction({
+        client_id: clientById.id,
+        customer_details: data,
+        items: { items: cart }, // cart is an array of products
+        total_amount,
+        payment_method: paymentMethod,
+        status: paymentMethod == "cod" ? "pending_arrival" : "unpaid",
+        stripe_payment_id: null,
+        metadata: {},
+        pickupDate: date || null,
+      });
+      // dispatch(setClient(data));
+
+      if (error) {
+        throw new Error(error);
+      }
+      if (paymentMethod === "card" && createdOrder) {
+        // Pass the Supabase Order ID in the URL so the Stripe page knows which order it is
+        router.push(
+          `/stripe?orderId=${createdOrder.id}&amount=${total_amount}`
+        );
+      } else {
+        // Handle COD success (e.g., clear cart and show success page)
+        router.push("/order-success?method=cod");
+      }
+    } catch (error: any) {
+      console.log(`Failed to create order: ${error.message}`);
+
+      toast({
+        variant: "destructive",
+        title: "Failed to create order",
+        description: <ErorrToastDescription error={error.message} />,
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -98,7 +185,10 @@ const CartClientForm = () => {
       <form
         ref={formRef}
         onSubmit={handleSubmit(onSubmit)}
-        className="space-y-2 p-3 rounded-md  flex-1 bg-secondary dark:bg-card/30 h-fit"
+        className={cn(
+          "space-y-2 p-3 rounded-md  flex-1 bg-secondary dark:bg-card/30 h-fit",
+          { " animate-pulse pointer-events-none": isLoading }
+        )}
       >
         {/* Full Name Field */}
         <motion.div className="space-y-1">
@@ -141,6 +231,7 @@ const CartClientForm = () => {
             render={({ field }) => (
               <PhoneInput
                 id="phone"
+                defaultCountry="EG"
                 value={field.value}
                 onChange={field.onChange}
               />
@@ -196,15 +287,14 @@ const CartClientForm = () => {
           disabled={isSubmitting || !formIsValid || !cart.length}
           onClick={() => {
             if (date) {
+              setPaymentMethond("cod");
               submitForm();
-              router.push("/success");
             } else {
               setShowCalendar((is) => !is);
             }
           }}
         >
-          {date ? "Continue" : "I will pick it up"}{" "}
-          <CiDeliveryTruck size={16} />
+          {date ? "Continue" : "Pay on arrival"} <CiDeliveryTruck size={16} />
         </Button>
         <Button
           size="sm"
@@ -212,8 +302,9 @@ const CartClientForm = () => {
           className=" gap-2"
           disabled={isSubmitting || !formIsValid || !cart.length}
           onClick={() => {
+            setPaymentMethond("card");
             submitForm();
-            router.push("/stripe");
+            // router.push("/stripe");
           }}
         >
           Pay By Card <FaCcMastercard size={16} /> <FaCcPaypal size={16} />

@@ -6,6 +6,7 @@ import Spinner from "@components/Spinner";
 import React, { Suspense } from "react";
 import SalesCharts from "@components/dashboard/home/charts/sales-chart";
 import ProductSoldManagement from "@components/dashboard/home/product-sold-management";
+import Orders from "@components/dashboard/home/orders/orders";
 
 // import dynamic from "next/dynamic";
 // const Charts = dynamic(
@@ -49,6 +50,8 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   return (
     <main className=" relative">
       <h2 className="  font-semibold text-4xl">SALES OVERVIEW.</h2>
+      <Orders />
+
       <SalesCharts />
       <section className=" sm:pl-4 pb-28 overflow-x-hidden">
         <Suspense

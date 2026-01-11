@@ -116,6 +116,35 @@ export async function getClientsAction({
 //   return { data: ClientsData, error: "" };
 // }
 
+export async function getCurrentClientAction(): Promise<{
+  data: Client | null;
+  error: string | null;
+}> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) throw new Error(error.message);
+    if (!user) throw new Error(`Failed to get the current user's data.`);
+
+    const { data: clientById, error: clientError } = await supabase
+      .from("clients")
+      .select("*")
+      .eq("user_id", user.id)
+      .single();
+    if (clientError) throw new Error(clientError.message);
+
+    if (!clientById)
+      throw new Error(`Failed to get the currently logged in client.`);
+
+    return { data: clientById, error: null };
+  } catch (error: any) {
+    console.log(`Failed to the currently logged in client.`);
+    return { data: null, error: error.message };
+  }
+}
 export async function getClientByIdAction(
   id: string,
   tag: "id" | "user_id"

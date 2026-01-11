@@ -50,7 +50,7 @@ export async function getClinetById({
 }): Promise<{ clientById: Client | null; error: PostgrestError | null }> {
   const { data: clientById, error } = await supabase
     .from("clients")
-    .select("*")
+    .select("*,phoneNumbers:phones(number)")
     .eq(getBy, id)
     .single();
 

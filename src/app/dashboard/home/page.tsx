@@ -1,4 +1,5 @@
 import EditFeesManagement from "@components/dashboard/home/edit-fees-management";
+import Orders from "@components/dashboard/home/orders/orders";
 import ServiceList from "@components/dashboard/home/service-list";
 import ServicePagination from "@components/dashboard/home/service-pagination";
 import Spinner from "@components/Spinner";

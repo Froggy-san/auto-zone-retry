@@ -22,7 +22,7 @@ import { motion } from "framer-motion";
 import { useToast } from "@hooks/use-toast";
 import { ErorrToastDescription } from "./toast-items";
 import { logoutUser } from "@lib/actions/authActions";
-import { AppWindow, LogOut, PersonStanding } from "lucide-react";
+import { AppWindow, LogOut, PersonStanding, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@lib/utils";
 import { useParams, usePathname } from "next/navigation";
@@ -161,6 +161,17 @@ const UserUi = ({
               Complanints
               <DropdownMenuShortcut>
                 <TbMessageReport className=" w-4 h-4" />
+              </DropdownMenuShortcut>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={loading || isSettings} asChild>
+            <Link
+              href={`/cart`}
+              className=" flex items-center justify-between w-full"
+            >
+              Your Cart
+              <DropdownMenuShortcut>
+                <ShoppingCart className=" w-4 h-4" />
               </DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>

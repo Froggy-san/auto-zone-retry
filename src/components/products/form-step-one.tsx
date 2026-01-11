@@ -118,14 +118,14 @@ function StepOne({
 }: StepOneProps) {
   const [step, direction] = currStep;
   // const { carBrands, isLoading: searching, error } = useCarBrands(searchTerm);
-  const { makerId, modelId, generationsArr } = form.watch();
+  const { makerId, modelId, generationsArr, categoryId } = form.watch();
   const carModels =
     makerId && carMakers?.find((car) => car.id === makerId)?.carModels;
   const carGenerations =
     modelId &&
     carModels &&
     carModels.find((model) => model.id === modelId)?.carGenerations;
-  const { categoryId } = form.watch();
+
   const productTypes = useMemo(() => {
     return categories.find((cat) => cat.id === categoryId)?.productTypes || [];
   }, [categoryId]);
@@ -502,7 +502,12 @@ function StepOne({
                     (!field.value.length && !mediaUrls.length) || isLoading
                   }
                   onClick={() => {
-                    field.onChange([]);
+                    field.onChange((value: any[]) => {
+                      value.forEach((image) =>
+                        URL.revokeObjectURL(image.preview)
+                      );
+                      return [];
+                    });
                     setIsMainImage(null);
                     if (productToEdit)
                       setDeletedMedia(productToEdit.productImages);

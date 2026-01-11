@@ -492,6 +492,29 @@ export const NotificationSchema = z.object({
   message: z.string(),
   is_read: z.boolean().default(false),
 });
+
+export const PaymentMethod = z.enum(["card", "cod"]);
+export const OrderStatus = z.enum([
+  "unpaid",
+  "paid",
+  "pending_arrival",
+  "conceled",
+]);
+
+export const OrderSchema = z.object({
+  client_id: z.number(),
+  customer_details: z.record(z.string(), z.any()),
+  items: z.record(z.string(), z.any()).nullable(),
+  total_amount: z
+    .number()
+    .min(1, { message: "Total amount must be more than 0" }),
+  payment_method: PaymentMethod,
+  status: OrderStatus,
+  stripe_payment_id: z.string().nullable(),
+  metadata: z.record(z.string(), z.any()),
+  pickupDate: z.string().nullable(),
+});
+
 export interface signUpProps {
   full_name: string;
   email: string;
@@ -731,7 +754,9 @@ export interface Client {
   email: string;
   user_id: string | null;
   picture: string | null;
+  phoneNumbers?: string[];
   provider: string;
+  role: "client" | "admin";
   cars: { count: number }[];
 }
 
@@ -1103,6 +1128,11 @@ export interface Message extends z.infer<typeof MessageSchema> {
   attachments: Attachment[];
   status?: "pending" | "failed";
 }
+export type Order = z.infer<typeof OrderSchema> & {
+  id: number;
+  client?: Client;
+  created_at: string;
+};
 export type TicketHistory = z.infer<typeof TicketHistorySchemaStrict> & {
   id: number;
   created_at: string;

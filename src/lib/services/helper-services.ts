@@ -114,4 +114,26 @@ export async function deleteImageFromBucket({
   }
 }
 
+function geoError(error: GeolocationPositionError) {
+  console.log(`Failed to get user's position: ${error.message}`);
+}
+
+export function getUserLocation() {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      fetch(
+        `https://api.geoapify.com/v1/geocode/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json&apiKey=5bc31636d79f4d8e91fae8f1b1b53e12`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data, "DD");
+
+          // const country = data.features[0].properties.country;
+          // console.log(country, "SSSSSSSSSSSSSSSSSSSSSSSSSSSSS"); // e.g., "Germany"
+        });
+    }, geoError);
+  } else {
+  }
+}
+
 // Server helpers
