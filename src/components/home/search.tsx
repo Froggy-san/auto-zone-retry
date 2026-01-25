@@ -68,6 +68,7 @@ const Search = ({ className }: Props) => {
         {isSmallScreen ? (
           <SearchBarOnSmScreens
             isLoading={isLoading}
+            isSmallScreen={isSmallScreen}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             show={show}
@@ -80,6 +81,7 @@ const Search = ({ className }: Props) => {
         ) : (
           <SearchBarOnBigScreens
             isLoading={isLoading}
+            isSmallScreen={isSmallScreen}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             show={show}
@@ -101,6 +103,7 @@ interface SearchProps {
   className?: string;
   isLoading: boolean;
   show: boolean;
+  isSmallScreen: boolean;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
   categories: categoryResult[] | undefined | null;
   productTypes:
@@ -121,6 +124,7 @@ function SearchBarOnBigScreens({
   products,
   productTypes,
   className,
+  isSmallScreen,
   handleCategory,
 }: SearchProps) {
   const divRef = useRef<HTMLDivElement>(null);
@@ -299,7 +303,12 @@ function SearchBarOnBigScreens({
                   </CommandGroup>
                 </>
               </CommandList>
-              {products?.length ? <ProductList products={products} /> : null}
+              {products?.length ? (
+                <ProductList
+                  isSmallScreen={isSmallScreen}
+                  products={products}
+                />
+              ) : null}
             </motion.div>
           )}
         </AnimatePresence>
@@ -312,6 +321,7 @@ function SearchBarOnSmScreens({
   searchTerm,
   setSearchTerm,
   isLoading,
+  isSmallScreen,
   show,
   setShow,
   categories,
@@ -368,7 +378,7 @@ function SearchBarOnSmScreens({
           </Button>
         </div>
       </DrawerTrigger>
-      <DrawerContent className=" h-full">
+      <DrawerContent className=" max-h-full h-full  overflow-y-auto overflow-x-hidden ">
         <DrawerHeader className=" bg-primary py-1 ">
           <DrawerTitle className=" flex items-center justify-between text-sm text-primary-foreground ">
             SEARCH
@@ -390,6 +400,7 @@ function SearchBarOnSmScreens({
           <div className=" space-y-3 max-h-full  overflow-y-scroll overflow-x-hidden">
             {products && products.length ? (
               <ProductList
+                isSmallScreen={isSmallScreen}
                 onMouseEnter={handleDisableDrag}
                 onMouseLeave={handleEnableDrag}
                 onTouchStart={handleDisableDrag}
@@ -398,6 +409,9 @@ function SearchBarOnSmScreens({
               />
             ) : null}
             <ul>
+              <h3 className=" text-muted-foreground text-sm  mb-3 ">
+                Category
+              </h3>
               {categories?.map((cat) => (
                 <li
                   key={cat.id}
@@ -414,7 +428,9 @@ function SearchBarOnSmScreens({
         </div>
         <DrawerFooter>
           <DrawerClose>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" className=" w-full">
+              Cancel
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -424,30 +440,60 @@ function SearchBarOnSmScreens({
 
 interface ProductListProps extends React.HTMLAttributes<HTMLUListElement> {
   products: Product[];
+  isSmallScreen: boolean;
 }
 
-function ProductList({ products, className, ...props }: ProductListProps) {
+function ProductList({
+  products,
+  className,
+  isSmallScreen,
+  ...props
+}: ProductListProps) {
   return (
-    <div className=" flex-shrink-0 w-full   sm:w-[50%] overflow-hidden h-full max-h-full max-w-full sm:border-l p-2">
+    <div
+      className={cn(
+        " flex-shrink-0 w-full    overflow-hidden h-full max-h-full max-w-full sm:border-l p-2",
+        className,
+        { "w-[50%]": !isSmallScreen }
+      )}
+    >
       <h3 className=" text-muted-foreground text-sm  mb-3 ">Products</h3>
       <ul
-        className="flex   flex-row pb-3 sm:pb-0  overflow-x-auto sm:overflow-hidden  w-full max-w-full  sm:flex-col   gap-y-3 gap-x-4"
+        className={cn(
+          "flex   flex-row pb-3   overflow-x-auto   w-full max-w-full     gap-y-3 gap-x-4",
+          { "flex-col pb-0": !isSmallScreen }
+        )}
         {...props}
       >
         {products.map((pro) => (
-          <ProductItem key={pro.id} product={pro} />
+          <ProductItem
+            key={pro.id}
+            product={pro}
+            isSmallScreen={isSmallScreen}
+          />
         ))}
       </ul>
     </div>
   );
 }
-function ProductItem({ product }: { product: Product }) {
+function ProductItem({
+  product,
+  isSmallScreen,
+}: {
+  product: Product;
+  isSmallScreen?: boolean;
+}) {
   const image = product.productImages.length
     ? product.productImages.find((image) => image.isMain)?.imageUrl ||
       product.productImages[0].imageUrl
     : null;
   return (
-    <li className=" relative select-none w-fit bg-accent shadow-md flex items-center  shrink-0 sm:w-full  rounded-sm px-3 py-3  text-sm outline-none  hover:bg-accent/50  hover:text-accent-foreground transition-all  ">
+    <li
+      className={cn(
+        " relative select-none w-[250px]   bg-accent shadow-md flex items-center  shrink-0  rounded-sm px-3 py-3  text-sm outline-none  hover:bg-accent/50  hover:text-accent-foreground transition-all  ",
+        { "w-full ": !isSmallScreen }
+      )}
+    >
       <Link
         href={`/products/${product.id}`}
         className=" flex cursor-default gap-2   justify-center   items-center"

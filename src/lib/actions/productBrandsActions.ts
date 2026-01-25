@@ -10,30 +10,33 @@ export async function getAllProductBrandsAction() {
 
   // if (!token)
   //   return { data: null, error: "You are not authorized to make this action." };
-  const response = await fetch(`${supabaseUrl}/rest/v1/productBrands`, {
-    method: "GET",
-    headers: {
-      apikey: `${supabaseKey}`,
-      Authorization: `Bearer ${supabaseKey}`,
-    },
-    next: {
-      tags: ["productBrands"],
-    },
-  });
+  try {
+    const response = await fetch(`${supabaseUrl}/rest/v1/productBrands`, {
+      method: "GET",
+      headers: {
+        apikey: `${supabaseKey}`,
+        Authorization: `Bearer ${supabaseKey}`,
+      },
+      next: {
+        tags: ["productBrands"],
+      },
+    });
 
-  if (!response.ok) {
-    const error =
-      (await response.json()).message ||
-      "Something went wrong while grabbing the product brands.";
-    return {
-      data: null,
-      error,
-    };
+    if (!response.ok) {
+      const error =
+        (await response.json()).message ||
+        "Something went wrong while grabbing the product brands.";
+
+      throw new Error(`Faield to get the product brands data: ${error}`);
+    }
+
+    const data = await response.json();
+
+    return { data, error: "" };
+  } catch (error: any) {
+    console.log(`Error in getAllProductBrandsAction: ${error.message}`);
+    return { data: null, error: error.message };
   }
-
-  const data = await response.json();
-
-  return { data, error: "" };
 }
 
 export async function createProductBrandAction(productBrand: string) {
@@ -81,7 +84,7 @@ export async function editProductBrandAction({
         Prefer: "return=minimal",
       },
       body: JSON.stringify({ name: productBrand }),
-    }
+    },
   );
   if (!response.ok) {
     const error =
@@ -109,7 +112,7 @@ export async function deleteProductBrandAction(id: number) {
 
         Prefer: "return=minimal",
       },
-    }
+    },
   );
   if (!response.ok) {
     const error =
@@ -138,12 +141,12 @@ export async function getProductBrandsCountAction() {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   if (!response.ok) {
     console.log(
-      "Something went wrong while trying to fetch product brands count."
+      "Something went wrong while trying to fetch product brands count.",
     );
     return {
       data: null,

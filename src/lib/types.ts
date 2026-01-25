@@ -140,7 +140,7 @@ export const ProductTypeSchema = z.object({
       name: z.string().min(3, { message: "Too short" }),
       categoryId: z.number(),
       image: z.custom<File[]>(),
-    })
+    }),
   ),
 });
 export const CarInfoSchema = z.object({
@@ -425,7 +425,7 @@ export const MessageSchema = z
     (values) => values.senderType === "client" || values.senderType === "admin",
     {
       message: `Enter a vaild role "client" or "admin".`,
-    }
+    },
   );
 
 //! TICEKT HISTORY SCHMEA  START
@@ -494,11 +494,22 @@ export const NotificationSchema = z.object({
 });
 
 export const PaymentMethod = z.enum(["card", "cod"]);
-export const OrderStatus = z.enum([
+export const PaymentStatusSchema = z.enum([
   "unpaid",
   "paid",
   "pending_arrival",
-  "conceled",
+  "canceled",
+  "disputed",
+  "refunded",
+]);
+export const OrderStatusSchema = z.enum([
+  "pending_arrival",
+  "ready_for_pickup",
+  "completed",
+  "partially_completed",
+  "returned",
+  "cancelled",
+  "processing",
 ]);
 
 export const OrderSchema = z.object({
@@ -509,7 +520,8 @@ export const OrderSchema = z.object({
     .number()
     .min(1, { message: "Total amount must be more than 0" }),
   payment_method: PaymentMethod,
-  status: OrderStatus,
+  payment_status: PaymentStatusSchema,
+  order_status: OrderStatusSchema,
   stripe_payment_id: z.string().nullable(),
   metadata: z.record(z.string(), z.any()),
   pickupDate: z.string().nullable(),
@@ -1131,6 +1143,7 @@ export interface Message extends z.infer<typeof MessageSchema> {
 export type Order = z.infer<typeof OrderSchema> & {
   id: number;
   client?: Client;
+  order_fulfilled_at?: string;
   created_at: string;
 };
 export type TicketHistory = z.infer<typeof TicketHistorySchemaStrict> & {

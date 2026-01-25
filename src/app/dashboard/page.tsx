@@ -7,6 +7,7 @@ import React, { Suspense } from "react";
 import SalesCharts from "@components/dashboard/home/charts/sales-chart";
 import ProductSoldManagement from "@components/dashboard/home/product-sold-management";
 import Orders from "@components/dashboard/home/orders/orders";
+import TodayOrders from "@components/dashboard/home/orders/today-orders";
 
 // import dynamic from "next/dynamic";
 // const Charts = dynamic(
@@ -50,10 +51,13 @@ const Page = ({ searchParams }: { searchParams: SearchParams }) => {
   return (
     <main className=" relative">
       <h2 className="  font-semibold text-4xl">SALES OVERVIEW.</h2>
-      <Orders />
 
-      <SalesCharts />
-      <section className=" sm:pl-4 pb-28 overflow-x-hidden">
+      <section className=" sm:pl-4 pb-28  space-y-40 overflow-x-hidden">
+        <SalesCharts />
+
+        <TodayOrders />
+        <Orders />
+
         <Suspense
           fallback={
             <Spinner size={30} className=" mt-10" key={editFee + addFeeId} />

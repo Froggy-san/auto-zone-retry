@@ -364,7 +364,7 @@ const OrderReceiptPDF = ({ order }: OrderReceiptPDFProps) => {
         <View style={styles.header}>
           <Text style={styles.title}>Order Confirmed!</Text>
           <Text style={styles.subtitle}>
-            Thank you for your order. Here's your receipt.
+            Thank you for your order. Here&apos;s your receipt.
           </Text>
           <View style={styles.orderBadge}>
             <Text style={styles.orderBadgeText}>Order #{order.id}</Text>
@@ -436,7 +436,7 @@ const OrderReceiptPDF = ({ order }: OrderReceiptPDFProps) => {
                         <Text style={styles.discountText}>
                           {" "}
                           (-{formatCurrency(
-                            item.listPrice - item.salePrice
+                            item.listPrice - item.salePrice,
                           )}{" "}
                           discount)
                         </Text>
@@ -500,9 +500,29 @@ const OrderReceiptPDF = ({ order }: OrderReceiptPDFProps) => {
               </Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Status</Text>
+              <Text style={styles.detailLabel}>Payment Status</Text>
               <View style={styles.paidBadge}>
-                <Text style={styles.paidText}>Paid</Text>
+                <Text style={styles.paidText}>
+                  {order.payment_status
+
+                    .replace(/_/g, " ")
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (str) => str.toUpperCase())
+                    .trim()}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Order Status</Text>
+              <View style={styles.paidBadge}>
+                <Text style={styles.paidText}>
+                  {order.order_status
+
+                    .replace(/_/g, " ")
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (str) => str.toUpperCase())
+                    .trim()}
+                </Text>
               </View>
             </View>
             <View style={styles.detailRow}>

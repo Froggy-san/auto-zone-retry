@@ -84,12 +84,12 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
       handleSelect,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [deleteOpen, setDeleteOpen] = useState(false);
     const { deleteMessage, isLoading } = useDeleteMessage();
     const [viewedIndex, setViewedIndex] = useState<undefined | number>(
-      undefined
+      undefined,
     );
     // const [isRetrying, setisRetrying] = useState(false);
     const [deletedAttch, setDeletedAttch] = useState<number[]>([]);
@@ -116,27 +116,27 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
             (attachment) =>
               (attachment.file_type.startsWith("image/") ||
                 attachment.file_type.startsWith("video/")) &&
-              !deletedAttch.includes(attachment.id)
+              !deletedAttch.includes(attachment.id),
           )
           .map((attachment) => attachment.file_url),
-      [message.attachments, deletedAttch]
+      [message.attachments, deletedAttch],
     );
     const imgAttchments = message.attachments.filter(
       (attachment) =>
         (attachment.file_type.startsWith("image/") ||
           attachment.file_type.startsWith("video/")) &&
-        !deletedAttch.includes(attachment.id)
+        !deletedAttch.includes(attachment.id),
     );
 
     const audioAttchments = message.attachments.filter(
       (attachment) =>
         attachment.file_type.startsWith("audio/") &&
-        !deletedAttch.includes(attachment.id)
+        !deletedAttch.includes(attachment.id),
     );
     const applicationAttchments = message.attachments.filter(
       (attachment) =>
         attachment.file_type.startsWith("application/") &&
-        !deletedAttch.includes(attachment.id)
+        !deletedAttch.includes(attachment.id),
     );
     const isAdmin = currentUser?.user_metadata.role.toLowerCase() === "admin";
     const isSameSender = message.senderId === currentUser?.id;
@@ -163,7 +163,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
           setLoadingIds((prev) => prev.filter((id) => id !== attachment.id));
         }
       },
-      [setLoadingIds, setDeletedAttch]
+      [setLoadingIds, setDeletedAttch],
     );
 
     const handleDownloadFile = useCallback(async (attachment: Attachment) => {
@@ -231,7 +231,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
             "bg-primary  text-primary-foreground": isFocused,
           },
 
-          className
+          className,
         )}
       >
         <div className=" flex items-center gap-4  mb-6 ">
@@ -274,7 +274,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
               {
                 " grid-cols-2 sm:grid-cols-2": imgAttchments.length < 3,
                 "grid-cols-1 sm:grid-cols-1 ": imgAttchments.length <= 1,
-              }
+              },
             )}
           >
             {imgAttchments.map((imgAttchments, index) => (
@@ -401,7 +401,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
               <Button
                 disabled={isLoading}
                 className={cn(
-                  " p-0 w-7 h-7 rounded-full  focus-within:opacity-100  opacity-0 pointer-events-none  transition-all duration-300 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100  absolute right-3 top-3 ",
+                  " p-0 w-7 h-7 rounded-full  remove-on-touch-divces focus-within:opacity-100  opacity-0 pointer-events-none  transition-all duration-300 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100  absolute right-3 top-3 ",
                   {
                     " opacity-100 pointer-events-none": isLoading,
                     " !opacity-55 !pointer-events-none":
@@ -409,7 +409,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
                     "opacity-100 pointer-events-auto": open,
                     " bg-destructive  hover:bg-destructive/90 hover:text-destructive-foreground   dark:bg-red-950 text-destructive-foreground dark:hover:bg-red-800/50":
                       message.status === "failed",
-                  }
+                  },
                 )}
                 variant="ghost"
               >
@@ -517,7 +517,7 @@ const TicketMessage = React.forwardRef<HTMLDivElement, CustomComponentProps>(
         </AnimatePresence>
       </motion.div>
     );
-  }
+  },
 );
 
 TicketMessage.displayName = "TicketMessage";
@@ -553,7 +553,7 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [menuOpen, setMenuOpen] = useState(false);
     // const [isLoading, setIsLoading] = useState(false);
@@ -586,7 +586,7 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
         className={cn(
           "relative  media-container focus:border-4   transition-all ",
           { "  animate-pulse pointer-events-none": isLoading },
-          className
+          className,
         )}
       >
         {attachment.file_type.startsWith("image/") ? (
@@ -644,7 +644,7 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="secondary"
-                    className=" p-0 absolute media-container-menu-btn right-1 top-1  shadow-md   w-7 h-7 rounded-full"
+                    className=" p-0   absolute remove-on-touch-divces media-container-menu-btn right-1 top-1  shadow-md   w-7 h-7 rounded-full"
                   >
                     {" "}
                     <EllipsisVertical className=" w-4 h-4" />
@@ -664,6 +664,6 @@ const MediaItem = React.forwardRef<HTMLDivElement, MediaProps>(
           ))}
       </div>
     );
-  }
+  },
 );
 MediaItem.displayName = "MediaItem";

@@ -1,6 +1,13 @@
 import { PAGE_SIZE } from "@lib/constants";
-import { Order, OrderStatus, PaymentMethod } from "@lib/types";
+import {
+  Order,
+  OrderStatusSchema,
+  PaymentMethod,
+  PaymentStatusSchema,
+} from "@lib/types";
+import { useQueryClient } from "@tanstack/react-query";
 import supabase from "@utils/supabase";
+import { includes } from "lodash";
 import { z } from "zod";
 
 interface GetInfiniteOrdersProps {
@@ -8,7 +15,8 @@ interface GetInfiniteOrdersProps {
   createdAt?: Date;
   totalAmount?: number;
   paymentMethod?: z.infer<typeof PaymentMethod>;
-  status?: z.infer<typeof OrderStatus>;
+  paymentStatus?: z.infer<typeof PaymentStatusSchema>;
+  orderStatus?: z.infer<typeof OrderStatusSchema>;
   stripePaymentId?: string;
   pickupDate?: Date;
   orderFulfilledAt?: Date;
@@ -40,11 +48,13 @@ export async function getInfiniteOrders({
   if (filters.paymentMethod)
     query = query.eq("payment_method", filters.paymentMethod);
 
-  if (filters.status) query = query.eq("status", filters.status);
+  if (filters.paymentStatus)
+    query = query.eq("payment_status", filters.paymentStatus);
   if (filters.stripePaymentId)
     query = query.eq("stripe_payment_id", filters.stripePaymentId);
 
-  if (filters.status) query = query.eq("status", filters.status);
+  if (filters.orderStatus)
+    query = query.eq("order_status", filters.orderStatus);
   if (filters.pickupDate) {
     const date = filters.pickupDate.toISOString();
     query = query.eq("pickupDate", date);
@@ -76,6 +86,48 @@ export async function getInfiniteOrders({
     items: orders || [],
     nextPageParam,
   };
+}
+
+export function revalidateOrdersCache(
+  updatedOrder: Order,
+  queryClient: ReturnType<typeof useQueryClient>,
+  isToday = false,
+) {
+  // Get all queries currently in the cache
+
+  const orderStatusToCheck = ["cancelled", "returned"];
+  const paymentStatusToCheck = ["refunded", "disputed"];
+  const cache = queryClient.getQueryCache();
+
+  // Find all keys that start with "orders"
+  const orderQueries = cache.findAll({ queryKey: ["orders"] });
+
+  orderQueries.forEach((query) => {
+    queryClient.setQueryData(query.queryKey, (oldData: any) => {
+      if (!oldData || !oldData.pages || !updateOrder) return oldData;
+      //  Check if the cache has the isToday property in order to update the related cache only and not all the cache that starts with the string "orders".
+      const queryFilters = query.queryKey[1] as Record<any, any>;
+      const isTodayCache = !!queryFilters.isToday;
+      return {
+        ...oldData,
+        pages: oldData.pages.map((page: any) => {
+          const dataArr: any = page.data.map((order: any) =>
+            order.id === updatedOrder.id ? { ...updatedOrder } : order,
+          );
+          return {
+            ...page,
+            data: isTodayCache
+              ? dataArr.filter(
+                  (item: any) =>
+                    !paymentStatusToCheck.includes(item.payment_status) &&
+                    !orderStatusToCheck.includes(item.order_status),
+                )
+              : dataArr,
+          };
+        }),
+      };
+    });
+  });
 }
 
 export async function updateOrder() {}

@@ -1,6 +1,10 @@
 // app/api/create-payment-intent/route.ts
 import { NextResponse } from "next/server";
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+import Stripe from "stripe"; // Use ES Modules import
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-12-18.acacia", // Matches your webhook's version
+});
 
 export async function POST(req: Request) {
   try {

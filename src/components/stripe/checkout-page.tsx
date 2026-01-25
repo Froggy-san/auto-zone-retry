@@ -1,15 +1,17 @@
 "use client";
 import ErrorMessage from "@components/error-message";
+import FormErrorMessage from "@components/form-error-message";
 import Spinner from "@components/Spinner";
 import { Button } from "@components/ui/button";
 import { formatCurrency } from "@lib/client-helpers";
-import convertToSubcurrency from "@lib/convertToSubcurrency";
 import {
   PaymentElement,
   useElements,
   useStripe,
 } from "@stripe/react-stripe-js";
-import React, { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import React, { useState } from "react";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL!;
 
 const CheckoutPage = ({
   amount,
@@ -59,7 +61,7 @@ const CheckoutPage = ({
         elements,
         clientSecret,
         confirmParams: {
-          return_url: `http://localhost:3000/success?amount=${amount}&orderId=${orderId}`,
+          return_url: `${SITE_URL}/orders/${orderId}?amount=${amount}`,
         },
       });
       if (error) {
@@ -76,10 +78,10 @@ const CheckoutPage = ({
   if (!clientSecret || !stripe || !elements)
     return <Spinner className=" h-10" />;
 
-  if (errorMessage)
-    return (
-      <ErrorMessage className=" text-white   ">{errorMessage}</ErrorMessage>
-    );
+  // if (errorMessage)
+  //   return (
+  //     <ErrorMessage className=" text-white   ">{errorMessage}</ErrorMessage>
+  //   );
 
   return (
     <form onSubmit={handleSubmit} className="   rounded-sm space-y-4">
@@ -89,10 +91,14 @@ const CheckoutPage = ({
         disabled={!stripe || !elements || loading}
         className=" w-full"
         size="sm"
-        variant="secondary"
       >
         {!loading ? `Pay ${formatCurrency(amount)}` : "Processing..."}
       </Button>
+      <AnimatePresence mode="wait">
+        {errorMessage && (
+          <FormErrorMessage key={errorMessage}>{errorMessage}</FormErrorMessage>
+        )}
+      </AnimatePresence>
     </form>
   );
 };

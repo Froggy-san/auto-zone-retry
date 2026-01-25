@@ -73,7 +73,7 @@ const SalesCharts = () => {
   const dateTo = `${currentYear}-12-30`;
 
   const { data, isLoading, error } = useRevenueCharts(
-    selected === "year" ? { dateFrom, dateTo } : {}
+    selected === "year" ? { dateFrom, dateTo } : {},
   );
 
   const allServices: Service[] = data?.services || [];
@@ -84,12 +84,12 @@ const SalesCharts = () => {
   // Extract unique years
   if (selected === "all")
     dates = Array.from(
-      new Set(allServices.map((item) => item.created_at.split("-")[0]))
+      new Set(allServices.map((item) => item.created_at.split("-")[0])),
     ).sort((a, b) => Number(a) - Number(b));
 
   if (selected === "year")
     dates = Array.from(
-      new Set(allServices.map((item) => item.created_at.split("-")[1]))
+      new Set(allServices.map((item) => item.created_at.split("-")[1])),
     ).sort((a, b) => Number(a) - Number(b));
 
   if (typeof selected === "number") {
@@ -110,7 +110,7 @@ const SalesCharts = () => {
           if (selected === "year")
             return items.created_at.split("-")[1] === date;
           return isSameDay(items.created_at, date);
-        })
+        }),
       );
 
   const salesData = useMemo(() => {
@@ -126,7 +126,7 @@ const SalesCharts = () => {
                 currSold.totalPriceAfterDiscount;
               return soldAcc;
             },
-            { totalPrice: 0, totalDiscounts: 0, totalPriceAfterDiscount: 0 }
+            { totalPrice: 0, totalDiscounts: 0, totalPriceAfterDiscount: 0 },
           );
 
           // Get the totals of the services for each date.
@@ -138,7 +138,7 @@ const SalesCharts = () => {
                 currService.totalPriceAfterDiscount;
               return serAcc;
             },
-            { totalPrice: 0, totalDiscount: 0, totalPriceAfterDiscount: 0 }
+            { totalPrice: 0, totalDiscount: 0, totalPriceAfterDiscount: 0 },
           );
 
           acc.totalProductSold += soldProductsData.totalPrice;
@@ -155,20 +155,20 @@ const SalesCharts = () => {
             selected === "year"
               ? months[Number(dates[index]) - 1]
               : typeof selected === "number"
-              ? formatDate(dates[index], "MMM dd")
-              : dates[index],
+                ? formatDate(dates[index], "MMM dd")
+                : dates[index],
           totalProductSold: 0,
           totalServices: 0,
           totalDiscount: 0,
           totalPriceAfterDiscount: 0,
-        }
-      )
+        },
+      ),
     );
   }, [selected, dataByDate]);
   // .filter((item) => item.totalPriceAfterDiscount > 0);
   const { growthRates, averageGrowthRate, trend } = useMemo(() => {
     const revenueData = salesData.filter(
-      (item) => item.totalPriceAfterDiscount > 0
+      (item) => item.totalPriceAfterDiscount > 0,
     );
     if (revenueData.length < 2) {
       return {
@@ -370,7 +370,7 @@ const ChartTooltipContentCustom: React.FC<ChartTooltipContentProps> = ({
       }</p>{" "}
       <div
         className={cn(
-          "flex flex-1 gap-1 justify-between leading-none items-center"
+          "flex flex-1 gap-1 justify-between leading-none items-center",
         )}
       >
         <div className="grid gap-1.5">
@@ -383,7 +383,7 @@ const ChartTooltipContentCustom: React.FC<ChartTooltipContentProps> = ({
       </div>
       <div
         className={cn(
-          "flex flex-1 gap-1 justify-between leading-none items-center"
+          "flex flex-1 gap-1 justify-between leading-none items-center",
         )}
       >
         <div className="grid gap-1.5">
@@ -396,13 +396,13 @@ const ChartTooltipContentCustom: React.FC<ChartTooltipContentProps> = ({
       </div>
       <div
         className={cn(
-          "flex flex-1 gap-1 justify-between leading-none items-center"
+          "flex flex-1 gap-1 justify-between leading-none items-center",
         )}
       >
         <div className=" flex items-center gap-1">
           <div
             className={cn(
-              "shrink-0 rounded-[2px] border-[--color-border] bg-[hsl(var(--chart-2))] h-2.5 w-2.5"
+              "shrink-0 rounded-[2px] border-[--color-border] bg-[hsl(var(--chart-2))] h-2.5 w-2.5",
             )}
           />
           <span className="text-muted-foreground">Total Discount:</span>
@@ -414,13 +414,13 @@ const ChartTooltipContentCustom: React.FC<ChartTooltipContentProps> = ({
       </div>
       <div
         className={cn(
-          "flex flex-1 gap-1 justify-between leading-none items-center"
+          "flex flex-1 gap-1 justify-between leading-none items-center",
         )}
       >
         <div className=" flex items-center gap-1">
           <div
             className={cn(
-              "shrink-0 rounded-[2px] border-[--color-border] bg-[hsl(var(--chart-1))] h-2.5 w-2.5"
+              "shrink-0 rounded-[2px] border-[--color-border] bg-[hsl(var(--chart-1))] h-2.5 w-2.5",
             )}
           />
           <span className="text-muted-foreground">Net:</span>

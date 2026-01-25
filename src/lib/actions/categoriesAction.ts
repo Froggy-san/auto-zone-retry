@@ -14,30 +14,34 @@ export async function getAllCategoriesAction(): Promise<{
   data: CategoryProps[] | null;
   error: string;
 }> {
-  const response = await fetch(
-    `${supabaseUrl}/rest/v1/categories?select=*,productTypes(*)&order=created_at.asc`,
-    {
-      method: "GET",
-      headers: {
-        apikey: `${supabaseKey}`,
-        Authorization: `Bearer ${supabaseKey}`,
+  try {
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/categories?select=*,productTypes(*)&order=created_at.asc`,
+      {
+        method: "GET",
+        headers: {
+          apikey: `${supabaseKey}`,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        next: {
+          tags: ["categories"],
+        },
       },
-      next: {
-        tags: ["categories"],
-      },
+    );
+
+    if (!response.ok) {
+      const error =
+        (await response.json()).message ||
+        "Something went wrong while geting category data.";
+      throw new Error(`Faield to get the categorys data: ${error.message}`);
     }
-  );
 
-  if (!response.ok) {
-    return {
-      data: null,
-      error: "Something went wrong while trying to fetch categories data.",
-    };
+    const data = await response.json();
+
+    return { data, error: "" };
+  } catch (error: any) {
+    return { data: null, error };
   }
-
-  const data = await response.json();
-
-  return { data, error: "" };
 }
 
 export async function createCategoryAction(category: FormData) {
@@ -103,7 +107,7 @@ export async function editCategoryAction({
         Prefer: "return=minimal",
       },
       body: JSON.stringify({ name: category }),
-    }
+    },
   );
   if (!response.ok) {
     const error =
@@ -150,7 +154,7 @@ export async function deleteCategoryAction(category: CategoryProps) {
 
         Prefer: "return=minimal",
       },
-    }
+    },
   );
   if (!response.ok) {
     const error =

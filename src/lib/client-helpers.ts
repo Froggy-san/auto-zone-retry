@@ -1,7 +1,7 @@
 "use client";
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
-    value
+    value,
   );
 
 export function formatNumber(number: string) {
@@ -11,7 +11,7 @@ export function formatNumber(number: string) {
 export async function urlToFile(
   url: string,
   filename: string,
-  mimeType: string
+  mimeType: string,
 ) {
   const response = await fetch(url);
   const blob = await response.blob();
@@ -25,7 +25,7 @@ export async function urlToFile(
  */
 export async function downloadFileFromUrl(
   url: string,
-  fileName: string
+  fileName: string,
 ): Promise<void> {
   try {
     // 1. Fetch the file content
@@ -90,13 +90,13 @@ export const formatPhoneNumber = (value: string) => {
     // For a 10-digit number like (123) 456-7890
     return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(
       3,
-      6
+      6,
     )}-${phoneNumber.slice(6, 10)}`;
   }
   // For numbers longer than 10, you might add more rules or truncate
   return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(
     3,
-    6
+    6,
   )}-${phoneNumber.slice(6, 10)} ${phoneNumber.slice(10)}`;
 };
 
@@ -134,7 +134,7 @@ copyTextToClipboard(textToCopy);
 export const formatBytes = (
   bytes: number,
   decimals = 2,
-  size?: "bytes" | "KB" | "MB" | "GB" | "TB" | "PB" | "EB" | "ZB" | "YB"
+  size?: "bytes" | "KB" | "MB" | "GB" | "TB" | "PB" | "EB" | "ZB" | "YB",
 ) => {
   const k = 1000;
   const dm = decimals < 0 ? 0 : decimals;
@@ -159,3 +159,81 @@ export function getInitials(string?: string) {
         .slice(0, 2)
     : "U";
 }
+
+export function getDiscountAmount(listPrice: number, salePrice: number) {
+  return listPrice - salePrice;
+}
+
+export const generateUUID = () => {
+  // Public Domain/MIT
+  let d = new Date().getTime(); //Timestamp
+  let d2 =
+    (typeof performance !== "undefined" &&
+      performance.now &&
+      performance.now() * 1000) ||
+    0; //Time in microseconds since page-load or 0 if unsupported
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    let r = Math.random() * 16; //random number between 0 and 16
+    if (d > 0) {
+      //Use timestamp until depleted
+      r = ((d + r) % 16) | 0;
+      d = Math.floor(d / 16);
+    } else {
+      //Use microseconds since page-load if supported
+      r = ((d2 + r) % 16) | 0;
+      d2 = Math.floor(d2 / 16);
+    }
+    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+  });
+};
+
+export const generateRandomString = (length: number) => {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+export const truncateText = (text: string, maxLength: number) => {
+  if (text.length <= maxLength) {
+    return text;
+  } else {
+    return text.slice(0, maxLength) + "...";
+  }
+};
+
+export const capitalizeFirstLetter = (text: string) => {
+  if (!text) return "";
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
+
+export const parseJSONSafe = (jsonString: string) => {
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error("Failed to parse JSON:", error);
+    return null;
+  }
+};
+
+export const isValidJSON = (jsonString: string) => {
+  try {
+    JSON.parse(jsonString);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+export const removeDuplicates = <T>(array: T[]): T[] => {
+  return Array.from(new Set(array));
+};
+export const mergeArraysUnique = <T>(array1: T[], array2: T[]): T[] => {
+  return Array.from(new Set([...array1, ...array2]));
+};

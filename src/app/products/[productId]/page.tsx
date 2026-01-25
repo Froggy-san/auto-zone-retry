@@ -20,6 +20,7 @@ import DeleteManagement from "@components/products/delete-management";
 import { Metadata } from "next";
 import { ProductSwipeNavigator } from "@components/products/product-swipe-navigator";
 import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
+import Footer from "@components/home/footer";
 type AppliedFilters = {
   name: string;
   categoryId: string;
@@ -107,7 +108,7 @@ const ProductView = async ({
   const prevPro = productData.pages?.prevPro || null;
   const nextPro = productData.pages?.nextPro || null;
   const imageUrls = productData?.productImages.map(
-    (image: ProductImage) => image.imageUrl
+    (image: ProductImage) => image.imageUrl,
   );
   const isAdmin = user?.user_metadata.role == "Admin";
 
@@ -165,6 +166,7 @@ const ProductView = async ({
           ) : null}
         </main>
       </div>
+      <Footer className=" mt-40" />
     </ProductSwipeNavigator>
   );
 };

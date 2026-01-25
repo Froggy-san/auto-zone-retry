@@ -149,7 +149,7 @@ const ServiceTable = ({
   const currPageSize = services.length;
 
   const nonCanceledService = services.filter(
-    (serv) => serv.serviceStatuses.name != "Canceled"
+    (serv) => serv.serviceStatuses.name != "Canceled",
   );
 
   const fees = nonCanceledService
@@ -174,7 +174,7 @@ const ServiceTable = ({
   const totals = totalFees + totalSoldProducts;
   return (
     <>
-      <div className=" flex flex-col-reverse sm:flex-row gap-x-2 gap-y-5 items-center ">
+      <div className=" flex    break-keep flex-col-reverse sm:flex-row gap-x-2 gap-y-5 items-center ">
         <ServiceSelectControls
           isAdmin={isAdmin}
           selected={selected}
@@ -199,7 +199,7 @@ const ServiceTable = ({
         />
       </div>
       <div className="mt-10 p-3 border rounded-3xl shadow-lg ">
-        <Table>
+        <Table className=" min-w-[800px]">
           <TableCaption>
             {services.length
               ? "A list of all service receipts."
@@ -217,9 +217,7 @@ const ServiceTable = ({
                 SOLD PRODUCTS
               </TableHead>
               <TableHead className="">PRIORITY</TableHead>
-              <TableHead className="text-right" colSpan={2}>
-                TOTAL PRICE
-              </TableHead>
+              <TableHead className="text-right">TOTAL PRICE</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -246,17 +244,17 @@ const ServiceTable = ({
             <TableRow>
               <TableCell colSpan={5}>Page-Total:</TableCell>
 
-              <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
+              <TableCell className="   min-w-[100px] max-w-[120px] ">
                 {formatCurrency(totalFees)}
               </TableCell>
 
-              <TableCell className="   min-w-[100px] max-w-[120px]  break-all">
+              <TableCell className="   min-w-[100px] max-w-[120px] ">
                 {formatCurrency(totalSoldProducts)}
               </TableCell>
 
               <TableCell
                 colSpan={3}
-                className=" text-right   min-w-[100px] max-w-[120px]  break-all"
+                className=" text-right   min-w-[100px] max-w-[120px] "
               >
                 {formatCurrency(totals)}
               </TableCell>
@@ -367,21 +365,20 @@ function Row({
         <TableCell className=" relative">
           <Priority priority={service.priority} />
         </TableCell>
-        <TableCell className=" min-w-[120px] max-w-[170px] break-all ">
-          {formatCurrency(total)}
-        </TableCell>
-
-        <TableCell className=" w-[80px] ">
-          <TableActions
-            isClientPage={isClientPage}
-            isAdmin={isAdmin}
-            cars={cars}
-            clients={clients}
-            status={status}
-            service={service}
-            currPage={currPage}
-            currPageSize={currPageSize}
-          />
+        <TableCell className=" font-bold text-right ">
+          <div className=" flex   items-center justify-end gap-3">
+            {formatCurrency(total)}{" "}
+            <TableActions
+              isClientPage={isClientPage}
+              isAdmin={isAdmin}
+              cars={cars}
+              clients={clients}
+              status={status}
+              service={service}
+              currPage={currPage}
+              currPageSize={currPageSize}
+            />
+          </div>
         </TableCell>
 
         {/* <TableCell>
@@ -447,7 +444,7 @@ function TableActions({
   const params = new URLSearchParams(searchParam);
 
   const handleChangePriority = async (
-    priority: "Low" | "Medium" | "High" | string
+    priority: "Low" | "Medium" | "High" | string,
   ) => {
     setIsLoading(true);
     try {
@@ -582,13 +579,13 @@ function TableActions({
   if (isLoading)
     return (
       <Spinner
-        className="  w-4 h-4 flex items-center mr-1 justify-center  ml-auto"
+        className="  w-4 h-4 flex items-center mx-1 justify-center  "
         size={15}
       />
     );
 
   return (
-    <div onClick={(e) => e.stopPropagation()} className=" w-fit ml-auto ">
+    <div onClick={(e) => e.stopPropagation()} className=" w-fit ">
       {isAdmin ? (
         <>
           <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
@@ -912,13 +909,13 @@ function DeleteService({
               setIsDeleting(true);
               try {
                 const { error } = await deleteServiceAction(
-                  service.id.toString()
+                  service.id.toString(),
                 );
                 if (error) throw new Error(error);
                 checkIfLastItem();
                 setIsDeleting(false);
                 handleClose();
-                queryClient.removeQueries(["servicesStats"]);
+                queryClient.removeQueries({ queryKey: ["servicesStats"] });
                 toast({
                   className: "bg-primary  text-primary-foreground",
                   title: `Data deleted!.`,

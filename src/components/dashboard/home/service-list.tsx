@@ -82,6 +82,7 @@ const ServiceList = async ({
         minPrice={minPrice}
         currPage={pageNumber}
       /> */}
+      <h3 className="   text-lg sm:text-3xl font-semibold  my-10">Services</h3>
       {!servicesData.error ? (
         <>
           <ServiceTable

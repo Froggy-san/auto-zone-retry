@@ -1,48 +1,27 @@
-import { getInfiniteOrders } from "@lib/services/orders";
-import { OrderStatus, PaymentMethod } from "@lib/types";
+import {
+  GetInfiniteOrderAction,
+  getInfiniteOrdersAction,
+} from "@lib/actions/orderActions";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { z } from "zod";
 
-interface GetInfiniteOrdersProps {
-  id?: number;
-  createdAt?: Date;
-  totalAmount?: number;
-  paymentMethod?: z.infer<typeof PaymentMethod>;
-  status?: z.infer<typeof OrderStatus>;
-  stripePaymentId?: string;
-  pickupDate?: Date;
-  orderFulfilledAt?: Date;
-  sort?: "asc" | "desc" | string;
-}
-export default function useInfiniteOrders(filters: GetInfiniteOrdersProps) {
-  const {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
-    queryKey: ["orders", filters],
-    queryFn: ({ pageParam, queryKey }) =>
-      getInfiniteOrders({
+export default function useInfiniteOrders(
+  filters: Omit<GetInfiniteOrderAction, "pageParam">,
+) {
+  // Ensure we return the result of the hook!
+  return useInfiniteQuery({
+    // Using a spread of filters ensures React Query tracks each change individually
+    queryKey: ["orders", { ...filters }],
+    queryFn: async ({ pageParam = 0 }) => {
+      // Explicitly pass pageParam and ensure it's a number
+      const result = await getInfiniteOrdersAction({
         pageParam: pageParam as number,
+        ...filters,
+      });
 
-        queryKey: queryKey as [string, GetInfiniteOrdersProps],
-      }),
+      if (result.error) throw new Error(result.error);
 
-    getNextPageParam: (lastPage) => {
-      return lastPage.nextPageParam;
+      return result;
     },
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
-  return {
-    data,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-    status,
-  };
 }

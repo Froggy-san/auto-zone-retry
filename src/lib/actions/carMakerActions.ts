@@ -35,46 +35,47 @@ export async function getAllCarMakersAction(pageNumber?: number): Promise<{
 
   // if (!token)
   //   return { data: null, error: "You are not authorized to make this action." };
+  try {
+    const query = `${supabaseUrl}/rest/v1/carMakers?select=*,carModels(*,carGenerations(*))&order=created_at.desc&carModels.order=created_at.asc`;
+    let headers;
+    if (pageNumber) {
+      const from = (Number(pageNumber) - 1) * MAKER_PAGE_SIZE; // (1-1) * 10 = 0
 
-  const query = `${supabaseUrl}/rest/v1/carMakers?select=*,carModels(*,carGenerations(*))&order=created_at.desc&carModels.order=created_at.asc`;
-  let headers;
-  if (pageNumber) {
-    const from = (Number(pageNumber) - 1) * MAKER_PAGE_SIZE; // (1-1) * 10 = 0
+      const to = from + MAKER_PAGE_SIZE - 1; // 0 + 10 - 1 = 9
+      headers = {
+        apikey: `${supabaseKey}`,
+        Authorization: `Bearer ${supabaseKey}`,
+        Range: `${from}-${to}`,
+      };
+    } else {
+      headers = {
+        apikey: `${supabaseKey}`,
+        Authorization: `Bearer ${supabaseKey}`,
+      };
+    }
 
-    const to = from + MAKER_PAGE_SIZE - 1; // 0 + 10 - 1 = 9
-    headers = {
-      apikey: `${supabaseKey}`,
-      Authorization: `Bearer ${supabaseKey}`,
-      Range: `${from}-${to}`,
-    };
-  } else {
-    headers = {
-      apikey: `${supabaseKey}`,
-      Authorization: `Bearer ${supabaseKey}`,
-    };
+    const response = await fetch(query, {
+      method: "GET",
+      headers,
+      next: { tags: ["carMakers"] },
+    });
+
+    if (!response.ok) {
+      const error =
+        (await response.json()).message ||
+        "Something went wrong while trying to fetch car makers data.";
+
+      console.log(`Error in getAllCarMakersAction: ${error}`);
+      throw new Error(`Faield to get the car makers data: ${error}`);
+    }
+
+    const data = await response.json();
+
+    return { data, error: "" };
+  } catch (error: any) {
+    return { data: null, error: error.message };
   }
-
-  const response = await fetch(query, {
-    method: "GET",
-    headers,
-    next: { tags: ["carMakers"] },
-  });
-
-  if (!response.ok) {
-    const error = (await response.json()).message;
-    console.log("Error", error);
-    return {
-      data: null,
-      error:
-        error || "Something went wrong while trying to fetch car makers data.",
-    };
-  }
-
-  const data = await response.json();
-
-  return { data, error: "" };
 }
-
 // Create a car maker.
 
 export async function createCarMakerAction(formData: FormData) {

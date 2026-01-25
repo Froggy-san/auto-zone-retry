@@ -27,6 +27,8 @@ import Link from "next/link";
 import { pdf } from "@react-pdf/renderer";
 import OrderReceiptPDF from "@components/success/OrderReceiptPDF";
 import supabase from "@utils/supabase";
+import PaymentStatus from "@components/dashboard/home/orders/payment-status-badge";
+import OrderStatus from "@components/dashboard/home/orders/order-order-status";
 export default function SuccessPage() {
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
@@ -110,7 +112,7 @@ export default function SuccessPage() {
         (payload) => {
           console.log("Order Updated Realtime:", payload.new);
           setOrderData(payload.new as Order); // Cast to your Order type
-        }
+        },
       )
       .subscribe();
 
@@ -164,7 +166,8 @@ export default function SuccessPage() {
             transition={{ delay: 0.5 }}
             className="text-muted-foreground"
           >
-            Thank you for your order. We've sent a confirmation to your email.
+            Thank you for your order. We&apos;ve sent a confirmation to your
+            email.
           </motion.p>
 
           <motion.div
@@ -251,7 +254,7 @@ export default function SuccessPage() {
                               <span className="ml-2 text-green-500">
                                 (-
                                 {formatCurrency(
-                                  item.listPrice - item.salePrice
+                                  item.listPrice - item.salePrice,
                                 )}{" "}
                                 discount)
                               </span>
@@ -342,15 +345,34 @@ export default function SuccessPage() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Status</span>
-                <Badge
+                <span className="text-muted-foreground">Payemt Status</span>
+                {orderData?.payment_status && (
+                  <PaymentStatus status={orderData.payment_status} />
+                )}
+
+                {/* <Badge
                   variant="outline"
                   className="bg-primary/10 text-primary border-primary/30"
                 >
                   {orderData &&
                     orderData?.status.charAt(0).toUpperCase() +
                       orderData?.status.slice(1)}
-                </Badge>
+                </Badge> */}
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Order Status</span>
+
+                {orderData?.order_status && (
+                  <OrderStatus status={orderData.order_status} />
+                )}
+                {/* <Badge
+                  variant="outline"
+                  className="bg-primary/10 text-primary border-primary/30"
+                >
+                  {orderData &&
+                    orderData?.status.charAt(0).toUpperCase() +
+                      orderData?.status.slice(1)}
+                </Badge> */}
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Date</span>
@@ -379,7 +401,7 @@ export default function SuccessPage() {
             onClick={async () => {
               if (!orderData) return;
               const blob = await pdf(
-                <OrderReceiptPDF order={orderData} />
+                <OrderReceiptPDF order={orderData} />,
               ).toBlob();
               const url = URL.createObjectURL(blob);
               const link = document.createElement("a");

@@ -8,6 +8,7 @@ import { deleteImageFromBucketSr } from "@lib/services/server-helpers";
 import {
   AddetionalDetailsSchema,
   CarGeneration,
+  CartItem,
   CreateProductProps,
   EditProduct,
   Product,
@@ -150,55 +151,70 @@ interface ReturnedById extends ProductById {
 }
 export async function getProductByIdAction(
   id: string,
-  appliedFilters: AppliedFilters
+  appliedFilters: AppliedFilters,
 ): Promise<{ data: ReturnedById | null; error: string }> {
-  const response = await fetch(
-    `${supabaseUrl}/rest/v1/product?id=eq.${id}&select=*,productImages(*),categories(*),productBrands(*),productTypes(*),moreDetails(*),carMakers(*),carModels(*)&productImages.order=id.asc`,
-    {
-      method: "GET",
-      headers: {
-        apikey: `${supabaseKey}`,
-        Authorization: `Bearer ${supabaseKey}`,
+  try {
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/product?id=eq.${id}&select=*,productImages(*),categories(*),productBrands(*),productTypes(*),moreDetails(*),carMakers(*),carModels(*)&productImages.order=id.asc`,
+      {
+        method: "GET",
+        headers: {
+          apikey: `${supabaseKey}`,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        next: {
+          // Dynamic tag for the specific product and the general list
+          tags: ["products", `product-${id}`],
+        },
       },
+    );
+
+    if (!response.ok) {
+      // Handle HTTP errors (e.g., 404, 500)
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: "Unknown error" }));
+      console.error(
+        `API Error for product ${id}: ${response.status} - ${errorData.message}`,
+      );
+      throw new Error(
+        `Failed to fetch product ${id}: ${errorData.message || response.statusText}`,
+      );
     }
-  );
 
-  if (!response.ok) {
-    const error =
-      (await response.json()) ||
-      "Something went wrong while getting the product";
+    const data = await response.json();
+    const product = data[0];
+    const moreDetails = product.moreDetails.map(
+      (item: { title: string; description: string; table: string }) => {
+        const table = JSON.parse(item.table);
+        return {
+          ...item,
+          table,
+        };
+      },
+    );
 
-    return { data: null, error };
+    // let errors = "";
+    // let generationsArr: CarGeneration[] = [];
+    const { generations, error } = await fetchProductGenerations(product);
+    console.log(`Generations Fetch Error: ${error}`);
+
+    const { pages, error: pagesError } = await getNextAndPrevPros(
+      product.id,
+      appliedFilters,
+    );
+
+    const productById = {
+      ...product,
+      moreDetails,
+      generationsArr: generations || [],
+      pages,
+    };
+
+    return { data: productById, error: error || "" };
+  } catch (error: any) {
+    return { data: null, error: error.message };
   }
-
-  const data = await response.json();
-  const product = data[0];
-  const moreDetails = product.moreDetails.map(
-    (item: { title: string; description: string; table: string }) => {
-      const table = JSON.parse(item.table);
-      return {
-        ...item,
-        table,
-      };
-    }
-  );
-
-  // let errors = "";
-  // let generationsArr: CarGeneration[] = [];
-  const { generations, error } = await fetchProductGenerations(product);
-  const { pages, error: pagesError } = await getNextAndPrevPros(
-    product.id,
-    appliedFilters
-  );
-
-  const productById = {
-    ...product,
-    moreDetails,
-    generationsArr: generations || [],
-    pages,
-  };
-
-  return { data: productById, error: error || "" };
 }
 
 interface FetchedProductData {
@@ -217,7 +233,7 @@ async function getNextAndPrevPros(
     modelId,
     generationId,
     isAvailable,
-  }: AppliedFilters
+  }: AppliedFilters,
 ) {
   const supabase = await createClient();
 
@@ -235,7 +251,7 @@ async function getNextAndPrevPros(
   if (name) {
     nextPage = nextPage.or(`name.ilike.*${name}*,description.ilike.*${name}*`);
     previousPage = previousPage.or(
-      `name.ilike.*${name}*,description.ilike.*${name}*`
+      `name.ilike.*${name}*,description.ilike.*${name}*`,
     );
   }
 
@@ -307,7 +323,7 @@ async function getNextAndPrevPros(
 }
 
 async function fetchProductGenerations(
-  product: ProductById
+  product: ProductById,
 ): Promise<FetchedProductData> {
   const supabase = await createClient(); // Get your Supabase client instance
 
@@ -327,7 +343,7 @@ async function fetchProductGenerations(
       } else {
         console.warn(
           "Parsed generationsArr is not an array of numbers:",
-          product.generationsArr
+          product.generationsArr,
         );
         error = "Invalid generations data format.";
       }
@@ -335,7 +351,7 @@ async function fetchProductGenerations(
       console.error(
         "Error parsing generationsArr JSON:",
         product.generationsArr,
-        e
+        e,
       );
       error = "Failed to process generations data.";
     }
@@ -345,7 +361,7 @@ async function fetchProductGenerations(
     // Only fetch if we have valid IDs
     const generationPromises = genIds.map(
       (genId: number) =>
-        supabase.from("carGenerations").select("*").eq("id", genId).single() // Use .single() if you expect one result per ID
+        supabase.from("carGenerations").select("*").eq("id", genId).single(), // Use .single() if you expect one result per ID
     );
 
     try {
@@ -359,7 +375,7 @@ async function fetchProductGenerations(
           if (res.error) {
             console.error(
               `Error fetching generation ID ${genIds[index]}:`,
-              res.error
+              res.error,
             );
           }
         });
@@ -498,6 +514,33 @@ export async function revalidateProductById(id: number) {
   revalidatePath(`/products/${id}`);
   revalidateTag("products");
 }
+export async function adjustProductsStockAction(
+  actionType: "decrement" | "increment",
+  cartItems: any[], // Just the array of {id, quantity}
+) {
+  try {
+    const supabase = await createClient();
+
+    // We send the whole array to the one "Batch" function
+    const { error } = await supabase.rpc("adjust_stock_batch", {
+      items_array: cartItems,
+      action_type: actionType,
+    });
+
+    if (error) throw new Error(error.message);
+    // 1. Purge the main products list cache
+    revalidateTag("products");
+
+    // 2. Purge each individual product's cache
+    cartItems.forEach((item) => {
+      revalidateTag(`product-${item.id}`);
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Stock adjustment failed:", error.message);
+    return { success: false, error: error.message };
+  }
+}
 // export async function createProductAction({
 //   name,
 //   categoryId,
@@ -620,7 +663,7 @@ export async function editProductAction({
           "Content-Type": "application/json",
         },
         body: JSON.stringify(productToEdit),
-      }
+      },
     );
 
     if (!response.ok) {
@@ -633,14 +676,14 @@ export async function editProductAction({
 
   if (imagesToUpload.length) {
     const upload = imagesToUpload.map((image) =>
-      createProductImageAction(image)
+      createProductImageAction(image),
     );
     await Promise.all(upload);
   }
 
   if (imagesToDelete.length) {
     const deleteImages = imagesToDelete.map((deletedImage) =>
-      deleteProductsImageAction(deletedImage.id)
+      deleteProductsImageAction(deletedImage.id),
     );
 
     await Promise.all(deleteImages);
@@ -658,7 +701,7 @@ export async function editProductAction({
 
 export async function deleteProductsByIdAction(
   id: number,
-  imagePaths: string[]
+  imagePaths: string[],
 ) {
   //Product?PageNumber=1&PageSize=10
 
@@ -802,7 +845,7 @@ export async function getProductsImageAction(id: number) {
       //   Authorization: `Bearer ${token}`,
       //   // "Content-type": "application/json",
       // },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -863,7 +906,7 @@ export async function createMultipleProImages(formData: FormData, id: number) {
         Authorization: `Bearer ${token}`,
       },
       body: formData,
-    }
+    },
   );
 
   if (!response.ok) {
@@ -892,7 +935,7 @@ export async function deleteProductsImageAction(imageId: number) {
         Authorization: `Bearer ${token}`,
         // "Content-type": "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -925,7 +968,7 @@ export async function getProductsImagesMainAction(id: number) {
         Authorization: `Bearer ${token}`,
         // "Content-type": "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -971,7 +1014,7 @@ export async function deleteProductsImageMainAction(id: number) {
         Authorization: `Bearer ${token}`,
         // "Content-type": "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {

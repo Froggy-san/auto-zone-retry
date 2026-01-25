@@ -79,7 +79,7 @@ export async function signinWithGoogle() {
       // This parameter tells Supabase where to redirect the user after a successful login.
       // Even though the OAuth callback happens at your Supabase project URL,
       // this "redirectTo" parameter sends the user back to your app.
-      redirectTo: `${process.env.SITE_URL}/api/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
     },
   });
 
