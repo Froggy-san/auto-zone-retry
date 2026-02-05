@@ -13,7 +13,11 @@ import { createClient } from "@utils/supabase/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { editServiceAction } from "./serviceActions";
-import { editProductAction, editProductsStockAction } from "./productsActions";
+import {
+  adjustProductsStockAction,
+  editProductAction,
+  editProductsStockAction,
+} from "./productsActions";
 
 interface GetProps {
   pageNumber?: string;
@@ -67,7 +71,7 @@ export async function getServiceFeesAction({
 
   if (!response.ok) {
     console.log(
-      "Something went wrong while trying to fetch Service fees data."
+      "Something went wrong while trying to fetch Service fees data.",
     );
     return {
       data: null,
@@ -85,7 +89,7 @@ type CreateProps = ProductSold & { totalPriceAfterDiscount: number };
 export async function createProductToSellAction(
   productToSell: CreateProps,
   totalPrice: number,
-  stocksUpdates: Product
+  stocksUpdates: Product,
 ) {
   const supabase = await createClient();
   // 1. Add new product sold.
@@ -110,7 +114,7 @@ export async function createProductToSellAction(
   return { data: null, error: "" };
 }
 export async function getProductToSellById(
-  id: string
+  id: string,
 ): Promise<{ data: ProductToSell | null; error: string }> {
   const supabase = await createClient();
   const { data: productsToSell, error } = await supabase
@@ -171,7 +175,7 @@ export async function editProductToSellAction(
     id: number;
   },
   { id: serviceId, totalPrice, isEqual }: ServiceProps,
-  stocksUpdates: Product
+  stocksUpdates: Product,
 ) {
   const supabase = await createClient();
 
@@ -214,49 +218,39 @@ export async function deleteProductToSellAction({
   totalPrice,
   shouldUpdateStock = false,
 }: Delete) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  // 1. Delete the product sold entry.
-  const { error } = await supabase
-    .from("productsToSell")
-    .delete()
-    .eq("id", proSold.id);
-  if (error) return { data: null, error: error.message };
-  const { data, error: serviceError } = await editServiceAction({
-    id: serviceId,
-    totalPrice,
-  });
-  if (serviceError) return { data, error: serviceError };
+    // 1. Delete the product sold entry.
+    const { error } = await supabase
+      .from("productsToSell")
+      .delete()
+      .eq("id", proSold.id);
 
-  // 2. If the user wants to update the stock of the product after deleting the product sold entry.
-  if (shouldUpdateStock) {
-    const { data: product, error } = await supabase
-      .from("product")
-      .select("*")
-      .eq("id", proSold.productId);
+    if (error)
+      throw new Error(`Failed to delete product sold: ${error.message}`);
 
-    if (error) return { data: null, error: error.message };
-    if (!product[0])
-      return {
-        data: null,
-        error:
-          "Something went wrong while trying to update the stocks after deletion.",
-      };
+    const { data, error: serviceError } = await editServiceAction({
+      id: serviceId,
+      totalPrice,
+    });
+    if (serviceError) throw new Error(serviceError);
 
-    const { error: updateError } = await supabase
-      .from("product")
-      .update({ stock: product[0].stock + proSold.count })
-      .eq("id", proSold.productId);
+    // 2. If the user wants to update the stock of the product after deleting the product sold entry.
+    if (shouldUpdateStock) {
+      const { error } = await adjustProductsStockAction("increment", [
+        { id: proSold.productId, quantity: proSold.count },
+      ]);
 
-    if (updateError)
-      return {
-        data: null,
-        error: `Failed to update stock: ${updateError.message}`,
-      };
+      if (error) throw new Error(error);
+    }
+    revalidateTag("services");
+
+    return { data: null, error: "" };
+  } catch (error: any) {
+    console.log(error.message);
+    return { data: null, error: error.message };
   }
-  revalidateTag("services");
-
-  return { data: null, error: "" };
 }
 
 export async function getServiceFeesCountAction({

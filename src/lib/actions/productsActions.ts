@@ -415,6 +415,7 @@ export async function createProductAction({
   images,
 }: CreateProductProps) {
   // 1. Create the product.
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("product")
@@ -511,8 +512,8 @@ export async function revalidateProducts() {
 }
 
 export async function revalidateProductById(id: number) {
-  revalidatePath(`/products/${id}`);
-  revalidateTag("products");
+  // revalidatePath(`/products/${id}`);
+  revalidateTag(`product-${id}`);
 }
 export async function adjustProductsStockAction(
   actionType: "decrement" | "increment",

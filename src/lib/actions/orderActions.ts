@@ -12,63 +12,9 @@ import { getCurrentClientAction } from "./clientActions";
 import Stripe from "stripe";
 import { adjustProductsStockAction } from "./productsActions";
 import { PAGE_SIZE } from "@lib/constants";
-import { DateRange } from "react-day-picker";
-import { sortBy } from "lodash";
-interface GetOrdersActionProps {
-  id: number;
-  createdAt?: Date;
-  clientId?: number;
-  totalAmount?: number;
-  paymentMethod?: z.infer<typeof PaymentMethod>;
-  payment_status?: z.infer<typeof PaymentStatusSchema>;
-  order_status?: z.infer<typeof OrderStatusSchema>;
-  stripePaymentId?: string;
-  pickupDate?: Date;
-}
-
-export async function getOrdersAction({
-  id,
-  createdAt,
-  clientId,
-  totalAmount,
-  paymentMethod,
-  payment_status,
-  order_status,
-  stripePaymentId,
-  pickupDate,
-}: GetOrdersActionProps): Promise<{
-  data: Order[] | null;
-  error: string | null;
-}> {
-  const supabase = await createClient();
-  try {
-    let query = supabase.from("orders").select("*");
-    if (createdAt) {
-      query = query.eq("created_at", createdAt.toISOString());
-    }
-    if (id) query = query.eq("id", id);
-    if (clientId) {
-      query = query.eq("client_id", clientId);
-    }
-    if (totalAmount) query = query.eq("total_amount", totalAmount);
-    if (paymentMethod) query = query.eq("payment_method", paymentMethod);
-    if (payment_status) query = query.eq("payment_status", payment_status);
-    if (order_status) query = query.eq("order_status", order_status);
-    if (stripePaymentId) query = query.eq("stripe_payment_id", stripePaymentId);
-    if (pickupDate) query = query.eq("pickupDate", pickupDate);
-    const { data: orders, error } = await query;
-    if (error) {
-      console.log(`Failed to get order data: ${error.message}`);
-      throw new Error(error.message);
-    }
-    return { data: orders, error: null };
-  } catch (error: any) {
-    return { data: null, error: error.message };
-  }
-}
-
-export interface GetInfiniteOrderAction {
-  pageParam: number;
+export interface GetOrdersProps {
+  id?: number;
+  pageNumber?: number;
   searchTerm?: string;
   clientId?: number;
   paymentStatus?: z.infer<typeof PaymentStatusSchema>;
@@ -82,6 +28,119 @@ export interface GetInfiniteOrderAction {
   sort?: "asc" | "desc" | string;
   isToday?: boolean;
 }
+export async function getOrdersAction({
+  pageNumber,
+  clientId,
+  searchTerm,
+  paymentStatus,
+  orderStatus,
+  paymentMethod,
+  stripePaymentId,
+  totalAmount,
+  createdAt,
+  pickupDate,
+  orderFulfilledAt,
+  sort,
+  isToday = false,
+}: GetOrdersProps): Promise<{
+  data: Order[] | null;
+
+  error: string | null;
+}> {
+  try {
+    const supabase = await createClient();
+
+    let query = supabase
+      .from("orders")
+      .select("*,client:client_id(*,phoneNumbers:phones(*))")
+      .order("created_at", { ascending: sort === "asc" });
+
+    // Apply Filters conditionally
+    if (clientId) query = query.eq("client_id", clientId);
+    if (paymentStatus) query = query.eq("payment_status", paymentStatus);
+    if (orderStatus) query = query.eq("order_status", orderStatus);
+    if (paymentMethod) query = query.eq("payment_method", paymentMethod);
+    if (stripePaymentId) query = query.eq("stripe_payment_id", stripePaymentId);
+    if (totalAmount) query = query.eq("total_amount", totalAmount);
+    if (createdAt?.from) {
+      // Sets to 00:00 local time
+      const d = new Date(createdAt.from);
+      d.setHours(0, 0, 0, 0);
+
+      // Format to YYYY-MM-DD HH:mm:ss for Postgres
+      const formatted =
+        d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+      query = query.gte("created_at", formatted);
+    }
+
+    if (createdAt?.to) {
+      const d = new Date(createdAt.from);
+      d.setHours(23, 59, 59, 999);
+
+      // Format to YYYY-MM-DD HH:mm:ss for Postgres
+      const formatted =
+        d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+      query = query.lte("created_at", formatted);
+    }
+
+    if (pickupDate?.from) {
+      const d = new Date(pickupDate.from);
+      d.setHours(0, 0, 0, 0);
+
+      const formatted =
+        d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+      query = query.gte("pickupDate", formatted);
+    }
+
+    if (pickupDate?.to) {
+      const d = new Date(pickupDate.to);
+      d.setHours(23, 59, 59, 999);
+
+      const formatted =
+        d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+      query = query.lte("pickupDate", formatted);
+    }
+
+    if (searchTerm)
+      query = query.or(
+        `customer_details->>name.ilike.%${searchTerm}%,customer_details->>email.ilike.%${searchTerm}%,customer_details->>phone.ilike.%${searchTerm}%,payment_status.like.${searchTerm},order_status.ilike.%${searchTerm}%,stripe_payment_id.ilike.%${searchTerm}%`,
+      );
+    if (orderFulfilledAt)
+      query = query.eq("order_fulfilled_at", orderFulfilledAt);
+
+    // For getting the current day activities.
+    if (isToday) {
+      // Exclude multiple order statuses in one line
+      query = query.not("order_status", "in", '("cancelled","returned")');
+
+      // Exclude multiple payment statuses
+      query = query.not("payment_status", "in", '("refunded","disputed")');
+    }
+
+    if (pageNumber) {
+      const from = pageNumber * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      query = query.range(from, to);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      // Instead of throwing, we return an object React Query can check
+      throw new Error(error.message);
+    }
+
+    return {
+      data,
+      error: null,
+    };
+  } catch (error: any) {
+    return { data: null, error: error.message };
+  }
+}
+
+type GetInfiniteOrderAction = Omit<GetOrdersProps, "pageNumber"> & {
+  pageParam?: number;
+};
 
 export async function getInfiniteOrdersAction({
   pageParam = 0,
@@ -190,21 +249,26 @@ export async function getInfiniteOrdersAction({
   }
 }
 
-export async function getOrderByIdAction(id: number) {
+export async function getOrderByIdAction(
+  id: number,
+): Promise<{ data: Order | null; error: string | null }> {
   try {
+    const supabase = await createClient();
     const { data: currentClient, error } = await getCurrentClientAction();
 
     if (error) throw new Error(error);
-    const { data: orderById, error: orderError } = await getOrdersAction({
-      id,
-    });
 
-    if (orderError) throw new Error(orderError);
-    if (!orderById || !orderById.length)
-      throw new Error(`No order found with that id #${id}`);
+    const { data: orderById, error: orderError } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (orderError) throw new Error(orderError.message);
+    if (!orderById) throw new Error(`No order found with that id #${id}`);
 
     const isClientOrder =
-      orderById[0].client_id === currentClient?.id ||
+      orderById.client_id === currentClient?.id ||
       currentClient?.role === "admin";
 
     if (!isClientOrder) throw new Error(`Unauthorized action`);
@@ -457,5 +521,98 @@ export async function refundOrderAction(
     return { success: true, data: retunredData, error: null };
   } catch (error: any) {
     return { success: false, data: null, error: error.message };
+  }
+}
+
+export interface GetOrdersProps {
+  id?: number;
+  paymentStatus?: z.infer<typeof PaymentStatusSchema>;
+  orderStatus?: z.infer<typeof OrderStatusSchema>;
+  paymentMethod?: string;
+  stripePaymentId?: string;
+
+  dateFrom?: string;
+  dateTo?: string;
+  totalAmount?: number;
+  orderFulfilledAt?: string;
+  sort?: "asc" | "desc" | string;
+  isToday?: boolean;
+}
+export async function getOrdersStatsAction({
+  paymentStatus,
+  orderStatus,
+  paymentMethod,
+  stripePaymentId,
+  totalAmount,
+  dateFrom,
+  dateTo,
+  orderFulfilledAt,
+  sort,
+  isToday = false,
+}: GetOrdersProps): Promise<{
+  data: Order[] | null;
+
+  error: string | null;
+}> {
+  try {
+    const supabase = await createClient();
+
+    let query = supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: sort === "asc" });
+
+    // Apply Filters conditionally
+
+    if (paymentStatus) query = query.eq("payment_status", paymentStatus);
+    if (orderStatus) query = query.eq("order_status", orderStatus);
+    if (paymentMethod) query = query.eq("payment_method", paymentMethod);
+    if (stripePaymentId) query = query.eq("stripe_payment_id", stripePaymentId);
+    if (totalAmount) query = query.eq("total_amount", totalAmount);
+    if (dateFrom) {
+      // Sets to 00:00 local time
+      const d = new Date(dateFrom);
+      d.setHours(0, 0, 0, 0);
+
+      // Format to YYYY-MM-DD HH:mm:ss for Postgres
+      const formatted =
+        d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+      query = query.gte("created_at", formatted);
+    }
+
+    if (dateTo) {
+      const d = new Date(dateTo);
+      d.setHours(23, 59, 59, 999);
+
+      // Format to YYYY-MM-DD HH:mm:ss for Postgres
+      const formatted =
+        d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+      query = query.lte("created_at", formatted);
+    }
+
+    if (orderFulfilledAt)
+      query = query.eq("order_fulfilled_at", orderFulfilledAt);
+
+    // For getting the current day activities.
+    if (isToday) {
+      // Exclude multiple order statuses in one line
+      query = query.not("order_status", "in", '("cancelled","returned")');
+
+      // Exclude multiple payment statuses
+      query = query.not("payment_status", "in", '("refunded","disputed")');
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      // Instead of throwing, we return an object React Query can check
+      throw new Error(error.message);
+    }
+
+    return {
+      data,
+      error: null,
+    };
+  } catch (error: any) {
+    return { data: null, error: error.message };
   }
 }

@@ -277,7 +277,7 @@ const ProductSoldDialog = ({
         totalDiscount: 0,
         totalPriceAfterDiscount: 0,
         totalPriceBeforeDiscount: 0,
-      }
+      },
     );
   }, [productsSold]);
 
@@ -295,7 +295,7 @@ const ProductSoldDialog = ({
         totalDiscount: 0,
         totalPriceAfterDiscount: 0,
         totalPriceBeforeDiscount: 0,
-      }
+      },
     );
   }, [returnedPro]);
 
@@ -584,7 +584,7 @@ function DeleteProSold({
   serviceId: number;
 }) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const [shouldUpdateStock, setShouldUpdateStock] = useState(false);
+  const [shouldUpdateStock, setShouldUpdateStock] = useState(true);
   const { toast } = useToast();
 
   return (
@@ -686,7 +686,7 @@ function ProItem({
         {
           " bg-accent hover:bg-muted-foreground/30  dark:bg-card/25 dark:hover:bg-card/10 border-none ":
             returned,
-        }
+        },
       )}
     >
       <LinkPreview
@@ -710,21 +710,21 @@ function ProItem({
           <div className="   pointer-events-none">
             Price per unit:{" "}
             <span className=" text-xs text-muted-foreground">{` ${formatCurrency(
-              product.pricePerUnit
+              product.pricePerUnit,
             )}`}</span>{" "}
           </div>
           <div className="   pointer-events-none">
             {" "}
             Discount per unit:{" "}
             <span className="text-xs text-muted-foreground">{` ${formatCurrency(
-              product.discount
+              product.discount,
             )}`}</span>
           </div>
 
           <div className="   pointer-events-none">
             Total price after discount:{" "}
             <span className="text-xs text-muted-foreground   break-all whitespace-normal">{` ${formatCurrency(
-              product.totalPriceAfterDiscount
+              product.totalPriceAfterDiscount,
             )}`}</span>
           </div>
           {isAdmin && product.note.length > 0 && (

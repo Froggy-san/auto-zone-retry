@@ -118,10 +118,10 @@ function OrderFilters({
           trigger={
             <Button
               variant="outline"
-              className=" py-1 px-2 h-7 text-[13px] items-center text-sm gap-1 w-fit "
+              className=" py-1 px-1 xs:px-2 w-7 xs:w-fit h-7 text-[13px] items-center text-sm gap-1  "
             >
-              Created at{" "}
-              <CalendarPlus className=" w-4 h-4 mb-[1px] text-muted-foreground" />
+              <span className=" hidden xs:inline"> Created At </span>
+              <CalendarPlus className=" w-4 h-4 mb-[1px] xs:text-muted-foreground" />
             </Button>
           }
           content={
@@ -162,10 +162,10 @@ function OrderFilters({
             trigger={
               <Button
                 variant="outline"
-                className=" py-0  px-2 h-7 text-[13px] te items-center  gap-1 w-fit "
+                className=" py-1 px-1 xs:px-2 w-7 xs:w-fit h-7 text-[13px] items-center text-sm gap-1  "
               >
-                Pick-up{" "}
-                <CalendarDays className="  w-4 h-4 mb-[1px] text-muted-foreground" />
+                <span className=" hidden xs:inline"> Pick-up </span>
+                <CalendarDays className="  w-4 h-4 mb-[1px] xs:text-muted-foreground" />
               </Button>
             }
             content={
@@ -222,14 +222,14 @@ function OrderFilters({
       <div
         className={cn(
           // Base Mobile Styles (Hidden/Absolute)
-          "absolute left-1/2 -translate-x-1/2 w-0 opacity-0 pointer-events-none blur-sm transition-all duration-300 h-7 bg-background rounded-md  border",
+          "absolute left-1/2 -translate-x-1/2 w-0 opacity-0 pointer-events-none blur-sm transition-all duration-300 h-7 bg-background rounded-md  border ",
 
           // Base Desktop Styles (Reset to flow)
           "sm:static sm:left-auto sm:translate-x-0 sm:w-full sm:opacity-100 sm:pointer-events-auto sm:blur-0",
 
           {
             // Mobile "Show" State
-            "w-[98%] opacity-100 blur-0 pointer-events-auto": isShowSearch,
+            "w-[98%] opacity-100 !blur-0 pointer-events-auto": isShowSearch,
 
             // Desktop "Show" State (Force it to remain static/normal)
             "sm:w-full sm:static sm:translate-x-0": isShowSearch,
@@ -265,7 +265,7 @@ function OrderFilters({
       <Button
         variant="outline"
         size="sm"
-        className=" gap-1  w-fit px-1.5 !py-0.5 text-[9px] xs:text-xs  h-7"
+        className=" gap-1  w-fit px-2 py-1 text-[12px] xs:text-xs  h-7"
         onClick={() => {
           setSortBy(sortBy === "asc" ? "desc" : "asc");
         }}

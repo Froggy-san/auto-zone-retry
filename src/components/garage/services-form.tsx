@@ -56,6 +56,7 @@ import { isNull } from "lodash";
 import { formatCurrency } from "@lib/client-helpers";
 import CurrencyInput from "react-currency-input-field";
 import PrioritySelect from "@components/priority-select";
+import { checkStock } from "@lib/services/products";
 
 interface Client {
   name: string;
@@ -119,7 +120,7 @@ const ServicesForm = ({
   });
 
   const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    { rules: { minLength: 1 }, name: "serviceFees", control: form.control }
+    { rules: { minLength: 1 }, name: "serviceFees", control: form.control },
   );
   const {
     fields: productsToSellFields,
@@ -152,7 +153,7 @@ const ServicesForm = ({
     {
       totalPrice: 0,
       totalDiscount: 0,
-    }
+    },
   );
 
   const totalProductSoldAmounts = productsToSell.reduce(
@@ -162,7 +163,7 @@ const ServicesForm = ({
       acc.totalCount += curr.count;
       return acc;
     },
-    { totalPrice: 0, totalDiscount: 0, totalCount: 0 }
+    { totalPrice: 0, totalDiscount: 0, totalCount: 0 },
   );
 
   const params = new URLSearchParams(searchParam);
@@ -212,6 +213,9 @@ const ServicesForm = ({
       totalProductSoldAmounts.totalDiscount;
     const totalPrice = totalFeesAfterDis + totalSoldAfterDis;
     try {
+      //! This code originally was used to recalculate the stock but we refactored it by creating the adjust_stock_batch in supabase.
+
+      //! We are keeping it still because even though we disabled the selection of any already selected product, users still can disable that feature maliciously and add the item more than once so here we are still making sure that the product stocks are being calculated correctly.
       const soldQuantities: Map<number, number> = new Map();
 
       if (data.productsToSell.length) {
@@ -221,38 +225,51 @@ const ServicesForm = ({
         });
       }
 
-      const stocksUpdates: Product[] = [];
+      const stocksUpdates: { id: number; quantity: number }[] = [];
       // Calculate the new stock for each unique product
       for (const [productId, totalSoldCount] of soldQuantities.entries()) {
-        const currentProduct = products.find((prod) => prod.id === productId);
+        stocksUpdates.push({ id: productId, quantity: totalSoldCount });
+        // const currentProduct = products.find((prod) => prod.id === productId);
 
-        if (!currentProduct) {
-          // Handle cases where product is not found (e.g., log error, skip, or throw)
-          console.warn(
-            `Product with ID ${productId} not found. Skipping stock update.`
-          );
-          continue;
-        }
+        // if (!currentProduct) {
+        //   // Handle cases where product is not found (e.g., log error, skip, or throw)
+        //   console.warn(
+        //     `Product with ID ${productId} not found. Skipping stock update.`,
+        //   );
+        //   continue;
+        // }
 
-        const initialStock = currentProduct.stock;
-        const newStock = initialStock - totalSoldCount;
+        // const initialStock = currentProduct.stock;
+        // const newStock = initialStock - totalSoldCount;
 
-        // Ensure stock doesn't go negative if that's a business rule
-        const { categories, productImages, ...rest } = currentProduct;
-        const product = rest as Product;
-        if (newStock < 0) {
-          console.warn(
-            `Stock for product ${productId} would go negative (${newStock}). Adjusting to 0.`
-          );
-          stocksUpdates.push({ ...product, stock: 0 });
-        } else {
-          stocksUpdates.push({ ...product, stock: newStock });
-        }
+        // // Ensure stock doesn't go negative if that's a business rule
+        // const { categories, productImages, ...rest } = currentProduct;
+        // const product = rest as Product;
+        // if (newStock < 0) {
+        //   console.warn(
+        //     `Stock for product ${productId} would go negative (${newStock}). Adjusting to 0.`,
+        //   );
+        //   stocksUpdates.push({ ...product, stock: 0 });
+        // } else {
+        //   stocksUpdates.push({ ...product, stock: newStock });
+        // }
+      }
+
+      const { isOutOfStock, names } = await checkStock(stocksUpdates);
+
+      if (isOutOfStock) {
+        toast({
+          title: "Wait! Stock changed.",
+          description: `The following items are no longer available in the requested quantity: ${names}`,
+          variant: "destructive",
+        });
+
+        return;
       }
 
       const { error } = await createServiceAction(
         { ...data, totalPrice },
-        stocksUpdates
+        stocksUpdates,
       );
       if (error) throw new Error(error);
       toast({
@@ -556,12 +573,12 @@ const ServicesForm = ({
                                         onValueChange={(
                                           formattedValue,
                                           name,
-                                          value
+                                          value,
                                         ) => {
                                           // setFormattedListing(formattedValue || "");
 
                                           field.onChange(
-                                            Number(value?.value) || 0
+                                            Number(value?.value) || 0,
                                           );
                                         }}
                                         className="input-field "
@@ -596,12 +613,12 @@ const ServicesForm = ({
                                         onValueChange={(
                                           formattedValue,
                                           name,
-                                          value
+                                          value,
                                         ) => {
                                           // setFormattedListing(formattedValue || "");
 
                                           field.onChange(
-                                            Number(value?.value) || 0
+                                            Number(value?.value) || 0,
                                           );
                                         }}
                                         className="input-field "
@@ -662,7 +679,8 @@ const ServicesForm = ({
                             <div className=" text-sm text-muted-foreground">
                               Total:{" "}
                               {formatCurrency(
-                                serviceFees[i]?.price - serviceFees[i]?.discount
+                                serviceFees[i]?.price -
+                                  serviceFees[i]?.discount,
                               )}
                             </div>
                           </div>
@@ -703,7 +721,7 @@ const ServicesForm = ({
                           <div className=" border-t pt-1">
                             Net:{" "}
                             {formatCurrency(
-                              totalFees.totalPrice - totalFees.totalDiscount
+                              totalFees.totalPrice - totalFees.totalDiscount,
                             )}
                           </div>
                         </div>
@@ -728,7 +746,7 @@ const ServicesForm = ({
                         const maxAmount =
                           products.find(
                             (product) =>
-                              product.id === productsToSell[i]?.productId
+                              product.id === productsToSell[i]?.productId,
                           )?.stock || 0;
 
                         return (
@@ -753,7 +771,7 @@ const ServicesForm = ({
                             <h2>{i + 1}.</h2>
                             <div
                               className={cn(
-                                "space-y-4 border p-3 rounded-xl  relative "
+                                "space-y-4 border p-3 rounded-xl  relative ",
                               )}
                             >
                               <button
@@ -779,18 +797,19 @@ const ServicesForm = ({
                                           field.onChange(value);
                                           if (value) {
                                             const product = products.find(
-                                              (product) => product.id === value
+                                              (product) => product.id === value,
                                             );
                                             if (product) {
                                               form.setValue(
                                                 `productsToSell.${i}.pricePerUnit`,
-                                                product.salePrice
+                                                product.listPrice,
                                               );
+                                              console.log(product.listPrice);
 
                                               form.setValue(
                                                 `productsToSell.${i}.discount`,
                                                 product.listPrice -
-                                                  product.salePrice
+                                                  product.salePrice,
                                               );
                                             }
                                           }
@@ -829,12 +848,12 @@ const ServicesForm = ({
                                           onValueChange={(
                                             formattedValue,
                                             name,
-                                            value
+                                            value,
                                           ) => {
                                             // setFormattedListing(formattedValue || "");
 
                                             field.onChange(
-                                              Number(value?.value) || 0
+                                              Number(value?.value) || 0,
                                             );
                                           }}
                                           className="input-field "
@@ -869,12 +888,12 @@ const ServicesForm = ({
                                           onValueChange={(
                                             formattedValue,
                                             name,
-                                            value
+                                            value,
                                           ) => {
                                             // setFormattedListing(formattedValue || "");
 
                                             field.onChange(
-                                              Number(value?.value) || 0
+                                              Number(value?.value) || 0,
                                             );
                                           }}
                                           className="input-field "
@@ -907,12 +926,19 @@ const ServicesForm = ({
                                           onValueChange={(
                                             formattedValue,
                                             name,
-                                            value
+                                            value,
                                           ) => {
-                                            if (
-                                              value &&
-                                              Number(value.value) > maxAmount
-                                            ) {
+                                            const newValue = value
+                                              ? Number(value.value)
+                                              : 0;
+                                            const isMaxAmount =
+                                              newValue > maxAmount;
+                                            field.onChange(
+                                              isMaxAmount
+                                                ? maxAmount
+                                                : newValue,
+                                            );
+                                            if (isMaxAmount) {
                                               toast({
                                                 variant: "destructive",
                                                 title: "Maximum amount.",
@@ -922,10 +948,6 @@ const ServicesForm = ({
                                                   />
                                                 ),
                                               });
-                                            } else {
-                                              field.onChange(
-                                                Number(value?.value) || 0
-                                              );
                                             }
                                           }}
                                           className="input-field  "
@@ -968,7 +990,7 @@ const ServicesForm = ({
                                   {formatCurrency(
                                     (productsToSell[i]?.pricePerUnit -
                                       productsToSell[i]?.discount) *
-                                      productsToSell[i]?.count
+                                      productsToSell[i]?.count,
                                   )}
                                 </span>
                               </div>
@@ -1011,14 +1033,14 @@ const ServicesForm = ({
                           <div>
                             Total discount:{" "}
                             {formatCurrency(
-                              totalProductSoldAmounts.totalDiscount
+                              totalProductSoldAmounts.totalDiscount,
                             )}
                           </div>
                           <div className=" border-t pt-1">
                             Net:{" "}
                             {formatCurrency(
                               totalProductSoldAmounts.totalPrice -
-                                totalProductSoldAmounts.totalDiscount
+                                totalProductSoldAmounts.totalDiscount,
                             )}
                           </div>
                         </div>
@@ -1052,7 +1074,7 @@ const ServicesForm = ({
                           <div>
                             Total product discount:{" "}
                             {formatCurrency(
-                              totalProductSoldAmounts.totalDiscount
+                              totalProductSoldAmounts.totalDiscount,
                             )}
                           </div>
                           <div className="  py-2 border-y w-fit text-xs">
@@ -1061,7 +1083,7 @@ const ServicesForm = ({
                               {" "}
                               {formatCurrency(
                                 totalProductSoldAmounts.totalPrice -
-                                  totalProductSoldAmounts.totalDiscount
+                                  totalProductSoldAmounts.totalDiscount,
                               )}
                             </span>
                           </div>
@@ -1086,7 +1108,7 @@ const ServicesForm = ({
                             <span className=" text-orange-400 dark:text-dashboard-orange text-xs">
                               {" "}
                               {formatCurrency(
-                                totalFees.totalPrice - totalFees.totalDiscount
+                                totalFees.totalPrice - totalFees.totalDiscount,
                               )}
                             </span>
                           </div>
@@ -1098,7 +1120,7 @@ const ServicesForm = ({
                           Total Revenue:{" "}
                           {formatCurrency(
                             totalFees.totalPrice +
-                              totalProductSoldAmounts.totalPrice
+                              totalProductSoldAmounts.totalPrice,
                           )}
                         </div>
                         <div>
@@ -1106,7 +1128,7 @@ const ServicesForm = ({
                           Total discount:{" "}
                           {formatCurrency(
                             totalFees.totalDiscount +
-                              totalProductSoldAmounts.totalDiscount
+                              totalProductSoldAmounts.totalDiscount,
                           )}
                         </div>
                         <div>
@@ -1115,7 +1137,7 @@ const ServicesForm = ({
                             totalProductSoldAmounts.totalPrice +
                               totalFees.totalPrice -
                               (totalProductSoldAmounts.totalDiscount +
-                                totalFees.totalDiscount)
+                                totalFees.totalDiscount),
                           )}
                         </div>
                       </div>

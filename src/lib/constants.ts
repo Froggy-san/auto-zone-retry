@@ -19,6 +19,10 @@ export const STATIC_IMAGES = [
   "https://jldptczaxybijbhlcbjj.supabase.co/storage/v1/object/public/projects/0.4160722142697284-FB_IMG_1715907147440.jpg",
 ];
 
+export const SER_STATUS_DONE_ID = 1;
+export const SER_STATUS_IN_PROGRESS = 2;
+export const SER_STATUS_CANCELED = 3;
+export const SER_STATUS_PENDING = 4;
 // Variants for slide transitions; "direction" is passed as a custom prop.
 export const ProFormSlideVariants = {
   enter: (direction: number) => ({

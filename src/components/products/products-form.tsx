@@ -88,7 +88,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const edit = searchParam.get("edit") ?? "";
   const [isOpen, setIsOpen] = useState(edit ? true : false);
   const [isMainImage, setIsMainImage] = useState<ProductImage | null | number>(
-    null
+    null,
   );
 
   const [deletedDetails, setDeletedDetails] = useState<number[]>([]);
@@ -110,7 +110,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
       setStep([newStep, newDirection]);
     },
-    [step, setStep]
+    [step, setStep],
   );
 
   const isMainChange =
@@ -120,7 +120,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const deletedIds = deletedMedia.map((del) => del.id);
     const mediaArr = productToEdit
       ? productToEdit.productImages.filter(
-          (imageObj) => !deletedIds.includes(imageObj.id)
+          (imageObj) => !deletedIds.includes(imageObj.id),
         )
       : [];
     return mediaArr;
@@ -226,7 +226,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     setDeletedDetails([]);
     setIsMainImage(
       productToEdit?.productImages.find((image) => image.isMain === true) ||
-        null
+        null,
     );
 
     if (formRef.current) formRef.current.scrollTo(0, 0);
@@ -254,7 +254,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
     setIsMainImage(
       productToEdit?.productImages.find((image) => image.isMain === true) ||
-        null
+        null,
     );
     setDeletedMedia([]);
   }
@@ -316,7 +316,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
         const isMoreDetailEqual = _.isEqual(
           productToEdit.moreDetails,
-          moreDetails
+          moreDetails,
         );
 
         const productToEditData = {
@@ -330,8 +330,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
           salePrice,
           stock,
           isAvailable,
-          makerId,
-          modelId,
+          makerId: makerId ? makerId : null,
+          modelId: modelId ? modelId : null,
           generationsArr: generationsArr.length
             ? JSON.stringify(generationsArr)
             : null,
@@ -350,8 +350,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
           moreDetails: !isMoreDetailEqual ? moreDetails : [],
         });
 
-        await revalidateProducts();
         await revalidateProductById(productToEdit.id);
+        // await revalidateProducts();
         // const { error } = await editProductAction({
         //   productToEdit: productToEditData,
         //   imagesToUpload,
@@ -539,7 +539,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               "space-y-8  px-6 sm:px-6 md:px-14  relative  py-4 overflow-y-auto overscroll-contain overflow-x-hidden",
               {
                 " px-2 sm:px-6  ": step === maxNumOfSteps,
-              }
+              },
             )}
           >
             <AnimatePresence mode="wait">

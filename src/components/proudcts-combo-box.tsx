@@ -43,7 +43,7 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
   productToSell,
 }) => {
   const [open, setOpen] = React.useState(false);
-  console.log(options);
+
   // const [value, setValue] = React.useState(0);
   const selected = options.find((option) => option.id === value);
   const seletedImg = selected?.productImages.length
@@ -94,7 +94,7 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
 
                 const isSelected = productToSell?.some(
                   (item) =>
-                    item.productId === option.id && selected?.id !== option.id
+                    item.productId === option.id && selected?.id !== option.id,
                 );
 
                 return (
@@ -118,7 +118,7 @@ export const ProductsComboBox: React.FC<ComboBoxProps> = ({
                         <Check
                           className={cn(
                             " h-4 w-4 shrink-0",
-                            value === option.id ? "opacity-100" : "opacity-0"
+                            value === option.id ? "opacity-100" : "opacity-0",
                           )}
                         />
                       )}

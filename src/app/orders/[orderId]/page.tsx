@@ -116,8 +116,8 @@ export default function SuccessPage() {
         // 2. Fetch order data (Removed the 'if status === succeeded' wrapper)
         const { data, error } = await getOrderByIdAction(Number(orderId));
         if (error) throw new Error(error);
-        if (data && data.length > 0) {
-          setOrderData(data[0]);
+        if (data) {
+          setOrderData(data);
         }
       } catch (error: any) {
         setOrderError(error.message);

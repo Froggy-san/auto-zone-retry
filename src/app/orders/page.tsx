@@ -83,10 +83,10 @@ export default function SuccessPage() {
           const { data, error } = await getOrderByIdAction(Number(orderId));
           if (error) throw new Error(error);
 
-          if (!data || !data.length) {
+          if (!data) {
             throw new Error(`Order #${orderId} not found.`);
           }
-          setOrderData(data[0]);
+          setOrderData(data);
         }
       } catch (error: any) {
         console.error(error.message);

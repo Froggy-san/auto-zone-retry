@@ -205,6 +205,7 @@ const ServiceTable = ({
               ? "A list of all service receipts."
               : "No receipts"}
           </TableCaption>
+
           <TableHeader>
             <TableRow>
               <TableHead className=" min-w-[20px]">ID</TableHead>

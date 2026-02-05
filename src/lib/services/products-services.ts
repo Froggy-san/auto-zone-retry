@@ -29,11 +29,10 @@ interface CreateProductProps {
   modelId: number | null;
   generationsArr: number[] | null;
 }
-interface insert
-  extends Omit<
-    CreateProductProps,
-    "images" | "generationsArr" | "moreDetails"
-  > {
+interface insert extends Omit<
+  CreateProductProps,
+  "images" | "generationsArr" | "moreDetails"
+> {
   generationsArr?: string;
 }
 export async function createProduct({
@@ -201,12 +200,12 @@ export async function editProdcut({
 
     const { error: imageTableError } = await deleteMultipleImageFromTable(
       "productImages",
-      ids
+      ids,
     );
 
     if (imageTableError)
       throw new Error(
-        `Error from trying to delete images from the table: ${imageTableError.message}`
+        `Error from trying to delete images from the table: ${imageTableError.message}`,
       );
 
     const { error } = await deleteImageFromBucket({
@@ -245,7 +244,7 @@ export async function editProdcut({
   if (moreDetails.length) {
     const detailsToBeAdded = moreDetails.filter((detail) => !detail.id);
     const detailsToEdit = moreDetails.filter(
-      (detail) => detail.id
+      (detail) => detail.id,
     ) as EditDetails[];
 
     if (detailsToEdit.length) {

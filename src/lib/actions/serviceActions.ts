@@ -11,7 +11,10 @@ import {
 import { createClient } from "@utils/supabase/server";
 import { format } from "date-fns";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { editProductsStockAction } from "./productsActions";
+import {
+  adjustProductsStockAction,
+  editProductsStockAction,
+} from "./productsActions";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -45,11 +48,25 @@ export async function getServicesAction({
   let query = `${supabaseUrl}/rest/v1/services?select=*,servicesFee(*),productsToSell(*,product(*,productImages(*))),cars(*,carImages(*)),clients(*),serviceStatuses(*)&order=created_at.desc`;
 
   // Date filters
-  if (dateFrom) query += `&created_at=gte.${new Date(dateFrom).toISOString()}`;
+  if (dateFrom) {
+    const d = new Date(dateFrom);
+    d.setHours(0, 0, 0, 0);
+
+    // Format to YYYY-MM-DD HH:mm:ss for Postgres
+    const formatted =
+      d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+
+    query += `&created_at=gte.${formatted}`;
+  }
   if (dateTo) {
-    const toDate = new Date(dateTo);
-    toDate.setHours(23, 59, 59, 999);
-    query += `&created_at=lte.${new Date(dateTo).toISOString()}`;
+    const d = new Date(dateTo);
+    d.setHours(23, 59, 59, 999);
+
+    // Format to YYYY-MM-DD HH:mm:ss for Postgres
+    const formatted =
+      d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+
+    query += `&created_at=lte.${formatted}`;
   }
 
   // Other filters
@@ -131,8 +148,8 @@ export async function getServiceById(id: number, select = "*") {
 
 export async function createServiceAction(
   service: CreateService & { totalPrice: number },
-  stocksUpdates: Product[]
-) {
+  stocksUpdates: { id: number; quantity: number }[],
+): Promise<{ data: Service | null; error: string | null }> {
   const serviceData = {
     clientId: service.clientId,
     carId: service.carId,
@@ -142,60 +159,89 @@ export async function createServiceAction(
     note: service.note,
     totalPrice: service.totalPrice,
   };
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  // 1. Add the new service entry.
-  const { data, error } = await supabase
-    .from("services")
-    .insert([serviceData])
-    .select();
+    // 1. Add the new service entry.
+    const { data, error } = await supabase
+      .from("services")
+      .insert([serviceData])
+      .select()
+      .single();
 
-  if (error) return { data: null, error: error.message };
+    if (error) throw new Error(error.message);
+    if (!data) throw new Error(`Failed to create service record`);
 
-  const { id } = data[0];
+    const { id } = data;
 
-  let soldError = "";
-  let feesError = "";
+    // 2. Add products sold entries and update the stocks for each relative products.
+    if (service.productsToSell.length) {
+      const soldProducts = service.productsToSell.map((pro) => {
+        return {
+          ...pro,
+          serviceId: id,
+          totalPriceAfterDiscount:
+            (pro.pricePerUnit - pro.discount) * pro.count,
+        };
+      });
 
-  // 2. Add products sold entries and update the stocks for each relative products.
-  if (service.productsToSell.length) {
-    const soldProducts = service.productsToSell.map((pro) => {
-      return {
-        ...pro,
-        serviceId: id,
-        totalPriceAfterDiscount: (pro.pricePerUnit - pro.discount) * pro.count,
-      };
-    });
+      // 1. Add the products sold entries.
+      const { error } = await supabase
+        .from("productsToSell")
+        .insert(soldProducts);
+      if (error) {
+        const soldError = `Failed to add products sold to the service: ${error.message}`;
+        const { error: deletionError } = await deleteServiceAction(id); // if there is an error delete the service we just created.
+        if (deletionError)
+          throw new Error(
+            `${soldError} - Failed to delete a failed service record: ${deletionError}`,
+          );
+        throw new Error(soldError);
+      }
+      // 2. Update the stocks of sold products.
 
-    // 1. Add the products sold entries.
-    const { error } = await supabase
-      .from("productsToSell")
-      .insert(soldProducts);
+      //! Refactored code
+      // const stocksError = await editProductsStockAction(stocksUpdates);
+      // if (stocksError) return { data, error: stocksError };
+      // revalidatePath("/products");
 
-    if (error) soldError = error.message;
-    // 2. Update the stocks of sold products.
-    const stocksError = await editProductsStockAction(stocksUpdates);
-    if (stocksError) return { data, error: stocksError };
-    revalidatePath("/products");
+      const { error: adjustmentError } = await adjustProductsStockAction(
+        "decrement",
+        stocksUpdates,
+      );
+
+      if (adjustmentError) throw new Error(adjustmentError);
+    }
+
+    // 3. Add the entries of service fees preformed.
+    if (service.serviceFees.length) {
+      const fees = service.serviceFees.map((fee) => {
+        return {
+          ...fee,
+          serviceId: id,
+          totalPriceAfterDiscount: fee.price - fee.discount,
+        };
+      });
+      const { error } = await supabase.from("servicesFee").insert(fees);
+
+      if (error) {
+        const feesError = `Failed to add products sold to the service: ${error.message}`;
+        const { error: deletionError } = await deleteServiceAction(id); // if there is an error delete the service we just created.
+        if (deletionError)
+          throw new Error(
+            `${feesError} - Failed to delete a failed service record: ${deletionError}`,
+          );
+
+        throw new Error(feesError);
+      }
+    }
+
+    revalidateTag("services");
+    return { data, error: "" };
+  } catch (error: any) {
+    console.error(error.message);
+    return { data: null, error: error.message };
   }
-
-  // 3. Add the entries of service fees preformed.
-  if (service.serviceFees.length) {
-    const fees = service.serviceFees.map((fee) => {
-      return {
-        ...fee,
-        serviceId: id,
-        totalPriceAfterDiscount: fee.price - fee.discount,
-      };
-    });
-    const { error } = await supabase.from("servicesFee").insert(fees);
-    if (error) feesError = error.message;
-  }
-
-  revalidateTag("services");
-  if (soldError || feesError)
-    return { data, error: `${feesError},${soldError}` };
-  return { data, error: "" };
 }
 
 interface EditProps {
