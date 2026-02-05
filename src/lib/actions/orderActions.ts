@@ -138,7 +138,7 @@ export async function getOrdersAction({
   }
 }
 
-type GetInfiniteOrderAction = Omit<GetOrdersProps, "pageNumber"> & {
+export type GetInfiniteOrderAction = Omit<GetOrdersProps, "pageNumber"> & {
   pageParam?: number;
 };
 
