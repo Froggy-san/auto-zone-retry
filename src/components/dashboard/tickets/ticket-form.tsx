@@ -86,19 +86,19 @@ const TicketForm = ({
     clientById: client,
     error: clientError,
     isLoading: clientLoading,
-  } = useClientById({ id: user?.user?.id, getBy: "user_id" });
+  } = useClientById({ id: user?.id, getBy: "user_id" });
 
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const diaOpen = isOpen !== undefined ? isOpen : open;
-  const isAdmin = user?.user?.user_metadata.role === "Admin";
+  const isAdmin = user?.user_metadata.role === "Admin";
 
   const deafultStatus = ticketStatus.find(
-    (status) => status.name.toLowerCase() === "open"
+    (status) => status.name.toLowerCase() === "open",
   )?.id;
 
   const defaultPriority = ticketPriorities.find(
-    (proio) => proio.name.toLowerCase() === "medium"
+    (proio) => proio.name.toLowerCase() === "medium",
   )?.id;
   const defaultValues = useMemo(() => {
     return {
@@ -218,7 +218,7 @@ const TicketForm = ({
               ref={formRef}
               onSubmit={form.handleSubmit(onSubmit)}
               className={cn(
-                "space-y-4  px-6   relative  py-4 overflow-y-auto overscroll-contain overflow-x-hidden"
+                "space-y-4  px-6   relative  py-4 overflow-y-auto overscroll-contain overflow-x-hidden",
               )}
             >
               <div className="  flex flex-col sm:flex-row gap-x-2 gap-y-3 ">
@@ -423,7 +423,7 @@ function LoadingCurrUser({ className }: { className?: string }) {
     <div
       className={cn(
         " w-full h-full absolute left-0 top-0 bg-accent/35 flex items-center justify-center",
-        className
+        className,
       )}
     >
       <p className=" text-sm font-semibold text-center">Loading User</p>
@@ -437,7 +437,7 @@ function FailedToLoadUser({ className }: { className?: string }) {
     <div
       className={cn(
         " w-full h-full absolute left-0 top-0 bg-destructive/40 flex items-center gap-1 justify-center",
-        className
+        className,
       )}
     >
       <p className=" text-sm font-semibold text-center mb-2">

@@ -82,7 +82,7 @@ const initalState = {
 
 function reducer(
   state: TicketDetailStates,
-  action: Action
+  action: Action,
 ): TicketDetailStates {
   switch (action.type) {
     case "position":
@@ -127,7 +127,7 @@ function reducer(
       return {
         ...state,
         failedMessages: state.failedMessages.filter(
-          (failed) => failed.id !== action.payload.id
+          (failed) => failed.id !== action.payload.id,
         ),
       };
     case "reset":
@@ -192,19 +192,19 @@ const TicketDetails = ({
   const ticketViewed = ticketData;
 
   const currentStatus = ticketStatus.find(
-    (status) => status.id === ticketViewed?.ticketStatus_id.id
+    (status) => status.id === ticketViewed?.ticketStatus_id.id,
   );
   // Get the currently logged in user.
   const { user, isLoading: userLoading, error: userError } = useCurrUser();
 
-  const isAdmin = user?.user?.user_metadata.role.toLowerCase() === "admin";
+  const isAdmin = user?.user_metadata.role.toLowerCase() === "admin";
   // Get the client that issued the ticket.
   const {
     clientById,
     isLoading: isClientLoading,
     error: clientError,
   } = useClientById({
-    id: user?.user?.id || "",
+    id: user?.id || "",
     getBy: "user_id",
   });
   const isMessageAssigned = ticketData?.admin_assigned_to;
@@ -213,11 +213,11 @@ const TicketDetails = ({
 
   if (isInternalOnly)
     filteredMessages = allMessages?.filter(
-      (messages) => messages.is_internal_note
+      (messages) => messages.is_internal_note,
     );
   if (isMessagesOnly || !isAdmin)
     filteredMessages = allMessages?.filter(
-      (messages) => !messages.is_internal_note
+      (messages) => !messages.is_internal_note,
     );
 
   // useEffect(() => {
@@ -233,7 +233,7 @@ const TicketDetails = ({
     // ... (optimistic reducer logic remains the same) ...
     (
       currentOptimisticMessages: Message[],
-      action: OptimisticAction
+      action: OptimisticAction,
     ): Message[] => {
       switch (action.type) {
         case "add":
@@ -248,28 +248,28 @@ const TicketDetails = ({
           return currentOptimisticMessages.map((msg) =>
             msg.id === action.tempId
               ? { ...msg, status: "failed", error: action.error }
-              : msg
+              : msg,
           );
 
         case "succeed":
           return currentOptimisticMessages.filter(
-            (msg) => msg.id !== action.tempId
+            (msg) => msg.id !== action.tempId,
           );
 
         case "remove":
           // Manually remove a failed message
           return currentOptimisticMessages.filter(
-            (msg) => msg.id !== action.tempId
+            (msg) => msg.id !== action.tempId,
           );
 
         default:
           return currentOptimisticMessages;
       }
-    }
+    },
   );
 
   const selectedMessage = optimisticMessages?.find(
-    (message) => message.id === selectedMessageId
+    (message) => message.id === selectedMessageId,
   );
   const loading =
     isLoading ||
@@ -317,7 +317,7 @@ const TicketDetails = ({
         scroll: false,
       });
     },
-    [router, searchParams, pathname]
+    [router, searchParams, pathname],
   );
 
   const handleRemoveMessageId = useCallback(() => {
@@ -339,11 +339,11 @@ const TicketDetails = ({
       try {
         if (!ticketViewed)
           throw new Error(
-            `The ticket data is incomplete please refresh the page.`
+            `The ticket data is incomplete please refresh the page.`,
           );
-        if (!user || !user.user)
+        if (!user || !user)
           throw new Error(
-            `Unauthorized action, please make sure that you are logged in.`
+            `Unauthorized action, please make sure that you are logged in.`,
           );
 
         // const previousStatus = ticketData[0].ticketStatus_id;
@@ -389,7 +389,7 @@ const TicketDetails = ({
             ticketStatus_id: ticketStatus_id,
           },
           oldTicketData: ticketViewed,
-          currentUser: user.user,
+          currentUser: user,
           currentClient: clientById,
           ticketStatuses: ticketStatus,
           ticketPriorities: ticketPriorities,
@@ -419,7 +419,7 @@ const TicketDetails = ({
     },
     // statusId is now read from state, but its value is already in ticketStatus_id
     // for the editTicket call. The dependency array is fine.
-    [dispatch, statusId, ticketViewed, clientById, queryClient, toast, isAdmin] // Added dispatch, queryClient, toast
+    [dispatch, statusId, ticketViewed, clientById, queryClient, toast, isAdmin], // Added dispatch, queryClient, toast
   );
 
   // 1. handleMouseMove (Corrected)
@@ -435,7 +435,7 @@ const TicketDetails = ({
       const newPosition = currentPrevY + (deltaY / window.innerHeight) * 100;
       const clampedPosition = Math.max(
         OPEN_POSITION,
-        Math.min(CLOSED_POSITION, newPosition)
+        Math.min(CLOSED_POSITION, newPosition),
       );
 
       // 2. Update the ref for the next move and for handleMouseUp
@@ -447,7 +447,7 @@ const TicketDetails = ({
       // 4. Update startYRef for the next delta calculation
       startYRef.current = e.clientY;
     },
-    [dispatch]
+    [dispatch],
   ); // dispatch is stable, but included for completeness
   // 2. handleMouseUp: Handles the snap decision and cleanup
   const handleMouseUp = useCallback(() => {
@@ -518,7 +518,7 @@ const TicketDetails = ({
       const newPosition = currentPrevY + (deltaY / window.innerHeight) * 100;
       const clampedPosition = Math.max(
         OPEN_POSITION,
-        Math.min(CLOSED_POSITION, newPosition)
+        Math.min(CLOSED_POSITION, newPosition),
       );
 
       // 2. Update the ref for handleTouchEnd
@@ -530,7 +530,7 @@ const TicketDetails = ({
       // 4. Update the startYRef for the next move calculation
       startYRef.current = currentY;
     },
-    [dispatch]
+    [dispatch],
   );
 
   // 2. handleTouchEnd: Handles the snap decision and cleanup
@@ -614,7 +614,7 @@ const TicketDetails = ({
     (open: boolean) => {
       dispatch({ type: "set-is-history", payload: open });
     },
-    [dispatch]
+    [dispatch],
   );
   // Replaced openDrawer with dispatch
   const openDrawer = () =>
@@ -626,7 +626,7 @@ const TicketDetails = ({
       className={cn(
         "w-full h-full overflow-y-auto  fixed left-0 top-0 transition-all ease-out duration-700 bg-background sm:border overflow-x-hidden  z-50  overscroll-contain ",
         { "overflow-hidden": isDragging },
-        className
+        className,
       )}
       style={{
         transform: `translateY(${positionY}%)`,
@@ -638,7 +638,7 @@ const TicketDetails = ({
       <div
         className={cn(
           "h-10 w-full flex justify-center items-center cursor-grab  touch-none",
-          isDragging ? "cursor-grabbing" : "cursor-grab"
+          isDragging ? "cursor-grabbing" : "cursor-grab",
         )}
         onTouchStart={handleTouchStart}
         onMouseDown={handleMouseDown}
@@ -701,7 +701,7 @@ const TicketDetails = ({
             <main
               className={cn(
                 " flex flex-col   sm:flex-row  flex-1  max-w-[1000px] mx-auto gap-10  px-4 md:px-10  ",
-                { " md:flex-col lg:flex-row": isHistory }
+                { " md:flex-col lg:flex-row": isHistory },
               )}
             >
               <div>
@@ -719,7 +719,7 @@ const TicketDetails = ({
                         {ticketViewed &&
                           format(
                             ticketViewed.created_at,
-                            "MMMM d, yyyy h:mm aa"
+                            "MMMM d, yyyy h:mm aa",
                           )}
                       </p>
                     </div>
@@ -744,7 +744,7 @@ const TicketDetails = ({
                             <p className=" font-semibold">
                               {format(
                                 ticketData.firstResponseTime,
-                                "MMMM d, yyyy h:mm aa"
+                                "MMMM d, yyyy h:mm aa",
                               )}
                               {/* {ticketData &&
                               formatDistance(
@@ -764,7 +764,7 @@ const TicketDetails = ({
                               {" "}
                               {format(
                                 ticketData.resolveTime,
-                                "MMMM d, yyyy h:mm aa"
+                                "MMMM d, yyyy h:mm aa",
                               )}
                               {/* {ticketData &&
                               formatDistance(
@@ -909,7 +909,7 @@ const TicketDetails = ({
                     setSelectedMessageId={(id) =>
                       dispatch({ type: "set-selected-message-id", payload: id })
                     }
-                    currentUser={user?.user}
+                    currentUser={user}
                     isDragging={isDragging}
                   />
                 )}
@@ -933,7 +933,7 @@ const TicketDetails = ({
                       dispatch({ type: "set-selected-message-id", payload: id })
                     }
                     containerRef={containerRef}
-                    currentUser={user?.user}
+                    currentUser={user}
                     clientById={clientById}
                     ticket={ticketData || undefined}
                     messageToEdit={selectedMessage}
@@ -1056,7 +1056,7 @@ function Messages({
 
         const files = message.attachments.length
           ? message.attachments.map(
-              (attachment) => attachment.file as FileWithPreview
+              (attachment) => attachment.file as FileWithPreview,
             )
           : [];
         const realMessage = await createMessage({
@@ -1083,7 +1083,7 @@ function Messages({
         setMessagesLoadingIds((prev) => prev.filter((id) => id !== message.id));
       }
     },
-    [removeFailedMessage, setMessagesLoadingIds]
+    [removeFailedMessage, setMessagesLoadingIds],
   );
   return (
     <div className=" mb-6">
@@ -1369,14 +1369,14 @@ function ChangesSeparator({ action }: { action: ActionType }) {
 //   // Get the currently logged in user.
 //   const { user, isLoading: userLoading, error: userError } = useCurrUser();
 
-//   const isAdmin = user?.user?.user_metadata.role.toLowerCase() === "admin";
+//   const isAdmin = user?.user_metadata.role.toLowerCase() === "admin";
 //   // Get the client that issued the ticket.
 //   const {
 //     clientById,
 //     isLoading: isClientLoading,
 //     error: clientError,
 //   } = useClientById({
-//     id: user?.user?.id || "",
+//     id: user?.id || "",
 //     getBy: "user_id",
 //   });
 

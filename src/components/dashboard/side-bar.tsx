@@ -68,7 +68,7 @@ const SideBar = ({ links }: Props) => {
       transition={{ duration: 0.5, type: "spring" }}
       className={cn(
         "w-[200px] px-1  relative hidden sm:flex flex-col justify-between pb-2  border-r ",
-        { "w-fit": collapse }
+        { "w-fit": collapse },
       )}
     >
       <div className="absolute -right-[14px] top-1/2 -translate-y-1/2 flex flex-col gap-2">
@@ -114,7 +114,7 @@ const SideBar = ({ links }: Props) => {
                       {
                         "w-fit": collapse,
                       },
-                      { "bg-accent dark:bg-card": pathname === link.herf }
+                      { "bg-accent dark:bg-card": pathname === link.herf },
                     )}
                     asChild
                   >

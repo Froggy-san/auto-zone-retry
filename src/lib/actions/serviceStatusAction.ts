@@ -27,33 +27,36 @@ interface servicesReturns {
 }
 
 export async function getServiceStatusAction(): Promise<servicesReturns> {
-  const response = await fetch(
-    `${supabaseUrl}/rest/v1/serviceStatuses?select=*&order=created_at.asc`,
-    {
-      method: "GET",
-      headers: {
-        apikey: `${supabaseKey}`,
-        Authorization: `Bearer ${supabaseKey}`,
+  try {
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/serviceStatuses?select=*&order=created_at.asc`,
+      {
+        method: "GET",
+        headers: {
+          apikey: `${supabaseKey}`,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        next: {
+          tags: ["serviceStatus"],
+        },
       },
-      next: {
-        tags: ["serviceStatus"],
-      },
+    );
+
+    if (!response.ok) {
+      const error =
+        (await response.json()).message ||
+        "Something went wrong while trying to fetch services status data.";
+
+      throw new Error(error);
+      console.log(error);
     }
-  );
 
-  if (!response.ok) {
-    const error =
-      (await response.json()).message ||
-      "Something went wrong while trying to fetch services status data.";
-    console.log(error);
-    return {
-      data: null,
-      error,
-    };
+    const data = await response.json();
+    return { data, error: "" };
+  } catch (error: any) {
+    console.log(`Failed to get serivce statuses: ${error.message}`);
+    return { data: null, error: error.message };
   }
-
-  const data = await response.json();
-  return { data, error: "" };
 }
 
 interface ServiceStatusProps {

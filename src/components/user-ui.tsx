@@ -52,23 +52,23 @@ const UserUi = ({
 }: Props) => {
   // const [open,setOpen] = useState(false)
   const [loading, setLoading] = useState(false);
-  const { isLoading, user } = useCurrUser();
+  const { isLoading, user, client } = useCurrUser();
   const { toast } = useToast();
   const pathname = usePathname();
   const params = useParams();
   const queryClient = useQueryClient();
 
   if (isLoading) return <Spinner className=" h-fit mb-2" />;
-  if (!user?.user)
+  if (!user)
     return (
       <Button size="sm" asChild>
         <Link href="/login">Login</Link>
       </Button>
     ); // Change this line later.
   const userId = params.userId;
-  const userData = user.user;
-  const image = userData?.user_metadata.avatar_url;
-  const name = userData?.user_metadata.full_name;
+  const userData = user;
+  const image = client?.picture || userData?.user_metadata.avatar_url;
+  const name = client?.name || userData?.user_metadata.full_name;
   const sameUser = userId === userData.id;
   const isSettings = pathname.endsWith("settings") && sameUser;
   const isActivities =

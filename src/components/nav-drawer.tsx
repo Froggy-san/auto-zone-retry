@@ -44,7 +44,7 @@ const NavDrawer = () => {
         size="sm"
         onClick={() => setOpen(false)}
       >
-        <Link href={`/user/${user?.user?.id}`}>
+        <Link href={`/user/${user?.id}`}>
           <AppWindow className=" w-4 h-4" /> Your Activity
         </Link>
       </Button>
@@ -55,7 +55,7 @@ const NavDrawer = () => {
         size="sm"
         onClick={() => setOpen(false)}
       >
-        <Link href={`/user/${user?.user?.id}/settings`}>
+        <Link href={`/user/${user?.id}/settings`}>
           <PersonStanding className=" w-4 h-4" /> Personal details
         </Link>
       </Button>
@@ -66,13 +66,13 @@ const NavDrawer = () => {
         size="sm"
         onClick={() => setOpen(false)}
       >
-        <Link href={`/user/${user?.user?.id}/complaints`}>
+        <Link href={`/user/${user?.id}/complaints`}>
           <TbMessageReport className=" w-4 h-4" /> Your Complaints
         </Link>
       </Button>
     </>
   );
-  const isAdmin = user?.user?.user_metadata.role.toLowerCase() === "admin";
+  const isAdmin = user?.user_metadata.role.toLowerCase() === "admin";
   const adminBtn = isAdmin ? (
     <>
       <Button
@@ -211,7 +211,7 @@ const NavDrawer = () => {
             </Button>
             {isLoading ? (
               <Spinner className=" static w-7 h-7 mx-auto" />
-            ) : !user?.user ? (
+            ) : !user ? (
               <p className=" text-sm text-muted-foreground text-center">
                 Something went wrong while grabbing the your data, please
                 refresh the page.

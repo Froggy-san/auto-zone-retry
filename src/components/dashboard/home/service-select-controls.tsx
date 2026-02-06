@@ -27,12 +27,14 @@ const ServiceSelectControls = ({
   setSelected,
   currentPage,
   pageSize,
+  setLoadingIds,
 }: {
   isAdmin: boolean;
   selected: number[];
   setSelected: React.Dispatch<React.SetStateAction<number[]>>;
   currentPage: number;
   pageSize: number;
+  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const handleRemove = useCallback(
@@ -41,7 +43,7 @@ const ServiceSelectControls = ({
         setSelected([]);
       }
     },
-    [setSelected]
+    [setSelected],
   );
   useEffect(() => {
     document.addEventListener("keydown", handleRemove);
@@ -81,6 +83,7 @@ const ServiceSelectControls = ({
             setSelected={setSelected}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
+            setLoadingIds={setLoadingIds}
           />
           {isAdmin && (
             <DeleteDia
@@ -90,6 +93,7 @@ const ServiceSelectControls = ({
               setSelected={setSelected}
               isLoading={isLoading}
               setIsLoading={setIsLoading}
+              setLoadingIds={setLoadingIds}
             />
           )}
 
@@ -110,6 +114,7 @@ function DeleteDia({
   setSelected,
   isLoading,
   setIsLoading,
+  setLoadingIds,
 }: {
   currentPage: number;
   pageSize: number;
@@ -117,6 +122,7 @@ function DeleteDia({
   isLoading: boolean;
   setSelected: React.Dispatch<React.SetStateAction<number[]>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>;
 }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
@@ -140,19 +146,20 @@ function DeleteDia({
       if (Number(currentPage) > 1) {
         params.set("page", String(Number(currentPage) - 1));
       }
-      router.push(`${pathname}?${params.toString()}`);
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
     }
   }
   async function handleDelete() {
     try {
       setIsLoading(true);
+      setLoadingIds(selected);
       const { error } = await deleteMultiServicesAction(selected);
 
       if (error) throw new Error(error);
       setSelected([]);
       setOpen(false);
       checkIfLastItem();
-      queryClient.removeQueries(["servicesStats"]);
+      queryClient.removeQueries({ queryKey: ["servicesStats"] });
       toast({
         className: "bg-primary  text-primary-foreground",
         title: `Done.`,
@@ -172,6 +179,7 @@ function DeleteDia({
       });
     } finally {
       setIsLoading(false);
+      setLoadingIds([]);
     }
   }
 
@@ -220,11 +228,13 @@ function DownloadPdfDia({
   setSelected,
   isLoading,
   setIsLoading,
+  setLoadingIds,
 }: {
   selected: number[];
   isLoading: boolean;
   setSelected: React.Dispatch<React.SetStateAction<number[]>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setLoadingIds: React.Dispatch<React.SetStateAction<number[]>>;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -232,6 +242,7 @@ function DownloadPdfDia({
   async function handleDownloadSeparately() {
     try {
       setIsLoading(true);
+      setLoadingIds(selected);
       for (const id of selected) {
         await downloadAsPdf([id]);
       }
@@ -257,6 +268,7 @@ function DownloadPdfDia({
       });
     } finally {
       setIsLoading(false);
+      setLoadingIds([]);
     }
   }
 

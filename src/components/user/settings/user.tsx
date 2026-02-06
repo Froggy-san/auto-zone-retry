@@ -1,13 +1,22 @@
 "use client";
 import ImageView from "@components/image-view";
-import { User as UserType } from "@lib/types";
+import { Client, User as UserType } from "@lib/types";
 import { ImageOffIcon } from "lucide-react";
 import React, { useState } from "react";
+interface Props {
+  user: {
+    isAdmin: boolean;
+    isCurrUser: boolean;
+    user: UserType;
+    client: Client | null;
+  };
+}
 
-const User = ({ user }: { user: UserType }) => {
+const User = ({ user: { isAdmin, isCurrUser, user, client } }: Props) => {
   const [viewedImg, setViewedImg] = useState<string | null>(null);
 
-  const image = user.user_metadata.avatar_url;
+  const image = client?.picture || user.user_metadata.avatar_url || "";
+  const name = client?.name || user.user_metadata.full_name || "";
 
   return (
     <div className=" bg-card/30 rounded-xl mx-auto  sm:mx-0 min-w-[180px] max-w-[250px] h-fit   sm:sticky sm:top-5 shadow-lg  p-2 flex flex-col items-center gap-2  mt-10 sm:mt-20  ">
@@ -23,7 +32,7 @@ const User = ({ user }: { user: UserType }) => {
         </div>
       )}
 
-      <p className=" text-center">{user.user_metadata.full_name}</p>
+      <p className=" text-center">{name}</p>
       <ImageView image={viewedImg} handleClose={() => setViewedImg(null)} />
     </div>
   );

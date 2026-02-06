@@ -22,7 +22,7 @@ const Header = ({
         className,
         {
           " mb-12 mid:mb-0": showSearch,
-        }
+        },
       )}
     >
       <div className=" flex items-center  gap-2 ">

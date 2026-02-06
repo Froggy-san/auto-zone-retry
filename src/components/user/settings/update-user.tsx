@@ -2,7 +2,7 @@
 import { Button } from "@components/ui/button";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
-import { RejectionFiles, User } from "@lib/types";
+import { Client, RejectionFiles, User } from "@lib/types";
 import React, {
   FormEvent,
   useCallback,
@@ -37,11 +37,13 @@ import {
 } from "@/components/ui/tooltip";
 import RejectedFiles from "./rejected-files";
 import { useQueryClient } from "@tanstack/react-query";
+import useClientById from "@lib/queries/client/useClient";
 interface Props {
   userData: {
     isAdmin: boolean;
     isCurrUser: boolean;
     user: User;
+    client: Client | null;
   };
 }
 
@@ -54,10 +56,12 @@ type DefaultValues = {
 interface Image extends FileWithPath {
   preview: string;
 }
-const UpdateUser = ({ userData: { isAdmin, isCurrUser, user } }: Props) => {
-  const full_name = user.user_metadata?.full_name || "";
-  const avatar_url = user.user_metadata?.avatar_url || "";
-  const userRole = user.user_metadata?.role || "User";
+const UpdateUser = ({
+  userData: { isAdmin, isCurrUser, user, client },
+}: Props) => {
+  const full_name = client?.name || user.user_metadata?.full_name || "";
+  const avatar_url = client?.picture || user.user_metadata?.avatar_url || "";
+  const userRole = client?.role || user.user_metadata?.role || "User";
 
   const defaultValues: DefaultValues = {
     full_name,

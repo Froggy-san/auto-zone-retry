@@ -1,7 +1,14 @@
 "use server";
 
 import { z } from "zod";
-import { LoginFormSchema, signUpProps, TokenData, User } from "../types";
+import {
+  Client,
+  GetUserByIdProps,
+  LoginFormSchema,
+  signUpProps,
+  TokenData,
+  User,
+} from "../types";
 import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
@@ -19,7 +26,7 @@ export async function revalidateHomePage() {
 
 export async function loginUser(
   loginData: z.infer<typeof LoginFormSchema>,
-  direct: string
+  direct: string,
 ) {
   const supabase = await createClient();
 
@@ -94,7 +101,7 @@ export async function signinWithGoogle() {
 
 export async function signUp(
   { email, full_name, password, role, token }: signUpProps,
-  direct?: string
+  direct?: string,
 ) {
   try {
     const supabase = await createClient();
@@ -160,7 +167,7 @@ export async function logoutUser() {
 //   role?: "User" | "Admin";
 // }
 
-export async function getUserById(userId: string) {
+export async function getUserById(userId: string): Promise<GetUserByIdProps> {
   try {
     if (!userId) throw new Error(`invaild user id.`);
     const supabase = await createClient(true);
@@ -179,20 +186,26 @@ export async function getUserById(userId: string) {
     if (!isAdmin && !sameLoggedUser)
       throw new Error(`You are not authorized to do this action.`);
 
-    const returnedData: {
-      user: User;
-      isAdmin: boolean;
-      isCurrUser: boolean;
-    } = {
+    const { data: clientById, error: clientError } = await supabase
+      .from("clients")
+      .select("*")
+      .eq("user_id", currUser.id)
+      .single();
+
+    if (clientError)
+      throw new Error(`Failed to get client's data: ${clientError.message}`);
+
+    const returnedData = {
       user: userById,
       isAdmin: isAdmin,
       isCurrUser: userById.id === currUser.id,
+      client: clientById,
     };
 
     return { data: returnedData, error: "" };
-  } catch (error) {
-    if (error instanceof Error) return { data: null, error: error.message };
-    else return { data: null, error };
+  } catch (error: any) {
+    console.log(error.message);
+    return { data: null, error: error.message };
   }
 }
 
@@ -216,33 +229,35 @@ async function updateUser(
     password,
     deleteDate,
   }: UpdateUserProps,
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
 ) {
   // https://umkyoinqpknmedkowqva.supabase.co/storage/v1/object/public/avatars//499916568_1268010505331789_2764471559810878394_n.jpg
 
   const name = username.length ? username : undefined;
   const userRole = role.length ? role : undefined;
 
+  let data = null;
+
   try {
     if (isCurrUser) {
-      const { data, error } = await supabase.auth.updateUser({
+      const { data: userData, error } = await supabase.auth.updateUser({
         password,
         data: { role: userRole, avatar_url, full_name: name, deleteDate },
       });
 
       if (error) throw new Error(error.message);
-
-      return { data, error };
+      data = userData;
     } else {
       // Don't allow and admin account to change the password of another user.
-      const { data, error } = await supabase.auth.admin.updateUserById(id, {
-        user_metadata: {
-          role: userRole,
-          avatar_url,
-          full_name: name,
-          deleteDate,
-        },
-      });
+      const { data: userData, error } =
+        await supabase.auth.admin.updateUserById(id, {
+          user_metadata: {
+            role: userRole,
+            avatar_url,
+            full_name: name,
+            deleteDate,
+          },
+        });
       if (error) throw new Error(error.message);
 
       // if the user succesfully changed their password, log them out of they account.
@@ -250,8 +265,22 @@ async function updateUser(
         const error = await logoutUser();
         if (error) throw new Error(error);
       }
-      return { data, error };
+      data = userData;
     }
+
+    // Update the same user in the clietns table.
+
+    const { error: clientError } = await supabase
+      .from("clients")
+      .update({ name, picture: avatar_url })
+      .eq("user_id", id);
+
+    if (clientError)
+      throw new Error(
+        `Failed to update client's details: ${clientError.message}`,
+      );
+
+    return { data, error: "" };
   } catch (error) {
     if (error instanceof Error) return { data: null, error: error.message };
     else
@@ -305,7 +334,7 @@ export async function updateUserAction(formData: FormData) {
         console.log(`Storage Error: ${error.message}`);
         const { error: updateError } = await updateUser(
           { ...updatedData, avatar_url: currUserPic },
-          supabase
+          supabase,
         );
 
         if (error) throw new Error(error.message);
@@ -338,7 +367,7 @@ export async function cancelDeleteAccountAction(userId: string, date: string) {}
 
 export async function deleteAccountTimerAction(
   user: UpdateUserProps,
-  prevDate: string = ""
+  prevDate: string = "",
 ) {
   try {
     const supabase = await createClient();
@@ -350,7 +379,7 @@ export async function deleteAccountTimerAction(
       // 2. If the user cancled we remove the date from the data base.
       const { data, error } = await updateUser(
         { ...user, deleteDate: "" },
-        supabase
+        supabase,
       );
 
       if (error) throw new Error(error);
@@ -376,7 +405,7 @@ export async function deleteAccountTimerAction(
           ...user,
           deleteDate: `${fromDate.toISOString()}&${toDate.toISOString()}`,
         },
-        supabase
+        supabase,
       );
       if (error) throw new Error(error);
       const { error: updatingError } = await supabase

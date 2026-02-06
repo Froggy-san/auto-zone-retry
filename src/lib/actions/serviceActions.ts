@@ -40,94 +40,95 @@ export async function getServicesAction({
   minPrice,
   maxPrice,
 }: GetRestockingProps) {
-  const from = (Number(pageNumber) - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
-  //  const queryDate = subDays(new Date(), numDays).toISOString();
-  // Base query
+  try {
+    const from = (Number(pageNumber) - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    //  const queryDate = subDays(new Date(), numDays).toISOString();
+    // Base query
 
-  let query = `${supabaseUrl}/rest/v1/services?select=*,servicesFee(*),productsToSell(*,product(*,productImages(*))),cars(*,carImages(*)),clients(*),serviceStatuses(*)&order=created_at.desc`;
+    let query = `${supabaseUrl}/rest/v1/services?select=*,servicesFee(*),productsToSell(*,product(*,productImages(*))),cars(*,carImages(*)),clients(*),serviceStatuses(*)&order=created_at.desc`;
 
-  // Date filters
-  if (dateFrom) {
-    const d = new Date(dateFrom);
-    d.setHours(0, 0, 0, 0);
+    // Date filters
+    if (dateFrom) {
+      const d = new Date(dateFrom);
+      d.setHours(0, 0, 0, 0);
 
-    // Format to YYYY-MM-DD HH:mm:ss for Postgres
-    const formatted =
-      d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+      // Format to YYYY-MM-DD HH:mm:ss for Postgres
+      const formatted =
+        d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
 
-    query += `&created_at=gte.${formatted}`;
+      query += `&created_at=gte.${formatted}`;
+    }
+    if (dateTo) {
+      const d = new Date(dateTo);
+      d.setHours(23, 59, 59, 999);
+
+      // Format to YYYY-MM-DD HH:mm:ss for Postgres
+      const formatted =
+        d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
+
+      query += `&created_at=lte.${formatted}`;
+    }
+
+    // Other filters
+    if (clientId) query += `&clientId=eq.${clientId}`;
+    if (carId) query += `&carId=eq.${carId}`;
+    if (serviceStatusId) query += `&serviceStatusId=eq.${serviceStatusId}`;
+    if (minPrice) query += `&totalPrice=gte.${minPrice}`;
+    if (maxPrice) query += `&totalPrice=lte.${maxPrice}`;
+
+    const headers = {
+      apikey: `${supabaseKey}`,
+      Authorization: `Bearer ${supabaseKey}`,
+      Prefer: "count=exact",
+    } as Record<string, string>;
+
+    if (pageNumber) {
+      headers.Range = `${from}-${to}`;
+    }
+
+    const response = await fetch(query, {
+      method: "GET",
+      headers,
+      next: {
+        tags: ["services"],
+      },
+    });
+
+    if (!response.ok) {
+      const error =
+        (await response.json()).message ||
+        "Something went wrong while trying to fetch Services data.";
+
+      throw new Error(error);
+    }
+    const count = response.headers.get("content-range")?.split("/")[1] || 0;
+    const data: Service[] = await response.json();
+
+    const services = data.map((service) => {
+      // Safely sort servicesFee (if it exists)
+      service.servicesFee?.sort((a, b) => a.id - b.id);
+      service.productsToSell?.sort((a, b) => a.id - b.id);
+      // Sorting using Date-fns.
+      // service.productsToSell?.sort((a, b) =>
+      //   compareAsc(parseISO(a.created_at), parseISO(b.created_at))
+      // );
+      //Sorting by date.
+      // service.productsToSell?.sort(
+      //   (a, b) =>
+      //     new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      // );
+
+      return {
+        ...service,
+        created_at: format(new Date(service.created_at), "yyyy-MM-dd"),
+      };
+    });
+    return { data: { data: services, count }, error: "" };
+  } catch (error: any) {
+    console.log(`Failed to get services data: ${error.message}`);
+    return { data: null, error: error.message };
   }
-  if (dateTo) {
-    const d = new Date(dateTo);
-    d.setHours(23, 59, 59, 999);
-
-    // Format to YYYY-MM-DD HH:mm:ss for Postgres
-    const formatted =
-      d.toLocaleDateString("en-CA") + " " + d.toLocaleTimeString("en-GB");
-
-    query += `&created_at=lte.${formatted}`;
-  }
-
-  // Other filters
-  if (clientId) query += `&clientId=eq.${clientId}`;
-  if (carId) query += `&carId=eq.${carId}`;
-  if (serviceStatusId) query += `&serviceStatusId=eq.${serviceStatusId}`;
-  if (minPrice) query += `&totalPrice=gte.${minPrice}`;
-  if (maxPrice) query += `&totalPrice=lte.${maxPrice}`;
-
-  const headers = {
-    apikey: `${supabaseKey}`,
-    Authorization: `Bearer ${supabaseKey}`,
-    Prefer: "count=exact",
-  } as Record<string, string>;
-
-  if (pageNumber) {
-    headers.Range = `${from}-${to}`;
-  }
-
-  const response = await fetch(query, {
-    method: "GET",
-    headers,
-    next: {
-      tags: ["services"],
-    },
-  });
-
-  if (!response.ok) {
-    const error =
-      (await response.json()).message ||
-      "Something went wrong while trying to fetch Services data.";
-    console.log(error);
-
-    return {
-      data: null,
-      error,
-    };
-  }
-  const count = response.headers.get("content-range")?.split("/")[1] || 0;
-  const data: Service[] = await response.json();
-
-  const services = data.map((service) => {
-    // Safely sort servicesFee (if it exists)
-    service.servicesFee?.sort((a, b) => a.id - b.id);
-    service.productsToSell?.sort((a, b) => a.id - b.id);
-    // Sorting using Date-fns.
-    // service.productsToSell?.sort((a, b) =>
-    //   compareAsc(parseISO(a.created_at), parseISO(b.created_at))
-    // );
-    //Sorting by date.
-    // service.productsToSell?.sort(
-    //   (a, b) =>
-    //     new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    // );
-
-    return {
-      ...service,
-      created_at: format(new Date(service.created_at), "yyyy-MM-dd"),
-    };
-  });
-  return { data: { data: services, count }, error: "" };
 }
 
 export async function GetStats() {}

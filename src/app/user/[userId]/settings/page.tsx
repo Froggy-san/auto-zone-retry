@@ -46,7 +46,7 @@ const Page = async ({ params }: Props) => {
               <UpdatePassword userData={data} />
               <DeleteAccount userData={data} />
             </div>
-            <User user={data.user} />
+            <User user={data} />
           </div>
         ) : (
           "Couldn't find user"

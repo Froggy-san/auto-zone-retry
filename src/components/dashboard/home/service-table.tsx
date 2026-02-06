@@ -143,6 +143,7 @@ const ServiceTable = ({
   pageNumber,
   className,
 }: Props) => {
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   if (!services)
     return <p>Something went wrong while getting the services&apos;s data</p>;
@@ -181,6 +182,7 @@ const ServiceTable = ({
           setSelected={setSelected}
           currentPage={Number(currPage)}
           pageSize={services.length}
+          setLoadingIds={setLoadingIds}
         />
 
         <SearchDialog
@@ -226,6 +228,7 @@ const ServiceTable = ({
               ? services.map((service) => (
                   <Row
                     key={service.id}
+                    isLoading={loadingIds.includes(service.id)}
                     selected={selected}
                     setSelected={setSelected}
                     isClientPage={isClientPage}
@@ -288,7 +291,9 @@ function Row({
   service,
   currPage,
   currPageSize,
+  isLoading: loading,
 }: {
+  isLoading: boolean;
   selected: number[];
   setSelected: React.Dispatch<React.SetStateAction<number[]>>;
   isClientPage?: boolean;
@@ -301,17 +306,19 @@ function Row({
   service: Service;
   currPageSize: number;
 }) {
-  const [deleteOpen, setDeleteOpen] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const total = useMemo(() => {
-    const totalFees = service.servicesFee.reduce((sum, curr) => {
-      sum += curr.totalPriceAfterDiscount;
-      return sum;
-    }, 0);
-    const totalSold = service.productsToSell.reduce((sum, curr) => {
-      sum += curr.totalPriceAfterDiscount;
-      return sum;
-    }, 0);
+    const totalFees = service.servicesFee
+      .filter((fee) => !fee.isReturned)
+      .reduce((sum, curr) => {
+        sum += curr.totalPriceAfterDiscount;
+        return sum;
+      }, 0);
+    const totalSold = service.productsToSell
+      .filter((pro) => !pro.isReturned)
+      .reduce((sum, curr) => {
+        sum += curr.totalPriceAfterDiscount;
+        return sum;
+      }, 0);
     const total = totalSold + totalFees;
     return total;
   }, [service]);
@@ -325,9 +332,7 @@ function Row({
             return [...selected, service.id];
           });
         }}
-        className={`  ${isLoading && "opacity-60  pointer-events-none"} ${
-          item && "bg-accent/60 hover:bg-accent/40"
-        }`}
+        className={` ${item && "bg-accent/60 hover:bg-accent/40"}`}
       >
         <TableCell className="font-medium"> {service.id}</TableCell>
 
@@ -368,8 +373,12 @@ function Row({
         </TableCell>
         <TableCell className=" font-bold text-right ">
           <div className=" flex   items-center justify-end gap-3">
-            {formatCurrency(total)}{" "}
+            <span className={` ${total === 0 && " text-muted-foreground"}`}>
+              {" "}
+              {formatCurrency(total)}{" "}
+            </span>
             <TableActions
+              loading={loading}
               isClientPage={isClientPage}
               isAdmin={isAdmin}
               cars={cars}
@@ -414,6 +423,7 @@ function Row({
 }
 
 function TableActions({
+  loading,
   isClientPage,
   isAdmin,
   status,
@@ -423,6 +433,7 @@ function TableActions({
   cars,
   clients,
 }: {
+  loading: boolean;
   isClientPage?: boolean;
   isAdmin?: boolean;
   cars: CarItem[];
@@ -443,6 +454,7 @@ function TableActions({
   const pathname = usePathname();
   const router = useRouter();
   const params = new URLSearchParams(searchParam);
+  const currLoading = isLoading || loading;
 
   const handleChangePriority = async (
     priority: "Low" | "Medium" | "High" | string,
@@ -577,7 +589,7 @@ function TableActions({
   //   }
   // };
 
-  if (isLoading)
+  if (currLoading)
     return (
       <Spinner
         className="  w-4 h-4 flex items-center mx-1 justify-center  "
@@ -792,7 +804,7 @@ function TableActions({
             currPage={currPage}
             pageSize={currPageSize}
             service={service}
-            isDeleting={isLoading}
+            isDeleting={currLoading}
             setIsDeleting={setIsLoading}
             open={open === "delete"}
             handleClose={() => setOpen("")}
@@ -872,7 +884,7 @@ function DeleteService({
       if (Number(currPage) > 1) {
         params.set("page", String(Number(currPage) - 1));
       }
-      router.push(`${pathname}?${params.toString()}`);
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
     }
   }
 

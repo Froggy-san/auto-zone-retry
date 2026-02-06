@@ -1114,6 +1114,17 @@ export interface EditMessageProps {
   attachmentsToDelete?: Attachment[];
 }
 
+export interface GetUserByIdProps {
+  data: {
+    user: User;
+    client: Client | null;
+    isAdmin: boolean;
+    isCurrUser: boolean;
+  } | null;
+
+  error: string;
+}
+
 export type Category = z.infer<typeof CategorySchema>;
 export type CreateProductWithImagesProps = z.infer<typeof ProductsSchema>;
 export type CarGeneration = z.infer<typeof CarGenerationsSchema>;

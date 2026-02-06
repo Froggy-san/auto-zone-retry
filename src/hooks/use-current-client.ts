@@ -6,8 +6,8 @@ export default function useCurrentClient() {
   const { user } = useCurrUser();
 
   const { data: { clientById, error } = {}, isLoading } = useQuery({
-    queryKey: ["currentClient", user?.user?.id],
-    queryFn: () => getClinetById({ id: user?.user?.id, getBy: "user_id" }),
+    queryKey: ["currentClient", user?.id],
+    queryFn: () => getClinetById({ id: user?.id, getBy: "user_id" }),
     enabled: !!user,
   });
   return { clientById, error, isLoading };

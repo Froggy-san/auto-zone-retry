@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function useCurrUser() {
   const {
-    data: user,
+    data: { user, client } = {},
     isLoading,
     error,
   } = useQuery({
@@ -12,5 +12,5 @@ export default function useCurrUser() {
     staleTime: 100000 * 60 * 5, // Data is fresh for 5 minutes
     // refetchOnWindowFocus: false,
   });
-  return { user, isLoading, error };
+  return { user, client, isLoading, error };
 }

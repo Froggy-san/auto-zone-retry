@@ -10,11 +10,11 @@ interface Props {
 const ProductPrices = ({ product, className }: Props) => {
   return (
     <div className={cn("flex items-center gap-1", className)}>
-      {product.salePrice && (
+      {product.salePrice ? (
         <span className=" text-green-500 dark:text-green-600">
           {formatCurrency(product.salePrice)}
         </span>
-      )}
+      ) : null}
 
       <span
         className={`text-muted-foreground ${

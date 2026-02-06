@@ -34,47 +34,51 @@ export async function getClientsAction({
   data: { clients: ClientWithPhoneNumbers[]; count: number | string } | null;
   error: string;
 }> {
-  const from = (Number(pageNumber) - 1) * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
+  try {
+    const from = (Number(pageNumber) - 1) * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
 
-  let query = `${supabaseUrl}/rest/v1/clients?select=*,phones(*),cars(count)&order=created_at.asc&phones.order=created_at.asc`;
+    let query = `${supabaseUrl}/rest/v1/clients?select=*,phones(*),cars(count)&order=created_at.asc&phones.order=created_at.asc`;
 
-  if (name) query = query + `&name=ilike.*${name}*`;
-  if (email) query = query + `&email=ilike.*${email}*`;
-  if (phone) query = query + `&phones.number=eq.${phone}`;
+    if (name) query = query + `&name=ilike.*${name}*`;
+    if (email) query = query + `&email=ilike.*${email}*`;
+    if (phone) query = query + `&phones.number=eq.${phone}`;
 
-  const headers = {
-    apikey: `${supabaseKey}`,
-    Authorization: `Bearer ${supabaseKey}`,
-  } as Record<string, string>;
+    const headers = {
+      apikey: `${supabaseKey}`,
+      Authorization: `Bearer ${supabaseKey}`,
+    } as Record<string, string>;
 
-  if (pageNumber) {
-    headers.Range = `${from}-${to}`;
-    headers.Prefer = "count=exact";
+    if (pageNumber) {
+      headers.Range = `${from}-${to}`;
+      headers.Prefer = "count=exact";
+    }
+
+    const response = await fetch(query, {
+      method: "GET",
+      headers,
+      next: {
+        tags: ["clients"],
+      },
+    });
+
+    if (!response.ok) {
+      const error =
+        (await response.json()).message || "Failed to get the clients data.";
+      throw new Error(error);
+    }
+    const count = response.headers.get("content-range")?.split("/")[1] || 0;
+    const data = (await response.json()) as ClientWithPhoneNumbers[];
+
+    const clients = phone
+      ? data.filter((client) => client.phones.length)
+      : data;
+
+    return { data: { clients, count }, error: "" };
+  } catch (error: any) {
+    console.log(`Failed to get the clietns: ${error.message}`);
+    return { data: null, error: error.message };
   }
-
-  const response = await fetch(query, {
-    method: "GET",
-    headers,
-    next: {
-      tags: ["clients"],
-    },
-  });
-
-  if (!response.ok) {
-    const error =
-      (await response.json()).message || "Failed to get the clients data.";
-    return {
-      data: null,
-      error,
-    };
-  }
-  const count = response.headers.get("content-range")?.split("/")[1] || 0;
-  const data = (await response.json()) as ClientWithPhoneNumbers[];
-
-  const clients = phone ? data.filter((client) => client.phones.length) : data;
-
-  return { data: { clients, count }, error: "" };
 }
 
 // export async function getClientsDataAction() {
@@ -147,7 +151,7 @@ export async function getCurrentClientAction(): Promise<{
 }
 export async function getClientByIdAction(
   id: string,
-  tag: "id" | "user_id"
+  tag: "id" | "user_id",
 ): Promise<{ data: ClientById | null; error: string }> {
   const response = await fetch(
     `${supabaseUrl}/rest/v1/clients?${tag}=eq.${id}&select=*,phones(*),cars(*,carImages(*),carGenerations(*,carModels(*,carMakers(*))))&cars.carImages.order=created_at.asc`,
@@ -158,7 +162,7 @@ export async function getClientByIdAction(
         Authorization: `Bearer ${supabaseKey}`,
         // Prefer: "plurality=ignore", // The limit=1 makes this work
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -282,7 +286,7 @@ export async function editClientAction({
   // // Handling the editing of phone numbers
   if (phonesToEdit.length) {
     const editPhones = phonesToEdit.map((phone) =>
-      editPhoneNumAction({ id: phone.id, number: phone.number })
+      editPhoneNumAction({ id: phone.id, number: phone.number }),
     );
 
     try {
@@ -387,7 +391,7 @@ export async function getProductsImageAction(id: number) {
         Authorization: `Bearer ${token}`,
         // "Content-type": "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -447,7 +451,7 @@ export async function deleteProductsImageAction(imageId: number) {
         Authorization: `Bearer ${token}`,
         // "Content-type": "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -486,7 +490,7 @@ export async function getProductsImagesMainAction(id: number) {
         Authorization: `Bearer ${token}`,
         // "Content-type": "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
@@ -517,7 +521,7 @@ export async function deleteProductsImageMainAction(id: number) {
         Authorization: `Bearer ${token}`,
         // "Content-type": "application/json",
       },
-    }
+    },
   );
 
   if (!response.ok) {
