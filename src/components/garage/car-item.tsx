@@ -114,7 +114,7 @@ const CarItem = ({
                   <img
                     src={client.picture}
                     alt={`${client.name} Profile picture`}
-                    className=" h-7 object-contain"
+                    className=" h-7 w-7 object-cover rounded-full"
                   />
                 ) : (
                   <CircleUser className=" w-5 h-5" />

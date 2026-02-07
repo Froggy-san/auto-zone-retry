@@ -89,30 +89,41 @@ type CreateProps = ProductSold & { totalPriceAfterDiscount: number };
 export async function createProductToSellAction(
   productToSell: CreateProps,
   totalPrice: number,
-  stocksUpdates: Product,
 ) {
-  const supabase = await createClient();
-  // 1. Add new product sold.
-  const { error } = await supabase
-    .from("productsToSell")
-    .insert([productToSell]);
-  if (error) return { data: null, error: error.message };
+  try {
+    const supabase = await createClient();
+    // 1. Add new product sold.
+    const { error } = await supabase
+      .from("productsToSell")
+      .insert([productToSell]);
+    if (error) throw new Error(error.message);
 
-  // 2. Update the total price after discound of the related service.
-  const { data, error: serviceError } = await editServiceAction({
-    id: productToSell.serviceId,
-    totalPrice,
-  });
+    // 2. Update the total price after discound of the related service.
+    const { data, error: serviceError } = await editServiceAction({
+      id: productToSell.serviceId,
+      totalPrice,
+    });
 
-  // 3. Update the number of stocks available for the product sold.
-  const stockError = await editProductsStockAction([stocksUpdates]);
-  if (stockError) return { data, error: stockError };
-  if (serviceError) return { data, error: serviceError };
-  revalidatePath(`/products/${stocksUpdates.id}`);
-  revalidateTag("services");
+    // 3. Update the number of stocks available for the product sold.
 
-  return { data: null, error: "" };
+    const { error: adjustError } = await adjustProductsStockAction(
+      "decrement",
+      [{ id: productToSell.productId, quantity: productToSell.count }],
+    );
+    // const update = productToSell.
+    // const stockError = await editProductsStockAction([stocksUpdates]);
+    if (adjustError) return { data, error: adjustError };
+    if (serviceError) return { data, error: serviceError };
+
+    revalidateTag("services");
+
+    return { data: null, error: "" };
+  } catch (error: any) {
+    console.log(`Failed to create product sold entry: ${error.message}`);
+    return { data: null, error: error.message };
+  }
 }
+
 export async function getProductToSellById(
   id: string,
 ): Promise<{ data: ProductToSell | null; error: string }> {
