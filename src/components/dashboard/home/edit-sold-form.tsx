@@ -99,7 +99,7 @@ const EditSoldForm = ({
   useEffect(() => {
     const getStock = async () => {
       setLoading(true);
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from("product")
         .select("stock")
         .eq("id", proSold?.productId)
