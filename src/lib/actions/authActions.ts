@@ -189,7 +189,7 @@ export async function getUserById(userId: string): Promise<GetUserByIdProps> {
     const { data: clientById, error: clientError } = await supabase
       .from("clients")
       .select("*")
-      .eq("user_id", currUser.id)
+      .eq("user_id", userId)
       .single();
 
     if (clientError)

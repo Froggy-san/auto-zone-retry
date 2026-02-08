@@ -272,15 +272,35 @@ export async function editServiceAction(serivceToEdit: EditProps) {
   return { data: null, error: "" };
 }
 
-export async function deleteServiceAction(id: string) {
-  const supabase = await createClient();
+export async function deleteServiceAction(
+  id: string,
+  restockProducts?: { id: number; quantity: number }[],
+): Promise<{ data: null; error: string | null }> {
+  try {
+    const supabase = await createClient();
 
-  const { error } = await supabase.from("services").delete().eq("id", id);
+    const { error } = await supabase.from("services").delete().eq("id", id);
 
-  if (error) return { data: null, error: error.message };
-  revalidateTag("services");
+    if (error) throw new Error(error.message);
 
-  return { data: null, error: "" };
+    if (restockProducts && restockProducts.length) {
+      const { error } = await adjustProductsStockAction(
+        "increment",
+        restockProducts,
+      );
+      if (error)
+        console.error(
+          `Failed to restock the products in the deleted service: ${error}`,
+        );
+    }
+
+    revalidateTag("services");
+
+    return { data: null, error: "" };
+  } catch (error: any) {
+    console.log(error.message);
+    return { data: null, error: error.message };
+  }
 }
 
 export async function deleteMultiServicesAction(ids: number[]) {

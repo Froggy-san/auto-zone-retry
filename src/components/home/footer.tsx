@@ -26,8 +26,8 @@ const Footer = ({ className }: { className?: string }) => {
   return (
     <footer
       className={cn(
-        " w-full    justify-center p-5  flex-col-reverse  sm:flex-row flex  gap-x-20  gap-y-5 pb-10",
-        className
+        " w-full   mt-44  justify-center p-5  flex-col-reverse  sm:flex-row flex  gap-x-20  gap-y-5 pb-10",
+        className,
       )}
     >
       <section className="  w-full sm:hidden">

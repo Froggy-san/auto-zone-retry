@@ -104,6 +104,8 @@ import downloadAsPdf from "@lib/services/download-pdf";
 import ServiceSelectControls from "./service-select-controls";
 import { useQueryClient } from "@tanstack/react-query";
 import { Priority } from "@components/priority-select";
+import { Checkbox } from "@components/ui/checkbox";
+import { Label } from "@components/ui/label";
 interface Props {
   isClientPage?: boolean;
   isAdmin: boolean;
@@ -864,11 +866,13 @@ function DeleteService({
   service: Service;
   pageSize: number;
 }) {
+  const [checked, setChecked] = useState(true);
   const { toast } = useToast();
   const searchParam = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
+
   function checkIfLastItem() {
     const params = new URLSearchParams(searchParam);
     if (pageSize === 1) {
@@ -908,7 +912,18 @@ function DeleteService({
             {`You are about to delete a receipt dated '${service.created_at}', issued to the client '${service.clients.name}', along with all its associated data.`}
           </DialogDescription>
         </DialogHeader>
-
+        <div className=" flex items-center gap-2">
+          {" "}
+          <Checkbox
+            checked={checked}
+            onClick={() => setChecked((c) => !c)}
+            id="should-restock"
+            name="should-restock"
+          />
+          <Label htmlFor="should-restock">
+            Restock all the products deleted within the service
+          </Label>
+        </div>
         <DialogFooter className="   gap-2 sm:gap-0">
           <Button onClick={handleClose} size="sm" variant="secondary">
             Cancel
@@ -921,8 +936,27 @@ function DeleteService({
             onClick={async () => {
               setIsDeleting(true);
               try {
+                const productsIds = Array.from(
+                  new Set(service.productsToSell.map((p) => p.productId)),
+                );
+
+                const productsToRestock = checked
+                  ? productsIds.map((id) =>
+                      service.productsToSell
+                        .filter((product) => product.productId === id)
+                        .reduce(
+                          (acc, currPro) => {
+                            acc.quantity += currPro.count;
+                            return acc;
+                          },
+                          { id, quantity: 0 },
+                        ),
+                    )
+                  : undefined;
+
                 const { error } = await deleteServiceAction(
                   service.id.toString(),
+                  productsToRestock,
                 );
                 if (error) throw new Error(error);
                 checkIfLastItem();

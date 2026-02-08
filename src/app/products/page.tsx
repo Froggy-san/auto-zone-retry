@@ -15,6 +15,7 @@ import { Metadata } from "next";
 import { getCurrentUser } from "@lib/actions/authActions";
 import CategoryCarousel from "@components/products/category-carousel";
 import { getAllCarMakersAction } from "@lib/actions/carMakerActions";
+import Footer from "@components/home/footer";
 
 export const metadata: Metadata = {
   title: "Products",
@@ -70,7 +71,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
         generationId,
       }),
       getAllCarMakersAction(),
-    ]
+    ],
   );
   const isAdmin = user?.user_metadata.role === "Admin";
   const { data: categoriesData, error: categoriesError } = categories;
@@ -163,6 +164,8 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
                 />
               </div>
             )}
+
+            <Footer className=" " />
           </section>
         </div>
       </IntersectionProvidor>

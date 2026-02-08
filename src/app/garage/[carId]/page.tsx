@@ -24,6 +24,7 @@ import { Metadata } from "next";
 import { CarItem as CarItemType } from "@lib/types";
 import CarItem from "@components/garage/car-item";
 import ErrorMessage from "@components/error-message";
+import Footer from "@components/home/footer";
 
 export const metadata: Metadata = {
   title: "Car Details",
@@ -316,6 +317,8 @@ const Page = async ({
         ) : null}
         {/* Related */}
       </section>
+
+      <Footer />
     </main>
   );
 };

@@ -4,6 +4,7 @@ import CarsList from "@components/garage/cars-list";
 import GarageFilterbar from "@components/garage/garage-filter-bar";
 import GaragePagination from "@components/garage/garage-pagination";
 import Header from "@components/header";
+import Footer from "@components/home/footer";
 import IntersectionProvidor from "@components/products/intersection-providor";
 import Spinner from "@components/Spinner";
 import { getAllCarGenerationsAction } from "@lib/actions/carGenerationsActions";
@@ -155,6 +156,8 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
               productBrandId={productBrandId}
               isAvailable={isAvailable}
             /> */}
+
+            <Footer />
           </section>
         </div>
       </IntersectionProvidor>

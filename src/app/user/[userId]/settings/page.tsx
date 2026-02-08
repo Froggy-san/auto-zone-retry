@@ -1,4 +1,5 @@
 import ErrorMessage from "@components/error-message";
+import Footer from "@components/home/footer";
 import DeleteAccount from "@components/user/settings/delete-accont";
 import UpdatePassword from "@components/user/settings/update-password";
 import UpdateUser from "@components/user/settings/update-user";
@@ -52,6 +53,8 @@ const Page = async ({ params }: Props) => {
           "Couldn't find user"
         )}
       </section>
+
+      <Footer className=" mt-44" />
     </main>
   );
 };

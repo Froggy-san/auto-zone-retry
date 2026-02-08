@@ -2,6 +2,7 @@
 import EditFeesManagement from "@components/dashboard/home/edit-fees-management";
 import ProductSoldManagement from "@components/dashboard/home/product-sold-management";
 import ErrorMessage from "@components/error-message";
+import Footer from "@components/home/footer";
 import Spinner from "@components/Spinner";
 import CarCarousel from "@components/user/activity/car-carousel";
 import UserServices from "@components/user/activity/user-services";
@@ -62,7 +63,7 @@ const Page = async ({ params, searchParams }: Props) => {
   if (data?.user) {
     const { data: ClientsData, error } = await getClientByIdAction(
       data.user.id,
-      "user_id"
+      "user_id",
     );
 
     client = ClientsData;
@@ -165,6 +166,8 @@ const Page = async ({ params, searchParams }: Props) => {
           </ErrorMessage>
         )}
       </section>
+
+      <Footer className=" mt-44" />
     </main>
   );
 };
