@@ -57,6 +57,22 @@ export const SignUpFormSchema = z
     path: ["confirmPassword"],
   });
 
+export const ResetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .describe("Password")
+      .min(MIN_PASS_LENGTH, { message: "Invaild password" }),
+    confirmPassword: z
+      .string()
+      .describe("Confirm Password")
+      .min(MIN_PASS_LENGTH, { message: "Invaild password" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match.",
+    path: ["confirmPassword"],
+  });
+
 export const RowSchema = z.object({
   title: z
     .string()

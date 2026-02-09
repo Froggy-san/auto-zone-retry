@@ -145,10 +145,15 @@ const Page = () => {
             description="Confirm your password."
           />
           <div className=" flex flex-col  pt-10   gap-2  ">
-            <Button type="submit" size="sm" className=" overflow-hidden">
+            <Button
+              disabled={isLoading}
+              type="submit"
+              size="sm"
+              className=" overflow-hidden"
+            >
               {!isLoading ? "Sign Up" : <Spinner />}
             </Button>
-            <Button variant="secondary" size="sm" asChild>
+            <Button disabled={isLoading} variant="secondary" size="sm" asChild>
               <Link href="/login">Already have an account? Login</Link>
             </Button>
           </div>

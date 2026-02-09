@@ -11,15 +11,21 @@ export async function getCurrUser(): Promise<{
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { data: clientById, error } = await supabase
-    .from("clients")
-    .select("*")
-    .eq("user_id", user?.id)
-    .single();
-  if (error) {
-    console.log(
-      `Something went wrong while grabbing the client's detais: ${error.message}`,
-    );
+  let clientById = null;
+
+  if (user) {
+    const { data, error } = await supabase
+      .from("clients")
+      .select("*")
+      .eq("user_id", user?.id)
+      .single();
+    if (error) {
+      console.log(
+        `Something went wrong while grabbing the client's detais: ${error.message}`,
+      );
+    }
+
+    clientById = data;
   }
 
   return { user, client: clientById };

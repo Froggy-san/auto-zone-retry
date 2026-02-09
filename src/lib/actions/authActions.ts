@@ -465,6 +465,40 @@ export async function deleteAccountAction(user: User) {
   }
 }
 
+export async function resetPasswordRequestAction(
+  email: string,
+): Promise<string | undefined> {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "http://localhost:3000/update-password",
+    });
+    if (error) throw new Error(`Failed to reset password: ${error.message}`);
+  } catch (error: any) {
+    console.log(error.message);
+    return error.message;
+  }
+}
+
+export async function resetPasswordAction(
+  password: string,
+  code: string,
+): Promise<string | undefined> {
+  try {
+    const supabase = await createClient();
+    const { error: exchangeError } =
+      await supabase.auth.exchangeCodeForSession(code);
+    if (exchangeError) throw new Error(exchangeError.message);
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
+
+    if (error) throw new Error(`Faield to update password: ${error.message}`);
+  } catch (error: any) {
+    console.log(error.message);
+    return error.message;
+  }
+}
 // export async function loginUser(
 //   loginData: z.infer<typeof LoginFormSchema>,
 //   direct: string

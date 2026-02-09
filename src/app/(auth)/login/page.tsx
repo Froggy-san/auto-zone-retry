@@ -139,6 +139,7 @@ const Page = () => {
       </Form>
 
       <Button
+        disabled={isLoading}
         variant="outline"
         className=" mt-10 w-full gap-5"
         onClick={async () => await signinWithGoogle()}
@@ -146,6 +147,13 @@ const Page = () => {
         <FcGoogle size={20} />
         Sign in with Google
       </Button>
+
+      <Link
+        href="/forgot-password"
+        className=" text-muted-foreground text-xs hover:underline hover:underline-offset-2  inline-block "
+      >
+        Forget Password{" "}
+      </Link>
     </div>
   );
 };
