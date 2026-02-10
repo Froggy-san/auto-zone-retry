@@ -465,13 +465,14 @@ export async function deleteAccountAction(user: User) {
   }
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_STRIPE_KEY!;
 export async function resetPasswordRequestAction(
   email: string,
 ): Promise<string | undefined> {
   try {
     const supabase = await createClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:3000/update-password",
+      redirectTo: `${SITE_URL}/update-password`,
     });
     if (error) throw new Error(`Failed to reset password: ${error.message}`);
   } catch (error: any) {
