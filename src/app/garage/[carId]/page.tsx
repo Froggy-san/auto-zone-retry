@@ -80,7 +80,7 @@ const Page = async ({
   console.log(clientOtherCars, "OTHER CARS");
   // const client: ClientWithPhoneNumbers = data.client;
   return (
-    <main className=" min-h-screen ">
+    <main className=" min-h-screen  max-w-[2200px] mx-auto ">
       {images && images.length ? (
         <FullImagesGallery images={images} />
       ) : (

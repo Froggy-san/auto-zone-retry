@@ -130,7 +130,7 @@ const ProductView = async ({
       nextProductId={nextPro}
       filters={JSON.stringify(filters)}
     >
-      <div className=" relative">
+      <main className=" relative  max-w-[2200px] mx-auto ">
         {imageUrls?.length ? (
           <FullImagesGallery images={imageUrls} productId={productData.id} />
         ) : (
@@ -165,7 +165,7 @@ const ProductView = async ({
             </div>
           ) : null}
         </main>
-      </div>
+      </main>
       <Footer className=" mt-40" />
     </ProductSwipeNavigator>
   );

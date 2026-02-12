@@ -57,7 +57,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
           aria-expanded={open}
           className={cn(
             " w-full  h-fit select-none  justify-between",
-            className
+            className,
           )}
         >
           <p className="text-wrap break-all flex items-center gap-2 text-left ">
@@ -65,11 +65,14 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
             {selectedValue?.image && (
               <img
                 loading="lazy"
-                className="  max-w-16 h-7   object-contain"
+                className=" max-w-12  h-7 3xl:max-w-16 3xl:h-11 object-contain"
                 src={selectedValue?.image}
               />
             )}
-            {selectedValue ? selectedValue.name : text}
+            <span className=" 3xl:text-lg">
+              {" "}
+              {selectedValue ? selectedValue.name : text}
+            </span>
           </p>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -77,6 +80,7 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
       <PopoverContent className="    p-0">
         <Command shouldFilter={shouldFilter}>
           <CommandInput
+            className=" 3xl:h-16"
             placeholder="Search option..."
             value={searchTerm}
             onValueChange={(value) => setSearchTerm?.(value)}
@@ -100,13 +104,13 @@ export const ComboBox: React.FC<ComboBoxProps> = ({
                   <Check
                     className={cn(
                       "mr-1 h-4 w-4",
-                      value === option.id ? "opacity-100" : "opacity-0"
+                      value === option.id ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {option.image && (
                     <img
                       loading="lazy"
-                      className=" w-10 h-10   object-contain"
+                      className="  max-w-12  h-7 3xl:max-w-16 3xl:h-11  object-contain"
                       src={option.image}
                     />
                   )}

@@ -27,7 +27,7 @@ const CarItem = ({
   const carMaker = carModel.carMakers;
 
   return (
-    <Card className="   border    min-h-[250px]">
+    <Card className="   border w-full   max-w-[2000px] mx-auto  min-h-[250px]">
       <Link
         prefetch={false}
         href={`/garage/${car.clientId || clientId}?car=${car.id}`}

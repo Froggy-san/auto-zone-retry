@@ -50,19 +50,20 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
           aria-expanded={open}
           className={cn(
             " w-full justify-between select-none  h-fit",
-            className
+            className,
           )}
         >
           {selectedItem ? (
             <div className="  flex items-center gap-2 text-wrap break-all text-left">
               {selectedItem.image ? (
                 <img
+                  loading="lazy"
                   src={selectedItem.image}
-                  className="  max-w-12  h-7 object-contain"
+                  className=" max-w-12  h-7 3xl:max-w-16 3xl:h-11 object-contain"
                   alt="Car image"
                 />
               ) : null}
-              <span> {selectedItem.name}</span>
+              <span className=" 3xl:text-lg"> {selectedItem.name}</span>
             </div>
           ) : (
             "Select model..."
@@ -71,8 +72,8 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="    p-0">
-        <Command className=" max-h-[30vh] sm:max-h-[500px]">
-          <CommandInput placeholder="Search option..." />
+        <Command className="  h-[30vh] sm:h-[unset]  w-[300px] sm:w-[400px] ">
+          <CommandInput className=" 3xl:h-16" placeholder="Search option..." />
           <CommandList>
             <CommandEmpty>No option found.</CommandEmpty>
             <CommandGroup>
@@ -88,17 +89,20 @@ export const ModelCombobox: React.FC<CarModelComboBoxProps> = ({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4 shrink-0",
-                      value === option.id ? "opacity-100" : "opacity-0"
+                      value === option.id ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {option.image ? (
                     <img
+                      loading="lazy"
                       src={option.image}
-                      className="  max-w-12  h-7 object-contain mr-2"
+                      className="   max-w-12  h-7 3xl:max-w-16 3xl:h-11 object-contain mr-2"
                       alt="Car image"
                     />
                   ) : null}
-                  <span className=" break-all flex-1">{option.name}</span>{" "}
+                  <span className=" break-all 3xl:text-lg flex-1">
+                    {option.name}
+                  </span>{" "}
                 </CommandItem>
               ))}
             </CommandGroup>

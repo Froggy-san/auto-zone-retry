@@ -375,6 +375,10 @@ body {
 }
 
 @layer base {
+  .max-page-size {
+    max-width: 1900px;
+    margin-inline: auto;
+  }
   @keyframes dialogOpen {
     from {
       opacity: 0;

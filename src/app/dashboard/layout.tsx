@@ -105,7 +105,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <SideBar links={links} />
 
         <div className=" flex-1 overflow-y-auto max-h-full  p-2">
-          {children}
+          <div className="  max-w-[1600px] mx-auto">{children}</div>
         </div>
       </div>
 

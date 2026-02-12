@@ -96,7 +96,7 @@ const Page = async ({ searchParams }: { searchParams: SearchParams }) => {
   return (
     <main
       data-vaul-drawer-wrapper
-      className=" min-h-screen bg-background flex flex-col"
+      className=" min-h-screen bg-background   flex flex-col"
     >
       <Header />
       <IntersectionProvidor>

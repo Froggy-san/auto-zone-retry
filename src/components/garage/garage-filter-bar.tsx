@@ -30,7 +30,7 @@ const GarageFilterbar: React.FC<CarsListProps> = async ({
   ...props
 }) => {
   return (
-    <aside className={`sm:w-[200px]    sm:border-t sm:border-r `}>
+    <aside className={`sm:w-[210px] 3xl:w-[300px]    sm:border-t sm:border-r `}>
       <GarageFilter clients={clients} {...props} />
     </aside>
   );

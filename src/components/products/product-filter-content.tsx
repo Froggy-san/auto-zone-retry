@@ -66,16 +66,16 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   const [maker, setMaker] = useState<string | undefined>(makerId || undefined);
   const [model, setModel] = useState<string | undefined>(modelId || undefined);
   const [generation, setGeneration] = useState<string | undefined>(
-    generationId || undefined
+    generationId || undefined,
   );
   const [category, setCategory] = useState<string | undefined>(
-    categoryId || undefined
+    categoryId || undefined,
   );
   const [productType, setProductType] = useState<string | undefined>(
-    productTypeId || undefined
+    productTypeId || undefined,
   );
   const [productBrand, setProductBrand] = useState<string | undefined>(
-    productBrandId || undefined
+    productBrandId || undefined,
   );
 
   const handleReset = useCallback(() => {
@@ -113,7 +113,7 @@ const ProductsFilterContent: React.FC<ProdcutFilterContentProps> = ({
   const carGenerations =
     model &&
     carModels &&
-    carModels.find((model) => model.id === Number(model))?.carGenerations;
+    carModels.find((model) => model.id === Number(model.id))?.carGenerations;
 
   const params = new URLSearchParams(searchParams);
   function handleChange(number: number, name: string, initalValue?: number) {
@@ -558,7 +558,7 @@ const CarFilter = ({
           placeholder="Select generation..."
           disabled={!carModels || !carModels.length || !modelId}
           options={carGenerations || []}
-          setParam={(value) => {
+          setValue={(value) => {
             setGeneration(value !== 0 ? String(value) : "");
             // handleChange(value, "generationId", generationId);
           }}

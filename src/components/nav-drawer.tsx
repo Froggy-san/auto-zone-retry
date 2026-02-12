@@ -211,12 +211,7 @@ const NavDrawer = () => {
             </Button>
             {isLoading ? (
               <Spinner className=" static w-7 h-7 mx-auto" />
-            ) : !user ? (
-              <p className=" text-sm text-muted-foreground text-center">
-                Something went wrong while grabbing the your data, please
-                refresh the page.
-              </p>
-            ) : (
+            ) : !user ? null : (
               adminBtn
             )}
           </div>

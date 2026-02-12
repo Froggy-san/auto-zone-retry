@@ -39,7 +39,7 @@ export default async function Home() {
   return (
     <main
       data-vaul-drawer-wrapper
-      className=" min-h-[100vh]  overflow-x-hidden bg-background relative"
+      className=" min-h-[100vh]  overflow-x-hidden bg-background relative  max-page-size mx-auto"
     >
       <div className=" border-b">
         <Header showSearch />

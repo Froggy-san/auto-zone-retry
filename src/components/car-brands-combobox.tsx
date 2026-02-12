@@ -40,7 +40,7 @@ const CarBrandsCombobox = React.forwardRef<HTMLButtonElement, Props>(
       className,
       shouldFilter = true,
     }: Props,
-    ref
+    ref,
   ) => {
     const [open, setOpen] = useState(false);
 
@@ -57,19 +57,22 @@ const CarBrandsCombobox = React.forwardRef<HTMLButtonElement, Props>(
             aria-expanded={open}
             className={cn(
               " w-full   justify-between select-none   h-fit ",
-              className
+              className,
             )}
           >
             {selected ? (
-              <div className=" flex items-center text-sm gap-2 flex-wrap">
+              <div className=" flex items-center text-sm gap-2 ">
                 {selected.logo ? (
                   <img
                     src={selected.logo}
-                    className="  max-w-10  h-9 object-contain"
+                    className="  max-w-10 3xl:max-w-14  h-9 3xl:h-11 object-contain"
                     alt="Car image"
                   />
                 ) : null}
-                {selected.name}
+                <span className=" 3xl:text-lg break-all text-wrap">
+                  {" "}
+                  {selected.name}
+                </span>
               </div>
             ) : (
               "Select car..."
@@ -80,6 +83,7 @@ const CarBrandsCombobox = React.forwardRef<HTMLButtonElement, Props>(
         <PopoverContent className=" h-[30vh] sm:h-[unset]  w-[300px] sm:w-[400px]   p-0">
           <Command shouldFilter={shouldFilter}>
             <CommandInput
+              className=" 3xl:h-16"
               value={searchTerm}
               onValueChange={(value) => setSearchTerm?.(value)}
               placeholder="Search for car brands..."
@@ -100,18 +104,18 @@ const CarBrandsCombobox = React.forwardRef<HTMLButtonElement, Props>(
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4 shrink-0",
-                          value === option.id ? "opacity-100" : "opacity-0"
+                          value === option.id ? "opacity-100" : "opacity-0",
                         )}
                       />
                       <div className=" flex items-center gap-2  flex-wrap">
                         {option.logo ? (
                           <img
                             src={option.logo}
-                            className=" max-w-10 h-9 object-contain"
+                            className="  max-w-10 3xl:max-w-14  h-9 3xl:h-14 object-contain"
                             alt="Car image"
                           />
                         ) : null}{" "}
-                        {option.name}
+                        <span className=" 3xl:text-lg"> {option.name}</span>
                       </div>
                     </CommandItem>
                   );
@@ -122,7 +126,7 @@ const CarBrandsCombobox = React.forwardRef<HTMLButtonElement, Props>(
         </PopoverContent>
       </Popover>
     );
-  }
+  },
 );
 
 CarBrandsCombobox.displayName = "CarBrandsCombobox";
