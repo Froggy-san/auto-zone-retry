@@ -136,7 +136,7 @@ export function ProductSwipeNavigator({
       {nextProductId !== null && (
         <div
           onClick={handleNext}
-          className=" hidden sm:flex  cursor-pointer  fixed -left-10 3xl:left-0  focus:left-0    focus-within:left-0 hover:left-0 backdrop-blur-sm bg-accent/15 transition-all top-0 z-30  h-full w-14  items-center justify-center"
+          className=" hidden sm:flex  cursor-pointer  fixed -left-10 4xl:left-0  focus:left-0    focus-within:left-0 hover:left-0 backdrop-blur-sm bg-accent/15 transition-all top-0 z-30  h-full w-14  items-center justify-center"
         >
           <Button
             size="sm"
