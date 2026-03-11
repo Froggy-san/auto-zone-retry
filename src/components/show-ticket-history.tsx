@@ -55,7 +55,7 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
       handleViewDetails,
       handleSelectMessage,
     }: Props,
-    ref
+    ref,
   ) => {
     const {
       data,
@@ -77,11 +77,13 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
     const sliderContainerRef = useRef<HTMLDivElement>(null);
     const historyRefs = useRef<Record<string, HTMLLIElement>>({});
     const listRef = useRef<HTMLDivElement>(null);
+
+    //! important note about refs: We have two refs here: 'sliderContainerRef' for internal use and the forwarded 'ref' for the parent.
     // const sliderContainerRef = ref ?? sliderContainerRef;
     // This exposes the internal DOM node to the parent's ref
     useImperativeHandle(
       ref,
-      () => sliderContainerRef.current as HTMLDivElement
+      () => sliderContainerRef.current as HTMLDivElement,
     );
 
     const ticketHistoryById: TicketHistoryType[] = useMemo(() => {
@@ -101,7 +103,7 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
           });
         }
       },
-      [router, params, pathname, historyId]
+      [router, params, pathname, historyId],
     );
 
     const setRef = useCallback((el: HTMLLIElement | null, id: number) => {
@@ -204,7 +206,7 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
         className={cn(
           "     sticky  transition-all   ease-out     rounded-t-3xl  md:rounded-l-3xl bg-background  border-t border-x md:border-x-0 md:border-t-0 md:border-l md:border-y shadow-lg bottom-0 md:top-1   w-full  h-0    md:w-0  md:h-[99vh] ",
           { "  h-fit md:!w-[400px]": isOpen },
-          className
+          className,
         )}
       >
         <div className=" w-full  relative h-full  ">
@@ -283,7 +285,7 @@ const ShowTicketHistory = React.forwardRef<HTMLDivElement, Props>(
         </div>
       </div>
     );
-  }
+  },
 );
 export default ShowTicketHistory;
 

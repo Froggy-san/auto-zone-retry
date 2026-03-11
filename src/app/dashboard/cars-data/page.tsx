@@ -11,7 +11,7 @@ const Page = () => {
   return (
     <main>
       <h2 className="  font-semibold text-4xl">CARS DATA.</h2>
-      <section className=" sm:pl-4">
+      <section className=" sm:pl-4 pb-16">
         <div className="  space-y-40   mt-12">
           <div className=" space-y-3 ">
             <CarMakerManagement />

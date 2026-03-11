@@ -10,7 +10,7 @@ import { revalidateProductById } from "@lib/actions/productsActions";
 const supabase = createClient();
 export async function getCarMakers(
   page: number,
-  searchTerm: string
+  searchTerm: string,
 ): Promise<{ data: CarMakersData[] | null; count: number | null }> {
   const supabase = createClient();
   const from = (page - 1) * MAKER_PAGE_SIZE; // (1-1) * 10 = 0
@@ -19,7 +19,7 @@ export async function getCarMakers(
 
   let query = supabase
     .from("carMakers")
-    .select("*,carModels(*,carGenerations(*))")
+    .select("*,carModels(*,carGenerations(*))", { count: "exact" })
     .order("created_at", { ascending: false })
     .order("created_at", {
       referencedTable: "carModels",
@@ -34,7 +34,7 @@ export async function getCarMakers(
 }
 
 export async function getAllCarBrands(
-  searchTerm: string
+  searchTerm: string,
 ): Promise<CarBrand[] | null> {
   // let { data: carMakers, error } = await
 
@@ -137,7 +137,7 @@ export async function editCarMaker({
 
     if (error)
       throw new Error(
-        `attempt at deleting an image form the 'carMakers' has failded, Error:${error.message}`
+        `attempt at deleting an image form the 'carMakers' has failded, Error:${error.message}`,
       );
   }
 
@@ -208,7 +208,7 @@ export async function deleteCarMaker(carMaker: CarMakersData) {
     });
     if (error)
       throw new Error(
-        `Failed to delete some of the car model images: ${error.message}`
+        `Failed to delete some of the car model images: ${error.message}`,
       );
   }
 
@@ -219,7 +219,7 @@ export async function deleteCarMaker(carMaker: CarMakersData) {
     });
     if (error)
       throw new Error(
-        `Failed to delete some of the car generaion images: ${error.message}`
+        `Failed to delete some of the car generaion images: ${error.message}`,
       );
   }
   await revalidateMakers();
