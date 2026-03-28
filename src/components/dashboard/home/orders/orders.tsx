@@ -48,6 +48,7 @@ import { Button } from "@components/ui/button";
 import {
   Banknote,
   CheckCircle2,
+  Download,
   Ellipsis,
   PackageCheck,
   XCircle,
@@ -71,6 +72,8 @@ import { DateRange } from "react-day-picker";
 import { z } from "zod";
 import CompleteOrderDialog from "./complete-order-dia";
 import CancelOrderDialog from "./cancel-order-dia";
+import { pdf } from "@react-pdf/renderer";
+import OrderReceiptPDF from "@components/success/OrderReceiptPDF";
 
 interface OrdersTableProps {
   clientId?: number;
@@ -397,7 +400,23 @@ function Row({
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>Manage Order</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      if (!order) return;
+                      const blob = await pdf(
+                        <OrderReceiptPDF order={order} />,
+                      ).toBlob();
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement("a");
+                      link.href = url;
+                      link.download = `order-${order?.id}-receipt.pdf`;
+                      link.click();
+                      URL.revokeObjectURL(url);
+                    }}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download as pdf
+                  </DropdownMenuItem>
                   {/* PRIMARY ACTIONS */}
                   {order.order_status === "pending_arrival" && (
                     <DropdownMenuItem

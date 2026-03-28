@@ -8,7 +8,9 @@ import PaymentStatus from "./payment-status-badge";
 import OrderStatus from "./order-order-status";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, Download, XCircle } from "lucide-react";
+import OrderReceiptPDF from "@components/success/OrderReceiptPDF";
+import { pdf } from "@react-pdf/renderer";
 type OrderDialogType = "cancel" | "refund" | "complete" | "details";
 type SelectedOrderType = { order: Order; dialogType: OrderDialogType } | null;
 interface TodayOrder {
@@ -149,7 +151,25 @@ const TodayOrder = ({
         >
           <XCircle className="mr-2 h-4 w-4" /> Cancel & Restock
         </Button>
-
+        <Button
+          disabled={isLoading}
+          variant="secondary"
+          onClick={async () => {
+            if (!order) return;
+            const blob = await pdf(<OrderReceiptPDF order={order} />).toBlob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `order-${order?.id}-receipt.pdf`;
+            link.click();
+            URL.revokeObjectURL(url);
+          }}
+          size="sm"
+          className=" w-full !py-1 h-fit"
+        >
+          {" "}
+          <Download className="mr-2 h-4 w-4" /> Download
+        </Button>
         {order.payment_status !== "paid" ||
         order.order_status !== "completed" ? (
           <Button
