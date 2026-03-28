@@ -32,10 +32,11 @@ if (checkTokenExpiration(tokenData)) {
   console.log("Token is not expired");
 }
 
-export const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en", { style: "currency", currency: "egp" }).format(
-    value
-  );
+export const formatCurrency = (value: number | null | undefined) =>
+  new Intl.NumberFormat("en", {
+    style: "currency",
+    currency: "egp",
+  }).format(value || 0);
 
 export const formatNumber = (value: number) =>
   new Intl.NumberFormat("en", { style: "decimal" }).format(value);
